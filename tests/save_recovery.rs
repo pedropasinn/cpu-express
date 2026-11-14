@@ -117,7 +117,7 @@ fn truncated_or_damaged_checkpoint_resumes_from_the_previous_valid_one() {
 fn newer_version_is_never_set_aside_or_downgraded() {
     let (dir, file, _, world) = profile("future");
     let mut future: serde_json::Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
-    future["version"] = serde_json::json!(4);
+    future["version"] = serde_json::json!(5);
     future["service"]["future_field"] = serde_json::json!({"kept": true});
     let bytes = serde_json::to_vec_pretty(&future).unwrap();
     fs::write(&file, &bytes).unwrap();
@@ -327,5 +327,63 @@ fn a_day_of_unattended_travel_keeps_state_and_checkpoint_bounded() {
     assert_eq!(fs::read_dir(&dir).unwrap().count(), 2);
     let reopened = progress::load_profile(&file).unwrap().0.unwrap();
     assert_eq!(reopened.service_state(), world.service_state());
+    fs::remove_dir_all(dir).unwrap();
+}
+
+/// SAV-02: v4 names the catalogue line. A v3 document migrates with an exact backup;
+/// a line or catalogue this edition cannot run is preserved, never reinterpreted.
+#[test]
+fn v3_migrates_to_v4_and_foreign_lines_are_preserved() {
+    let (dir, file, _, world) = profile("v4");
+    let current = fs::read(&file).unwrap();
+    let document: serde_json::Value = serde_json::from_slice(&current).unwrap();
+    assert_eq!(document["version"], 4);
+    assert_eq!(document["line"], "aurora-v1");
+    assert_eq!(document["catalog_version"], 1);
+
+    // The same journey as rc.2 wrote it.
+    let mut v3 = document.clone();
+    v3["version"] = serde_json::json!(3);
+    v3.as_object_mut().unwrap().remove("line");
+    v3.as_object_mut().unwrap().remove("catalog_version");
+    let v3_bytes = serde_json::to_vec_pretty(&v3).unwrap();
+    fs::write(&file, &v3_bytes).unwrap();
+    let migrated = progress::load_profile(&file).unwrap().0.unwrap();
+    assert_eq!(migrated.service_state(), world.service_state());
+    assert_eq!(fs::read(&file).unwrap(), v3_bytes);
+    assert_eq!(progress::save_checkpoint(&file, &migrated).unwrap(), None);
+    assert_eq!(
+        fs::read(file.with_extension("v3.backup.json")).unwrap(),
+        v3_bytes
+    );
+    assert_eq!(fs::read(&file).unwrap(), current);
+
+    // v4 documents this edition must not touch.
+    type Change = fn(&mut serde_json::Value);
+    let cases: [Change; 5] = [
+        |d| d["line"] = serde_json::json!("curitiba-paranagua"),
+        |d| d["line"] = serde_json::json!("linha-desconhecida"),
+        |d| d["catalog_version"] = serde_json::json!(99),
+        |d| {
+            d.as_object_mut().unwrap().remove("line");
+        },
+        |d| {
+            d.as_object_mut().unwrap().remove("catalog_version");
+        },
+    ];
+    for change in cases {
+        let mut foreign = document.clone();
+        change(&mut foreign);
+        let bytes = serde_json::to_vec_pretty(&foreign).unwrap();
+        fs::write(&file, &bytes).unwrap();
+        assert!(progress::load_world(&file).is_err());
+        assert!(progress::save_checkpoint(&file, &world).is_err());
+        assert_eq!(fs::read(&file).unwrap(), bytes);
+    }
+    // A v3 document carrying v4 fields is not a document rc.2 wrote.
+    let mut mixed = v3.clone();
+    mixed["line"] = serde_json::json!("aurora-v1");
+    fs::write(&file, serde_json::to_vec(&mixed).unwrap()).unwrap();
+    assert!(progress::load_world(&file).is_err());
     fs::remove_dir_all(dir).unwrap();
 }

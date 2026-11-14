@@ -68,11 +68,19 @@ pub fn lock_profile(config: &Path) -> Result<fs::File, String> {
         .map_err(|e| format!("Este perfil já está em uso ou não pode ser aberto: {e}"))
 }
 
-/// v3 adds dispatch choice and safe returns; v1/v2 migrate with exact backups.
+/// v3 added dispatch choice and safe returns. v4 records which catalogue line the
+/// journey runs on and the catalogue version that wrote it; v1 to v3 migrate with
+/// exact backups and always mean the Aurora circuit.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorldCheckpoint {
     pub version: u32,
+    /// Catalogue version of the writer. Absent before v4.
+    #[serde(default)]
+    pub catalog_version: u32,
+    /// Catalogue line identifier. Absent before v4.
+    #[serde(default)]
+    pub line: String,
     pub journey: Checkpoint,
     pub service: crate::simulation::ServiceState,
 }
@@ -80,7 +88,7 @@ fn decode_world(bytes: &[u8]) -> Result<World, String> {
     let value: serde_json::Value =
         serde_json::from_slice(bytes).map_err(|e| format!("Jornada inválida, preservada: {e}"))?;
     // Defaults are only a migration convenience, never silent repair of a current save.
-    if value.get("version").and_then(|v| v.as_u64()) == Some(3) {
+    if matches!(value.get("version").and_then(|v| v.as_u64()), Some(3 | 4)) {
         let service = &value["service"];
         if service.get("automatic_contracts").is_none()
             || service.get("branch").is_none()
@@ -97,9 +105,25 @@ fn decode_world(bytes: &[u8]) -> Result<World, String> {
             serde_json::from_value::<Checkpoint>(value).map_err(|e| e.to_string())?,
             None,
         ),
-        Some(2 | 3) => {
+        Some(version @ 2..=4) => {
             let saved: WorldCheckpoint =
                 serde_json::from_value(value).map_err(|e| e.to_string())?;
+            if version == 4 {
+                // A line or catalogue this edition cannot run is someone else's journey.
+                if saved.catalog_version == 0
+                    || saved.catalog_version > crate::simulation::catalog::CATALOG_VERSION
+                {
+                    return Err("Catálogo da jornada incompatível; arquivo preservado.".into());
+                }
+                if saved.line != crate::simulation::route::CIRCUIT_LINE_ID {
+                    return Err(format!(
+                        "A linha `{}` não pode ser percorrida por esta edição; arquivo preservado.",
+                        saved.line
+                    ));
+                }
+            } else if saved.catalog_version != 0 || !saved.line.is_empty() {
+                return Err("Jornada com campos de outra versão; arquivo preservado.".into());
+            }
             (saved.journey, Some(saved.service))
         }
         _ => return Err("Versão da jornada incompatível; arquivo preservado.".into()),
@@ -132,7 +156,7 @@ pub fn load_world(path: &Path) -> Result<Option<World>, String> {
         Err(e) => Err(format!("Não foi possível ler a jornada: {e}")),
     }
 }
-const CURRENT_VERSION: u64 = 3;
+const CURRENT_VERSION: u64 = 4;
 
 /// The checkpoint that was valid immediately before the latest replacement.
 pub fn previous_path(path: &Path) -> PathBuf {
@@ -228,7 +252,7 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
     if let Ok(original) = fs::read(path) {
         let value: serde_json::Value =
             serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-        if let Some(version @ (1 | 2)) = value.get("version").and_then(|v| v.as_u64()) {
+        if let Some(version @ 1..=3) = value.get("version").and_then(|v| v.as_u64()) {
             let backup = path.with_extension(format!("v{version}.backup.json"));
             match fs::OpenOptions::new()
                 .write(true)
@@ -263,6 +287,8 @@ fn encode_world(world: &World) -> Result<Vec<u8>, String> {
         .validate(world.journey_snapshot())?;
     let saved = WorldCheckpoint {
         version: CURRENT_VERSION as u32,
+        catalog_version: crate::simulation::catalog::CATALOG_VERSION,
+        line: crate::simulation::route::CIRCUIT_LINE_ID.to_owned(),
         journey: checkpoint,
         service: world.service_snapshot().clone(),
     };

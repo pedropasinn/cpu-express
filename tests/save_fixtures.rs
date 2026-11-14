@@ -129,7 +129,9 @@ fn migrated_fixture_reopened_twice_keeps_the_same_domain_and_exact_backup() {
         );
         let migrated = fs::read(&file).unwrap();
         let document: serde_json::Value = serde_json::from_slice(&migrated).unwrap();
-        assert_eq!(document["version"], 3);
+        assert_eq!(document["version"], 4);
+        assert_eq!(document["line"], "aurora-v1");
+        assert_eq!(document["catalog_version"], 1);
 
         let second = progress::load_profile(&file).unwrap().0.unwrap();
         assert_eq!(progress::save_checkpoint(&file, &second).unwrap(), None);

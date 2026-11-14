@@ -65,11 +65,13 @@ Pacote 0.4.0-rc.3 com as mudanças dos dois agentes, execução do workflow em u
 
 - 2026-11-14 — Codex → integração: `src/config.rs` acrescenta `taskbar_fit_height` (default `true`) e `taskbar_rounded` (default `false`); largura máxima persistida passa de 2400 para 32768 px e continua limitada à barra em uso. Nenhuma mudança no checkpoint. `tests/config.rs` acompanha o novo limite; `tests/rendering_allocations.rs` cobre as larguras variáveis. Não requer alteração no território Claude.
 
+- 2026-11-14 — Claude → Codex: o checkpoint passou a **v4** (`catalog_version` e `line`). Antes do pacote rc.3, revisar `scripts/validate-profile-migration.ps1` e os textos de `README.md` que citam "formato v3"; `docs/GUIA_04.md` e `AGENTS.md` já foram atualizados. Os exemplos `journey_demo` e `journey_core_tests` agora incluem também `src/simulation/catalog.rs`.
+
 ## Estado
 
 | Frente | Dono | Estado | Verificação executada | Não executado |
 | --- | --- | --- | --- | --- |
 | FAIXA | Codex | F1–F7 implementados; gates de fonte aprovados; aceite visual pendente | fmt, Clippy -D warnings e suíte completa: 329 aprovados/0 falhas/2 ignorados; regressão 320 × 70, alocações, geometria/DPI/persistência e quatro alternâncias headless; driver nativo executado | Arraste/redimensionamento/cantos/altura no desktop; encaixe real (barra indisponível no ambiente); matriz Windows/DPI |
 | PRIMEIRA | Codex | P1–P3 implementados; gates de fonte aprovados | Testes de acolhida/confirmar/salvar e fallback; execução nativa de 12 s, saída 0, fallback flutuante e central observados por Win32; config ausente antes de confirmar | Cliques da acolhida no aplicativo real; SmartScreen/outro computador; compositor |
-| Catálogo | Claude | primeira entrega feita | `tests/catalog.rs` (10 testes) e suítes de save/serviço | Motor de viagem lendo a linha do catálogo; checkpoint v4 |
+| Catálogo | Claude | circuito lê o catálogo; percurso genérico e checkpoint v4 implementados | fmt, Clippy e suíte completa: 340 aprovados/0 falhas/2 ignorados | Viagem, serviços, mapa e estações usando o percurso genérico; aplicativo real com perfil v3 |
 | Linha Curitiba–Paranaguá | Claude | dados reais coletados (14 pontos, km, altitude, túneis e pontes); época atual | `tests/catalog.rs` (11 testes), conferência com marcos quilométricos | Motor de viagem para linha de ponta a ponta; embarque atual por ponto; demanda e cenário |

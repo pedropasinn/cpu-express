@@ -11,7 +11,7 @@ O catálogo reúne as definições de conteúdo, separadas do estado da partida:
 
 Os documentos são embutidos no executável na compilação; o jogo não lê arquivos nem usa rede para carregá-los. Saves e referências usam somente `id`. O nome exibido é conteúdo e pode mudar sem afetar um save.
 
-**Estado nesta data:** o catálogo é validado e espelha as regras atuais, com testes de paridade contra o código (capacidades, cargas por vagão, pinturas, metas dos postais, locomotivas e o Circuito Aurora em várias seeds). O motor de viagem **ainda não lê a linha do catálogo**: continua usando o circuito fixo de quatro estações. Essa troca é a próxima etapa e exige o checkpoint v4 descrito abaixo.
+**Estado nesta data:** o Circuito Aurora já roda com o conteúdo do catálogo: nomes das estações, comprimentos de base, variação por seed e biomas vêm de `data/lines/aurora-v1.json` (os valores antigos ficam só como reserva, com teste que os mantém idênticos). Vagões, cargas, pinturas, recompensas e locomotivas continuam definidos no código e espelhados no catálogo por testes de paridade. O motor de viagem ainda é o de **circuito com quatro estações**; a matemática para linhas com qualquer número de estações e de ponta a ponta existe em `src/simulation/itinerary.rs`, testada, mas ainda não está ligada à viagem, aos serviços, ao mapa nem ao desenho das estações.
 
 ## Regras de validação
 
@@ -38,14 +38,25 @@ Cada item aceita `aliases` (nomes antigos) e `retired`. A consulta devolve um de
 
 Um nome antigo nunca pode ser reutilizado por outro item. Esta política está implementada e testada no catálogo; ela ainda não é aplicada ao checkpoint, que hoje guarda enums fixos.
 
-## Definição proposta para o checkpoint v4 (SAV-02)
+## Checkpoint v4 (SAV-02)
 
-Ainda não implementada. O v3 continua sendo o formato gravado.
+Implementado em 2026-11-14; é o formato gravado a partir desta fonte.
 
-- Acrescentar `catalog_version` e `line` (identificador da linha) ao documento.
-- v1 a v3 migram com `line = "aurora-v1"` e backup exato, como nas migrações anteriores.
-- Na leitura, cada identificador passa pela consulta acima. `Unknown` ou `catalog_version` maior que a compreendida recusam o carregamento e preservam o arquivo.
-- A posição em linhas `shuttle` precisa registrar o sentido de marcha; em `circuit` permanece como hoje.
+- Acrescenta `catalog_version` e `line` (identificador da linha) ao documento.
+- v1 a v3 significam sempre o Circuito Aurora e migram com backup exato (`.v1.backup.json`, `.v2.backup.json`, `.v3.backup.json`).
+- Um v4 cuja linha esta edição não sabe percorrer, ou com `catalog_version` maior que a compreendida, é recusado e preservado; o salvamento comum não o substitui.
+- O executável 0.4.0-rc.2 não lê v4. Para voltar a ele, restaure o backup v3; o progresso posterior ao backup não existe na versão antiga.
+- A posição em linha de ponta a ponta não precisa de campo próprio: o sentido de marcha decorre da distância percorrida.
+
+Ainda não aplicado ao checkpoint: a consulta de identificadores renomeados ou desativados, porque estações e vagões seguem gravados como enums fixos.
+
+## Percurso genérico e escala de tempo
+
+`Itinerary` localiza o trem a partir da distância total: estação de origem e destino, trecho, sentido, distância até a próxima parada e número de chegadas. Em circuito as estações se repetem em ordem; em linha de ponta a ponta o trem volta pelos mesmos trechos. Testes comparam o resultado com o motor atual em quatro seeds e centenas de distâncias, e conferem a sequência de paradas da Curitiba–Paranaguá nos dois sentidos.
+
+**Escala confirmada pelo Pedro em 2026-11-14** (trechos de 1 a 7 minutos, sem demorar muito de uma cidade a outra): 480 unidades por quilômetro, isto é, 20 segundos de tempo ativo por quilômetro na velocidade do horário. A Curitiba–Paranaguá levaria cerca de 36 minutos de ponta a ponta, com trechos de 1 a 6 minutos. É decisão de balanceamento, não dado da ferrovia.
+
+Falta para uma linha real rodar no jogo: viagem e serviços usarem o percurso genérico, identidade de estação que não seja o enum de quatro valores, mapa do caderno e arquitetura de estações para mais de quatro paradas, escolha de linha na interface e o crédito da fonte visível.
 
 ## Linha Curitiba–Paranaguá
 
@@ -74,7 +85,7 @@ Origem dos dados: OpenStreetMap (trilhos, pontos, túneis e pontes), Open-Meteo/
 
 A linha continua como **rascunho** e não aparece no jogo. Os dados estão completos para a validação; o que a segura são as questões em aberto registradas no arquivo:
 
-- O motor de viagem ainda não percorre linhas de ponta a ponta nem com mais de quatro estações.
+- O motor de viagem ainda não usa o percurso genérico: segue limitado ao circuito de quatro estações.
 - Falta confirmar, em fonte do operador, quais pontos têm embarque de passageiros hoje.
 - Demanda de passageiros e cargas por estação ainda não foram definidas.
 - Os marcos visuais de cada trecho ainda não foram desenhados.

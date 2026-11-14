@@ -4,6 +4,9 @@
 //! `rustc --edition 2024 examples/journey_demo.rs -o journey-demo`
 //! `./journey-demo 42 1080`
 
+// The route reads its authored content from the catalogue.
+#[path = "../src/simulation/catalog.rs"]
+pub mod catalog;
 #[path = "../src/simulation/journey.rs"]
 pub mod journey;
 #[path = "../src/simulation/route.rs"]

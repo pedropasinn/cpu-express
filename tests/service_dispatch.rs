@@ -69,7 +69,7 @@ fn restart(world: &World) -> World {
     let path = file("restart");
     progress::save(&path, world).unwrap();
     let value: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    assert_eq!(value["version"], 3);
+    assert_eq!(value["version"], 4);
     let restored = progress::load_world(&path).unwrap().unwrap();
     assert_eq!(restored.service_state(), world.service_state());
     assert_eq!(restored.station_wait(), world.station_wait());
@@ -310,10 +310,15 @@ fn legacy_v2(world: &World) -> Vec<u8> {
     journey.station_wait = world.station_wait();
     let mut value = serde_json::to_value(WorldCheckpoint {
         version: 2,
+        catalog_version: 0,
+        line: String::new(),
         journey,
         service: world.service_state().clone(),
     })
     .unwrap();
+    // Fields introduced by v4 never existed in a v2 document.
+    value.as_object_mut().unwrap().remove("catalog_version");
+    value.as_object_mut().unwrap().remove("line");
     let service = value["service"].as_object_mut().unwrap();
     service.remove("automatic_contracts");
     for arrival in service["arrivals"].as_array_mut().unwrap() {
@@ -350,7 +355,7 @@ fn v2_missing_fields_defaults_to_auto_and_backup_preserves_exact_bytes() {
     let backup = path.with_extension("v2.backup.json");
     assert_eq!(fs::read(&backup).unwrap(), original);
     let current: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    assert_eq!(current["version"], 3);
+    assert_eq!(current["version"], 4);
     next_arrival(&mut migrated);
     progress::save(&path, &migrated).unwrap();
     assert_eq!(fs::read(&backup).unwrap(), original);
@@ -383,7 +388,7 @@ fn future_checkpoint_is_protected_even_when_replaced_after_load() {
     progress::save(&path, &world).unwrap();
     let loaded = progress::load_world(&path).unwrap().unwrap();
     let mut value: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    value["version"] = serde_json::json!(4);
+    value["version"] = serde_json::json!(5);
     let future = serde_json::to_vec_pretty(&value).unwrap();
     fs::write(&path, &future).unwrap();
     assert!(progress::load_world(&path).is_err());

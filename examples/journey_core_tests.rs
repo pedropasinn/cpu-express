@@ -3,6 +3,9 @@
 //! `rustc --test --edition 2024 examples/journey_core_tests.rs -o journey-core-tests`
 //! `./journey-core-tests`
 
+// The route reads its authored content from the catalogue.
+#[path = "../src/simulation/catalog.rs"]
+pub mod catalog;
 #[path = "../src/simulation/journey.rs"]
 pub mod journey;
 #[path = "../src/simulation/route.rs"]

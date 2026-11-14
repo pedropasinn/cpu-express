@@ -74,7 +74,7 @@ Base: caderno rc7, oficina por cartões e painel 760 × 720 pontos com mínimo 4
 Base: já existe checkpoint versionado, escritor exclusivo e proteção de arquivos inválidos/futuros. Backup e migração ampliada precisam de aceite próprio.
 
 - [x] SAV-01 Inventariar campos rc7 e invariantes: rota, seed, distância, tempo ativo, serviço, preferências e desbloqueios derivados.
-- [ ] SAV-02 Definir schema novo e versão de catálogo com o integrador antes de persistir passageiros/cargas/contratos.
+- [x] SAV-02 Definir schema novo e versão de catálogo com o integrador antes de persistir passageiros/cargas/contratos.
 - [x] SAV-03 Criar fixtures rc7: perfil novo, trecho intermediário, parada, recompensas liberadas e preferências antigas.
 - [x] SAV-04 Implementar migração explícita; definir defaults de novos campos sem inventar serviço já realizado.
 - [x] SAV-05 Validar limites, referências e relações entre campos; rejeitar NaN, valores impossíveis, IDs ausentes e versões futuras.
@@ -371,3 +371,17 @@ Os arquivos alterados foram formatados com rustfmt da mesma toolchain, usando sk
 Binário de debug destas execuções: SHA-256 6A9137E070FE6F9CB26DCE13F74A63E3DE992FDF1CC4BE9402C1DD079128299F. Registros em target/codex-native-20261114-114630/result.json e nas subpastas primeira/alternancias. A descrição textual desse JSON sofreu a leitura ANSI do PowerShell 5; os campos numéricos, booleanos e o hash permanecem legíveis. O script passou a usar UTF-8 com BOM para preservar o português nas próximas execuções. Nenhum resultado anterior foi sobrescrito ou reatribuído a outro binário.
 
 O script scripts/validate-faixa-primeira.ps1 copia o executável para uma pasta nova em target, usa perfis isolados e registra hash/diagnósticos sem alterar evidence/current. A primeira tentativa longa foi executada antes dos últimos ajustes e não é evidência do binário final. O inventário de uso do computador não exibiu a instância de teste; a instância rc.2 do usuário não foi tocada. Permanecem sem aceite visual: arraste, pegas, cantos, altura e alternâncias com uma barra real; matriz Windows 10/11, DPI misto, monitores, autohide e SmartScreen em outro computador.
+
+## Rota pelo catálogo, percurso genérico e checkpoint v4 em 2026-11-14 (fonte; sem binário distribuído)
+
+Responsável: Claude Code. Arquivos: `src/simulation/route.rs`, `src/simulation/itinerary.rs` (novo), `src/progress.rs`, `tests/itinerary.rs` (novo), ajustes em `tests/save_*.rs`, `tests/service_dispatch.rs`, `tests/service_import.rs` e nos dois exemplos que incluem a rota isoladamente.
+
+| ID | Estado | Entregue e verificado |
+| --- | --- | --- |
+| SAV-02 | aceito | Checkpoint v4 com `catalog_version` e `line`; v1 a v3 migram com backup exato; linha ou catálogo que esta edição não compreende é recusado e preservado. Teste de migração v3 → v4 byte a byte e cinco documentos v4 estranhos. |
+| DATA-02 | parcial | O Circuito Aurora roda com nomes, comprimentos e biomas lidos do catálogo; teste fixa os comprimentos da seed padrão (1900, 2375, 2025, 2725) e a igualdade com a reserva embutida. Vagões, cargas e recompensas ainda vêm do código. |
+| DATA (aceite) | aberto | `Itinerary` calcula posição em linhas de qualquer tamanho, circuito ou ponta a ponta, com paridade contra o motor atual. Ainda não ligado à viagem, aos serviços nem à interface: uma linha nova não roda só pelo catálogo. |
+
+Verificação nesta fonte: formatação e Clippy (`-D warnings`) com saída zero; **340 testes aprovados**, zero falhas, dois exportadores ignorados. Não executado: aplicativo real com perfil v3 (a migração foi exercitada pela API), nem `scripts/validate-profile-migration.ps1`, que ainda descreve o v3.
+
+Mudança de formato persistido, registrada conforme o contrato: o save passa a v4 e o executável rc.2 não o lê. Escala de tempo das linhas reais: 480 unidades por quilômetro, confirmada pelo Pedro em 2026-11-14.
