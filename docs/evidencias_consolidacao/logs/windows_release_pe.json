@@ -1,0 +1,52 @@
+{
+  "path": "/workspace/scratch/67912c1ab6a0/cpu-express/target/x86_64-pc-windows-gnu/release/cpu-express.exe",
+  "bytes": 5476352,
+  "mib": 5.22265625,
+  "sha256": "97f1cfd928cca7227719c01784a546c1cb39b3bd02d48ae18ac4b9c9b8f0c2ba",
+  "format": "PE32+",
+  "machine_hex": "0x8664",
+  "architecture": "x86-64",
+  "subsystem": 2,
+  "subsystem_name": "Windows GUI",
+  "os_version": [
+    4,
+    0
+  ],
+  "subsystem_version": [
+    5,
+    2
+  ],
+  "dll_characteristics_hex": "0x160",
+  "certificate_table_bytes": 0,
+  "imports": [
+    "KERNEL32.dll",
+    "ntdll.dll",
+    "gdi32.dll",
+    "imm32.dll",
+    "ole32.dll",
+    "user32.dll",
+    "uxtheme.dll",
+    "kernel32.dll",
+    "bcryptprimitives.dll",
+    "advapi32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "kernel32.dll",
+    "ntdll.dll",
+    "pdh.dll",
+    "powrprof.dll",
+    "psapi.dll",
+    "shell32.dll",
+    "kernel32.dll",
+    "oleaut32.dll",
+    "dwmapi.dll",
+    "gdi32.dll",
+    "kernel32.dll",
+    "ole32.dll",
+    "shell32.dll",
+    "user32.dll",
+    "KERNEL32.dll",
+    "msvcrt.dll",
+    "OPENGL32.dll"
+  ],
+  "section_count": 9
+}

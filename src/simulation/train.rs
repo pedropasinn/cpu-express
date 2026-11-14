@@ -22,7 +22,7 @@ impl Train {
     }
     #[must_use]
     pub fn new(config: &Config) -> Self {
-        let config = config.clone().normalized();
+        let config = MotionParameters::new(config, 1.0);
         Self {
             speed_kmh: config.min_speed_kmh,
             target_speed_kmh: config.min_speed_kmh,
@@ -41,7 +41,20 @@ impl Train {
     /// returned distance is in scene pixels. As before, even a zero-time call
     /// updates the target and normalizes the speed against the current config.
     pub fn update(&mut self, cpu_percent: f32, dt_seconds: f64, config: &Config) -> f64 {
-        let config = config.clone().normalized();
+        self.update_with_braking(cpu_percent, dt_seconds, config, 1.0)
+    }
+
+    /// Apply approach braking without copying presentation/location preferences.
+    /// Scaling precedes numeric normalization, matching the former scaled-config path.
+    /// Non-finite braking uses 1; finite factors are bounded to [0, 1].
+    pub fn update_with_braking(
+        &mut self,
+        cpu_percent: f32,
+        dt_seconds: f64,
+        config: &Config,
+        braking: f64,
+    ) -> f64 {
+        let config = MotionParameters::new(config, braking);
         let cpu = if cpu_percent.is_finite() {
             f64::from(cpu_percent.clamp(0.0, 100.0)) / 100.0
         } else {
@@ -95,5 +108,29 @@ impl Train {
     #[must_use]
     pub fn wheel_phase(&self) -> f64 {
         self.wheel_phase
+    }
+}
+
+/// Keep only the three numeric motion parameters; Config defaults own Strings.
+/// Compatibility tests below the integration boundary guard these fallback values.
+struct MotionParameters {
+    min_speed_kmh: f64,
+    max_speed_kmh: f64,
+    smoothing_k: f64,
+}
+impl MotionParameters {
+    fn new(config: &Config, braking: f64) -> Self {
+        fn finite(value: f64, fallback: f64) -> f64 {
+            if value.is_finite() { value } else { fallback }
+        }
+        let factor = finite(braking, 1.0).clamp(0.0, 1.0);
+        let min_speed_kmh = finite(config.min_speed_kmh * factor, 12.0).clamp(0.0, 300.0);
+        let max_speed_kmh =
+            finite(config.max_speed_kmh * factor, 100.0).clamp(min_speed_kmh, 500.0);
+        Self {
+            min_speed_kmh,
+            max_speed_kmh,
+            smoothing_k: finite(config.smoothing_k, 1.8).clamp(0.05, 20.0),
+        }
     }
 }

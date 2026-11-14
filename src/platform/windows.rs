@@ -614,3 +614,41 @@ pub fn show_error(message: &str) {
         eprintln!("CPU Express: {message}");
     }
 }
+
+/// Read-only monitor lookup for a panel that does not yet have an HWND.
+pub(super) fn clamp_panel_rect(saved: [f32; 4], scale: f32) -> [f32; 4] {
+    let Some(placement) = super::geometry::panel_physical(saved, scale) else {
+        return saved;
+    };
+    let Some(bounds) = placement.checked_bounds() else {
+        return saved;
+    };
+    let bounds = RECT {
+        left: bounds.left,
+        top: bounds.top,
+        right: bounds.right,
+        bottom: bounds.bottom,
+    };
+    let mut info = MONITORINFO {
+        cbSize: mem::size_of::<MONITORINFO>() as u32,
+        ..Default::default()
+    };
+    // SAFETY: read-only queries, initialized outputs; no retained monitor handle.
+    unsafe {
+        let context = GetThreadDpiAwarenessContext();
+        if context.is_null()
+            || GetAwarenessFromDpiAwarenessContext(context) != DPI_AWARENESS_PER_MONITOR_AWARE
+        {
+            return saved;
+        }
+        let monitor =
+            windows_sys::Win32::Graphics::Gdi::MonitorFromRect(&bounds, MONITOR_DEFAULTTONEAREST);
+        if monitor.is_null() || GetMonitorInfoW(monitor, &mut info) == 0 {
+            return saved;
+        }
+    }
+    match work_area(&info) {
+        Ok(work) => super::geometry::fit_panel_rect(saved, scale, work),
+        Err(_) => saved,
+    }
+}

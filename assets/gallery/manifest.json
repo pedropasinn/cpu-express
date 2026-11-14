@@ -1,0 +1,112 @@
+{
+  "export_dimensions": [
+    640,
+    140
+  ],
+  "frames": [
+    {
+      "biome": "GreenValley",
+      "blend": 0.0,
+      "elapsed_seconds": 4.999999999999992,
+      "file": "01_legacy.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "GreenValley",
+      "seek_distance_px_before_warmup": 0.0,
+      "seek_seconds_before_warmup": 0.0,
+      "theme": "Legacy",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 140.5572147318105
+    },
+    {
+      "biome": "GreenValley",
+      "blend": 0.0,
+      "elapsed_seconds": 4.999999999999992,
+      "file": "02_green_valley_morning.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "GreenValley",
+      "seek_distance_px_before_warmup": 0.0,
+      "seek_seconds_before_warmup": 0.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 140.5572147318105
+    },
+    {
+      "biome": "Coast",
+      "blend": 0.0,
+      "elapsed_seconds": 179.99999999999972,
+      "file": "03_coast_day.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "Coast",
+      "seek_distance_px_before_warmup": 2096.0,
+      "seek_seconds_before_warmup": 175.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 2236.5572147318076
+    },
+    {
+      "biome": "HighDesert",
+      "blend": 0.0,
+      "elapsed_seconds": 350.000000000004,
+      "file": "04_high_desert_sunset.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "HighDesert",
+      "seek_distance_px_before_warmup": 4256.0,
+      "seek_seconds_before_warmup": 345.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 4396.557214731843
+    },
+    {
+      "biome": "GreenValley",
+      "blend": 0.0,
+      "elapsed_seconds": 450.000000000004,
+      "file": "05_valley_dusk_rain.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "GreenValley",
+      "seek_distance_px_before_warmup": 64.0,
+      "seek_seconds_before_warmup": 445.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Rain",
+      "world_scroll_px": 204.55721473181015
+    },
+    {
+      "biome": "GreenValley",
+      "blend": 0.5,
+      "elapsed_seconds": 179.99999999999972,
+      "file": "06_valley_to_coast.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "Coast",
+      "seek_distance_px_before_warmup": 1792.0,
+      "seek_seconds_before_warmup": 175.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 1932.5572147318107
+    },
+    {
+      "biome": "Forest",
+      "blend": 0.0,
+      "elapsed_seconds": 179.99999999999972,
+      "file": "07_pine_forest.ppm",
+      "manual_cpu_percent": 50.0,
+      "next_biome": "Forest",
+      "seek_distance_px_before_warmup": 2375.0,
+      "seek_seconds_before_warmup": 175.0,
+      "theme": "Journey",
+      "warmup_seconds": 5.0,
+      "weather": "Clear",
+      "world_scroll_px": 2515.5572147318153
+    }
+  ],
+  "native_dimensions": [
+    320,
+    70
+  ],
+  "scaling": "nearest-neighbor 2x",
+  "source": "Actual Rust SceneRenderer used by the app; not a mockup or Windows screenshot"
+}

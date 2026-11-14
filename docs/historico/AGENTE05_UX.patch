@@ -1,0 +1,3245 @@
+diff --git a/src/app.rs b/src/app.rs
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -1,19 +1,25 @@
+-//! The UI owns simulation state; a bounded mailbox carries independent metrics.
++//! Desktop controls own presentation state; the original renderer and domain stay isolated.
+ 
+ use crate::{
+-    config::{self, Config},
++    config::{self, Config, HudMode},
+     diagnostics::Diagnostics,
+-    metrics::{MetricStatus, MetricsSample, MetricsWorker},
++    metrics::{ManualProvider, MetricStatus, MetricsProvider, MetricsSample, MetricsWorker},
+     platform,
+     rendering::{HEIGHT, SceneRenderer, WIDTH},
+     simulation::{Train, World},
+ };
+ use eframe::egui;
+ use std::{
++    io,
+     path::PathBuf,
+     time::{Duration, Instant},
+ };
+ 
++const INK: egui::Color32 = egui::Color32::from_rgb(245, 237, 211);
++const PANEL: egui::Color32 = egui::Color32::from_rgb(23, 40, 39);
++const ACCENT: egui::Color32 = egui::Color32::from_rgb(242, 197, 112);
++
++/// Kept source-compatible with the baseline and its examples.
+ pub struct LaunchOptions {
+     pub config: Config,
+     pub config_path: Option<PathBuf>,
+@@ -23,19 +29,142 @@
+     pub diagnostics: Option<Diagnostics>,
+ }
+ 
++/// Local commands shared by buttons and shortcuts. No global keyboard hooks.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum AppAction {
++    TogglePause,
++    CycleHud,
++    TogglePin,
++    ToggleControls,
++    ToggleHelp,
++    Reposition,
++    ClosePanel,
++    Quit,
++}
++
++/// Text/slider input owns keys. Escape only closes a panel; it never exits.
++#[must_use]
++pub fn shortcut_action(
++    key: egui::Key,
++    modifiers: egui::Modifiers,
++    keyboard_in_use: bool,
++    panel_open: bool,
++) -> Option<AppAction> {
++    if key == egui::Key::Escape {
++        return panel_open.then_some(AppAction::ClosePanel);
++    }
++    if keyboard_in_use {
++        return None;
++    }
++    if key == egui::Key::Q && modifiers.ctrl && !modifiers.alt && !modifiers.shift {
++        return Some(AppAction::Quit);
++    }
++    if modifiers.ctrl || modifiers.alt || modifiers.command || modifiers.shift {
++        return None;
++    }
++    match key {
++        egui::Key::Space => Some(AppAction::TogglePause),
++        egui::Key::M => Some(AppAction::CycleHud),
++        egui::Key::P => Some(AppAction::TogglePin),
++        egui::Key::O => Some(AppAction::ToggleControls),
++        egui::Key::F1 => Some(AppAction::ToggleHelp),
++        egui::Key::R => Some(AppAction::Reposition),
++        _ => None,
++    }
++}
++
++/// Relative timestamps make pause/resume tests independent of sleeping or a window.
++#[derive(Clone, Debug)]
++pub struct SimulationClock {
++    last: Duration,
++    suspended: bool,
++}
++
++impl SimulationClock {
++    #[must_use]
++    pub fn new(now: Duration) -> Self {
++        Self {
++            last: now,
++            suspended: false,
++        }
++    }
++
++    pub fn set_suspended(&mut self, suspended: bool, now: Duration) {
++        if suspended != self.suspended {
++            self.last = now;
++            self.suspended = suspended;
++        }
++    }
++
++    pub fn take_step(&mut self, now: Duration) -> f64 {
++        let delta = now.saturating_sub(self.last);
++        self.last = now;
++        if self.suspended {
++            0.0
++        } else {
++            delta.as_secs_f64().min(0.25)
++        }
++    }
++}
++
++/// Read-only integration state; contains no platform handles or mutable providers.
++#[derive(Clone, Debug)]
++pub struct SessionSnapshot {
++    pub demo_mode: bool,
++    pub paused: bool,
++    pub effective_paused: bool,
++    pub hud_mode: HudMode,
++    pub controls_open: bool,
++    pub help_open: bool,
++    pub cpu_percent: f32,
++    pub ram_percent: Option<f32>,
++    pub speed_kmh: f64,
++    pub world_elapsed_seconds: f64,
++    pub scroll_px: f64,
++}
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
++enum PanelTab {
++    #[default]
++    Journey,
++    Appearance,
++    Behavior,
++}
++
++// This factory is lazy: the demo branch cannot construct SysinfoProvider.
++fn launch_worker(
++    demo: bool,
++    interval: Duration,
++    cpu: f32,
++    real_factory: impl FnOnce(Duration) -> io::Result<MetricsWorker>,
++) -> io::Result<MetricsWorker> {
++    if demo {
++        MetricsWorker::spawn_with_provider(interval, ManualProvider::new(cpu))
++    } else {
++        real_factory(interval)
++    }
++}
++
+ pub struct CpuExpressApp {
+     config: Config,
+     config_path: Option<PathBuf>,
+     preferences_dirty: bool,
++    save_after: Instant,
+     notification: Option<String>,
++    preferences_notice: Option<String>,
+     show_controls: bool,
++    show_help: bool,
++    panel_tab: PanelTab,
+     pending_dock: bool,
+     was_hidden: bool,
++    focused: bool,
++    paused: bool,
++    demo_mode: bool,
++    clock: SimulationClock,
+     train: Train,
+     world: World,
+     renderer: SceneRenderer,
+     texture: Option<egui::TextureHandle>,
+-    last_step: Instant,
+     next_frame: Instant,
+     opened: Instant,
+     exit_after: Option<Duration>,
+@@ -52,72 +181,234 @@
+ 
+ impl CpuExpressApp {
+     pub fn new(ctx: &egui::Context, options: LaunchOptions) -> Self {
++        Self::create(ctx, options, false)
++    }
++
++    /// Starts a CPU-only manual provider without opening real CPU/RAM counters.
++    pub fn new_demo(ctx: &egui::Context, options: LaunchOptions) -> Self {
++        Self::create(ctx, options, true)
++    }
++
++    fn create(ctx: &egui::Context, options: LaunchOptions, demo_mode: bool) -> Self {
+         ctx.set_theme(egui::Theme::Dark);
+         let mut style = (*ctx.global_style()).clone();
+         style.visuals = egui::Visuals::dark();
+-        style.visuals.panel_fill = egui::Color32::from_rgb(29, 50, 47);
+-        style.visuals.window_fill = egui::Color32::from_rgb(29, 50, 47);
+-        style.visuals.override_text_color = Some(egui::Color32::from_rgb(250, 231, 189));
+-        style.spacing.item_spacing = egui::vec2(7.0, 4.0);
+-        style.spacing.button_padding = egui::vec2(5.0, 2.0);
++        style.visuals.panel_fill = PANEL;
++        style.visuals.window_fill = PANEL;
++        style.visuals.override_text_color = Some(INK);
++        style.spacing.item_spacing = egui::vec2(6.0, 4.0);
++        style.spacing.button_padding = egui::vec2(5.0, 3.0);
++        style.spacing.interact_size.y = 22.0;
++        // Unlike the floating default, this leaves a visible scroll affordance
++        // even before the mouse enters the compact options/help panel.
++        style.spacing.scroll = egui::style::ScrollStyle::solid();
+         ctx.set_global_style(style);
+         let config = options.config.normalized();
+-        let mut metrics = MetricsSample {
+-            cpu_percent: None,
+-            ram_percent: None,
+-            used_memory_bytes: 0,
+-            total_memory_bytes: 0,
+-            measured_at: Instant::now(),
+-            status: MetricStatus::WarmingUp,
+-        };
+-        let worker = match MetricsWorker::spawn(Duration::from_millis(config.metrics_interval_ms)) {
++        let manual_value = options.cpu_override.unwrap_or(50.0);
++        let manual_value = if manual_value.is_finite() {
++            manual_value.clamp(0.0, 100.0)
++        } else {
++            50.0
++        };
++        let cpu_override = if demo_mode || options.cpu_override.is_some() {
++            Some(manual_value)
++        } else {
++            None
++        };
++        let mut metrics = if demo_mode {
++            ManualProvider::new(manual_value).sample()
++        } else {
++            MetricsSample {
++                cpu_percent: None,
++                ram_percent: None,
++                used_memory_bytes: 0,
++                total_memory_bytes: 0,
++                measured_at: Instant::now(),
++                status: MetricStatus::WarmingUp,
++            }
++        };
++        let worker = match launch_worker(
++            demo_mode,
++            Duration::from_millis(config.metrics_interval_ms),
++            manual_value,
++            MetricsWorker::spawn,
++        ) {
+             Ok(worker) => Some(worker),
+             Err(error) => {
+                 metrics.status = MetricStatus::Unavailable(error.to_string());
+                 None
+             }
+         };
++        let opened = Instant::now();
++        let mut clock = SimulationClock::new(Duration::ZERO);
++        clock.set_suspended(config.start_paused, Duration::ZERO);
+         Self {
+             train: Train::new(&config),
++            paused: config.start_paused,
+             config,
+             config_path: options.config_path,
+             preferences_dirty: false,
++            save_after: opened,
+             notification: options.warning,
++            preferences_notice: None,
+             show_controls: false,
++            show_help: false,
++            panel_tab: PanelTab::default(),
+             pending_dock: true,
+             was_hidden: false,
++            focused: false,
++            demo_mode,
++            clock,
+             world: World::default(),
+             renderer: SceneRenderer::new(),
+             texture: None,
+-            last_step: Instant::now(),
+-            next_frame: Instant::now(),
+-            opened: Instant::now(),
++            next_frame: opened,
++            opened,
+             exit_after: options.exit_after,
+-            cpu_override: options.cpu_override,
+-            manual_value: options.cpu_override.unwrap_or(50.0),
++            cpu_override,
++            manual_value,
+             metrics,
+             worker,
+             diagnostics: options.diagnostics,
+-            next_diagnostic: Instant::now(),
++            next_diagnostic: opened,
+             samples: 0,
+             closing: false,
+             frames: 0,
+         }
+     }
+ 
++    #[must_use]
++    pub fn snapshot(&self) -> SessionSnapshot {
++        SessionSnapshot {
++            demo_mode: self.demo_mode,
++            paused: self.paused,
++            effective_paused: self.suspended(),
++            hud_mode: self.config.effective_hud_mode(),
++            controls_open: self.show_controls,
++            help_open: self.show_help,
++            cpu_percent: self.cpu_percent(),
++            ram_percent: self.ram_percent(),
++            speed_kmh: self.train.speed_kmh(),
++            world_elapsed_seconds: self.world.elapsed_seconds(),
++            scroll_px: self.world.scroll_px(),
++        }
++    }
++
++    /// Future tray code can reuse these commands when its real interface exists.
++    /// Hiding without an established restore path is deliberately unavailable.
++    pub fn dispatch(&mut self, action: AppAction, ctx: &egui::Context) {
++        match action {
++            AppAction::TogglePause => {
++                self.paused = !self.paused;
++                self.sync_clock();
++                self.next_frame = Instant::now();
++            }
++            AppAction::CycleHud => {
++                self.config
++                    .set_hud_mode(self.config.effective_hud_mode().next());
++                self.preferences_changed();
++            }
++            AppAction::TogglePin => {
++                self.config.always_on_top = !self.config.always_on_top;
++                ctx.send_viewport_cmd(egui::ViewportCommand::WindowLevel(
++                    if self.config.always_on_top {
++                        egui::WindowLevel::AlwaysOnTop
++                    } else {
++                        egui::WindowLevel::Normal
++                    },
++                ));
++                self.preferences_changed();
++            }
++            AppAction::ToggleControls => {
++                self.show_controls = !self.show_controls;
++                self.show_help = false;
++            }
++            AppAction::ToggleHelp => {
++                self.show_help = !self.show_help;
++                self.show_controls = false;
++            }
++            AppAction::Reposition => self.pending_dock = true,
++            AppAction::ClosePanel => {
++                self.show_controls = false;
++                self.show_help = false;
++            }
++            AppAction::Quit => {
++                self.closing = true;
++                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
++            }
++        }
++        ctx.request_repaint();
++    }
++
++    fn suspended(&self) -> bool {
++        self.paused || self.was_hidden || (self.config.pause_when_unfocused && !self.focused)
++    }
++
++    fn sync_clock(&mut self) {
++        self.clock
++            .set_suspended(self.suspended(), self.opened.elapsed());
++    }
++
+     fn metrics_stale(&self) -> bool {
+         self.metrics.measured_at.elapsed()
+             > Duration::from_millis(self.config.metrics_interval_ms.saturating_mul(3).max(3_000))
+     }
+ 
+     fn cpu_percent(&self) -> f32 {
+-        self.cpu_override.unwrap_or_else(|| {
+-            if self.metrics_stale() {
++        let cpu = self.cpu_override.unwrap_or_else(|| {
++            if self.metrics_stale() || !matches!(self.metrics.status, MetricStatus::Ready) {
+                 0.0
+             } else {
+                 self.metrics.cpu_percent.unwrap_or(0.0)
+             }
+-        })
++        });
++        if cpu.is_finite() {
++            cpu.clamp(0.0, 100.0)
++        } else {
++            0.0
++        }
++    }
++
++    fn ram_percent(&self) -> Option<f32> {
++        if self.demo_mode
++            || self.metrics_stale()
++            || !matches!(self.metrics.status, MetricStatus::Ready)
++        {
++            return None;
++        }
++        self.metrics
++            .ram_percent
++            .filter(|value| value.is_finite())
++            .map(|value| value.clamp(0.0, 100.0))
++    }
++
++    fn telemetry_notice(&self) -> Option<&'static str> {
++        if self.demo_mode {
++            return None;
++        }
++        if matches!(self.metrics.status, MetricStatus::Unavailable(_)) {
++            Some("Sem métricas")
++        } else if self.metrics_stale() {
++            Some("Leitura atrasada")
++        } else if matches!(self.metrics.status, MetricStatus::WarmingUp) {
++            Some("Lendo CPU…")
++        } else if self.metrics.cpu_percent.is_none_or(|cpu| !cpu.is_finite()) {
++            Some("CPU indisponível")
++        } else {
++            None
++        }
++    }
++
++    fn cpu_label(&self) -> String {
++        if self.demo_mode {
++            format!("DEMO · CPU {:.1}%", self.cpu_percent())
++        } else if self.cpu_override.is_some() {
++            format!("SIMULADO · CPU {:.1}%", self.cpu_percent())
++        } else if let Some(notice) = self.telemetry_notice() {
++            notice.to_owned()
++        } else {
++            format!("CPU {:.1}%", self.cpu_percent())
++        }
+     }
+ 
+     fn record_diagnostics(&mut self, final_record: bool) {
+@@ -129,23 +420,32 @@
+             MetricStatus::Ready => "ready",
+             MetricStatus::Unavailable(_) => "unavailable",
+         };
++        let mode = if self.demo_mode {
++            "demo"
++        } else if self.cpu_override.is_some() {
++            "manual"
++        } else {
++            "real"
++        };
+         let record = serde_json::json!({
+             "event": if final_record { "shutdown" } else { "sample" },
+             "elapsed_seconds": self.opened.elapsed().as_secs_f64(),
+-            "mode": if self.cpu_override.is_some() { "manual" } else { "real" },
+-            "cpu_percent": self.metrics.cpu_percent, "effective_cpu_percent": self.cpu_percent(),
+-            "ram_percent": self.metrics.ram_percent,
++            "mode": mode,
++            "cpu_percent": if self.demo_mode { self.cpu_override } else { self.metrics.cpu_percent },
++            "effective_cpu_percent": self.cpu_percent(), "ram_percent": self.ram_percent(),
+             "used_memory_bytes": self.metrics.used_memory_bytes, "total_memory_bytes": self.metrics.total_memory_bytes,
+             "metric_status": status, "metric_age_seconds": self.metrics.measured_at.elapsed().as_secs_f64(),
+             "metrics_stale": self.metrics_stale(), "target_kmh": self.train.target_speed_kmh(),
+             "speed_kmh": self.train.speed_kmh(), "rendered_frames": self.frames,
+             "received_samples": self.samples, "smoke_particles": self.world.smoke().len(), "hidden": self.was_hidden,
++            "paused": self.paused, "effective_paused": self.suspended(),
++            "world_elapsed_seconds": self.world.elapsed_seconds(), "scroll_px": self.world.scroll_px(),
+         });
+         if let Some(diagnostics) = &mut self.diagnostics
+             && let Err(error) = diagnostics.record(&record)
+         {
+             eprintln!("diagnostics disabled: {error}");
+-            self.notification = Some(format!("Registro de diagnóstico indisponível: {error}"));
++            self.notification = Some(format!("Não foi possível gravar o diagnóstico: {error}"));
+             self.diagnostics = None;
+         }
+         self.next_diagnostic = Instant::now() + Duration::from_secs(1);
+@@ -156,224 +456,618 @@
+         if now < self.next_frame && self.texture.is_some() {
+             return;
+         }
+-        // A suspended/minimized journey resumes without trying to catch up minutes of travel.
+-        let dt = now.duration_since(self.last_step).as_secs_f64().min(0.25);
+-        self.last_step = now;
+-        let distance = self.train.update(self.cpu_percent(), dt, &self.config);
+-        self.world.update(dt, distance, self.train.speed_kmh());
+-        let image = egui::ColorImage::new(
+-            [WIDTH, HEIGHT],
+-            self.renderer.render(&self.train, &self.world).to_vec(),
+-        );
+-        if let Some(texture) = &mut self.texture {
+-            texture.set(image, egui::TextureOptions::NEAREST);
+-        } else {
+-            self.texture = Some(ctx.load_texture(
+-                "original-train-scene",
+-                image,
+-                egui::TextureOptions::NEAREST,
+-            ));
+-        }
+-        self.frames += 1;
+-        self.next_frame = now + Duration::from_secs_f64(1.0 / f64::from(self.config.fps));
+-    }
+-
+-    fn persist_preferences(&mut self) {
+-        if !self.preferences_dirty {
++        self.sync_clock();
++        let dt = self.clock.take_step(self.opened.elapsed());
++        if !self.suspended() {
++            let distance = self.train.update(self.cpu_percent(), dt, &self.config);
++            self.world.update(dt, distance, self.train.speed_kmh());
++        }
++        // Pausing freezes particles and wheels and reuses the existing GPU texture.
++        if !self.suspended() || self.texture.is_none() {
++            let image = egui::ColorImage::new(
++                [WIDTH, HEIGHT],
++                self.renderer.render(&self.train, &self.world).to_vec(),
++            );
++            if let Some(texture) = &mut self.texture {
++                texture.set(image, egui::TextureOptions::NEAREST);
++            } else {
++                self.texture = Some(ctx.load_texture(
++                    "original-train-scene",
++                    image,
++                    egui::TextureOptions::NEAREST,
++                ));
++            }
++            self.frames += 1;
++        }
++        let interval = if self.suspended() {
++            Duration::from_millis(250)
++        } else {
++            Duration::from_secs_f64(1.0 / f64::from(self.config.fps))
++        };
++        self.next_frame = now + interval;
++    }
++
++    fn preferences_changed(&mut self) {
++        self.preferences_dirty = true;
++        self.save_after = Instant::now() + Duration::from_millis(400);
++    }
++
++    fn persist_preferences(&mut self, force: bool) {
++        if !self.preferences_dirty || (!force && Instant::now() < self.save_after) {
+             return;
+         }
+         let result = self
+             .config_path
+             .as_deref()
+             .map(|path| config::save(&self.config, path));
+-        match result {
+-            Some(Ok(())) => self.preferences_dirty = false,
+-            Some(Err(error)) => {
+-                self.notification = Some(error);
+-                self.preferences_dirty = false;
+-            }
+-            None => {
+-                self.notification = Some(
+-                    "Preferências válidas nesta sessão; pasta de configuração indisponível."
+-                        .to_owned(),
++        self.preferences_notice = match result {
++            Some(Ok(())) => None,
++            Some(Err(error)) => Some(format!("Alterações não salvas. {error}")),
++            None => Some(
++                "Preferências só nesta sessão: caminho de configuração indisponível.".to_owned(),
++            ),
++        };
++        // A failed write generates one recoverable message, never a per-frame retry.
++        self.preferences_dirty = false;
++    }
++
++    fn notification_message(&self) -> Option<String> {
++        match (&self.notification, &self.preferences_notice) {
++            (Some(general), Some(preferences)) => Some(format!("{general}\n{preferences}")),
++            (Some(message), None) | (None, Some(message)) => Some(message.clone()),
++            (None, None) => None,
++        }
++    }
++
++    fn shortcuts(&mut self, ctx: &egui::Context) {
++        let in_use = ctx.egui_wants_keyboard_input();
++        let panel_open = self.show_controls || self.show_help;
++        let events = ctx.input(|input| input.events.clone());
++        for event in events {
++            if let egui::Event::Key {
++                key,
++                pressed: true,
++                repeat: false,
++                modifiers,
++                ..
++            } = event
++                && let Some(action) = shortcut_action(key, modifiers, in_use, panel_open)
++            {
++                ctx.input_mut(|input| {
++                    input.consume_key(modifiers, key);
++                });
++                self.dispatch(action, ctx);
++                break;
++            }
++        }
++    }
++
++    fn toolbar_visible(&self, ui: &egui::Ui, bounds: egui::Rect) -> bool {
++        !self.config.auto_hide_controls
++            || self.focused
++            || self.show_controls
++            || self.show_help
++            || ui.input(|input| {
++                input
++                    .pointer
++                    .hover_pos()
++                    .is_some_and(|pos| bounds.contains(pos))
++            })
++    }
++
++    fn badge(ui: &mut egui::Ui, rect: egui::Rect, text: &str, warning: bool, hint: &str) {
++        let fill = if warning {
++            egui::Color32::from_rgb(92, 62, 30)
++        } else {
++            PANEL
++        };
++        ui.painter().rect_filled(rect, 4.0, fill);
++        ui.put(
++            rect,
++            egui::Label::new(egui::RichText::new(text).size(10.5).color(INK)),
++        )
++        .on_hover_text(hint);
++    }
++
++    fn header(&mut self, ui: &mut egui::Ui, bounds: egui::Rect, visible: bool) {
++        if visible {
++            let strip =
++                egui::Rect::from_min_size(bounds.left_top(), egui::vec2(bounds.width(), 32.0));
++            ui.painter().rect_filled(strip, 0.0, PANEL);
++            ui.painter().text(
++                bounds.left_top() + egui::vec2(10.0, 16.0),
++                egui::Align2::LEFT_CENTER,
++                "CPU EXPRESS",
++                egui::FontId::monospace(11.0),
++                INK,
++            );
++        }
++        let mut x = if visible { 112.0 } else { 8.0 };
++        if self.demo_mode || self.cpu_override.is_some() {
++            let text = if self.demo_mode { "DEMO" } else { "SIMULADO" };
++            let width = if self.demo_mode { 47.0 } else { 70.0 };
++            Self::badge(
++                ui,
++                egui::Rect::from_min_size(
++                    bounds.left_top() + egui::vec2(x, 6.0),
++                    egui::vec2(width, 21.0),
++                ),
++                text,
++                true,
++                if self.demo_mode {
++                    "CPU simulada. Nenhum contador real de CPU ou RAM é consultado."
++                } else {
++                    "O trem usa a CPU manual. A RAM e a coleta em segundo plano continuam reais."
++                },
++            );
++            x += width + 5.0;
++        }
++        if self.suspended() {
++            Self::badge(
++                ui,
++                egui::Rect::from_min_size(
++                    bounds.left_top() + egui::vec2(x, 6.0),
++                    egui::vec2(58.0, 21.0),
++                ),
++                "PAUSADO",
++                false,
++                if self.paused {
++                    "Viagem pausada. Use Espaço ou Seguir para retomar."
++                } else {
++                    "Pausa automática: a janela está sem foco ou minimizada."
++                },
++            );
++            x += 63.0;
++        }
++        if let Some(notice) = self.telemetry_notice() {
++            // A separate row avoids collisions when multiple notices are visible.
++            Self::badge(
++                ui,
++                egui::Rect::from_min_size(
++                    bounds.left_top() + egui::vec2(8.0, 35.0),
++                    egui::vec2(119.0, 21.0),
++                ),
++                notice,
++                true,
++                "A janela continua funcionando. A coleta tenta se recuperar; dados antigos não aparecem como leitura atual.",
++            );
++        }
++        if let Some(message) = self.notification_message() {
++            let rect = egui::Rect::from_min_size(
++                bounds.left_top() + egui::vec2(x.min(285.0), 6.0),
++                egui::vec2(24.0, 21.0),
++            );
++            if ui
++                .put(
++                    rect,
++                    egui::Button::new("!").fill(egui::Color32::from_rgb(92, 62, 30)),
++                )
++                .on_hover_text(format!("{message}\nClique para dispensar este aviso."))
++                .clicked()
++            {
++                self.notification = None;
++                self.preferences_notice = None;
++            }
++        }
++        if !visible || self.show_controls || self.show_help {
++            return;
++        }
++        let mut left = bounds.right() - 303.0;
++        let mut button =
++            |ui: &mut egui::Ui, label: &str, width: f32, selected: bool, hint: &str| {
++                let rect = egui::Rect::from_min_size(
++                    egui::pos2(left, bounds.top() + 4.0),
++                    egui::vec2(width, 24.0),
+                 );
+-                self.preferences_dirty = false;
+-            }
+-        }
+-    }
+-
+-    fn apply_pin(&mut self, ctx: &egui::Context) {
+-        ctx.send_viewport_cmd(egui::ViewportCommand::WindowLevel(
+-            if self.config.always_on_top {
+-                egui::WindowLevel::AlwaysOnTop
+-            } else {
+-                egui::WindowLevel::Normal
+-            },
+-        ));
+-        self.preferences_dirty = true;
+-    }
+-
+-    fn toolbar(&mut self, ui: &mut egui::Ui, bounds: egui::Rect) {
+-        let button_rect = |offset: f32| {
+-            egui::Rect::from_min_size(
+-                bounds.right_top() + egui::vec2(offset, 5.0),
+-                egui::vec2(24.0, 21.0),
+-            )
+-        };
+-        if ui
+-            .put(button_rect(-110.0), egui::Button::new("≡"))
+-            .on_hover_text("Controles e CPU simulada")
+-            .clicked()
+-        {
+-            self.show_controls = !self.show_controls;
+-        }
+-        if ui
+-            .put(
+-                button_rect(-84.0),
+-                egui::Button::new("P").selected(self.config.always_on_top),
+-            )
+-            .on_hover_text("Sempre no topo (P)")
+-            .clicked()
+-        {
+-            self.config.always_on_top = !self.config.always_on_top;
+-            self.apply_pin(ui.ctx());
+-        }
+-        if ui
+-            .put(button_rect(-58.0), egui::Button::new("−"))
+-            .on_hover_text("Minimizar; restaure pela barra de tarefas")
+-            .clicked()
+-        {
++                left += width + 4.0;
++                ui.put(rect, egui::Button::new(label).selected(selected))
++                    .on_hover_text(hint)
++                    .clicked()
++            };
++        let mut action = None;
++        if button(
++            ui,
++            if self.paused { "Seguir" } else { "Pausar" },
++            58.0,
++            self.paused,
++            "Pausar/retomar a viagem (Espaço)",
++        ) {
++            action = Some(AppAction::TogglePause);
++        }
++        if button(
++            ui,
++            "HUD",
++            38.0,
++            false,
++            "Alternar compacto, completo e limpo (M)",
++        ) {
++            action = Some(AppAction::CycleHud);
++        }
++        if button(ui, "Opções", 59.0, false, "CPU simulada e preferências (O)") {
++            action = Some(AppAction::ToggleControls);
++        }
++        if button(ui, "?", 24.0, false, "Ajuda e atalhos (F1)") {
++            action = Some(AppAction::ToggleHelp);
++        }
++        if button(
++            ui,
++            "P",
++            24.0,
++            self.config.always_on_top,
++            "Sempre no topo (P)",
++        ) {
++            action = Some(AppAction::TogglePin);
++        }
++        if button(
++            ui,
++            "−",
++            24.0,
++            false,
++            "Minimizar; restaure pela barra de tarefas",
++        ) {
+             ui.ctx()
+                 .send_viewport_cmd(egui::ViewportCommand::Minimized(true));
+         }
+-        if ui
+-            .put(button_rect(-32.0), egui::Button::new("×"))
+-            .on_hover_text("Fechar (Esc)")
+-            .clicked()
+-        {
+-            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
++        if button(ui, "Sair", 40.0, false, "Encerrar CPU Express (Ctrl+Q)") {
++            action = Some(AppAction::Quit);
++        }
++        if let Some(action) = action {
++            self.dispatch(action, ui.ctx());
+         }
+     }
+ 
+     fn status_bar(&self, ui: &mut egui::Ui, bounds: egui::Rect) {
+-        if !self.config.show_metrics {
++        let mode = self.config.effective_hud_mode();
++        if mode == HudMode::Clean {
+             return;
+         }
+-        let strip = egui::Rect::from_min_max(
+-            bounds.left_bottom() - egui::vec2(0.0, 19.0),
+-            bounds.right_bottom(),
++        // Keep the whole status readable to the left of the overlay. A detailed
++        // HUD temporarily uses the compact layout while the panel is open.
++        let overlay_open = self.show_controls || self.show_help;
++        let detailed = mode == HudMode::Detailed && !overlay_open;
++        let available = if overlay_open {
++            bounds.width() - 373.0_f32.min(bounds.width())
++        } else {
++            bounds.width()
++        };
++        let width = if detailed {
++            bounds.width()
++        } else {
++            300.0_f32.min(available)
++        };
++        let strip = egui::Rect::from_min_size(
++            bounds.left_bottom() - egui::vec2(0.0, 24.0),
++            egui::vec2(width, 24.0),
+         );
+-        ui.painter().rect_filled(
++        ui.painter().rect_filled(strip, 0.0, PANEL);
++        ui.painter().text(
++            strip.left_center() + egui::vec2(10.0, 0.0),
++            egui::Align2::LEFT_CENTER,
++            self.cpu_label(),
++            egui::FontId::monospace(11.0),
++            INK,
++        );
++        if detailed {
++            let ram = if self.demo_mode {
++                "RAM indisponível no demo".to_owned()
++            } else {
++                self.ram_percent()
++                    .map_or("RAM --".to_owned(), |ram| format!("RAM {ram:.1}%"))
++            };
++            ui.painter().text(
++                strip.left_center() + egui::vec2(245.0, 0.0),
++                egui::Align2::LEFT_CENTER,
++                ram,
++                egui::FontId::monospace(11.0),
++                INK,
++            );
++        }
++        let speed = if self.suspended() {
++            "Pausado".to_owned()
++        } else {
++            format!("{:.1} km/h", self.train.speed_kmh())
++        };
++        ui.painter().text(
++            strip.right_center() - egui::vec2(10.0, 0.0),
++            egui::Align2::RIGHT_CENTER,
++            speed,
++            egui::FontId::monospace(11.0),
++            ACCENT,
++        );
++        let mut details = if self.demo_mode {
++            "Demonstração sem consultar CPU/RAM reais. A RAM não é simulada.".to_owned()
++        } else if self.ram_percent().is_some() && self.metrics.total_memory_bytes > 0 {
++            format!(
++                "RAM: {:.2} / {:.2} GiB",
++                self.metrics.used_memory_bytes as f64 / 1_073_741_824.0,
++                self.metrics.total_memory_bytes as f64 / 1_073_741_824.0
++            )
++        } else {
++            "Sem leitura recente de RAM.".to_owned()
++        };
++        details.push_str("\nA velocidade é fictícia. Simular CPU não gera carga artificial.");
++        if let MetricStatus::Unavailable(error) = &self.metrics.status {
++            details.push_str(&format!("\nColeta: {error}"));
++        }
++        ui.interact(
+             strip,
+-            0.0,
+-            egui::Color32::from_rgba_unmultiplied(20, 40, 36, 218),
++            egui::Id::unique("metrics-details"),
++            egui::Sense::hover(),
++        )
++        .on_hover_text(details);
++    }
++
++    fn journey_controls(&mut self, ui: &mut egui::Ui) {
++        if self.demo_mode {
++            ui.label(
++                egui::RichText::new("DEMO · CPU simulada; RAM indisponível")
++                    .size(11.0)
++                    .color(ACCENT),
++            );
++        } else {
++            let mut manual = self.cpu_override.is_some();
++            if ui
++                .checkbox(&mut manual, "Simular CPU, sem gerar carga")
++                .changed()
++            {
++                self.cpu_override = manual.then_some(self.manual_value);
++            }
++        }
++        let manual = self.cpu_override.is_some();
++        ui.add_enabled_ui(manual, |ui| {
++            ui.horizontal(|ui| {
++                ui.label("CPU:");
++                for value in [0.0, 50.0, 100.0] {
++                    if ui
++                        .selectable_label(
++                            (self.manual_value - value).abs() < 0.05,
++                            format!("{value:.0}%"),
++                        )
++                        .clicked()
++                    {
++                        self.manual_value = value;
++                        self.cpu_override = Some(value);
++                    }
++                }
++            });
++            if ui
++                .add(
++                    egui::Slider::new(&mut self.manual_value, 0.0..=100.0)
++                        .suffix(" %")
++                        .fixed_decimals(1)
++                        .step_by(0.1),
++                )
++                .changed()
++            {
++                self.cpu_override = Some(self.manual_value);
++            }
++        });
++        ui.horizontal(|ui| {
++            if ui
++                .button(if self.paused {
++                    "Seguir (Espaço)"
++                } else {
++                    "Pausar (Espaço)"
++                })
++                .clicked()
++            {
++                self.dispatch(AppAction::TogglePause, ui.ctx());
++            }
++            if ui.button("Reposicionar (R)").clicked() {
++                self.dispatch(AppAction::Reposition, ui.ctx());
++            }
++        });
++        if let Some(notice) = self.telemetry_notice() {
++            ui.label(egui::RichText::new(notice).color(ACCENT));
++            if let MetricStatus::Unavailable(error) = &self.metrics.status {
++                ui.label(egui::RichText::new(error).size(11.0));
++            }
++        }
++        ui.label(
++            egui::RichText::new("0 / 50 / 100%: alvos 12 / 56 / 100 km/h nos padrões.").size(10.5),
+         );
+-        let cpu_label = if self.cpu_override.is_some() {
+-            format!("CPU SIM {:3.0}%", self.cpu_percent())
+-        } else if self.metrics_stale() {
+-            "CPU sem leitura recente".to_owned()
+-        } else {
+-            match self.metrics.cpu_percent {
+-                Some(cpu) => format!("CPU {cpu:3.0}%"),
+-                None if matches!(self.metrics.status, MetricStatus::Unavailable(_)) => {
+-                    "CPU indisponível".to_owned()
+-                }
+-                None => "CPU iniciando...".to_owned(),
+-            }
+-        };
+-        let ram = self
+-            .metrics
+-            .ram_percent
+-            .map_or("RAM --".to_owned(), |ram| format!("RAM {ram:.0}%"));
+-        let status = format!("{cpu_label}    {ram}");
+-        let color = egui::Color32::from_rgb(254, 237, 196);
+-        ui.painter().text(
+-            strip.left_center() + egui::vec2(12.0, 0.0),
+-            egui::Align2::LEFT_CENTER,
+-            status,
+-            egui::FontId::monospace(11.0),
+-            color,
++    }
++
++    fn appearance_controls(&mut self, ui: &mut egui::Ui) {
++        let mut mode = self.config.effective_hud_mode();
++        ui.horizontal(|ui| {
++            ui.label("HUD:");
++            ui.selectable_value(&mut mode, HudMode::Compact, "Compacto");
++            ui.selectable_value(&mut mode, HudMode::Detailed, "Completo");
++            ui.selectable_value(&mut mode, HudMode::Clean, "Limpo");
++        });
++        if mode != self.config.effective_hud_mode() {
++            self.config.set_hud_mode(mode);
++            self.preferences_changed();
++        }
++        let mut changed = ui
++            .checkbox(
++                &mut self.config.auto_hide_controls,
++                "Recolher controles sem mouse e sem foco",
++            )
++            .changed();
++        changed |= ui
++            .add(egui::Slider::new(&mut self.config.fps, 10..=60).text("FPS"))
++            .changed();
++        changed |= ui
++            .add(
++                egui::Slider::new(&mut self.config.smoothing_k, 0.05..=20.0)
++                    .logarithmic(true)
++                    .text("Resposta"),
++            )
++            .on_hover_text("Menor: transição suave. Maior: o trem reage mais rápido à CPU.")
++            .changed();
++        if changed {
++            self.preferences_changed();
++            self.next_frame = Instant::now();
++        }
++        ui.label(
++            egui::RichText::new("O modo limpo mantém avisos de simulação, pausa e falhas.")
++                .size(11.0),
+         );
+-        ui.painter().text(
+-            strip.right_center() - egui::vec2(12.0, 0.0),
+-            egui::Align2::RIGHT_CENTER,
+-            format!("{:4.1} km/h", self.train.speed_kmh()),
+-            egui::FontId::monospace(11.0),
+-            color,
++    }
++
++    fn behavior_controls(&mut self, ui: &mut egui::Ui) {
++        let mut pinned = self.config.always_on_top;
++        if ui.checkbox(&mut pinned, "Sempre no topo (P)").changed() {
++            self.dispatch(AppAction::TogglePin, ui.ctx());
++        }
++        let mut changed = ui
++            .checkbox(
++                &mut self.config.pause_when_unfocused,
++                "Pausar ao trabalhar em outra janela",
++            )
++            .changed();
++        changed |= ui
++            .checkbox(
++                &mut self.config.start_paused,
++                "Iniciar pausado na próxima abertura",
++            )
++            .changed();
++        if changed {
++            self.preferences_changed();
++            self.sync_clock();
++        }
++        ui.horizontal(|ui| {
++            if ui
++                .button("Minimizar")
++                .on_hover_text("Restaurar pela barra de tarefas")
++                .clicked()
++            {
++                ui.ctx()
++                    .send_viewport_cmd(egui::ViewportCommand::Minimized(true));
++            }
++            ui.add_enabled(false, egui::Button::new("Ocultar na bandeja"))
++                .on_hover_text(
++                    "Indisponível nesta entrega. Use Minimizar e restaure pela barra de tarefas.",
++                );
++        });
++        ui.label(
++            egui::RichText::new("A coleta continua durante a pausa; a paisagem fica congelada.")
++                .size(11.0),
+         );
+-        let hover = ui.interact(
+-            strip,
+-            egui::Id::unique("memory-details"),
+-            egui::Sense::hover(),
+-        );
+-        let mut details = format!(
+-            "RAM: {:.2} / {:.2} GiB\nVelocidade fictícia; o próprio aplicativo participa da CPU total.",
+-            self.metrics.used_memory_bytes as f64 / 1_073_741_824.0,
+-            self.metrics.total_memory_bytes as f64 / 1_073_741_824.0
+-        );
+-        if let MetricStatus::Unavailable(error) = &self.metrics.status {
+-            details.push_str(&format!("\n{error}"));
+-        }
+-        hover.on_hover_text(details);
+-    }
+-
+-    fn controls(&mut self, ctx: &egui::Context, bounds: egui::Rect) {
+-        if !self.show_controls {
++    }
++
++    fn help_contents(&self, ui: &mut egui::Ui) {
++        for (key, action) in [
++            ("Espaço", "Pausar / retomar a viagem"),
++            ("M", "HUD: compacto, completo e limpo"),
++            ("P", "Alternar sempre no topo"),
++            ("O / F1", "Abrir opções / ajuda"),
++            ("R", "Reposicionar perto da barra de tarefas"),
++            ("Esc", "Fechar painel; nunca encerra o app"),
++            ("Ctrl+Q", "Sair (ou use o botão Sair)"),
++        ] {
++            ui.horizontal(|ui| {
++                ui.add_sized(
++                    [62.0, 18.0],
++                    egui::Label::new(egui::RichText::new(key).monospace().color(ACCENT)),
++                );
++                ui.label(egui::RichText::new(action).size(11.0));
++            });
++        }
++        ui.separator();
++        ui.label("Arraste uma área livre da paisagem. Os atalhos funcionam com foco na janela e cedem ao editar campos.");
++        ui.label("Simular CPU não aquece o processador de propósito. DEMO não lê CPU nem RAM reais. A velocidade é uma unidade do jogo.");
++        if let Some(message) = self.notification_message() {
++            ui.separator();
++            ui.label(egui::RichText::new(message).color(ACCENT));
++        }
++    }
++
++    fn overlay(&mut self, ctx: &egui::Context, bounds: egui::Rect) {
++        if !self.show_controls && !self.show_help {
+             return;
+         }
+-        let mut open = self.show_controls;
+-        egui::Window::new("Controles")
+-            .id(egui::Id::unique("cpu-express-controls"))
++        let help = self.show_help;
++        let width = 365.0_f32.min(bounds.width() - 8.0);
++        let height = (bounds.height() - 8.0).max(90.0);
++        let mut close = false;
++        egui::Window::new("CPU Express — painel")
++            .id(egui::Id::unique("cpu-express-panel"))
++            .title_bar(false)
+             .collapsible(false)
+             .resizable(false)
+             .movable(false)
+-            .fixed_pos(bounds.left_top() + egui::vec2(300.0, 2.0))
+-            .default_width(320.0)
+-            .open(&mut open)
++            .fixed_pos(egui::pos2(bounds.right() - width - 4.0, bounds.top() + 4.0))
++            .fixed_size(egui::vec2(width - 16.0, height - 16.0))
++            .constrain_to(bounds)
++            .frame(
++                egui::Frame::new()
++                    .fill(PANEL)
++                    .stroke(egui::Stroke::new(1.0, egui::Color32::from_rgb(77, 101, 88)))
++                    .corner_radius(6)
++                    .inner_margin(7),
++            )
+             .show(ctx, |ui| {
+                 ui.horizontal(|ui| {
+-                    if ui
+-                        .checkbox(&mut self.config.show_metrics, "Métricas (M)")
+-                        .changed()
+-                    {
+-                        self.preferences_dirty = true;
++                    ui.strong(if help { "Ajuda e atalhos" } else { "Opções" });
++                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
++                        close = ui.button("Fechar · Esc").clicked();
++                        if ui
++                            .button("Sair")
++                            .on_hover_text("Encerrar o aplicativo (Ctrl+Q)")
++                            .clicked()
++                        {
++                            self.dispatch(AppAction::Quit, ctx);
++                        }
++                    });
++                });
++                if !help {
++                    ui.horizontal(|ui| {
++                        ui.selectable_value(&mut self.panel_tab, PanelTab::Journey, "Viagem");
++                        ui.selectable_value(&mut self.panel_tab, PanelTab::Appearance, "Visual");
++                        ui.selectable_value(&mut self.panel_tab, PanelTab::Behavior, "Janela");
++                    });
++                }
++                let max_height = if help { height - 46.0 } else { height - 72.0 };
++                let salt = if help {
++                    "help-scroll"
++                } else {
++                    match self.panel_tab {
++                        PanelTab::Journey => "journey-scroll",
++                        PanelTab::Appearance => "appearance-scroll",
++                        PanelTab::Behavior => "behavior-scroll",
+                     }
+-                    if ui
+-                        .checkbox(&mut self.config.always_on_top, "No topo (P)")
+-                        .changed()
+-                    {
+-                        self.apply_pin(ctx);
+-                    }
+-                });
+-                let mut manual = self.cpu_override.is_some();
+-                if ui
+-                    .checkbox(&mut manual, "Simular CPU sem gerar carga")
+-                    .changed()
+-                {
+-                    self.cpu_override = manual.then_some(self.manual_value);
+-                }
+-                ui.add_enabled_ui(manual, |ui| {
+-                    if ui
+-                        .add(
+-                            egui::Slider::new(&mut self.manual_value, 0.0..=100.0)
+-                                .suffix("%")
+-                                .text("CPU"),
+-                        )
+-                        .changed()
+-                    {
+-                        self.cpu_override = Some(self.manual_value);
+-                    }
+-                });
+-                if ui.button("Reposicionar na área útil").clicked() {
+-                    self.pending_dock = true;
+-                }
++                };
++                egui::ScrollArea::vertical()
++                    .id_salt(salt)
++                    .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysVisible)
++                    .max_height(max_height.max(30.0))
++                    .auto_shrink([false, false])
++                    .show(ui, |ui| {
++                        ui.set_max_width(width - 34.0);
++                        if help {
++                            self.help_contents(ui);
++                        } else {
++                            match self.panel_tab {
++                                PanelTab::Journey => self.journey_controls(ui),
++                                PanelTab::Appearance => self.appearance_controls(ui),
++                                PanelTab::Behavior => self.behavior_controls(ui),
++                            }
++                        }
++                        // Tab may focus a control below the 60-point viewport.
++                        // Bring that focused control into view before using it.
++                        if let Some(id) = ui.memory(|memory| memory.focused())
++                            && let Some(response) = ui.ctx().read_response(id)
++                            && response.gained_focus()
++                            && ui.min_rect().intersects(response.rect)
++                        {
++                            response.scroll_to_me(Some(egui::Align::Center));
++                        }
++                    });
+             });
+-        self.show_controls = open;
++        if close {
++            self.dispatch(AppAction::ClosePanel, ctx);
++        }
+     }
+ }
+ 
+ impl eframe::App for CpuExpressApp {
+     fn logic(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
++        if self.closing {
++            return;
++        }
+         if self.pending_dock {
+             self.pending_dock = false;
+             if let Err(error) = platform::dock_window(frame) {
+@@ -384,35 +1078,42 @@
+             self.metrics = sample;
+             self.samples += 1;
+         }
+-        // New samples update the target even between render deadlines, without advancing time.
+-        self.train.update(self.cpu_percent(), 0.0, &self.config);
+-        let hidden = ctx.input(|input| input.viewport().visible()) == Some(false);
+-        if hidden || self.was_hidden {
+-            self.last_step = Instant::now();
++        if !self.suspended() {
++            self.train.update(self.cpu_percent(), 0.0, &self.config);
++        }
++        let hidden = ctx.input(|input| {
++            input.viewport().visible() == Some(false) || input.viewport().minimized == Some(true)
++        });
++        self.focused = ctx.input(|input| input.focused);
++        if hidden != self.was_hidden {
+             self.next_frame = Instant::now();
+         }
+         self.was_hidden = hidden;
++        self.sync_clock();
+         self.record_diagnostics(false);
+-        if self.closing {
+-            return;
+-        }
++        self.persist_preferences(false);
+         if self
+             .exit_after
+             .is_some_and(|timeout| self.opened.elapsed() >= timeout)
+         {
+             eprintln!(
+-                "smoke: elapsed={:.2}s frames={} cpu={:.1}% speed={:.3}km/h",
++                "smoke: elapsed={:.2}s frames={} mode={} paused={} cpu={:.1}% speed={:.3}km/h",
+                 self.opened.elapsed().as_secs_f64(),
+                 self.frames,
++                if self.demo_mode {
++                    "demo"
++                } else {
++                    "real/manual"
++                },
++                self.suspended(),
+                 self.cpu_percent(),
+                 self.train.speed_kmh()
+             );
+-            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+-            self.closing = true;
++            self.dispatch(AppAction::Quit, ctx);
+             return;
+         }
+         if hidden {
+-            ctx.request_repaint_after(Duration::from_secs(1));
++            ctx.request_repaint_after(Duration::from_millis(250));
+         }
+     }
+ 
+@@ -420,8 +1121,13 @@
+         if self.closing {
+             return;
+         }
++        self.focused = ui.input(|input| input.focused);
++        self.sync_clock();
++        self.shortcuts(ui.ctx());
++        if self.closing {
++            return;
++        }
+         self.step_frame(ui.ctx());
+-        // Schedule after advancing the deadline; App::logic runs before App::ui.
+         ui.ctx().request_repaint_after(
+             self.next_frame
+                 .saturating_duration_since(Instant::now())
+@@ -436,67 +1142,65 @@
+                 egui::Color32::WHITE,
+             );
+         }
+-        let drag_area = egui::Rect::from_min_max(
+-            bounds.left_top() + egui::vec2(0.0, 28.0),
+-            bounds.right_bottom() - egui::vec2(0.0, 20.0),
+-        );
+-        if ui
+-            .interact(
+-                drag_area,
+-                egui::Id::unique("drag-scene"),
+-                egui::Sense::drag(),
+-            )
+-            .drag_started_by(egui::PointerButton::Primary)
+-        {
+-            ui.ctx().send_viewport_cmd(egui::ViewportCommand::StartDrag);
+-        }
+-        ui.painter().text(
+-            bounds.left_top() + egui::vec2(12.0, 10.0),
+-            egui::Align2::LEFT_TOP,
+-            "CPU EXPRESS",
+-            egui::FontId::monospace(11.0),
+-            egui::Color32::from_rgb(34, 61, 58),
+-        );
+-        if !ui.ctx().egui_wants_keyboard_input() {
+-            if ui.input(|i| i.key_pressed(egui::Key::M)) {
+-                self.config.show_metrics = !self.config.show_metrics;
+-                self.preferences_dirty = true;
+-            }
+-            if ui.input(|i| i.key_pressed(egui::Key::P)) {
+-                self.config.always_on_top = !self.config.always_on_top;
+-                self.apply_pin(ui.ctx());
+-            }
+-        }
+-        if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+-            if self.show_controls {
+-                self.show_controls = false;
++        let toolbar_visible = self.toolbar_visible(ui, bounds);
++        // Scene drag never steals a click from controls or an open overlay.
++        if !self.show_controls && !self.show_help {
++            let bottom = if self.config.effective_hud_mode() == HudMode::Clean {
++                0.0
+             } else {
+-                ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+-            }
+-        }
+-        self.toolbar(ui, bounds);
++                26.0
++            };
++            let top = if self.telemetry_notice().is_some() {
++                59.0
++            } else {
++                34.0
++            };
++            let drag_area = egui::Rect::from_min_max(
++                bounds.left_top() + egui::vec2(0.0, top),
++                bounds.right_bottom() - egui::vec2(0.0, bottom),
++            );
++            if drag_area.is_positive()
++                && ui
++                    .interact(drag_area, egui::Id::unique("drag-scene"), egui::Sense::DRAG)
++                    .drag_started_by(egui::PointerButton::Primary)
++            {
++                ui.ctx().send_viewport_cmd(egui::ViewportCommand::StartDrag);
++            }
++        }
++        self.header(ui, bounds, toolbar_visible);
+         self.status_bar(ui, bounds);
+-        if let Some(message) = &self.notification {
+-            let warning = egui::Rect::from_min_size(
+-                bounds.left_top() + egui::vec2(120.0, 6.0),
+-                egui::vec2(24.0, 21.0),
+-            );
+-            if ui
+-                .put(warning, egui::Button::new("!"))
+-                .on_hover_text(message)
+-                .clicked()
+-            {
+-                self.notification = None;
+-            }
+-        }
+-        self.controls(ui.ctx(), bounds);
+-        self.persist_preferences();
++        self.overlay(ui.ctx(), bounds);
++        self.persist_preferences(false);
+     }
+ 
+     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+         self.record_diagnostics(true);
+-        self.persist_preferences();
+-        // Drop joins the worker after waking its interruptible timer.
++        self.persist_preferences(true);
+         self.worker.take();
+     }
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn demo_worker_never_invokes_real_provider_factory() {
++        let mut worker = launch_worker(true, Duration::from_secs(1), 50.0, |_| {
++            panic!("the demo must never construct a real telemetry provider")
++        })
++        .expect("manual worker");
++        let deadline = Instant::now() + Duration::from_secs(2);
++        let sample = loop {
++            if let Some(sample) = worker.poll() {
++                break sample;
++            }
++            assert!(Instant::now() < deadline, "manual sample timed out");
++            std::thread::sleep(Duration::from_millis(1));
++        };
++        assert_eq!(sample.cpu_percent, Some(50.0));
++        assert_eq!(sample.ram_percent, None);
++        assert_eq!(sample.total_memory_bytes, 0);
++        worker.shutdown();
++    }
++}
+diff --git a/src/config.rs b/src/config.rs
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -8,6 +8,31 @@
+     sync::atomic::{AtomicU64, Ordering},
+     time::{SystemTime, UNIX_EPOCH},
+ };
++
++/// Amount of information drawn over the scenery.
++///
++/// The legacy `show_metrics` flag can still hide any mode; use
++/// [`Config::effective_hud_mode`] when deciding what to display.
++#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
++#[serde(rename_all = "snake_case")]
++pub enum HudMode {
++    Detailed,
++    #[default]
++    Compact,
++    Clean,
++}
++
++impl HudMode {
++    /// A deterministic cycle for the HUD button and its keyboard shortcut.
++    #[must_use]
++    pub fn next(self) -> Self {
++        match self {
++            Self::Compact => Self::Detailed,
++            Self::Detailed => Self::Clean,
++            Self::Clean => Self::Compact,
++        }
++    }
++}
+ 
+ /// Configuration has no platform handles or mutable global state.
+ ///
+@@ -22,8 +47,14 @@
+     pub smoothing_k: f64,
+     pub fps: u32,
+     pub metrics_interval_ms: u64,
++    /// Legacy visibility flag. A false value always hides the metrics HUD.
+     pub show_metrics: bool,
+     pub always_on_top: bool,
++    pub hud_mode: HudMode,
++    /// Opt-in only: desktop companions normally keep moving without focus.
++    pub pause_when_unfocused: bool,
++    pub start_paused: bool,
++    pub auto_hide_controls: bool,
+ }
+ 
+ impl Default for Config {
+@@ -36,11 +67,35 @@
+             metrics_interval_ms: 1_000,
+             show_metrics: true,
+             always_on_top: true,
++            hud_mode: HudMode::Compact,
++            pause_when_unfocused: false,
++            start_paused: false,
++            auto_hide_controls: true,
+         }
+     }
+ }
+ 
+ impl Config {
++    /// Resolve old and new preferences without rewriting a legacy file.
++    ///
++    /// `show_metrics = false` wins over any stored mode. This preserves old
++    /// JSON and Rust struct literals that only know about the visibility flag.
++    /// An explicit `Clean` mode also remains clean if the legacy flag is true.
++    #[must_use]
++    pub fn effective_hud_mode(&self) -> HudMode {
++        if self.show_metrics {
++            self.hud_mode
++        } else {
++            HudMode::Clean
++        }
++    }
++
++    /// Apply an explicit HUD choice and keep the legacy visibility in sync.
++    pub fn set_hud_mode(&mut self, mode: HudMode) {
++        self.hud_mode = mode;
++        self.show_metrics = mode != HudMode::Clean;
++    }
++
+     /// Repair invalid numeric input and keep experimental settings reasonable.
+     ///
+     /// The collector additionally respects sysinfo's platform-specific minimum
+@@ -85,8 +140,9 @@
+ /// Load preferences without ever modifying the source file.
+ ///
+ /// A missing file means a first launch. Invalid or unreadable files produce a
+-/// warning and safe defaults. In particular, corrupt user data remains intact
+-/// until the user explicitly changes a preference and requests a save.
++/// warning and safe defaults. Corrupt or incompatible user data remains intact
++/// even if a later preference change attempts to save it: [`save`] refuses to
++/// overwrite a document it cannot safely understand.
+ #[must_use]
+ pub fn load(path: Option<&Path>) -> (Config, Option<String>) {
+     let Some(path) = path else {
+@@ -105,8 +161,8 @@
+             );
+         }
+     };
+-    match serde_json::from_str::<Config>(&text) {
+-        Ok(config) => {
++    match parse_document(&text) {
++        Ok((config, _)) => {
+             let normalized = config.clone().normalized();
+             let warning = (normalized != config).then(|| {
+                 "Alguns valores da configuração estavam fora dos limites e foram ajustados. O arquivo original foi preservado."
+@@ -128,12 +184,45 @@
+ ///
+ /// This function is only for explicit preference changes. It must not be called
+ /// automatically just because [`load`] returned defaults or a warning.
++/// Unknown fields of a valid document are retained, including nested values.
++/// Corrupt, incompatible or unreadable documents are never replaced: callers
++/// receive a recoverable error and can keep using the preference in memory.
+ /// `rename` stays on the same filesystem and the existing file is never removed
+ /// first; a write/sync/rename failure therefore leaves its contents untouched.
+ pub fn save(config: &Config, path: &Path) -> Result<(), String> {
+     if path.file_name().is_none() {
+         return Err("O caminho da configuração deve indicar um arquivo.".to_owned());
+     }
++    // Read and validate before creating a directory or temporary file. A
++    // future version's unknown fields survive, but a known field with an
++    // unsupported type/value must not be silently replaced with our defaults.
++    let mut document = match fs::read_to_string(path) {
++        Ok(text) => parse_document(&text)
++            .map(|(_, document)| document)
++            .map_err(|error| {
++                format!(
++                    "Preferências válidas só nesta sessão: a configuração em {} está inválida ou é incompatível ({error}). O arquivo original foi preservado; corrija-o ou escolha outro caminho com --config.",
++                    path.display()
++                )
++            })?,
++        Err(error) if error.kind() == ErrorKind::NotFound => serde_json::Map::new(),
++        Err(error) => {
++            return Err(format!(
++                "Não foi possível ler a configuração em {} antes de salvar: {error}. O arquivo original foi preservado.",
++                path.display()
++            ));
++        }
++    };
++    let values = serde_json::to_value(config.clone().normalized())
++        .map_err(|error| format!("Não foi possível codificar a configuração: {error}"))?;
++    let serde_json::Value::Object(values) = values else {
++        return Err("Não foi possível codificar a configuração como objeto JSON.".to_owned());
++    };
++    document.extend(values);
++    let mut bytes = serde_json::to_vec_pretty(&document)
++        .map_err(|error| format!("Não foi possível codificar a configuração: {error}"))?;
++    bytes.push(b'\n');
++
+     let parent = path
+         .parent()
+         .filter(|parent| !parent.as_os_str().is_empty())
+@@ -144,10 +233,6 @@
+             parent.display()
+         )
+     })?;
+-    let mut bytes = serde_json::to_vec_pretty(&config.clone().normalized())
+-        .map_err(|error| format!("Não foi possível codificar a configuração: {error}"))?;
+-    bytes.push(b'\n');
+-
+     let (temporary, file) = create_temporary(parent)?;
+     // The closure owns the file: its handle closes on both success and failure
+     // before TemporaryPath attempts cleanup (important for Windows file locks).
+@@ -171,6 +256,16 @@
+     Ok(())
+ }
+ 
++/// Parse both views from the same bytes. Parsing `Config` directly also catches
++/// duplicate known keys, which would be lost by first deserializing a `Value`.
++fn parse_document(
++    text: &str,
++) -> Result<(Config, serde_json::Map<String, serde_json::Value>), serde_json::Error> {
++    let document = serde_json::from_str(text)?;
++    let config = serde_json::from_str(text)?;
++    Ok((config, document))
++}
++
+ /// Removes our temporary file after any error; after a rename it is already gone.
+ struct TemporaryPath(PathBuf);
+ 
+diff --git a/src/main.rs b/src/main.rs
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,11 +1,190 @@
+ #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
+ 
+-use std::{error::Error, path::PathBuf, time::Duration};
++use std::{
++    error::Error,
++    ffi::OsString,
++    io::{self, ErrorKind},
++    path::{Component, Path, PathBuf},
++    time::Duration,
++};
+ 
+ use cpu_express::app::{CpuExpressApp, LaunchOptions};
+ use cpu_express::diagnostics::Diagnostics;
+ use cpu_express::{config, platform};
+ use eframe::egui;
++
++const HELP: &str = concat!(
++    "CPU Express ",
++    env!("CARGO_PKG_VERSION"),
++    " — um trem para acompanhar o computador\n\
++\n\
++Uso: cpu-express.exe [opções]\n\
++  --demo               CPU simulada; não consulta CPU nem RAM reais.\n\
++                       Começa em 50%; combine com --cpu para outro valor.\n\
++  --cpu 0..100         CPU manual, sem gerar carga no processador.\n\
++                       Fora de --demo, a coleta real de métricas continua.\n\
++  --config CAMINHO     Preferências JSON locais.\n\
++  --diagnostics CAMINHO  Registro JSONL local, apenas quando solicitado.\n\
++  --smoke-seconds N    Encerra após N segundos (0.1 a 86400).\n\
++  --smoke              Equivale a --smoke-seconds 3.\n\
++  --help, -h           Mostra esta ajuda sem abrir a janela.\n\
++\n\
++Atalhos com a janela em foco, fora dos campos de entrada:\n\
++  Espaço  Pausar ou retomar a viagem.\n\
++  M       Alternar HUD compacto, completo e limpo.\n\
++  P       Fixar ou soltar a janela no topo.\n\
++  O       Abrir ou fechar as opções.\n\
++  F1      Abrir ou fechar a ajuda.\n\
++  R       Reposicionar perto da barra de tarefas.\n\
++  Esc     Fechar o painel aberto; não encerra o aplicativo.\n\
++  Ctrl+Q  Sair. O botão Sair também fica disponível nos controles.\n\
++\n\
++Em DEMO, a RAM aparece como indisponível; nenhum valor real é inventado.\n\
++Use 0%, 50% e 100% no painel para experimentar sem aumentar a carga.\n\
++Exemplo: cpu-express.exe --demo --cpu 50 --smoke-seconds 10"
++);
++
++#[derive(Debug, Default, PartialEq)]
++struct CliOptions {
++    demo: bool,
++    cpu_override: Option<f32>,
++    diagnostics_path: Option<PathBuf>,
++    config_path: Option<PathBuf>,
++    exit_after: Option<Duration>,
++}
++
++#[derive(Debug, PartialEq)]
++enum CommandLine {
++    Help,
++    Run(CliOptions),
++}
++
++/// Parse only; no files, graphics, metrics provider or worker are opened here.
++///
++/// Paths retain their native encoding. Only option names and numeric values
++/// need UTF-8, so a Windows path with non-ASCII characters is not round-tripped
++/// through a lossy string. As in the original CLI, the last repeated value wins.
++fn parse_args(args: impl IntoIterator<Item = OsString>) -> Result<CommandLine, String> {
++    let mut options = CliOptions::default();
++    let mut args = args.into_iter();
++    while let Some(arg) = args.next() {
++        match arg.to_str() {
++            Some("--demo") => options.demo = true,
++            Some("--cpu") => {
++                let error = "--cpu exige um número de 0 a 100 (ex.: --cpu 50)";
++                let value = args.next().ok_or(error)?;
++                let cpu: f32 = value.to_str().ok_or(error)?.parse().map_err(|_| error)?;
++                if !cpu.is_finite() || !(0.0..=100.0).contains(&cpu) {
++                    return Err("--cpu deve ser um número finito entre 0 e 100".to_owned());
++                }
++                options.cpu_override = Some(cpu);
++            }
++            Some("--diagnostics") => {
++                options.diagnostics_path = Some(path_argument(&mut args, "--diagnostics")?);
++            }
++            Some("--config") => {
++                options.config_path = Some(path_argument(&mut args, "--config")?);
++            }
++            Some("--smoke") => options.exit_after = Some(Duration::from_secs(3)),
++            Some("--smoke-seconds") => {
++                let error = "--smoke-seconds exige segundos (ex.: --smoke-seconds 3)";
++                let value = args.next().ok_or(error)?;
++                let seconds: f64 = value.to_str().ok_or(error)?.parse().map_err(|_| error)?;
++                if !seconds.is_finite() || !(0.1..=86400.0).contains(&seconds) {
++                    return Err(
++                        "--smoke-seconds deve ser um número finito entre 0.1 e 86400".to_owned(),
++                    );
++                }
++                options.exit_after = Some(Duration::from_secs_f64(seconds));
++            }
++            Some("--help" | "-h") => return Ok(CommandLine::Help),
++            _ => return Err(format!("Opção desconhecida: {}", arg.to_string_lossy())),
++        }
++    }
++    // Resolve this after all arguments so --demo --cpu and --cpu --demo agree.
++    if options.demo && options.cpu_override.is_none() {
++        options.cpu_override = Some(50.0);
++    }
++    Ok(CommandLine::Run(options))
++}
++
++fn path_argument(args: &mut impl Iterator<Item = OsString>, flag: &str) -> Result<PathBuf, String> {
++    let path = args
++        .next()
++        .filter(|value| !value.is_empty())
++        .ok_or_else(|| format!("{flag} exige um caminho de arquivo"))?;
++    // A relative path beginning with "--" remains valid when written as ./--… .
++    if path.to_str().is_some_and(|value| value.starts_with("--")) {
++        return Err(format!(
++            "{flag} exige um caminho de arquivo antes da próxima opção"
++        ));
++    }
++    Ok(PathBuf::from(path))
++}
++
++/// Compare destinations before the diagnostic writer can truncate a file.
++///
++/// Each existing prefix is canonicalized before processing the next component,
++/// so relative paths, `..` and symlinked parent directories agree even when the
++/// final file does not exist yet. This guard prevents accidental aliasing; it
++/// does not claim to defend against concurrent filesystem changes or hard links.
++fn resolved_destination(path: &Path) -> io::Result<PathBuf> {
++    let absolute = std::path::absolute(path)?;
++    let mut resolved = PathBuf::new();
++    for component in absolute.components() {
++        match component {
++            Component::CurDir => {}
++            Component::ParentDir => {
++                resolved.pop();
++            }
++            Component::Normal(_) => {
++                resolved.push(component.as_os_str());
++                match std::fs::canonicalize(&resolved) {
++                    Ok(canonical) => resolved = canonical,
++                    Err(error) if error.kind() == ErrorKind::NotFound => {}
++                    Err(error) => return Err(error),
++                }
++            }
++            Component::Prefix(_) | Component::RootDir => resolved.push(component.as_os_str()),
++        }
++    }
++    Ok(resolved)
++}
++
++fn ensure_separate_destinations(config_path: &Path, diagnostics_path: &Path) -> Result<(), String> {
++    let resolve = |path: &Path| {
++        resolved_destination(path).map_err(|error| {
++            format!("Não foi possível verificar os caminhos de configuração e diagnóstico: {error}")
++        })
++    };
++    let config = resolve(config_path)?;
++    let diagnostics = resolve(diagnostics_path)?;
++    #[cfg(windows)]
++    let same_destination =
++        config.to_string_lossy().to_lowercase() == diagnostics.to_string_lossy().to_lowercase();
++    #[cfg(not(windows))]
++    let same_destination = config == diagnostics;
++    if same_destination {
++        return Err(
++            "--diagnostics deve usar um arquivo diferente da configuração; o arquivo original foi preservado."
++                .to_owned(),
++        );
++    }
++    Ok(())
++}
++
++fn open_diagnostics(
++    config_path: Option<&Path>,
++    diagnostics_path: Option<&Path>,
++) -> Result<Option<Diagnostics>, Box<dyn Error>> {
++    let Some(diagnostics_path) = diagnostics_path else {
++        return Ok(None);
++    };
++    if let Some(config_path) = config_path {
++        ensure_separate_destinations(config_path, diagnostics_path)?;
++    }
++    Ok(Some(Diagnostics::open(diagnostics_path)?))
++}
+ 
+ fn main() {
+     if let Err(error) = run() {
+@@ -16,62 +195,23 @@
+ }
+ 
+ fn run() -> Result<(), Box<dyn Error>> {
+-    let mut cpu_override = None;
+-    let mut diagnostics_path = None;
+-    let mut config_path = None;
+-    let mut exit_after = None;
+-    let mut args = std::env::args().skip(1);
+-    while let Some(arg) = args.next() {
+-        match arg.as_str() {
+-            "--cpu" => {
+-                let cpu: f32 = args
+-                    .next()
+-                    .ok_or("--cpu exige um valor de 0 a 100")?
+-                    .parse()?;
+-                if !cpu.is_finite() || !(0.0..=100.0).contains(&cpu) {
+-                    return Err("--cpu deve estar entre 0 e 100".into());
+-                }
+-                cpu_override = Some(cpu);
+-            }
+-            "--diagnostics" => {
+-                diagnostics_path = Some(PathBuf::from(
+-                    args.next().ok_or("--diagnostics exige um caminho")?,
+-                ))
+-            }
+-            "--config" => {
+-                config_path = Some(PathBuf::from(
+-                    args.next().ok_or("--config exige um caminho")?,
+-                ))
+-            }
+-            "--smoke" => exit_after = Some(Duration::from_secs(3)),
+-            "--smoke-seconds" => {
+-                let seconds: f64 = args
+-                    .next()
+-                    .ok_or("--smoke-seconds exige segundos")?
+-                    .parse()?;
+-                if !seconds.is_finite() || !(0.1..=86400.0).contains(&seconds) {
+-                    return Err("--smoke-seconds deve estar entre 0.1 e 86400".into());
+-                }
+-                exit_after = Some(Duration::from_secs_f64(seconds));
+-            }
+-            "--help" | "-h" => {
+-                println!(
+-                    "CPU Express 0.1\n--cpu 0..100 (simulação manual, sem gerar carga)\n--config PATH (preferências JSON)\n--smoke-seconds N\n--diagnostics PATH (JSONL local)\n--smoke"
+-                );
+-                return Ok(());
+-            }
+-            _ => return Err(format!("Opção desconhecida: {arg}").into()),
+-        }
+-    }
++    let CommandLine::Run(arguments) = parse_args(std::env::args_os().skip(1))? else {
++        println!("{HELP}");
++        return Ok(());
++    };
++    let CliOptions {
++        demo,
++        cpu_override,
++        diagnostics_path,
++        config_path,
++        exit_after,
++    } = arguments;
+     if !cfg!(windows) && !cfg!(feature = "host-validation") {
+         return Err("A versão 0.1 é destinada ao Windows. Para validar a janela no host de desenvolvimento, use --features host-validation. O porte Linux é futuro.".into());
+     }
+     let config_path = config_path.or_else(config::default_path);
+     let (config, warning) = config::load(config_path.as_deref());
+-    let diagnostics = diagnostics_path
+-        .as_deref()
+-        .map(Diagnostics::open)
+-        .transpose()?;
++    let diagnostics = open_diagnostics(config_path.as_deref(), diagnostics_path.as_deref())?;
+     let options = eframe::NativeOptions {
+         viewport: egui::ViewportBuilder::default()
+             .with_inner_size([640.0, 140.0])
+@@ -93,18 +233,297 @@
+         "CPU Express",
+         options,
+         Box::new(move |cc| {
+-            Ok(Box::new(CpuExpressApp::new(
+-                &cc.egui_ctx,
+-                LaunchOptions {
+-                    config,
+-                    config_path,
+-                    warning,
+-                    cpu_override,
+-                    exit_after,
+-                    diagnostics,
+-                },
+-            )))
++            let launch_options = LaunchOptions {
++                config,
++                config_path,
++                warning,
++                cpu_override,
++                exit_after,
++                diagnostics,
++            };
++            let app = if demo {
++                CpuExpressApp::new_demo(&cc.egui_ctx, launch_options)
++            } else {
++                CpuExpressApp::new(&cc.egui_ctx, launch_options)
++            };
++            Ok(Box::new(app))
+         }),
+     )?;
+     Ok(())
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::{
++        CliOptions, CommandLine, ensure_separate_destinations, open_diagnostics, parse_args,
++    };
++    use std::{
++        ffi::OsString,
++        fs,
++        path::{Path, PathBuf},
++        sync::atomic::{AtomicU64, Ordering},
++        time::{Duration, SystemTime, UNIX_EPOCH},
++    };
++
++    struct TestDirectory(PathBuf);
++
++    impl TestDirectory {
++        fn new() -> Self {
++            static SEQUENCE: AtomicU64 = AtomicU64::new(0);
++            let timestamp = SystemTime::now()
++                .duration_since(UNIX_EPOCH)
++                .expect("test clock")
++                .as_nanos();
++            // A fixture below cwd permits relative-path tests without mutating
++            // the process-wide current directory or environment in parallel.
++            let path = std::env::current_dir().unwrap().join(format!(
++                "cpu-express-ux-path-test-{}-{timestamp}-{}",
++                std::process::id(),
++                SEQUENCE.fetch_add(1, Ordering::Relaxed)
++            ));
++            fs::create_dir(&path).expect("create isolated fixture");
++            Self(path)
++        }
++
++        fn file(&self, name: &str) -> PathBuf {
++            self.0.join(name)
++        }
++    }
++
++    impl Drop for TestDirectory {
++        fn drop(&mut self) {
++            let _ = fs::remove_dir_all(&self.0);
++        }
++    }
++
++    fn parse(args: &[&str]) -> Result<CommandLine, String> {
++        parse_args(args.iter().map(OsString::from))
++    }
++
++    fn options(args: &[&str]) -> CliOptions {
++        let CommandLine::Run(options) = parse(args).expect("valid arguments") else {
++            panic!("expected launch arguments");
++        };
++        options
++    }
++
++    #[test]
++    fn normal_launch_keeps_real_cpu_and_demo_is_explicit() {
++        assert_eq!(options(&[]), CliOptions::default());
++        let demo = options(&["--demo"]);
++        assert!(demo.demo);
++        assert_eq!(demo.cpu_override, Some(50.0));
++        let manual = options(&["--cpu", "50"]);
++        assert!(!manual.demo);
++        assert_eq!(manual.cpu_override, Some(50.0));
++    }
++
++    #[test]
++    fn explicit_demo_cpu_is_independent_of_flag_order() {
++        for value in ["0", "12.5", "50", "100"] {
++            let before = options(&["--demo", "--cpu", value]);
++            let after = options(&["--cpu", value, "--demo"]);
++            assert_eq!(before, after);
++            assert_eq!(before.cpu_override, Some(value.parse().unwrap()));
++        }
++    }
++
++    #[test]
++    fn original_flags_can_be_combined_with_demo() {
++        let parsed = options(&[
++            "--config",
++            "pasta com espaços/preferências.json",
++            "--diagnostics",
++            "registros/sessão.jsonl",
++            "--smoke-seconds",
++            "2.5",
++            "--cpu",
++            "0",
++            "--demo",
++        ]);
++        assert_eq!(
++            parsed.config_path,
++            Some(PathBuf::from("pasta com espaços/preferências.json"))
++        );
++        assert_eq!(
++            parsed.diagnostics_path,
++            Some(PathBuf::from("registros/sessão.jsonl"))
++        );
++        assert_eq!(parsed.exit_after, Some(Duration::from_millis(2_500)));
++        assert_eq!(parsed.cpu_override, Some(0.0));
++        assert!(parsed.demo);
++    }
++
++    #[test]
++    fn original_smoke_alias_and_last_value_semantics_are_preserved() {
++        assert_eq!(
++            options(&["--smoke"]).exit_after,
++            Some(Duration::from_secs(3))
++        );
++        assert_eq!(
++            options(&["--smoke", "--smoke-seconds", "0.1"]).exit_after,
++            Some(Duration::from_millis(100))
++        );
++        assert_eq!(
++            options(&["--smoke-seconds", "10", "--smoke"]).exit_after,
++            Some(Duration::from_secs(3))
++        );
++        assert_eq!(
++            options(&["--cpu", "0", "--cpu", "100"]).cpu_override,
++            Some(100.0)
++        );
++    }
++
++    #[test]
++    fn numeric_boundaries_are_safe_and_invalid_cpu_is_rejected() {
++        for value in ["NaN", "inf", "-inf", "-1", "100.1", "texto", ""] {
++            let error = parse(&["--cpu", value]).unwrap_err();
++            assert!(error.starts_with("--cpu"), "{value}: {error}");
++        }
++        for value in ["NaN", "inf", "-1", "0", "0.09", "86400.1", "texto", ""] {
++            let error = parse(&["--smoke-seconds", value]).unwrap_err();
++            assert!(error.starts_with("--smoke-seconds"), "{value}: {error}");
++        }
++        assert_eq!(
++            options(&["--smoke-seconds", "86400"]).exit_after,
++            Some(Duration::from_secs(86_400))
++        );
++    }
++
++    #[test]
++    fn missing_values_and_unknown_flags_report_portuguese_errors() {
++        for flag in ["--cpu", "--config", "--diagnostics", "--smoke-seconds"] {
++            let error = parse(&[flag]).unwrap_err();
++            assert!(error.starts_with(flag));
++            assert!(error.contains("exige"));
++        }
++        assert_eq!(
++            parse(&["--surpresa"]).unwrap_err(),
++            "Opção desconhecida: --surpresa"
++        );
++        assert!(parse(&["--config", "--demo"]).is_err());
++        assert!(parse(&["--diagnostics", ""]).is_err());
++    }
++
++    #[test]
++    fn help_short_circuits_before_starting_the_application() {
++        assert_eq!(parse(&["--help"]).unwrap(), CommandLine::Help);
++        assert_eq!(parse(&["--demo", "-h"]).unwrap(), CommandLine::Help);
++        assert_eq!(
++            parse(&["--config", "não-criar.json", "--help"]).unwrap(),
++            CommandLine::Help
++        );
++    }
++
++    #[test]
++    fn diagnostics_rejects_relative_absolute_and_dot_aliases() {
++        let directory = TestDirectory::new();
++        let config = directory.file("preferencias.json");
++        fs::write(&config, b"{\"fps\":30}").unwrap();
++        fs::create_dir(directory.file("subpasta")).unwrap();
++        let relative = Path::new(directory.0.file_name().unwrap()).join("preferencias.json");
++        for alias in [
++            relative,
++            directory.file("./preferencias.json"),
++            directory.file("subpasta/../preferencias.json"),
++        ] {
++            assert!(ensure_separate_destinations(&config, &alias).is_err());
++        }
++        assert!(
++            ensure_separate_destinations(&config, &directory.file("diagnostico.jsonl")).is_ok()
++        );
++    }
++
++    #[test]
++    fn diagnostic_open_cannot_truncate_the_configuration() {
++        let directory = TestDirectory::new();
++        let config = directory.file("preferencias.json");
++        let original = b"{\"fps\":30,\"future_field\":{\"keep\":true}}\n";
++        fs::write(&config, original).unwrap();
++        let result = open_diagnostics(Some(&config), Some(&config));
++        assert!(result.is_err());
++        assert_eq!(fs::read(&config).unwrap(), original);
++        assert_eq!(fs::read_dir(&directory.0).unwrap().count(), 1);
++    }
++
++    #[test]
++    fn matching_new_destinations_do_not_create_any_file() {
++        let directory = TestDirectory::new();
++        let config = directory.file("ainda-nao-existe.json");
++        let alias = directory.file("./ainda-nao-existe.json");
++        assert!(open_diagnostics(Some(&config), Some(&alias)).is_err());
++        assert!(!config.exists());
++        assert_eq!(fs::read_dir(&directory.0).unwrap().count(), 0);
++    }
++
++    #[test]
++    fn a_distinct_diagnostic_file_preserves_config_and_records_normally() {
++        let directory = TestDirectory::new();
++        let config = directory.file("preferencias.json");
++        let output = directory.file("diagnostico.jsonl");
++        let original = b"{\"fps\":30}\n";
++        fs::write(&config, original).unwrap();
++        let mut diagnostics = open_diagnostics(Some(&config), Some(&output))
++            .expect("separate destinations")
++            .expect("requested diagnostic writer");
++        diagnostics
++            .record(&serde_json::json!({"event": "path_guard_test"}))
++            .expect("write one record");
++        drop(diagnostics);
++        assert_eq!(fs::read(&config).unwrap(), original);
++        assert_eq!(
++            fs::read_to_string(output).unwrap(),
++            "{\"event\":\"path_guard_test\"}\n"
++        );
++    }
++
++    #[cfg(unix)]
++    #[test]
++    fn symlinked_files_and_parents_cannot_alias_the_configuration() {
++        use std::os::unix::fs::symlink;
++
++        let directory = TestDirectory::new();
++        let config = directory.file("preferencias.json");
++        let original = b"{\"start_paused\":true}\n";
++        fs::write(&config, original).unwrap();
++        let alias = directory.file("diagnostico-link.jsonl");
++        symlink(&config, &alias).unwrap();
++        assert!(open_diagnostics(Some(&config), Some(&alias)).is_err());
++        assert_eq!(fs::read(&config).unwrap(), original);
++
++        let directory_alias = directory.file("pasta-link");
++        symlink(&directory.0, &directory_alias).unwrap();
++        assert!(
++            ensure_separate_destinations(
++                &directory.file("novo.json"),
++                &directory_alias.join("novo.json")
++            )
++            .is_err()
++        );
++    }
++
++    #[cfg(windows)]
++    #[test]
++    fn windows_case_alias_does_not_truncate_configuration() {
++        let directory = TestDirectory::new();
++        let config = directory.file("preferencias.json");
++        let original = b"{\"fps\":30}\n";
++        fs::write(&config, original).unwrap();
++        let alias = directory.file("PREFERENCIAS.JSON");
++        assert!(open_diagnostics(Some(&config), Some(&alias)).is_err());
++        assert_eq!(fs::read(&config).unwrap(), original);
++    }
++
++    #[cfg(unix)]
++    #[test]
++    fn native_paths_are_not_lossily_reencoded() {
++        use std::os::unix::ffi::OsStringExt;
++
++        let path = OsString::from_vec(b"local-\xff.json".to_vec());
++        let parsed = parse_args([OsString::from("--config"), path.clone()]).unwrap();
++        let CommandLine::Run(parsed) = parsed else {
++            panic!("expected launch arguments");
++        };
++        assert_eq!(parsed.config_path, Some(PathBuf::from(path)));
++    }
++}
+diff --git a/tests/ux_app.rs b/tests/ux_app.rs
+new file mode 100644
+--- /dev/null
++++ b/tests/ux_app.rs
+@@ -0,0 +1,479 @@
++use std::time::Duration;
++
++use cpu_express::{
++    app::{AppAction, CpuExpressApp, LaunchOptions, SimulationClock, shortcut_action},
++    config::{Config, HudMode},
++    simulation::{Train, World},
++};
++use eframe::{App, egui};
++
++fn seconds(value: f64) -> Duration {
++    Duration::from_secs_f64(value)
++}
++
++#[test]
++fn clock_discards_pause_time_even_without_intermediate_frames() {
++    let mut clock = SimulationClock::new(Duration::ZERO);
++    assert!((clock.take_step(seconds(0.02)) - 0.02).abs() < 1e-9);
++    clock.set_suspended(true, seconds(0.03));
++    clock.set_suspended(false, seconds(600.0));
++    assert_eq!(clock.take_step(seconds(600.0)), 0.0);
++    assert!((clock.take_step(seconds(600.02)) - 0.02).abs() < 1e-9);
++}
++
++#[test]
++fn suspended_clock_freezes_wheels_scenery_and_smoke() {
++    let config = Config::default();
++    let mut train = Train::new(&config);
++    let mut world = World::default();
++    let mut clock = SimulationClock::new(Duration::ZERO);
++    for index in 1..=120 {
++        let dt = clock.take_step(seconds(f64::from(index) / 60.0));
++        let distance = train.update(100.0, dt, &config);
++        world.update(dt, distance, train.speed_kmh());
++    }
++    assert!(!world.smoke().is_empty());
++    let speed = train.speed_kmh();
++    let wheel_phase = train.wheel_phase();
++    let world_time = world.elapsed_seconds();
++    let scroll = world.scroll_px();
++    let smoke: Vec<_> = world
++        .smoke()
++        .iter()
++        .map(|particle| (particle.x, particle.y, particle.age, particle.size))
++        .collect();
++
++    clock.set_suspended(true, seconds(2.0));
++    for elapsed in [3.0, 10.0, 300.0] {
++        let dt = clock.take_step(seconds(elapsed));
++        let distance = train.update(0.0, dt, &config);
++        world.update(dt, distance, train.speed_kmh());
++        assert_eq!(dt, 0.0);
++        assert_eq!(distance, 0.0);
++    }
++    assert_eq!(train.speed_kmh(), speed);
++    assert_eq!(train.wheel_phase(), wheel_phase);
++    assert_eq!(world.elapsed_seconds(), world_time);
++    assert_eq!(world.scroll_px(), scroll);
++    assert_eq!(
++        world
++            .smoke()
++            .iter()
++            .map(|particle| (particle.x, particle.y, particle.age, particle.size))
++            .collect::<Vec<_>>(),
++        smoke
++    );
++    clock.set_suspended(false, seconds(300.0));
++    let dt = clock.take_step(seconds(300.02));
++    let distance = train.update(0.0, dt, &config);
++    world.update(dt, distance, train.speed_kmh());
++    assert!((world.elapsed_seconds() - world_time - 0.02).abs() < 1e-8);
++    assert!(distance > 0.0 && distance < 2.0);
++}
++
++#[test]
++fn clock_bounds_long_frames_and_handles_reversed_time() {
++    let mut clock = SimulationClock::new(seconds(1.0));
++    assert_eq!(clock.take_step(seconds(120.0)), 0.25);
++    assert_eq!(clock.take_step(seconds(119.0)), 0.0);
++    clock.set_suspended(true, seconds(120.0));
++    assert_eq!(clock.take_step(seconds(1000.0)), 0.0);
++}
++
++#[test]
++fn shortcut_contract_distinguishes_typing_from_commands() {
++    let ordinary = [
++        (egui::Key::Space, AppAction::TogglePause),
++        (egui::Key::M, AppAction::CycleHud),
++        (egui::Key::P, AppAction::TogglePin),
++        (egui::Key::O, AppAction::ToggleControls),
++        (egui::Key::F1, AppAction::ToggleHelp),
++        (egui::Key::R, AppAction::Reposition),
++    ];
++    for (key, action) in ordinary {
++        assert_eq!(
++            shortcut_action(key, egui::Modifiers::NONE, false, false),
++            Some(action)
++        );
++        assert_eq!(
++            shortcut_action(key, egui::Modifiers::NONE, true, false),
++            None
++        );
++    }
++    assert_eq!(
++        shortcut_action(egui::Key::Q, egui::Modifiers::CTRL, false, false),
++        Some(AppAction::Quit)
++    );
++    assert_eq!(
++        shortcut_action(egui::Key::Q, egui::Modifiers::CTRL, true, false),
++        None
++    );
++    assert_eq!(
++        shortcut_action(egui::Key::Q, egui::Modifiers::NONE, false, false),
++        None
++    );
++    assert_eq!(
++        shortcut_action(egui::Key::M, egui::Modifiers::CTRL, false, false),
++        None
++    );
++}
++
++#[test]
++fn escape_closes_panels_and_never_exits() {
++    for keyboard_in_use in [false, true] {
++        assert_eq!(
++            shortcut_action(
++                egui::Key::Escape,
++                egui::Modifiers::NONE,
++                keyboard_in_use,
++                true
++            ),
++            Some(AppAction::ClosePanel)
++        );
++        assert_eq!(
++            shortcut_action(
++                egui::Key::Escape,
++                egui::Modifiers::NONE,
++                keyboard_in_use,
++                false
++            ),
++            None
++        );
++    }
++}
++
++struct Harness {
++    ctx: egui::Context,
++    app: CpuExpressApp,
++    frame: eframe::Frame,
++    time: f64,
++}
++
++impl Harness {
++    fn new(config: Config) -> Self {
++        let ctx = egui::Context::default();
++        let app = CpuExpressApp::new_demo(
++            &ctx,
++            LaunchOptions {
++                config,
++                config_path: None,
++                warning: None,
++                cpu_override: Some(50.0),
++                exit_after: None,
++                diagnostics: None,
++            },
++        );
++        Self {
++            ctx,
++            app,
++            frame: eframe::Frame::_new_kittest(),
++            time: 0.0,
++        }
++    }
++
++    fn tick(&mut self, events: Vec<egui::Event>) -> egui::FullOutput {
++        self.time += 1.0 / 30.0;
++        let mut input = egui::RawInput {
++            screen_rect: Some(egui::Rect::from_min_size(
++                egui::Pos2::ZERO,
++                egui::vec2(640.0, 140.0),
++            )),
++            time: Some(self.time),
++            events,
++            focused: true,
++            ..Default::default()
++        };
++        let viewport = input.viewports.get_mut(&egui::ViewportId::ROOT).unwrap();
++        viewport.focused = Some(true);
++        viewport.minimized = Some(false);
++        viewport.occluded = Some(false);
++        self.ctx.run_ui(input, |ui| {
++            self.app.logic(ui.ctx(), &mut self.frame);
++            self.app.ui(ui, &mut self.frame);
++        })
++    }
++
++    fn key(&mut self, key: egui::Key) -> egui::FullOutput {
++        self.tick(vec![
++            egui::Event::Key {
++                key,
++                physical_key: None,
++                pressed: true,
++                repeat: false,
++                modifiers: egui::Modifiers::NONE,
++            },
++            egui::Event::Key {
++                key,
++                physical_key: None,
++                pressed: false,
++                repeat: false,
++                modifiers: egui::Modifiers::NONE,
++            },
++        ])
++    }
++
++    fn pointer_button(&mut self, pos: egui::Pos2, pressed: bool) -> egui::FullOutput {
++        self.tick(vec![
++            egui::Event::PointerMoved(pos),
++            egui::Event::PointerButton {
++                pos,
++                button: egui::PointerButton::Primary,
++                pressed,
++                modifiers: egui::Modifiers::NONE,
++            },
++        ])
++    }
++
++    fn drag_requests_native_move(&mut self, start: egui::Pos2, end: egui::Pos2) -> bool {
++        let mut requested = false;
++        for output in [
++            self.tick(vec![egui::Event::PointerMoved(start)]),
++            self.pointer_button(start, true),
++            self.tick(vec![egui::Event::PointerMoved(end)]),
++            self.pointer_button(end, false),
++        ] {
++            requested |= output.viewport_output.values().any(|viewport| {
++                viewport
++                    .commands
++                    .iter()
++                    .any(|command| matches!(command, egui::ViewportCommand::StartDrag))
++            });
++            output.drop_without_applying_deltas();
++        }
++        requested
++    }
++}
++
++fn text_in(shape: &egui::Shape, result: &mut String) {
++    match shape {
++        egui::Shape::Text(text) => {
++            result.push_str(&text.galley.job.text);
++            result.push('\n');
++        }
++        egui::Shape::Vec(shapes) => {
++            for shape in shapes {
++                text_in(shape, result);
++            }
++        }
++        _ => {}
++    }
++}
++
++fn painted_text(output: &egui::FullOutput) -> String {
++    let mut text = String::new();
++    for clipped in &output.shapes {
++        text_in(&clipped.shape, &mut text);
++    }
++    text
++}
++
++fn requests_close(output: &egui::FullOutput) -> bool {
++    output.viewport_output.values().any(|viewport| {
++        viewport
++            .commands
++            .iter()
++            .any(|command| matches!(command, egui::ViewportCommand::Close))
++    })
++}
++
++fn find_text_center(shape: &egui::Shape, prefix: &str) -> Option<egui::Pos2> {
++    match shape {
++        egui::Shape::Text(text) if text.galley.job.text.trim().starts_with(prefix) => {
++            Some(text.visual_bounding_rect().center())
++        }
++        egui::Shape::Vec(shapes) => shapes
++            .iter()
++            .find_map(|shape| find_text_center(shape, prefix)),
++        _ => None,
++    }
++}
++
++#[test]
++fn demo_ui_stays_explicit_in_clean_hud_and_does_not_invent_ram() {
++    let mut config = Config::default();
++    config.set_hud_mode(HudMode::Clean);
++    let mut harness = Harness::new(config);
++    harness.tick(vec![]).drop_without_applying_deltas();
++    let output = harness.tick(vec![]);
++    let snapshot = harness.app.snapshot();
++    assert!(snapshot.demo_mode);
++    assert_eq!(snapshot.cpu_percent, 50.0);
++    assert_eq!(snapshot.ram_percent, None);
++    assert_eq!(snapshot.hud_mode, HudMode::Clean);
++    let text = painted_text(&output);
++    assert!(text.contains("DEMO"), "Missing demo marker: {text}");
++    assert!(!text.contains("RAM 0%"));
++    assert!(!requests_close(&output));
++    output.drop_without_applying_deltas();
++}
++
++#[test]
++fn headless_keyboard_pauses_and_esc_only_closes_open_panel() {
++    let mut harness = Harness::new(Config::default());
++    harness.tick(vec![]).drop_without_applying_deltas();
++    harness.key(egui::Key::Space).drop_without_applying_deltas();
++    assert!(harness.app.snapshot().paused);
++    harness.key(egui::Key::Space).drop_without_applying_deltas();
++    assert!(!harness.app.snapshot().paused);
++    harness.key(egui::Key::O).drop_without_applying_deltas();
++    assert!(harness.app.snapshot().controls_open);
++    let output = harness.key(egui::Key::Escape);
++    assert!(!harness.app.snapshot().controls_open);
++    assert!(!requests_close(&output));
++    output.drop_without_applying_deltas();
++    let output = harness.key(egui::Key::Escape);
++    assert!(!requests_close(&output));
++    output.drop_without_applying_deltas();
++    harness.key(egui::Key::F1).drop_without_applying_deltas();
++    assert!(harness.app.snapshot().help_open);
++    harness
++        .key(egui::Key::Escape)
++        .drop_without_applying_deltas();
++    assert!(!harness.app.snapshot().help_open);
++}
++
++#[test]
++fn start_paused_freezes_the_actual_app_scene_across_ui_frames() {
++    let mut harness = Harness::new(Config {
++        start_paused: true,
++        ..Config::default()
++    });
++    harness.tick(vec![]).drop_without_applying_deltas();
++    let before = harness.app.snapshot();
++    for _ in 0..4 {
++        harness.tick(vec![]).drop_without_applying_deltas();
++    }
++    let after = harness.app.snapshot();
++    assert!(after.paused && after.effective_paused);
++    assert_eq!(after.world_elapsed_seconds, before.world_elapsed_seconds);
++    assert_eq!(after.scroll_px, before.scroll_px);
++    assert_eq!(after.speed_kmh, before.speed_kmh);
++}
++
++#[test]
++fn actual_scene_drag_never_steals_toolbar_or_panel_interaction() {
++    let mut scene = Harness::new(Config::default());
++    scene.tick(vec![]).drop_without_applying_deltas();
++    assert!(scene.drag_requests_native_move(egui::pos2(60.0, 80.0), egui::pos2(95.0, 80.0)));
++
++    let mut toolbar = Harness::new(Config::default());
++    let output = toolbar.tick(vec![]);
++    let pause = output
++        .shapes
++        .iter()
++        .find_map(|shape| find_text_center(&shape.shape, "Pausar"))
++        .expect("the actual toolbar pause button is painted");
++    output.drop_without_applying_deltas();
++    assert!(!toolbar.drag_requests_native_move(pause, pause + egui::vec2(20.0, 0.0)));
++
++    let mut panel = Harness::new(Config::default());
++    panel.tick(vec![]).drop_without_applying_deltas();
++    panel.app.dispatch(AppAction::ToggleControls, &panel.ctx);
++    panel.tick(vec![]).drop_without_applying_deltas();
++    assert!(!panel.drag_requests_native_move(egui::pos2(60.0, 80.0), egui::pos2(95.0, 80.0)));
++}
++
++#[test]
++fn actual_cpu_numeric_editor_owns_keys_until_escape_closes_the_panel() {
++    let mut harness = Harness::new(Config::default());
++    harness.tick(vec![]).drop_without_applying_deltas();
++    harness
++        .app
++        .dispatch(AppAction::ToggleControls, &harness.ctx);
++    harness.tick(vec![]).drop_without_applying_deltas();
++    let output = harness.tick(vec![]);
++    let value_position = output
++        .shapes
++        .iter()
++        .find_map(|shape| find_text_center(&shape.shape, "50.0"))
++        .expect("the actual CPU slider value is painted inside the panel");
++    output.drop_without_applying_deltas();
++    harness
++        .pointer_button(value_position, true)
++        .drop_without_applying_deltas();
++    harness
++        .pointer_button(value_position, false)
++        .drop_without_applying_deltas();
++    harness.tick(vec![]).drop_without_applying_deltas();
++    assert!(harness.ctx.egui_wants_keyboard_input());
++    let original = harness.app.snapshot();
++    harness.key(egui::Key::Space).drop_without_applying_deltas();
++    harness.key(egui::Key::M).drop_without_applying_deltas();
++    assert_eq!(harness.app.snapshot().paused, original.paused);
++    assert_eq!(harness.app.snapshot().hud_mode, original.hud_mode);
++    let output = harness.key(egui::Key::Escape);
++    assert!(!harness.app.snapshot().controls_open);
++    assert!(!requests_close(&output));
++    output.drop_without_applying_deltas();
++}
++
++#[test]
++fn tab_starts_on_the_toolbar_and_reveals_scrolled_panel_controls() {
++    let mut harness = Harness::new(Config::default());
++    harness.tick(vec![]).drop_without_applying_deltas();
++    let output = harness.key(egui::Key::Tab);
++    let pause_position = output
++        .shapes
++        .iter()
++        .find_map(|shape| find_text_center(&shape.shape, "Pausar"))
++        .expect("toolbar pause button");
++    let focused = harness
++        .ctx
++        .memory(|memory| memory.focused())
++        .and_then(|id| harness.ctx.read_response(id))
++        .expect("Tab focuses an interactive widget");
++    // A mocked native Frame may report docking unavailable (e.g. when running
++    // plain `cargo test` outside Windows); that visible notice is also a valid
++    // first header control. Neither path should focus the scenery.
++    let focused_notice = output.shapes.iter().any(|shape| {
++        find_text_center(&shape.shape, "!").is_some_and(|position| focused.rect.contains(position))
++    });
++    assert!(
++        focused.rect.contains(pause_position) || focused_notice,
++        "First Tab must reach a visible header control, not the scenery"
++    );
++    output.drop_without_applying_deltas();
++
++    harness
++        .app
++        .dispatch(AppAction::ToggleControls, &harness.ctx);
++    harness.tick(vec![]).drop_without_applying_deltas();
++    let output = harness.tick(vec![]);
++    assert!(output.shapes.iter().all(|shape| {
++        find_text_center(&shape.shape, "Reposicionar")
++            .is_none_or(|position| !shape.clip_rect.contains(position))
++    }));
++    output.drop_without_applying_deltas();
++
++    let mut reached_reposition = false;
++    for _ in 0..20 {
++        harness.key(egui::Key::Tab).drop_without_applying_deltas();
++        // Advance egui animation time without depending on wall-clock sleeps.
++        for _ in 0..5 {
++            harness.tick(vec![]).drop_without_applying_deltas();
++        }
++        let output = harness.tick(vec![]);
++        let focused = harness
++            .ctx
++            .memory(|memory| memory.focused())
++            .and_then(|id| harness.ctx.read_response(id));
++        let visible_position = output.shapes.iter().find_map(|shape| {
++            find_text_center(&shape.shape, "Reposicionar")
++                .filter(|position| shape.clip_rect.contains(*position))
++        });
++        if let (Some(focused), Some(position)) = (focused, visible_position)
++            && focused.rect.contains(position)
++        {
++            assert!(position.y > 0.0 && position.y < 140.0);
++            reached_reposition = true;
++        }
++        output.drop_without_applying_deltas();
++        if reached_reposition {
++            break;
++        }
++    }
++    assert!(
++        reached_reposition,
++        "Tab should scroll the initially hidden Reposicionar control into view"
++    );
++}
+diff --git a/tests/ux_cli.rs b/tests/ux_cli.rs
+new file mode 100644
+--- /dev/null
++++ b/tests/ux_cli.rs
+@@ -0,0 +1,76 @@
++//! Exercise the public help command without graphics or operating-system metrics.
++//!
++//! Invalid arguments are covered by the pure parser tests in `src/main.rs`:
++//! spawning them here would intentionally open a native error dialog on Windows.
++
++use std::{
++    path::PathBuf,
++    process::Command,
++    time::{SystemTime, UNIX_EPOCH},
++};
++
++#[test]
++fn help_and_short_alias_describe_demo_and_current_shortcuts() {
++    for flag in ["--help", "-h"] {
++        let output = Command::new(env!("CARGO_BIN_EXE_cpu-express"))
++            .arg(flag)
++            .output()
++            .expect("run the help command");
++        assert!(output.status.success(), "{flag}: {:?}", output.stderr);
++        let help = String::from_utf8(output.stdout).expect("UTF-8 help text");
++        for expected in [
++            "--demo",
++            "--cpu",
++            "--config",
++            "--diagnostics",
++            "--smoke-seconds",
++            "--smoke",
++            "não consulta CPU nem RAM reais",
++            "Espaço",
++            "HUD compacto, completo e limpo",
++            "F1",
++            "Esc",
++            "não encerra",
++            "Ctrl+Q",
++        ] {
++            assert!(help.contains(expected), "{flag}: missing {expected}");
++        }
++    }
++}
++
++#[test]
++fn help_leaves_explicit_config_and_diagnostics_paths_untouched() {
++    let root = unique_path();
++    let config = root.join("pasta com espaços").join("preferências.json");
++    let diagnostics = root.join("diagnóstico.jsonl");
++    assert!(!root.exists());
++    let output = Command::new(env!("CARGO_BIN_EXE_cpu-express"))
++        .arg("--demo")
++        .arg("--cpu")
++        .arg("0")
++        .arg("--config")
++        .arg(&config)
++        .arg("--diagnostics")
++        .arg(&diagnostics)
++        .arg("--smoke-seconds")
++        .arg("0.1")
++        .arg("--help")
++        .output()
++        .expect("run help with launch options");
++    assert!(output.status.success(), "{:?}", output.stderr);
++    assert!(
++        !root.exists(),
++        "--help must not initialize files or folders"
++    );
++}
++
++fn unique_path() -> PathBuf {
++    let timestamp = SystemTime::now()
++        .duration_since(UNIX_EPOCH)
++        .expect("current time")
++        .as_nanos();
++    std::env::temp_dir().join(format!(
++        "cpu-express-ux-cli-{}-{timestamp}",
++        std::process::id()
++    ))
++}
+diff --git a/tests/ux_config.rs b/tests/ux_config.rs
+new file mode 100644
+--- /dev/null
++++ b/tests/ux_config.rs
+@@ -0,0 +1,261 @@
++use std::{
++    fs,
++    path::{Path, PathBuf},
++    sync::atomic::{AtomicU64, Ordering},
++    time::{SystemTime, UNIX_EPOCH},
++};
++
++use cpu_express::config::{self, Config, HudMode};
++use serde_json::json;
++
++struct TestDirectory(PathBuf);
++
++impl TestDirectory {
++    fn new() -> Self {
++        static NEXT: AtomicU64 = AtomicU64::new(0);
++        let timestamp = SystemTime::now()
++            .duration_since(UNIX_EPOCH)
++            .expect("test clock")
++            .as_nanos();
++        let sequence = NEXT.fetch_add(1, Ordering::Relaxed);
++        let path = std::env::temp_dir().join(format!(
++            "cpu-express-ux-config-test-{}-{timestamp}-{sequence}",
++            std::process::id()
++        ));
++        fs::create_dir(&path).expect("create isolated test directory");
++        Self(path)
++    }
++
++    fn file(&self) -> PathBuf {
++        self.0.join("config.json")
++    }
++
++    fn entries(&self) -> usize {
++        fs::read_dir(&self.0).expect("read test directory").count()
++    }
++}
++
++impl Drop for TestDirectory {
++    fn drop(&mut self) {
++        let _ = fs::remove_dir_all(&self.0);
++    }
++}
++
++fn read_json(path: &Path) -> serde_json::Value {
++    serde_json::from_slice(&fs::read(path).expect("read config")).expect("valid saved JSON")
++}
++
++#[test]
++fn original_seven_field_config_keeps_hidden_hud_and_acquires_safe_defaults() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let original = br#"{
++        "min_speed_kmh":12.0,"max_speed_kmh":100.0,"smoothing_k":1.8,
++        "fps":45,"metrics_interval_ms":1000,
++        "show_metrics":false,"always_on_top":false
++    }"#;
++    fs::write(&path, original).expect("write original configuration");
++
++    let (loaded, warning) = config::load(Some(&path));
++    assert_eq!(warning, None);
++    assert_eq!(loaded.fps, 45);
++    assert!(!loaded.always_on_top);
++    assert_eq!(loaded.hud_mode, HudMode::Compact);
++    assert_eq!(loaded.effective_hud_mode(), HudMode::Clean);
++    assert!(!loaded.pause_when_unfocused);
++    assert!(!loaded.start_paused);
++    assert!(loaded.auto_hide_controls);
++    assert_eq!(loaded.clone().normalized(), loaded);
++    assert_eq!(fs::read(&path).expect("read unchanged config"), original);
++
++    // An explicit preference save upgrades the shape without changing the
++    // legacy flag's meaning or making the hidden HUD reappear on next launch.
++    config::save(&loaded, &path).expect("save compatible configuration");
++    assert_eq!(config::load(Some(&path)), (loaded, None));
++}
++
++#[test]
++fn partial_new_config_keeps_old_defaults_without_writing() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let original = br#"{"hud_mode":"detailed","start_paused":true}"#;
++    fs::write(&path, original).expect("write partial configuration");
++    let (loaded, warning) = config::load(Some(&path));
++    assert_eq!(warning, None);
++    assert_eq!(loaded.effective_hud_mode(), HudMode::Detailed);
++    assert!(loaded.start_paused);
++    assert_eq!(loaded.fps, 30);
++    assert_eq!(loaded.min_speed_kmh, 12.0);
++    assert_eq!(loaded.max_speed_kmh, 100.0);
++    assert!(!loaded.pause_when_unfocused);
++    assert!(loaded.auto_hide_controls);
++    assert_eq!(fs::read(&path).expect("read unchanged config"), original);
++}
++
++#[test]
++fn new_preferences_survive_an_atomic_save_and_a_second_launch() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    config::save(&Config::default(), &path).expect("save initial config");
++    let mut changed = Config {
++        fps: 60,
++        smoothing_k: 0.5,
++        always_on_top: false,
++        pause_when_unfocused: true,
++        start_paused: true,
++        auto_hide_controls: false,
++        ..Config::default()
++    };
++    changed.set_hud_mode(HudMode::Detailed);
++    config::save(&changed, &path).expect("replace config");
++
++    assert_eq!(config::load(Some(&path)), (changed, None));
++    let saved = read_json(&path);
++    assert_eq!(saved["hud_mode"], "detailed");
++    assert_eq!(saved["show_metrics"], true);
++    assert_eq!(saved["pause_when_unfocused"], true);
++    assert_eq!(saved["start_paused"], true);
++    assert_eq!(saved["auto_hide_controls"], false);
++    assert_eq!(directory.entries(), 1, "no stale temporary file");
++}
++
++#[test]
++fn cycling_hud_restores_visibility_after_a_legacy_hidden_configuration() {
++    let mut preferences = Config {
++        show_metrics: false,
++        ..Config::default()
++    };
++    assert_eq!(preferences.effective_hud_mode(), HudMode::Clean);
++    for expected in [HudMode::Compact, HudMode::Detailed, HudMode::Clean] {
++        preferences.set_hud_mode(preferences.effective_hud_mode().next());
++        assert_eq!(preferences.effective_hud_mode(), expected);
++        assert_eq!(preferences.show_metrics, expected != HudMode::Clean);
++    }
++}
++
++#[test]
++fn either_explicit_clean_mode_or_legacy_false_hides_hud() {
++    for input in [
++        r#"{"show_metrics":false,"hud_mode":"detailed"}"#,
++        r#"{"show_metrics":true,"hud_mode":"clean"}"#,
++    ] {
++        let preferences: Config = serde_json::from_str(input).expect("valid configuration");
++        assert_eq!(preferences.effective_hud_mode(), HudMode::Clean);
++        assert_eq!(preferences.clone().normalized(), preferences);
++    }
++}
++
++#[test]
++fn unknown_fields_survive_user_changes_and_subsequent_saves() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let extension = json!({
++        "bioma": "café e montanhas",
++        "visits": [3, 5, 8],
++        "options": {"enabled": true, "label": null}
++    });
++    let original = json!({
++        "fps": 30,
++        "future_revision": 7,
++        "future_ui": extension,
++        "unknown_list": [null, false, "keep me", 1.25]
++    });
++    fs::write(
++        &path,
++        serde_json::to_vec(&original).expect("encode fixture"),
++    )
++    .expect("write future configuration");
++    let (mut preferences, warning) = config::load(Some(&path));
++    assert_eq!(warning, None);
++    preferences.set_hud_mode(HudMode::Clean);
++    preferences.pause_when_unfocused = true;
++    config::save(&preferences, &path).expect("save while preserving unknown fields");
++    preferences.fps = 45;
++    config::save(&preferences, &path).expect("save again");
++
++    let saved = read_json(&path);
++    assert_eq!(saved["future_revision"], original["future_revision"]);
++    assert_eq!(saved["future_ui"], original["future_ui"]);
++    assert_eq!(saved["unknown_list"], original["unknown_list"]);
++    assert_eq!(saved["fps"], 45);
++    assert_eq!(saved["hud_mode"], "clean");
++    assert_eq!(saved["show_metrics"], false);
++    assert_eq!(config::load(Some(&path)), (preferences, None));
++    assert_eq!(directory.entries(), 1);
++}
++
++#[test]
++fn corrupt_or_incompatible_configs_cannot_be_overwritten_by_autosave() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let desired = Config {
++        start_paused: true,
++        ..Config::default()
++    };
++    for original in [
++        b"not JSON".as_slice(),
++        b"{\"fps\":30,".as_slice(),
++        &[0xff, 0xfe],
++        br#"{"hud_mode":"future_mode","future_state":{"keep":true}}"#,
++        br#"{"pause_when_unfocused":"yes"}"#,
++        br#"{"fps":30,"fps":45}"#,
++        br#"{"hud_mode":"compact","hud_mode":"clean"}"#,
++        b"[]",
++        b"null",
++    ] {
++        fs::write(&path, original).expect("write invalid configuration");
++        let (loaded, warning) = config::load(Some(&path));
++        assert_eq!(loaded, Config::default());
++        assert!(warning.is_some());
++        assert!(config::save(&desired, &path).is_err());
++        assert_eq!(fs::read(&path).expect("read preserved bytes"), original);
++        assert_eq!(
++            directory.entries(),
++            1,
++            "no temporary or backup side effects"
++        );
++    }
++}
++
++#[test]
++fn valid_preference_bounds_are_repaired_without_losing_future_fields() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let original = br#"{
++        "fps":0,"smoothing_k":1000,"metrics_interval_ms":1,
++        "min_speed_kmh":-1,"max_speed_kmh":999,
++        "hud_mode":"compact","future_flag":true
++    }"#;
++    fs::write(&path, original).expect("write out-of-range configuration");
++    let (preferences, warning) = config::load(Some(&path));
++    assert!(warning.is_some());
++    assert_eq!(preferences.fps, 10);
++    assert_eq!(preferences.smoothing_k, 20.0);
++    assert_eq!(preferences.metrics_interval_ms, 250);
++    assert_eq!(preferences.min_speed_kmh, 0.0);
++    assert_eq!(preferences.max_speed_kmh, 500.0);
++    assert_eq!(fs::read(&path).expect("read unchanged bytes"), original);
++
++    config::save(&preferences, &path).expect("explicitly save repaired values");
++    assert_eq!(read_json(&path)["future_flag"], true);
++    assert_eq!(config::load(Some(&path)), (preferences, None));
++}
++
++#[test]
++fn no_file_is_created_until_a_preference_is_explicitly_saved() {
++    let directory = TestDirectory::new();
++    let path = directory.file();
++    let (mut preferences, warning) = config::load(Some(&path));
++    assert_eq!(warning, None);
++    assert!(!path.exists());
++    preferences.set_hud_mode(HudMode::Clean);
++    preferences.start_paused = true;
++    assert!(
++        !path.exists(),
++        "changing in-memory preferences performs no I/O"
++    );
++
++    config::save(&preferences, &path).expect("save explicitly");
++    assert_eq!(config::load(Some(&path)), (preferences, None));
++    assert_eq!(directory.entries(), 1);
++}
+diff --git a/tests/ux_visual.rs b/tests/ux_visual.rs
+new file mode 100644
+--- /dev/null
++++ b/tests/ux_visual.rs
+@@ -0,0 +1,183 @@
++//! Optional visual evidence from the actual egui app, without a native window.
++//!
++//! CPU_EXPRESS_VISUAL_DIR=/absolute/path cargo test --test ux_visual -- --ignored
++//! emits egui triangles/textures as JSON for an external software rasterizer.
++//! This does not validate Windows, GPU output, DPI, or native window management.
++
++use std::{collections::HashMap, fs, path::Path};
++
++use cpu_express::{
++    app::{AppAction, CpuExpressApp, LaunchOptions},
++    config::{Config, HudMode},
++};
++use eframe::{App, egui};
++use serde_json::json;
++
++struct Texture {
++    image: egui::ColorImage,
++    linear: bool,
++}
++
++fn apply_textures(textures: &mut HashMap<egui::TextureId, Texture>, output: &mut egui::FullOutput) {
++    for (id, deltas) in std::mem::take(&mut output.textures_delta.set) {
++        for delta in deltas {
++            let egui::ImageData::Color(image) = delta.image;
++            if let Some([x, y]) = delta.pos {
++                let texture = textures.get_mut(&id).expect("existing partial texture");
++                for row in 0..image.size[1] {
++                    let source = row * image.size[0];
++                    let target = (y + row) * texture.image.size[0] + x;
++                    texture.image.pixels[target..target + image.size[0]]
++                        .copy_from_slice(&image.pixels[source..source + image.size[0]]);
++                }
++                texture.linear = delta.options.magnification == egui::TextureFilter::Linear;
++            } else {
++                textures.insert(
++                    id,
++                    Texture {
++                        image: (*image).clone(),
++                        linear: delta.options.magnification == egui::TextureFilter::Linear,
++                    },
++                );
++            }
++        }
++    }
++    output.textures_delta.clear();
++}
++
++fn export_scenario(
++    directory: &Path,
++    name: &str,
++    hud_mode: HudMode,
++    paused: bool,
++    action: Option<AppAction>,
++    idle: bool,
++) {
++    let ctx = egui::Context::default();
++    let mut config = Config {
++        start_paused: paused,
++        auto_hide_controls: idle,
++        ..Config::default()
++    };
++    config.set_hud_mode(hud_mode);
++    let mut app = CpuExpressApp::new_demo(
++        &ctx,
++        LaunchOptions {
++            config,
++            config_path: None,
++            warning: None,
++            cpu_override: Some(50.0),
++            exit_after: None,
++            diagnostics: None,
++        },
++    );
++    let mut frame = eframe::Frame::_new_kittest();
++    let mut textures = HashMap::new();
++    let mut latest = None;
++    for pass in 0..16 {
++        let mut input = egui::RawInput {
++            screen_rect: Some(egui::Rect::from_min_size(
++                egui::Pos2::ZERO,
++                egui::vec2(640.0, 140.0),
++            )),
++            time: Some(f64::from(pass) / 30.0),
++            focused: !idle,
++            ..Default::default()
++        };
++        let viewport = input.viewports.get_mut(&egui::ViewportId::ROOT).unwrap();
++        viewport.focused = Some(!idle);
++        viewport.minimized = Some(false);
++        viewport.occluded = Some(false);
++        if pass == 1
++            && let Some(action) = action
++        {
++            app.dispatch(action, &ctx);
++        }
++        let mut output = ctx.run_ui(input, |ui| {
++            app.ui(ui, &mut frame);
++        });
++        apply_textures(&mut textures, &mut output);
++        latest = Some(output);
++    }
++    let output = latest.expect("at least one UI frame");
++    let ppp = output.pixels_per_point;
++    let meshes: Vec<_> = ctx
++        .tessellate(output.shapes, ppp)
++        .into_iter()
++        .filter_map(|primitive| {
++            let egui::epaint::Primitive::Mesh(mesh) = primitive.primitive else {
++                return None;
++            };
++            Some(json!({
++                "clip": [primitive.clip_rect.min.x, primitive.clip_rect.min.y,
++                         primitive.clip_rect.max.x, primitive.clip_rect.max.y],
++                "texture": format!("{:?}", mesh.texture_id),
++                "vertices": mesh.vertices.iter().map(|vertex| json!([
++                    vertex.pos.x, vertex.pos.y, vertex.uv.x, vertex.uv.y,
++                    vertex.color.r(), vertex.color.g(), vertex.color.b(), vertex.color.a()
++                ])).collect::<Vec<_>>(),
++                "indices": mesh.indices,
++            }))
++        })
++        .collect();
++    let texture_images: Vec<_> = textures
++        .into_iter()
++        .map(|(id, texture)| {
++            json!({
++                "id": format!("{id:?}"),
++                "size": texture.image.size,
++                "linear": texture.linear,
++                "pixels": texture.image.pixels.iter().map(|color| color.to_array()).collect::<Vec<_>>()
++            })
++        })
++        .collect();
++    fs::write(
++        directory.join(format!("{name}.json")),
++        serde_json::to_vec(&json!({
++            "evidence": "Renderização headless do egui; sem janela nativa",
++            "size": [640,140],
++            "pixels_per_point": ppp,
++            "textures": texture_images,
++            "meshes": meshes,
++        }))
++        .unwrap(),
++    )
++    .unwrap();
++}
++
++#[test]
++#[ignore = "optional artifact export; requires an explicit output directory"]
++fn export_actual_egui_layouts_for_visual_review() {
++    let directory = std::env::var_os("CPU_EXPRESS_VISUAL_DIR")
++        .expect("set CPU_EXPRESS_VISUAL_DIR to the export directory");
++    let directory = Path::new(&directory);
++    fs::create_dir_all(directory).unwrap();
++    for (name, mode, paused, action) in [
++        ("01_compacto", HudMode::Compact, false, None),
++        ("02_detalhado", HudMode::Detailed, false, None),
++        ("03_limpo", HudMode::Clean, false, None),
++        ("04_pausa", HudMode::Compact, true, None),
++        (
++            "05_opcoes",
++            HudMode::Compact,
++            false,
++            Some(AppAction::ToggleControls),
++        ),
++        (
++            "06_ajuda",
++            HudMode::Compact,
++            false,
++            Some(AppAction::ToggleHelp),
++        ),
++    ] {
++        export_scenario(directory, name, mode, paused, action, false);
++    }
++    export_scenario(
++        directory,
++        "07_limpo_sem_foco",
++        HudMode::Clean,
++        false,
++        None,
++        true,
++    );
++}

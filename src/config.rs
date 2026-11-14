@@ -40,20 +40,24 @@ impl HudMode {
 #[serde(default)]
 pub struct VisualPreferences {
     pub livery: crate::simulation::objectives::Livery,
+    pub engine: crate::rendering::EngineStyle,
     pub theme: SceneTheme,
     pub quality: RenderQuality,
     pub scene: SceneOptions,
     /// Ordered from the tail toward the locomotive.
     pub coaches: [CoachStyle; 3],
+    pub favorite_consists: Vec<[CoachStyle; 3]>,
 }
 
 impl Default for VisualPreferences {
     fn default() -> Self {
         Self {
             livery: crate::simulation::objectives::Livery::default(),
+            engine: crate::rendering::EngineStyle::default(),
             theme: SceneTheme::Journey,
             quality: RenderQuality::Full,
             scene: SceneOptions::default(),
+            favorite_consists: Vec::new(),
             coaches: [
                 CoachStyle::Observation,
                 CoachStyle::Sleeper,
@@ -82,6 +86,8 @@ pub struct Config {
     pub panel_rect: Option<[f32; 4]>,
     pub reduce_menu_motion: bool,
     pub quiet_mode: bool,
+    pub sound_volume: f32,
+    pub weather_location: crate::local_weather::WeatherLocation,
     pub min_speed_kmh: f64,
     pub max_speed_kmh: f64,
     /// Response rate in inverse seconds; larger values accelerate more quickly.
@@ -110,6 +116,8 @@ impl Default for Config {
             panel_rect: None,
             reduce_menu_motion: false,
             quiet_mode: false,
+            sound_volume: 0.0,
+            weather_location: crate::local_weather::WeatherLocation::default(),
             min_speed_kmh: 12.0,
             max_speed_kmh: 100.0,
             smoothing_k: 1.8,
@@ -153,6 +161,16 @@ impl Config {
     /// interval. The UI never has to trust serialized floating-point values.
     #[must_use]
     pub fn normalized(mut self) -> Self {
+        if self.weather_location.validate().is_err() {
+            self.weather_location = Default::default();
+        }
+        self.sound_volume = if self.sound_volume.is_finite() {
+            self.sound_volume.clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+        self.visual.favorite_consists.truncate(4);
+        self.visual.favorite_consists.dedup();
         self.visual.theme = SceneTheme::Journey;
         self.visual.quality = RenderQuality::Full;
         self.visual.scene.details = true;
@@ -178,7 +196,17 @@ impl Config {
                 h.clamp(140, 1200),
             ]
         });
-        self.panel_rect = self.panel_rect.filter(|r| r.iter().all(|v| v.is_finite())).map(|[x,y,w,h]| [x.clamp(-32768.0,32768.0),y.clamp(-32768.0,32768.0),w.clamp(480.0,2400.0),h.clamp(480.0,1600.0)]);
+        self.panel_rect = self
+            .panel_rect
+            .filter(|r| r.iter().all(|v| v.is_finite()))
+            .map(|[x, y, w, h]| {
+                [
+                    x.clamp(-32768.0, 32768.0),
+                    y.clamp(-32768.0, 32768.0),
+                    w.clamp(480.0, 2400.0),
+                    h.clamp(480.0, 1600.0),
+                ]
+            });
         let defaults = Self::default();
         self.min_speed_kmh =
             finite_or(self.min_speed_kmh, defaults.min_speed_kmh).clamp(0.0, 300.0);

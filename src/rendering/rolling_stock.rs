@@ -5,6 +5,7 @@
 
 use eframe::egui::Color32;
 
+use super::engines::{self, EngineStyle};
 use super::sprites::{Canvas, coach, locomotive, rgb, wheel};
 
 /// A purely visual coach choice; it has no effect on speed or simulation state.
@@ -35,6 +36,7 @@ pub(super) fn draw_train(
     canvas: &mut Canvas<'_>,
     phase: f64,
     coaches: &[CoachStyle; 3],
+    engine: EngineStyle,
     illuminated: bool,
     details: bool,
 ) {
@@ -43,6 +45,11 @@ pub(super) fn draw_train(
     let phase = if phase.is_finite() { phase } else { 0.0 };
     for (index, (&style, x)) in coaches.iter().zip([58, 100, 142]).enumerate() {
         draw_coach(canvas, x, phase, style, index, illuminated, details);
+    }
+
+    if engine != EngineStyle::Steam {
+        engines::draw_modern(canvas, phase, engine, illuminated);
+        return;
     }
 
     // Preserve the original running gear and sockets: chimney mouth (220, 32), driving
@@ -408,6 +415,7 @@ mod tests {
                 &mut Canvas::new(&mut detailed),
                 phase,
                 &[CoachStyle::Freight; 3],
+                EngineStyle::Steam,
                 true,
                 true,
             );

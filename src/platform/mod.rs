@@ -48,3 +48,25 @@ pub fn dock_window(_frame: &eframe::Frame) -> Result<(), String> {
 pub fn show_error(message: &str) {
     eprintln!("CPU Express: {message}");
 }
+
+/// Recover a panel's saved logical outer origin and inner size before building it.
+/// `pixels_per_point` must be the scale used to record those logical coordinates.
+/// This does not move an existing HWND or change monitor/DPI settings. Native
+/// frame decorations are not included in the saved inner size.
+pub fn clamp_panel_rect(saved: [f32; 4], pixels_per_point: f32) -> [f32; 4] {
+    let saved = geometry::normalize_panel_rect(saved);
+    #[cfg(windows)]
+    {
+        windows::clamp_panel_rect(saved, pixels_per_point)
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = pixels_per_point;
+        saved
+    }
+}
+
+pub use geometry::{fit_panel_rect, normalize_panel_rect};
+
+mod journey_dialog;
+pub use journey_dialog::choose_journey_file;

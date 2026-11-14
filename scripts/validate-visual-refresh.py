@@ -46,5 +46,5 @@ for stage in range(5):
     assert capture.exists()
     Image.open(capture).save(capture.with_suffix(".png"))
     stages.append({"stage":stage,"taskbar":stage%2==0,"geometry":stable[-1]["native_window"],"render_surface_size":stable[-1]["render_surface_size"]})
-save(evidence / "transitions-rc7/result.json", {"exit_code":0,"binary_sha256":sha,"evidence_directory":str(run.relative_to(project)),"stages":stages})
+save(evidence / "transitions-expansion/result.json", {"exit_code":0,"binary_sha256":sha,"evidence_directory":str(run.relative_to(project)),"stages":stages})
 print(json.dumps({"pacing":comparison,"mode_transitions":"four passed","real_samples":len(valid)},indent=2))

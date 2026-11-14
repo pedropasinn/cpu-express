@@ -1,0 +1,54 @@
+{
+  "delivery": "CPU Express — Agente 05 UX",
+  "date": "2026-11-13",
+  "source_archive_sha256": "2a5eece765caed1be842a710327136e5549b96a41ffdfa2aa6594207d96319d4",
+  "changed_original_files": [
+    {
+      "path": "src/app.rs",
+      "before_sha256": "a923b238fb606a7f08e3aee33ba00214f7d40c4e39a4f2bca412e28b24b6f232",
+      "after_sha256": "ddfe47dcaa48c95d0b72a21acb50c3f1eaa778d6b0f44e4145c76be1dec167ad"
+    },
+    {
+      "path": "src/config.rs",
+      "before_sha256": "590785274f728456730d99af4bc9de81449b0dee7e7459230c46543cd88a8c1c",
+      "after_sha256": "732bfe503872c2472f46b0392fb3ddcfc65c3fc307ca4c1c62e2810e7d030fb2"
+    },
+    {
+      "path": "src/main.rs",
+      "before_sha256": "40fba06f618b7a1c9926e15f34f50ed594199bf1880497157edb23acbf6f0b69",
+      "after_sha256": "d8a700e53526bcca3c3dfc5bcf569652e10bb4f1a45db90e08868dfa9de29fc6"
+    }
+  ],
+  "new_files": [
+    "AGENTE05_UX.patch",
+    "INTEGRACAO.md",
+    "PATCH_NOTES.md",
+    "TESTES.md",
+    "docs/ux_evidencias/01_compacto.png",
+    "docs/ux_evidencias/02_detalhado.png",
+    "docs/ux_evidencias/03_limpo.png",
+    "docs/ux_evidencias/04_pausa.png",
+    "docs/ux_evidencias/05_opcoes.png",
+    "docs/ux_evidencias/06_ajuda.png",
+    "docs/ux_evidencias/07_limpo_sem_foco.png",
+    "docs/ux_evidencias/README.md",
+    "docs/ux_evidencias/logs/final-gates.json",
+    "docs/ux_evidencias/logs/gate-clippy.log",
+    "docs/ux_evidencias/logs/gate-fmt.log",
+    "docs/ux_evidencias/logs/gate-release.log",
+    "docs/ux_evidencias/logs/gate-test.log",
+    "docs/ux_evidencias/logs/gate-windows-check.log",
+    "docs/ux_evidencias/logs/patch-check.log",
+    "docs/ux_evidencias/logs/visual-export.log",
+    "docs/ux_guia.md",
+    "docs/ux_rasterizar.py",
+    "tests/ux_app.rs",
+    "tests/ux_cli.rs",
+    "tests/ux_config.rs",
+    "tests/ux_visual.rs"
+  ],
+  "all_other_original_files_identical": true,
+  "native_windows_executable_included": false,
+  "runtime_dependencies_changed": false,
+  "rust_sources_match_final_gate_hashes": true
+}

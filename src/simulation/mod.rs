@@ -1,10 +1,15 @@
 //! Deterministic, platform-independent simulation. No OS or renderer imports.
 
+pub mod branch;
+pub use branch::{BranchExpedition, BranchKind, BranchPhase, BranchState, BranchStop};
 pub mod journey;
 pub mod objectives;
 pub mod route;
 pub mod service;
-pub use service::{ServiceState, ServiceWagon, PassengerGroup, CargoContract, ContractStatus, ArrivalSummary};
+pub use service::{
+    ArrivalSummary, CargoContract, CargoKind, ContractStatus, PassengerGroup, ServiceReward,
+    ServiceState, ServiceWagon,
+};
 pub mod timing;
 pub mod train;
 pub mod world;

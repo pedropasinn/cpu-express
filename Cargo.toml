@@ -1,6 +1,6 @@
 [package]
 name = "cpu-express"
-version = "0.3.0-rc.7"
+version = "0.4.0-rc.1"
 edition = "2024"
 rust-version = "1.95"
 description = "An original pixel-art steam train powered by your computer's CPU activity"
@@ -21,7 +21,7 @@ sysinfo = { version = "=0.40.3", default-features = false, features = ["system"]
 
 [target.'cfg(windows)'.dependencies]
 raw-window-handle = "=0.6.2"
-windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Networking_WinHttp", "Win32_Graphics_Gdi", "Win32_System_LibraryLoader", "Win32_System_Threading", "Win32_UI_HiDpi", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Networking_WinHttp", "Win32_Graphics_Gdi", "Win32_System_LibraryLoader", "Win32_System_Threading", "Win32_UI_HiDpi", "Win32_UI_Controls_Dialogs", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
 
 [profile.release]
 opt-level = "s"

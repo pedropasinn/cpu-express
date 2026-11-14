@@ -4,3 +4,8 @@
 !/validation/*.log
 *.ppm
 *.tmp
+
+# Generated validation artifacts stay in release evidence archives.
+/evidence/
+/benchmarks/
+__pycache__/

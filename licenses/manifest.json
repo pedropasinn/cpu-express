@@ -1,0 +1,3771 @@
+{
+  "generator": "cpu-express-collect-licenses-v1",
+  "target": "x86_64-pc-windows-gnu + x86_64-pc-windows-msvc (union)",
+  "metadata_sha256": "604059b46cf6cc6c054e5f63b56675553885ae29b210072cd450044610fc1467",
+  "cargo_lock_sha256": "b8ba3e03f82104bf16fd53ab478a63c95a7e33d888a022b00bd6526b10f61651",
+  "packages": [
+    {
+      "name": "accesskit",
+      "version": "0.25.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/AccessKit/accesskit",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The AccessKit contributors"
+      ],
+      "files": [
+        {
+          "path": "crates/accesskit-0.25.2/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/AccessKit/accesskit/f3026222559c7f5f46d8f25cb7404de68eb149f0/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        },
+        {
+          "path": "crates/accesskit-0.25.2/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/AccessKit/accesskit/f3026222559c7f5f46d8f25cb7404de68eb149f0/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        }
+      ],
+      "upstream_license_revision": "f3026222559c7f5f46d8f25cb7404de68eb149f0",
+      "published_vcs_revision": "f3026222559c7f5f46d8f25cb7404de68eb149f0"
+    },
+    {
+      "name": "adler2",
+      "version": "2.0.1",
+      "license": "0BSD OR MIT OR Apache-2.0",
+      "repository": "https://github.com/oyvindln/adler2",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Jonas Schievink <jonasschievink@gmail.com>",
+        "oyvindln <oyvindln@users.noreply.github.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/adler2-2.0.1/LICENSE-0BSD",
+          "source": "Cargo registry package adler2-2.0.1/LICENSE-0BSD",
+          "bytes": 665,
+          "sha256": "861399f8c21c042b110517e76dc6b63a2b334276c8cf17412fc3c8908ca8dc17"
+        },
+        {
+          "path": "crates/adler2-2.0.1/LICENSE-APACHE",
+          "source": "Cargo registry package adler2-2.0.1/LICENSE-APACHE",
+          "bytes": 10860,
+          "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+        },
+        {
+          "path": "crates/adler2-2.0.1/LICENSE-MIT",
+          "source": "Cargo registry package adler2-2.0.1/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "ahash",
+      "version": "0.8.12",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/tkaitchuck/ahash",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/ahash-0.8.12/LICENSE-APACHE",
+          "source": "Cargo registry package ahash-0.8.12/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/ahash-0.8.12/LICENSE-MIT",
+          "source": "Cargo registry package ahash-0.8.12/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "0444c6991eead6822f7b9102e654448d51624431119546492e8b231db42c48bb"
+        }
+      ]
+    },
+    {
+      "name": "arrayvec",
+      "version": "0.7.8",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/bluss/arrayvec",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "bluss"
+      ],
+      "files": [
+        {
+          "path": "crates/arrayvec-0.7.8/LICENSE-APACHE",
+          "source": "Cargo registry package arrayvec-0.7.8/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/arrayvec-0.7.8/LICENSE-MIT",
+          "source": "Cargo registry package arrayvec-0.7.8/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "4da95ec4ecb65b738d470b7d762894ad9c97da93e6cbfb18b570fc2c96f4b871"
+        }
+      ]
+    },
+    {
+      "name": "autocfg",
+      "version": "1.5.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/cuviper/autocfg",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Josh Stone <cuviper@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/autocfg-1.5.1/LICENSE-APACHE",
+          "source": "Cargo registry package autocfg-1.5.1/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/autocfg-1.5.1/LICENSE-MIT",
+          "source": "Cargo registry package autocfg-1.5.1/LICENSE-MIT",
+          "bytes": 1054,
+          "sha256": "27995d58ad5c1145c1a8cd86244ce844886958a35eb2b78c6b772748669999ac"
+        }
+      ]
+    },
+    {
+      "name": "bit-set",
+      "version": "0.10.0",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/contain-rs/bit-set",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Alexis Beingessner <a.beingessner@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/bit-set-0.10.0/LICENSE-APACHE",
+          "source": "Cargo registry package bit-set-0.10.0/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        },
+        {
+          "path": "crates/bit-set-0.10.0/LICENSE-MIT",
+          "source": "Cargo registry package bit-set-0.10.0/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "6b56ddc7cd80419e5e22e075f2252d720f6cbe17e3e2c17383095ee2712bcffa"
+        }
+      ]
+    },
+    {
+      "name": "bit-vec",
+      "version": "0.9.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/contain-rs/bit-vec",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Alexis Beingessner <a.beingessner@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/bit-vec-0.9.1/LICENSE-APACHE",
+          "source": "Cargo registry package bit-vec-0.9.1/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        },
+        {
+          "path": "crates/bit-vec-0.9.1/LICENSE-MIT",
+          "source": "Cargo registry package bit-vec-0.9.1/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "f51ac2c59a222f7476ce507ca879960e2b64ea64bb2786eefdbeb7b0b538d1b7"
+        }
+      ]
+    },
+    {
+      "name": "bitflags",
+      "version": "2.13.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/bitflags/bitflags",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Rust Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/bitflags-2.13.2/LICENSE-APACHE",
+          "source": "Cargo registry package bitflags-2.13.2/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/bitflags-2.13.2/LICENSE-MIT",
+          "source": "Cargo registry package bitflags-2.13.2/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+        }
+      ]
+    },
+    {
+      "name": "bytemuck",
+      "version": "1.25.2",
+      "license": "Zlib OR Apache-2.0 OR MIT",
+      "repository": "https://github.com/Lokathor/bytemuck",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Lokathor <zefria@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/bytemuck-1.25.2/LICENSE-APACHE",
+          "source": "Cargo registry package bytemuck-1.25.2/LICENSE-APACHE",
+          "bytes": 10398,
+          "sha256": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb"
+        },
+        {
+          "path": "crates/bytemuck-1.25.2/LICENSE-MIT",
+          "source": "Cargo registry package bytemuck-1.25.2/LICENSE-MIT",
+          "bytes": 1110,
+          "sha256": "9df9ba60a11af705f2e451b53762686e615d86f76b169cf075c3237730dbd7e2"
+        },
+        {
+          "path": "crates/bytemuck-1.25.2/LICENSE-ZLIB",
+          "source": "Cargo registry package bytemuck-1.25.2/LICENSE-ZLIB",
+          "bytes": 851,
+          "sha256": "84b34dd7608f7fb9b17bd588a6bf392bf7de504e2716f024a77d89f1b145a151"
+        }
+      ]
+    },
+    {
+      "name": "bytemuck_derive",
+      "version": "1.12.1",
+      "license": "Zlib OR Apache-2.0 OR MIT",
+      "repository": "https://github.com/Lokathor/bytemuck",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Lokathor <zefria@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/bytemuck_derive-1.12.1/LICENSE-APACHE",
+          "source": "Cargo registry package bytemuck_derive-1.12.1/LICENSE-APACHE",
+          "bytes": 10398,
+          "sha256": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb"
+        },
+        {
+          "path": "crates/bytemuck_derive-1.12.1/LICENSE-MIT",
+          "source": "Cargo registry package bytemuck_derive-1.12.1/LICENSE-MIT",
+          "bytes": 1110,
+          "sha256": "9df9ba60a11af705f2e451b53762686e615d86f76b169cf075c3237730dbd7e2"
+        },
+        {
+          "path": "crates/bytemuck_derive-1.12.1/LICENSE-ZLIB",
+          "source": "Cargo registry package bytemuck_derive-1.12.1/LICENSE-ZLIB",
+          "bytes": 851,
+          "sha256": "84b34dd7608f7fb9b17bd588a6bf392bf7de504e2716f024a77d89f1b145a151"
+        }
+      ]
+    },
+    {
+      "name": "byteorder-lite",
+      "version": "0.1.0",
+      "license": "Unlicense OR MIT",
+      "repository": "https://github.com/image-rs/byteorder-lite",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/byteorder-lite-0.1.0/LICENSE-MIT",
+          "source": "Cargo registry package byteorder-lite-0.1.0/LICENSE-MIT",
+          "bytes": 1081,
+          "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f"
+        },
+        {
+          "path": "crates/byteorder-lite-0.1.0/UNLICENSE",
+          "source": "Cargo registry package byteorder-lite-0.1.0/UNLICENSE",
+          "bytes": 1211,
+          "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+        }
+      ]
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.5",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-lang/cfg-if",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Alex Crichton <alex@alexcrichton.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/cfg-if-1.0.5/LICENSE-APACHE",
+          "source": "Cargo registry package cfg-if-1.0.5/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/cfg-if-1.0.5/LICENSE-MIT",
+          "source": "Cargo registry package cfg-if-1.0.5/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+        }
+      ]
+    },
+    {
+      "name": "cfg_aliases",
+      "version": "0.2.2",
+      "license": "MIT",
+      "repository": "https://github.com/katharostech/cfg_aliases",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Zicklag <zicklag@katharostech.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/cfg_aliases-0.2.2/LICENSE",
+          "source": "Cargo registry package cfg_aliases-0.2.2/LICENSE",
+          "bytes": 1076,
+          "sha256": "31b94860253d8ec7b4529f51901044d3b459d6292d996504a36b1bae3a36a812"
+        },
+        {
+          "path": "crates/cfg_aliases-0.2.2/NOTICES.md",
+          "source": "Cargo registry package cfg_aliases-0.2.2/NOTICES.md",
+          "bytes": 1472,
+          "sha256": "1e2b7ade3fb228130408b9990cae6a7618eb314c75aa0b164bfe485d9d9756ee"
+        }
+      ]
+    },
+    {
+      "name": "codespan-reporting",
+      "version": "0.13.1",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/brendanzab/codespan",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Brendan Zabarauskas <bjzaba@yahoo.com.au>"
+      ],
+      "files": [
+        {
+          "path": "crates/codespan-reporting-0.13.1/LICENSE",
+          "source": "Cargo registry package codespan-reporting-0.13.1/LICENSE",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ]
+    },
+    {
+      "name": "color",
+      "version": "0.3.3",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/color",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/color-0.3.3/LICENSE-APACHE",
+          "source": "Cargo registry package color-0.3.3/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/color-0.3.3/LICENSE-MIT",
+          "source": "Cargo registry package color-0.3.3/LICENSE-MIT",
+          "bytes": 1036,
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+        }
+      ]
+    },
+    {
+      "name": "crc32fast",
+      "version": "1.5.5",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/srijs/rust-crc32fast",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Sam Rijs <srijs@airpost.net>",
+        "Alex Crichton <alex@alexcrichton.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/crc32fast-1.5.5/LICENSE-APACHE",
+          "source": "Cargo registry package crc32fast-1.5.5/LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        },
+        {
+          "path": "crates/crc32fast-1.5.5/LICENSE-MIT",
+          "source": "Cargo registry package crc32fast-1.5.5/LICENSE-MIT",
+          "bytes": 1097,
+          "sha256": "61d383b05b87d78f94d2937e2580cce47226d17823c0430fbcad09596537efcf"
+        }
+      ]
+    },
+    {
+      "name": "cursor-icon",
+      "version": "1.2.0",
+      "license": "MIT OR Apache-2.0 OR Zlib",
+      "repository": "https://github.com/rust-windowing/cursor-icon",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kirill Chibisov <contact@kchibisov.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/cursor-icon-1.2.0/LICENSE-APACHE",
+          "source": "Cargo registry package cursor-icon-1.2.0/LICENSE-APACHE",
+          "bytes": 11346,
+          "sha256": "b59affd015e517ed998dd735757f9a3693643cd389609947ed54074234a10784"
+        },
+        {
+          "path": "crates/cursor-icon-1.2.0/LICENSE-MIT",
+          "source": "Cargo registry package cursor-icon-1.2.0/LICENSE-MIT",
+          "bytes": 1059,
+          "sha256": "c138726a726ac37bae09d0f8a48e74e8e3aa8a8952fcd10fae0fb224cc1c05f1"
+        },
+        {
+          "path": "crates/cursor-icon-1.2.0/LICENSE-ZLIB",
+          "source": "Cargo registry package cursor-icon-1.2.0/LICENSE-ZLIB",
+          "bytes": 844,
+          "sha256": "01e533bd94e8f1c32b2c2531e2c398de7d35d7804add3d574b4e1fe581d53537"
+        }
+      ]
+    },
+    {
+      "name": "document-features",
+      "version": "0.2.12",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/slint-ui/document-features",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Slint Developers <info@slint.dev>"
+      ],
+      "files": [
+        {
+          "path": "crates/document-features-0.2.12/LICENSE-APACHE",
+          "source": "Cargo registry package document-features-0.2.12/LICENSE-APACHE",
+          "bytes": 10280,
+          "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+        },
+        {
+          "path": "crates/document-features-0.2.12/LICENSE-MIT",
+          "source": "Cargo registry package document-features-0.2.12/LICENSE-MIT",
+          "bytes": 1082,
+          "sha256": "aa893340d14b9844625be6a50ac644169a01b52f0211cbf81b09e1874c8cd81d"
+        }
+      ]
+    },
+    {
+      "name": "dpi",
+      "version": "0.1.2",
+      "license": "Apache-2.0 AND MIT",
+      "repository": "https://github.com/rust-windowing/winit",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/dpi-0.1.2/LICENSE",
+          "source": "Cargo registry package dpi-0.1.2/LICENSE",
+          "bytes": 11323,
+          "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a"
+        },
+        {
+          "path": "crates/dpi-0.1.2/LICENSE-LIBM-MIT",
+          "source": "Cargo registry package dpi-0.1.2/LICENSE-LIBM-MIT",
+          "bytes": 2444,
+          "sha256": "9eff396a99bafd208e7126602420d6864f6066c08b84485a5b032320a9c01997"
+        }
+      ]
+    },
+    {
+      "name": "ecolor",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>",
+        "Andreas Reich <reichandreas@gmx.de>"
+      ],
+      "files": [
+        {
+          "path": "crates/ecolor-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/ecolor-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "eframe",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/eframe",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/eframe-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/3c6eb8261c3293ad9c7ea1ed58487e038860ebef/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/eframe-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/3c6eb8261c3293ad9c7ea1ed58487e038860ebef/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "3c6eb8261c3293ad9c7ea1ed58487e038860ebef",
+      "published_vcs_revision": "3c6eb8261c3293ad9c7ea1ed58487e038860ebef"
+    },
+    {
+      "name": "egui",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/egui-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/egui-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "egui-wgpu",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/egui-wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Nils Hasenbanck <nils@hasenbanck.de>",
+        "embotech <opensource@embotech.com>",
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/egui-wgpu-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/egui-wgpu-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "egui-winit",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/egui-winit",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/egui-winit-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/egui-winit-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "egui_glow",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/egui_glow",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/egui_glow-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/egui_glow-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "either",
+      "version": "1.19.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rayon-rs/either",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/either-1.19.0/LICENSE-APACHE",
+          "source": "Cargo registry package either-1.19.0/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/either-1.19.0/LICENSE-MIT",
+          "source": "Cargo registry package either-1.19.0/LICENSE-MIT",
+          "bytes": 1043,
+          "sha256": "7576269ea71f767b99297934c0b2367532690f8c4badc695edf8e04ab6a1e545"
+        }
+      ]
+    },
+    {
+      "name": "emath",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/emath",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/emath-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/emath-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "epaint",
+      "version": "0.37.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/epaint",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/epaint-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/epaint-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "epaint_default_fonts",
+      "version": "0.37.0",
+      "license": "(MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0",
+      "repository": "https://github.com/emilk/egui/tree/main/crates/epaint_default_fonts",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Emil Ernerfeldt <emil.ernerfeldt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/fonts/Hack-Regular.txt",
+          "source": "Cargo registry package epaint_default_fonts-0.37.0/fonts/Hack-Regular.txt",
+          "bytes": 3734,
+          "sha256": "47c0cccbeec7e8614548cc485588b28149e7874188df5f41b36efebcee285c87"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/fonts/OFL.txt",
+          "source": "Cargo registry package epaint_default_fonts-0.37.0/fonts/OFL.txt",
+          "bytes": 4301,
+          "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/fonts/UFL.txt",
+          "source": "Cargo registry package epaint_default_fonts-0.37.0/fonts/UFL.txt",
+          "bytes": 4673,
+          "sha256": "2f0015108d68627bd788d313f529c21ff4da2c2c42a5e1f3883acc83480f9002"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/fonts/egui-icons.txt",
+          "source": "Cargo registry package epaint_default_fonts-0.37.0/fonts/egui-icons.txt",
+          "bytes": 761,
+          "sha256": "36dbbfd79d73974f864116879c17dd11559e1340277385f1ac52d8d29a5f5c79"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/fonts/emoji-icon-font-mit-license.txt",
+          "source": "Cargo registry package epaint_default_fonts-0.37.0/fonts/emoji-icon-font-mit-license.txt",
+          "bytes": 1069,
+          "sha256": "b9d2c1d909aa149996fd4c91dcb92b2362a04431640c1d200959da94caf8cde1"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-MIT",
+          "bytes": 1092,
+          "sha256": "95ca92f5f8ea5231f1580b3a2a799e8260af3114b900e1def5355a7f44bcf60c"
+        },
+        {
+          "path": "crates/epaint_default_fonts-0.37.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/emilk/egui/841a328ba2dd8f6996beb7189ebb7fc00e668a2a/LICENSE-APACHE",
+          "bytes": 10850,
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+        }
+      ],
+      "upstream_license_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "published_vcs_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "upstream_source_note": {
+        "repository": "https://github.com/emilk/egui",
+        "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+        "package_version": "0.37.0",
+        "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+        "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+        "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+      }
+    },
+    {
+      "name": "equivalent",
+      "version": "1.0.3",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/indexmap-rs/equivalent",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/equivalent-1.0.3/LICENSE-APACHE",
+          "source": "Cargo registry package equivalent-1.0.3/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/equivalent-1.0.3/LICENSE-MIT",
+          "source": "Cargo registry package equivalent-1.0.3/LICENSE-MIT",
+          "bytes": 1049,
+          "sha256": "7365cc8878a1d7ce155a58c4ca09c3d7a6be413efa5334a80ea842912b669349"
+        }
+      ]
+    },
+    {
+      "name": "euclid",
+      "version": "0.22.14",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/servo/euclid",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Servo Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/euclid-0.22.14/COPYRIGHT",
+          "source": "Cargo registry package euclid-0.22.14/COPYRIGHT",
+          "bytes": 321,
+          "sha256": "ec82b96487e9e778ee610c7ab245162464782cfa1f555c2299333f8dbe5c036a"
+        },
+        {
+          "path": "crates/euclid-0.22.14/LICENSE-APACHE",
+          "source": "Cargo registry package euclid-0.22.14/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/euclid-0.22.14/LICENSE-MIT",
+          "source": "Cargo registry package euclid-0.22.14/LICENSE-MIT",
+          "bytes": 1067,
+          "sha256": "62065228e42caebca7e7d7db1204cbb867033de5982ca4009928915e4095f3a3"
+        }
+      ]
+    },
+    {
+      "name": "fdeflate",
+      "version": "0.3.7",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/image-rs/fdeflate",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The image-rs Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/fdeflate-0.3.7/LICENSE-APACHE",
+          "source": "Cargo registry package fdeflate-0.3.7/LICENSE-APACHE",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/fdeflate-0.3.7/LICENSE-MIT",
+          "source": "Cargo registry package fdeflate-0.3.7/LICENSE-MIT",
+          "bytes": 1036,
+          "sha256": "c77a4cf9da729987d0fe7ccd811e3bd27393914ddf3d23467c18cc22954513b3"
+        }
+      ]
+    },
+    {
+      "name": "fearless_simd",
+      "version": "0.4.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/fearless_simd",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Raph Levien <raph.levien@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/fearless_simd-0.4.1/LICENSE-APACHE",
+          "source": "Cargo registry package fearless_simd-0.4.1/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/fearless_simd-0.4.1/LICENSE-MIT",
+          "source": "Cargo registry package fearless_simd-0.4.1/LICENSE-MIT",
+          "bytes": 1055,
+          "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e"
+        }
+      ]
+    },
+    {
+      "name": "flate2",
+      "version": "1.1.11",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-lang/flate2-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Alex Crichton <alex@alexcrichton.com>",
+        "Josh Triplett <josh@joshtriplett.org>"
+      ],
+      "files": [
+        {
+          "path": "crates/flate2-1.1.11/LICENSE-APACHE",
+          "source": "Cargo registry package flate2-1.1.11/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/flate2-1.1.11/LICENSE-MIT",
+          "source": "Cargo registry package flate2-1.1.11/LICENSE-MIT",
+          "bytes": 1062,
+          "sha256": "025436edff4cfcdde17a5811fdea78892d8482efd1abdec5a17872d07a4f2112"
+        }
+      ]
+    },
+    {
+      "name": "foldhash",
+      "version": "0.2.0",
+      "license": "Zlib",
+      "repository": "https://github.com/orlp/foldhash",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Orson Peters <orsonpeters@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/foldhash-0.2.0/LICENSE",
+          "source": "Cargo registry package foldhash-0.2.0/LICENSE",
+          "bytes": 856,
+          "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744"
+        }
+      ]
+    },
+    {
+      "name": "font-types",
+      "version": "0.12.7",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/googlefonts/fontations",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/font-types-0.12.7/LICENSE-APACHE",
+          "source": "Cargo registry package font-types-0.12.7/LICENSE-APACHE",
+          "bytes": 9701,
+          "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0"
+        },
+        {
+          "path": "crates/font-types-0.12.7/LICENSE-MIT",
+          "source": "Cargo registry package font-types-0.12.7/LICENSE-MIT",
+          "bytes": 1065,
+          "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427"
+        }
+      ]
+    },
+    {
+      "name": "gl_generator",
+      "version": "0.14.0",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/brendanzab/gl-rs/",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
+        "Corey Richardson",
+        "Arseny Kapoulkine"
+      ],
+      "files": [
+        {
+          "path": "crates/gl_generator-0.14.0/upstream/LICENSE",
+          "source": "https://raw.githubusercontent.com/brendanzab/gl-rs/ea503e8d5fb6d73c6030e6191ce738cd3bf3433e/LICENSE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "upstream_license_revision": "ea503e8d5fb6d73c6030e6191ce738cd3bf3433e",
+      "published_vcs_revision": "ea503e8d5fb6d73c6030e6191ce738cd3bf3433e"
+    },
+    {
+      "name": "glifo",
+      "version": "0.3.0",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/vello",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/glifo-0.3.0/LICENSE-APACHE",
+          "source": "Cargo registry package glifo-0.3.0/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/glifo-0.3.0/LICENSE-MIT",
+          "source": "Cargo registry package glifo-0.3.0/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "3252fc481fda4d2bad9e1ae675065889abd35c8abb500499ac01e70aaffa02b9"
+        }
+      ]
+    },
+    {
+      "name": "glow",
+      "version": "0.17.0",
+      "license": "MIT OR Apache-2.0 OR Zlib",
+      "repository": "https://github.com/grovesNL/glow",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Joshua Groves <josh@joshgroves.com>",
+        "Dzmitry Malyshau <kvarkus@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/glow-0.17.0/LICENSE-APACHE",
+          "source": "Cargo registry package glow-0.17.0/LICENSE-APACHE",
+          "bytes": 11046,
+          "sha256": "b8601fc79bdf8d8088f0938bea861ffc63ed0eebbedf25f44ab2cf2e85bd7edc"
+        },
+        {
+          "path": "crates/glow-0.17.0/LICENSE-MIT",
+          "source": "Cargo registry package glow-0.17.0/LICENSE-MIT",
+          "bytes": 1044,
+          "sha256": "cdbd06e25b8c9c5d6019949d2de8123f56d29cee4166396423d2ba8c81700845"
+        },
+        {
+          "path": "crates/glow-0.17.0/LICENSE-ZLIB",
+          "source": "Cargo registry package glow-0.17.0/LICENSE-ZLIB",
+          "bytes": 834,
+          "sha256": "636f644f1e149eb62961657c0e34953681eff64435653912e7bd19992666faa5"
+        }
+      ]
+    },
+    {
+      "name": "glutin",
+      "version": "0.32.3",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/rust-windowing/glutin",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kirill Chibisov <contact@kchibisov.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/glutin-0.32.3/LICENSE",
+          "source": "Cargo registry package glutin-0.32.3/LICENSE",
+          "bytes": 11312,
+          "sha256": "a4445427440043e8ce6fadf7a43fb906cb0d7f6c573a560a9f142cf9f9bf8ff4"
+        }
+      ]
+    },
+    {
+      "name": "glutin-winit",
+      "version": "0.5.0",
+      "license": "MIT",
+      "repository": "https://github.com/rust-windowing/glutin",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kirill Chibisov <contact@kchibisov.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/glutin-winit-0.5.0/LICENSE",
+          "source": "Cargo registry package glutin-winit-0.5.0/LICENSE",
+          "bytes": 1066,
+          "sha256": "d35629aec828ca86834f76e4c813bd6a6f0dda9005da898b0f49021f8042c5bd"
+        }
+      ]
+    },
+    {
+      "name": "glutin_egl_sys",
+      "version": "0.7.1",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/rust-windowing/glutin",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kirill Chibisov <contact@kchibisov.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/glutin_egl_sys-0.7.1/LICENSE",
+          "source": "Cargo registry package glutin_egl_sys-0.7.1/LICENSE",
+          "bytes": 11312,
+          "sha256": "a4445427440043e8ce6fadf7a43fb906cb0d7f6c573a560a9f142cf9f9bf8ff4"
+        }
+      ]
+    },
+    {
+      "name": "glutin_wgl_sys",
+      "version": "0.6.1",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/rust-windowing/glutin",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kirill Chibisov <contact@kchibisov.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/glutin_wgl_sys-0.6.1/LICENSE",
+          "source": "Cargo registry package glutin_wgl_sys-0.6.1/LICENSE",
+          "bytes": 11312,
+          "sha256": "a4445427440043e8ce6fadf7a43fb906cb0d7f6c573a560a9f142cf9f9bf8ff4"
+        }
+      ]
+    },
+    {
+      "name": "guillotiere",
+      "version": "0.7.0",
+      "license": "MIT/Apache-2.0",
+      "repository": "https://github.com/nical/guillotiere",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Nicolas Silva <nical@fastmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/guillotiere-0.7.0/LICENSE-APACHE",
+          "source": "Cargo registry package guillotiere-0.7.0/LICENSE-APACHE",
+          "bytes": 554,
+          "sha256": "644d05561bc2dc5993f19d6602894315d925744d854a0413876e203f86c35830"
+        },
+        {
+          "path": "crates/guillotiere-0.7.0/LICENSE-MIT",
+          "source": "Cargo registry package guillotiere-0.7.0/LICENSE-MIT",
+          "bytes": 1080,
+          "sha256": "cab31b979edfb1d6ff72a9a84e1092a9b68954022fc3f253338e64879961b8d2"
+        }
+      ]
+    },
+    {
+      "name": "half",
+      "version": "2.7.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/VoidStarKat/half-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Kathryn Long <squeeself@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/half-2.7.1/LICENSE-APACHE",
+          "source": "Cargo registry package half-2.7.1/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/half-2.7.1/LICENSE-MIT",
+          "source": "Cargo registry package half-2.7.1/LICENSE-MIT",
+          "bytes": 1036,
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+        }
+      ]
+    },
+    {
+      "name": "harfrust",
+      "version": "0.12.0",
+      "license": "MIT",
+      "repository": "https://github.com/harfbuzz/harfrust",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/harfrust-0.12.0/LICENSE",
+          "source": "Cargo registry package harfrust-0.12.0/LICENSE",
+          "bytes": 1117,
+          "sha256": "3a7c3f0b887abb7c638faf022d29257418458614c6724b120ceeffb279f9c7d2"
+        }
+      ]
+    },
+    {
+      "name": "hashbrown",
+      "version": "0.17.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-lang/hashbrown",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/hashbrown-0.17.1/LICENSE-APACHE",
+          "source": "Cargo registry package hashbrown-0.17.1/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/hashbrown-0.17.1/LICENSE-MIT",
+          "source": "Cargo registry package hashbrown-0.17.1/LICENSE-MIT",
+          "bytes": 1060,
+          "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2"
+        }
+      ]
+    },
+    {
+      "name": "image",
+      "version": "0.25.10",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/image-rs/image",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The image-rs Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/image-0.25.10/LICENSE-APACHE",
+          "source": "Cargo registry package image-0.25.10/LICENSE-APACHE",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/image-0.25.10/LICENSE-MIT",
+          "source": "Cargo registry package image-0.25.10/LICENSE-MIT",
+          "bytes": 1036,
+          "sha256": "c77a4cf9da729987d0fe7ccd811e3bd27393914ddf3d23467c18cc22954513b3"
+        }
+      ]
+    },
+    {
+      "name": "indexmap",
+      "version": "2.14.2",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/indexmap-rs/indexmap",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/indexmap-2.14.2/LICENSE-APACHE",
+          "source": "Cargo registry package indexmap-2.14.2/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/indexmap-2.14.2/LICENSE-MIT",
+          "source": "Cargo registry package indexmap-2.14.2/LICENSE-MIT",
+          "bytes": 1049,
+          "sha256": "ecc269ef87fd38a1d98e30bfac9ba964a9dbd9315c3770fed98d4d7cb5882055"
+        }
+      ]
+    },
+    {
+      "name": "itertools",
+      "version": "0.15.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-itertools/itertools",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "bluss"
+      ],
+      "files": [
+        {
+          "path": "crates/itertools-0.15.0/LICENSE-APACHE",
+          "source": "Cargo registry package itertools-0.15.0/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/itertools-0.15.0/LICENSE-MIT",
+          "source": "Cargo registry package itertools-0.15.0/LICENSE-MIT",
+          "bytes": 1043,
+          "sha256": "7576269ea71f767b99297934c0b2367532690f8c4badc695edf8e04ab6a1e545"
+        }
+      ]
+    },
+    {
+      "name": "itoa",
+      "version": "1.0.19",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/itoa",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/itoa-1.0.19/LICENSE-APACHE",
+          "source": "Cargo registry package itoa-1.0.19/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/itoa-1.0.19/LICENSE-MIT",
+          "source": "Cargo registry package itoa-1.0.19/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "khronos_api",
+      "version": "3.1.0",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/brendanzab/gl-rs/",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
+        "Corey Richardson",
+        "Arseny Kapoulkine",
+        "Pierre Krieger <pierre.krieger1708@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/khronos_api-3.1.0/upstream/LICENSE",
+          "source": "https://raw.githubusercontent.com/brendanzab/gl-rs/f150967b1c44ae888e6676f93f639ebc82771bdc/LICENSE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "upstream_license_revision": "f150967b1c44ae888e6676f93f639ebc82771bdc",
+      "published_vcs_revision": "f150967b1c44ae888e6676f93f639ebc82771bdc"
+    },
+    {
+      "name": "kurbo",
+      "version": "0.13.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/kurbo",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/kurbo-0.13.1/LICENSE-APACHE",
+          "source": "Cargo registry package kurbo-0.13.1/LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "crates/kurbo-0.13.1/LICENSE-MIT",
+          "source": "Cargo registry package kurbo-0.13.1/LICENSE-MIT",
+          "bytes": 1055,
+          "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e"
+        }
+      ]
+    },
+    {
+      "name": "libc",
+      "version": "0.2.191",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-lang/libc",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/libc-0.2.191/LICENSE-APACHE",
+          "source": "Cargo registry package libc-0.2.191/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/libc-0.2.191/LICENSE-MIT",
+          "source": "Cargo registry package libc-0.2.191/LICENSE-MIT",
+          "bytes": 1066,
+          "sha256": "123a331b5dbf04c30097fa43b8f858bc85df671fe776de498d01f3d6b7c1f69e"
+        }
+      ]
+    },
+    {
+      "name": "libloading",
+      "version": "0.8.9",
+      "license": "ISC",
+      "repository": "https://github.com/nagisa/rust_libloading/",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Simonas Kazlauskas <libloading@kazlauskas.me>"
+      ],
+      "files": [
+        {
+          "path": "crates/libloading-0.8.9/LICENSE",
+          "source": "Cargo registry package libloading-0.8.9/LICENSE",
+          "bytes": 736,
+          "sha256": "b29f8b01452350c20dd1af16ef83b598fea3053578ccc1c7a0ef40e57be2620f"
+        }
+      ]
+    },
+    {
+      "name": "libm",
+      "version": "0.2.16",
+      "license": "MIT",
+      "repository": "https://github.com/rust-lang/compiler-builtins",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Alex Crichton <alex@alexcrichton.com>",
+        "Amanieu d'Antras <amanieu@gmail.com>",
+        "Jorge Aparicio <japaricious@gmail.com>",
+        "Trevor Gross <tg@trevorgross.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/libm-0.2.16/LICENSE.txt",
+          "source": "Cargo registry package libm-0.2.16/LICENSE.txt",
+          "bytes": 14088,
+          "sha256": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7"
+        }
+      ]
+    },
+    {
+      "name": "linebender_resource_handle",
+      "version": "0.1.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/raw_resource_handle",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/linebender_resource_handle-0.1.1/LICENSE-APACHE",
+          "source": "Cargo registry package linebender_resource_handle-0.1.1/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/linebender_resource_handle-0.1.1/LICENSE-MIT",
+          "source": "Cargo registry package linebender_resource_handle-0.1.1/LICENSE-MIT",
+          "bytes": 1036,
+          "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+        }
+      ]
+    },
+    {
+      "name": "litrs",
+      "version": "1.0.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/LukasKalbertodt/litrs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/litrs-1.0.1/LICENSE-APACHE",
+          "source": "Cargo registry package litrs-1.0.1/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/litrs-1.0.1/LICENSE-MIT",
+          "source": "Cargo registry package litrs-1.0.1/LICENSE-MIT",
+          "bytes": 1062,
+          "sha256": "7dc1552e88f49132cb358b1b962fc5e79fa42d70bcbb88c526d33e45b8e98036"
+        }
+      ]
+    },
+    {
+      "name": "lock_api",
+      "version": "0.4.14",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/Amanieu/parking_lot",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Amanieu d'Antras <amanieu@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/lock_api-0.4.14/LICENSE-APACHE",
+          "source": "Cargo registry package lock_api-0.4.14/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/lock_api-0.4.14/LICENSE-MIT",
+          "source": "Cargo registry package lock_api-0.4.14/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "c9a75f18b9ab2927829a208fc6aa2cf4e63b8420887ba29cdb265d6619ae82d5"
+        }
+      ]
+    },
+    {
+      "name": "log",
+      "version": "0.4.35",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-lang/log",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Rust Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/log-0.4.35/LICENSE-APACHE",
+          "source": "Cargo registry package log-0.4.35/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/log-0.4.35/LICENSE-MIT",
+          "source": "Cargo registry package log-0.4.35/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+        }
+      ]
+    },
+    {
+      "name": "memchr",
+      "version": "2.8.3",
+      "license": "Unlicense OR MIT",
+      "repository": "https://github.com/BurntSushi/memchr",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Andrew Gallant <jamslam@gmail.com>",
+        "bluss"
+      ],
+      "files": [
+        {
+          "path": "crates/memchr-2.8.3/COPYING",
+          "source": "Cargo registry package memchr-2.8.3/COPYING",
+          "bytes": 126,
+          "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f"
+        },
+        {
+          "path": "crates/memchr-2.8.3/LICENSE-MIT",
+          "source": "Cargo registry package memchr-2.8.3/LICENSE-MIT",
+          "bytes": 1081,
+          "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f"
+        },
+        {
+          "path": "crates/memchr-2.8.3/UNLICENSE",
+          "source": "Cargo registry package memchr-2.8.3/UNLICENSE",
+          "bytes": 1211,
+          "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+        }
+      ]
+    },
+    {
+      "name": "miniz_oxide",
+      "version": "0.8.9",
+      "license": "MIT OR Zlib OR Apache-2.0",
+      "repository": "https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Frommi <daniil.liferenko@gmail.com>",
+        "oyvindln <oyvindln@users.noreply.github.com>",
+        "Rich Geldreich richgel99@gmail.com"
+      ],
+      "files": [
+        {
+          "path": "crates/miniz_oxide-0.8.9/LICENSE",
+          "source": "Cargo registry package miniz_oxide-0.8.9/LICENSE",
+          "bytes": 1213,
+          "sha256": "4108245a1f2df9d4e94df8abed5b4ba0759bb2f9b40a6b939f1be141077ae50b"
+        },
+        {
+          "path": "crates/miniz_oxide-0.8.9/LICENSE-APACHE.md",
+          "source": "Cargo registry package miniz_oxide-0.8.9/LICENSE-APACHE.md",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/miniz_oxide-0.8.9/LICENSE-MIT.md",
+          "source": "Cargo registry package miniz_oxide-0.8.9/LICENSE-MIT.md",
+          "bytes": 1212,
+          "sha256": "799e9ca9d179295ef372f25d3769cdda7d25bb2668add6a6a1e22d1e4c678b8d"
+        },
+        {
+          "path": "crates/miniz_oxide-0.8.9/LICENSE-ZLIB.md",
+          "source": "Cargo registry package miniz_oxide-0.8.9/LICENSE-ZLIB.md",
+          "bytes": 984,
+          "sha256": "0a54e647fe54104658b5e563c04c6f9edf251710e47bce692e0bd990a4ddaa39"
+        }
+      ]
+    },
+    {
+      "name": "miniz_oxide",
+      "version": "0.9.1",
+      "license": "MIT OR Zlib OR Apache-2.0",
+      "repository": "https://github.com/Frommi/miniz_oxide/tree/master/miniz_oxide",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Frommi <daniil.liferenko@gmail.com>",
+        "oyvindln <oyvindln@users.noreply.github.com>",
+        "Rich Geldreich richgel99@gmail.com"
+      ],
+      "files": [
+        {
+          "path": "crates/miniz_oxide-0.9.1/LICENSE",
+          "source": "Cargo registry package miniz_oxide-0.9.1/LICENSE",
+          "bytes": 1213,
+          "sha256": "4108245a1f2df9d4e94df8abed5b4ba0759bb2f9b40a6b939f1be141077ae50b"
+        },
+        {
+          "path": "crates/miniz_oxide-0.9.1/LICENSE-APACHE.md",
+          "source": "Cargo registry package miniz_oxide-0.9.1/LICENSE-APACHE.md",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/miniz_oxide-0.9.1/LICENSE-MIT.md",
+          "source": "Cargo registry package miniz_oxide-0.9.1/LICENSE-MIT.md",
+          "bytes": 1212,
+          "sha256": "799e9ca9d179295ef372f25d3769cdda7d25bb2668add6a6a1e22d1e4c678b8d"
+        },
+        {
+          "path": "crates/miniz_oxide-0.9.1/LICENSE-ZLIB.md",
+          "source": "Cargo registry package miniz_oxide-0.9.1/LICENSE-ZLIB.md",
+          "bytes": 984,
+          "sha256": "0a54e647fe54104658b5e563c04c6f9edf251710e47bce692e0bd990a4ddaa39"
+        }
+      ]
+    },
+    {
+      "name": "moxcms",
+      "version": "0.8.1",
+      "license": "BSD-3-Clause OR Apache-2.0",
+      "repository": "https://github.com/awxkee/moxcms.git",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Radzivon Bartoshyk"
+      ],
+      "files": [
+        {
+          "path": "crates/moxcms-0.8.1/LICENSE-APACHE.md",
+          "source": "Cargo registry package moxcms-0.8.1/LICENSE-APACHE.md",
+          "bytes": 11348,
+          "sha256": "90bf2d659c43045111b65c733ab2a6d4cbcb422a098368c8c58a9ba3db4ed0c5"
+        },
+        {
+          "path": "crates/moxcms-0.8.1/LICENSE.md",
+          "source": "Cargo registry package moxcms-0.8.1/LICENSE.md",
+          "bytes": 1506,
+          "sha256": "2aa92cada6431e75615e3fe6cb1a9082c98f777d48ae1c087c0da0e37f7b8bff"
+        }
+      ]
+    },
+    {
+      "name": "naga",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/naga-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package naga-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/naga-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package naga-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "naga-types",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/naga-types-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package naga-types-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/naga-types-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package naga-types-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "nohash-hasher",
+      "version": "0.2.0",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/paritytech/nohash-hasher",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Parity Technologies <admin@parity.io>"
+      ],
+      "files": [
+        {
+          "path": "crates/nohash-hasher-0.2.0/LICENSE-APACHE",
+          "source": "Cargo registry package nohash-hasher-0.2.0/LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "crates/nohash-hasher-0.2.0/LICENSE-MIT",
+          "source": "Cargo registry package nohash-hasher-0.2.0/LICENSE-MIT",
+          "bytes": 1069,
+          "sha256": "ec353d4fecf7963b4c054384557e5dbc3c7a717997eb4a3815b315721a6aa75a"
+        }
+      ]
+    },
+    {
+      "name": "ntapi",
+      "version": "0.4.3",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/MSxDOS/ntapi",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "MSxDOS <melcodos@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/ntapi-0.4.3/LICENSE-APACHE",
+          "source": "Cargo registry package ntapi-0.4.3/LICENSE-APACHE",
+          "bytes": 11360,
+          "sha256": "cf90d659de5c1e6418267ab8043b756e65508ee5d8d50b29eb2d2fe444c2c3eb"
+        },
+        {
+          "path": "crates/ntapi-0.4.3/LICENSE-MIT",
+          "source": "Cargo registry package ntapi-0.4.3/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "11a7964ccc0dd115d16720ab1d826c5d03e52838748ffaba3d21bae8bcacd82a"
+        }
+      ]
+    },
+    {
+      "name": "num-traits",
+      "version": "0.2.19",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-num/num-traits",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Rust Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/num-traits-0.2.19/LICENSE-APACHE",
+          "source": "Cargo registry package num-traits-0.2.19/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/num-traits-0.2.19/LICENSE-MIT",
+          "source": "Cargo registry package num-traits-0.2.19/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+        }
+      ]
+    },
+    {
+      "name": "once_cell",
+      "version": "1.21.4",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/matklad/once_cell",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Aleksey Kladov <aleksey.kladov@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/once_cell-1.21.4/LICENSE-APACHE",
+          "source": "Cargo registry package once_cell-1.21.4/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/once_cell-1.21.4/LICENSE-MIT",
+          "source": "Cargo registry package once_cell-1.21.4/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "parking_lot",
+      "version": "0.12.5",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/Amanieu/parking_lot",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Amanieu d'Antras <amanieu@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/parking_lot-0.12.5/LICENSE-APACHE",
+          "source": "Cargo registry package parking_lot-0.12.5/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/parking_lot-0.12.5/LICENSE-MIT",
+          "source": "Cargo registry package parking_lot-0.12.5/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "c9a75f18b9ab2927829a208fc6aa2cf4e63b8420887ba29cdb265d6619ae82d5"
+        }
+      ]
+    },
+    {
+      "name": "parking_lot_core",
+      "version": "0.9.12",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/Amanieu/parking_lot",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Amanieu d'Antras <amanieu@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/parking_lot_core-0.9.12/LICENSE-APACHE",
+          "source": "Cargo registry package parking_lot_core-0.9.12/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/parking_lot_core-0.9.12/LICENSE-MIT",
+          "source": "Cargo registry package parking_lot_core-0.9.12/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "c9a75f18b9ab2927829a208fc6aa2cf4e63b8420887ba29cdb265d6619ae82d5"
+        }
+      ]
+    },
+    {
+      "name": "peniko",
+      "version": "0.6.1",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/peniko",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/peniko-0.6.1/LICENSE-APACHE",
+          "source": "Cargo registry package peniko-0.6.1/LICENSE-APACHE",
+          "bytes": 11361,
+          "sha256": "f9946796a8a5bd5981565142fa42e3b0cc36aef6f80e86beaf5905b3c0fef1b5"
+        },
+        {
+          "path": "crates/peniko-0.6.1/LICENSE-MIT",
+          "source": "Cargo registry package peniko-0.6.1/LICENSE-MIT",
+          "bytes": 1055,
+          "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e"
+        }
+      ]
+    },
+    {
+      "name": "pin-project-lite",
+      "version": "0.2.17",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/taiki-e/pin-project-lite",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/pin-project-lite-0.2.17/LICENSE-APACHE",
+          "source": "Cargo registry package pin-project-lite-0.2.17/LICENSE-APACHE",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/pin-project-lite-0.2.17/LICENSE-MIT",
+          "source": "Cargo registry package pin-project-lite-0.2.17/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "png",
+      "version": "0.18.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/image-rs/image-png",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The image-rs Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/png-0.18.1/LICENSE-APACHE",
+          "source": "Cargo registry package png-0.18.1/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/png-0.18.1/LICENSE-MIT",
+          "source": "Cargo registry package png-0.18.1/LICENSE-MIT",
+          "bytes": 1048,
+          "sha256": "eaf40297c75da471f7cda1f3458e8d91b4b2ec866e609527a13acfa93b638652"
+        }
+      ]
+    },
+    {
+      "name": "polycool",
+      "version": "0.4.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/linebender/kurbo",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/polycool-0.4.0/LICENSE-APACHE",
+          "source": "Cargo registry package polycool-0.4.0/LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "crates/polycool-0.4.0/LICENSE-MIT",
+          "source": "Cargo registry package polycool-0.4.0/LICENSE-MIT",
+          "bytes": 1055,
+          "sha256": "23c23145f6eac25c28cdcc03d38506a5712a9a8cffb5bd5301457f6173ea696e"
+        }
+      ]
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.107",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/proc-macro2",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>",
+        "Alex Crichton <alex@alexcrichton.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/proc-macro2-1.0.107/LICENSE-APACHE",
+          "source": "Cargo registry package proc-macro2-1.0.107/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/proc-macro2-1.0.107/LICENSE-MIT",
+          "source": "Cargo registry package proc-macro2-1.0.107/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "profiling",
+      "version": "1.0.18",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/aclysma/profiling",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Philip Degarmo <aclysma@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/profiling-1.0.18/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/aclysma/profiling/8271551172eb6fa4cba47369aedd93790c623df9/LICENSE-MIT",
+          "bytes": 1093,
+          "sha256": "c8167fdeeed46d3f244d3f85c5bf998ce889343691c32be2c61a8bc4b5c08333"
+        },
+        {
+          "path": "crates/profiling-1.0.18/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/aclysma/profiling/8271551172eb6fa4cba47369aedd93790c623df9/LICENSE-APACHE",
+          "bytes": 10818,
+          "sha256": "10d30a673cd5e9349bdc02aeb48f14b3386d27d0da32df8f0a555d4aa16aa551"
+        }
+      ],
+      "upstream_license_revision": "8271551172eb6fa4cba47369aedd93790c623df9",
+      "published_vcs_revision": "8271551172eb6fa4cba47369aedd93790c623df9"
+    },
+    {
+      "name": "pxfm",
+      "version": "0.1.30",
+      "license": "BSD-3-Clause OR Apache-2.0",
+      "repository": "https://github.com/awxkee/pxfm",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Radzivon Bartoshyk"
+      ],
+      "files": [
+        {
+          "path": "crates/pxfm-0.1.30/LICENSE-APACHE.md",
+          "source": "Cargo registry package pxfm-0.1.30/LICENSE-APACHE.md",
+          "bytes": 11348,
+          "sha256": "90bf2d659c43045111b65c733ab2a6d4cbcb422a098368c8c58a9ba3db4ed0c5"
+        },
+        {
+          "path": "crates/pxfm-0.1.30/LICENSE.md",
+          "source": "Cargo registry package pxfm-0.1.30/LICENSE.md",
+          "bytes": 1506,
+          "sha256": "2aa92cada6431e75615e3fe6cb1a9082c98f777d48ae1c087c0da0e37f7b8bff"
+        }
+      ]
+    },
+    {
+      "name": "quote",
+      "version": "1.0.47",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/quote",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/quote-1.0.47/LICENSE-APACHE",
+          "source": "Cargo registry package quote-1.0.47/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/quote-1.0.47/LICENSE-MIT",
+          "source": "Cargo registry package quote-1.0.47/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "raw-window-handle",
+      "version": "0.6.2",
+      "license": "MIT OR Apache-2.0 OR Zlib",
+      "repository": "https://github.com/rust-windowing/raw-window-handle",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Osspial <osspial@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/raw-window-handle-0.6.2/LICENSE-APACHE.md",
+          "source": "Cargo registry package raw-window-handle-0.6.2/LICENSE-APACHE.md",
+          "bytes": 10174,
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "path": "crates/raw-window-handle-0.6.2/LICENSE-MIT.md",
+          "source": "Cargo registry package raw-window-handle-0.6.2/LICENSE-MIT.md",
+          "bytes": 1064,
+          "sha256": "9c5a80639a57c1c945570e7ebbca0706305849ce3c098021325cca9db2f7acc4"
+        },
+        {
+          "path": "crates/raw-window-handle-0.6.2/LICENSE-ZLIB.md",
+          "source": "Cargo registry package raw-window-handle-0.6.2/LICENSE-ZLIB.md",
+          "bytes": 836,
+          "sha256": "ae895c8576e682f310fb70d93d9f99b1dd82872094c54a8f6cdfe2ca5c2d6ecb"
+        }
+      ]
+    },
+    {
+      "name": "read-fonts",
+      "version": "0.41.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/googlefonts/fontations",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/read-fonts-0.41.0/LICENSE-APACHE",
+          "source": "Cargo registry package read-fonts-0.41.0/LICENSE-APACHE",
+          "bytes": 9701,
+          "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0"
+        },
+        {
+          "path": "crates/read-fonts-0.41.0/LICENSE-MIT",
+          "source": "Cargo registry package read-fonts-0.41.0/LICENSE-MIT",
+          "bytes": 1065,
+          "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427"
+        }
+      ]
+    },
+    {
+      "name": "renderdoc-sys",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/ebkalderon/renderdoc-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Eyal Kalderon <ebkalderon@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/renderdoc-sys-1.1.0/LICENSE-APACHE",
+          "source": "Cargo registry package renderdoc-sys-1.1.0/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/renderdoc-sys-1.1.0/LICENSE-MIT",
+          "source": "Cargo registry package renderdoc-sys-1.1.0/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "24b2f2eff5a7622e87162823e260f00c6dfbce0e26d585d3d28c785f1edc80ed"
+        }
+      ]
+    },
+    {
+      "name": "rustc-hash",
+      "version": "1.1.0",
+      "license": "Apache-2.0/MIT",
+      "repository": "https://github.com/rust-lang-nursery/rustc-hash",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Rust Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/rustc-hash-1.1.0/LICENSE-APACHE",
+          "source": "Cargo registry package rustc-hash-1.1.0/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/rustc-hash-1.1.0/LICENSE-MIT",
+          "source": "Cargo registry package rustc-hash-1.1.0/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "rustc-hash",
+      "version": "2.1.3",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/rust-lang/rustc-hash",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Rust Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/rustc-hash-2.1.3/LICENSE-APACHE",
+          "source": "Cargo registry package rustc-hash-2.1.3/LICENSE-APACHE",
+          "bytes": 9722,
+          "sha256": "95bd3988beee069fa2848f648dab43cc6e0b2add2ad6bcb17360caf749802bcc"
+        },
+        {
+          "path": "crates/rustc-hash-2.1.3/LICENSE-MIT",
+          "source": "Cargo registry package rustc-hash-2.1.3/LICENSE-MIT",
+          "bytes": 1022,
+          "sha256": "30fefc3a7d6a0041541858293bcbea2dde4caa4c0a5802f996a7f7e8c0085652"
+        }
+      ]
+    },
+    {
+      "name": "scopeguard",
+      "version": "1.2.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/bluss/scopeguard",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "bluss"
+      ],
+      "files": [
+        {
+          "path": "crates/scopeguard-1.2.0/LICENSE-APACHE",
+          "source": "Cargo registry package scopeguard-1.2.0/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/scopeguard-1.2.0/LICENSE-MIT",
+          "source": "Cargo registry package scopeguard-1.2.0/LICENSE-MIT",
+          "bytes": 1097,
+          "sha256": "fb77f0a9c53e473abe5103c8632ef9f0f2874d4fb3f17cb2d8c661aab9cee9d7"
+        }
+      ]
+    },
+    {
+      "name": "self_cell",
+      "version": "1.3.0",
+      "license": "Apache-2.0 OR GPL-2.0-only",
+      "repository": "https://github.com/Voultapher/self_cell",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Lukas Bergdoll <lukas.bergdoll@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/self_cell-1.3.0/LICENSE-APACHE",
+          "source": "Cargo registry package self_cell-1.3.0/LICENSE-APACHE",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        {
+          "path": "crates/self_cell-1.3.0/LICENSE-GPLv2",
+          "source": "Cargo registry package self_cell-1.3.0/LICENSE-GPLv2",
+          "bytes": 18091,
+          "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505"
+        }
+      ]
+    },
+    {
+      "name": "serde",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/serde-rs/serde",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Erick Tryzelaar <erick.tryzelaar@gmail.com>",
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/serde-1.0.229/LICENSE-APACHE",
+          "source": "Cargo registry package serde-1.0.229/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/serde-1.0.229/LICENSE-MIT",
+          "source": "Cargo registry package serde-1.0.229/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "serde_core",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/serde-rs/serde",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Erick Tryzelaar <erick.tryzelaar@gmail.com>",
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/serde_core-1.0.229/LICENSE-APACHE",
+          "source": "Cargo registry package serde_core-1.0.229/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/serde_core-1.0.229/LICENSE-MIT",
+          "source": "Cargo registry package serde_core-1.0.229/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "serde_derive",
+      "version": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/serde-rs/serde",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Erick Tryzelaar <erick.tryzelaar@gmail.com>",
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/serde_derive-1.0.229/LICENSE-APACHE",
+          "source": "Cargo registry package serde_derive-1.0.229/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/serde_derive-1.0.229/LICENSE-MIT",
+          "source": "Cargo registry package serde_derive-1.0.229/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "serde_json",
+      "version": "1.0.154",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/serde-rs/json",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/serde_json-1.0.154/LICENSE-APACHE",
+          "source": "Cargo registry package serde_json-1.0.154/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/serde_json-1.0.154/LICENSE-MIT",
+          "source": "Cargo registry package serde_json-1.0.154/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "simd-adler32",
+      "version": "0.3.10",
+      "license": "MIT",
+      "repository": "https://github.com/mcountryman/simd-adler32",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Marvin Countryman <me@maar.vin>"
+      ],
+      "files": [
+        {
+          "path": "crates/simd-adler32-0.3.10/LICENSE.md",
+          "source": "Cargo registry package simd-adler32-0.3.10/LICENSE.md",
+          "bytes": 1078,
+          "sha256": "42a35170233e83e18856792e748de4c1ce4a63b2afce9a370c89ef3fe23f9f2d"
+        }
+      ]
+    },
+    {
+      "name": "skrifa",
+      "version": "0.44.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/googlefonts/fontations",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/skrifa-0.44.0/LICENSE-APACHE",
+          "source": "Cargo registry package skrifa-0.44.0/LICENSE-APACHE",
+          "bytes": 9701,
+          "sha256": "eba684204073ed715c4abb48129acdfd2bff8ae48339e6a7da3b341d3027b7f0"
+        },
+        {
+          "path": "crates/skrifa-0.44.0/LICENSE-MIT",
+          "source": "Cargo registry package skrifa-0.44.0/LICENSE-MIT",
+          "bytes": 1065,
+          "sha256": "7b4c9a3946dfcea7967582760e963e27799e225dcf20565c8ef55324bb017427"
+        }
+      ]
+    },
+    {
+      "name": "smallvec",
+      "version": "1.16.5",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/servo/rust-smallvec",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The Servo Project Developers"
+      ],
+      "files": [
+        {
+          "path": "crates/smallvec-1.16.5/LICENSE-APACHE",
+          "source": "Cargo registry package smallvec-1.16.5/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/smallvec-1.16.5/LICENSE-MIT",
+          "source": "Cargo registry package smallvec-1.16.5/LICENSE-MIT",
+          "bytes": 1072,
+          "sha256": "0b28172679e0009b655da42797c03fd163a3379d5cfa67ba1f1655e974a2a1a9"
+        }
+      ]
+    },
+    {
+      "name": "smol_str",
+      "version": "0.2.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/rust-analyzer/smol_str",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Aleksey Kladov <aleksey.kladov@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/smol_str-0.2.2/LICENSE-APACHE",
+          "source": "Cargo registry package smol_str-0.2.2/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/smol_str-0.2.2/LICENSE-MIT",
+          "source": "Cargo registry package smol_str-0.2.2/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "static_assertions",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/nvzqz/static-assertions-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Nikolai Vazquez"
+      ],
+      "files": [
+        {
+          "path": "crates/static_assertions-1.1.0/LICENSE-APACHE",
+          "source": "Cargo registry package static_assertions-1.1.0/LICENSE-APACHE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "crates/static_assertions-1.1.0/LICENSE-MIT",
+          "source": "Cargo registry package static_assertions-1.1.0/LICENSE-MIT",
+          "bytes": 1072,
+          "sha256": "ea084a2373ebc1f0902c09266e7bf25a05ab3814c1805bb017ffa7308f90c061"
+        }
+      ]
+    },
+    {
+      "name": "syn",
+      "version": "2.0.119",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/syn",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/syn-2.0.119/LICENSE-APACHE",
+          "source": "Cargo registry package syn-2.0.119/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/syn-2.0.119/LICENSE-MIT",
+          "source": "Cargo registry package syn-2.0.119/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "syn",
+      "version": "3.0.10",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/syn",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/syn-3.0.10/LICENSE-APACHE",
+          "source": "Cargo registry package syn-3.0.10/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/syn-3.0.10/LICENSE-MIT",
+          "source": "Cargo registry package syn-3.0.10/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "sysinfo",
+      "version": "0.40.3",
+      "license": "MIT",
+      "repository": "https://github.com/GuillaumeGomez/sysinfo",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Guillaume Gomez <guillaume1.gomez@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/sysinfo-0.40.3/LICENSE",
+          "source": "Cargo registry package sysinfo-0.40.3/LICENSE",
+          "bytes": 1083,
+          "sha256": "1f14f9ce70a5fdedab449bb32cd7d3f20e6e9d18c2a2b74221fc203db8684d43"
+        }
+      ]
+    },
+    {
+      "name": "thiserror",
+      "version": "2.0.21",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/thiserror",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/thiserror-2.0.21/LICENSE-APACHE",
+          "source": "Cargo registry package thiserror-2.0.21/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/thiserror-2.0.21/LICENSE-MIT",
+          "source": "Cargo registry package thiserror-2.0.21/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "thiserror-impl",
+      "version": "2.0.21",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/dtolnay/thiserror",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/thiserror-impl-2.0.21/LICENSE-APACHE",
+          "source": "Cargo registry package thiserror-impl-2.0.21/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/thiserror-impl-2.0.21/LICENSE-MIT",
+          "source": "Cargo registry package thiserror-impl-2.0.21/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    },
+    {
+      "name": "tracing",
+      "version": "0.1.44",
+      "license": "MIT",
+      "repository": "https://github.com/tokio-rs/tracing",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Eliza Weisman <eliza@buoyant.io>",
+        "Tokio Contributors <team@tokio.rs>"
+      ],
+      "files": [
+        {
+          "path": "crates/tracing-0.1.44/LICENSE",
+          "source": "Cargo registry package tracing-0.1.44/LICENSE",
+          "bytes": 1062,
+          "sha256": "898b1ae9821e98daf8964c8d6c7f61641f5f5aa78ad500020771c0939ee0dea1"
+        }
+      ]
+    },
+    {
+      "name": "tracing-core",
+      "version": "0.1.36",
+      "license": "MIT",
+      "repository": "https://github.com/tokio-rs/tracing",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Tokio Contributors <team@tokio.rs>"
+      ],
+      "files": [
+        {
+          "path": "crates/tracing-core-0.1.36/LICENSE",
+          "source": "Cargo registry package tracing-core-0.1.36/LICENSE",
+          "bytes": 1062,
+          "sha256": "898b1ae9821e98daf8964c8d6c7f61641f5f5aa78ad500020771c0939ee0dea1"
+        },
+        {
+          "path": "crates/tracing-core-0.1.36/src/spin/LICENSE",
+          "source": "Cargo registry package tracing-core-0.1.36/src/spin/LICENSE",
+          "bytes": 1085,
+          "sha256": "58545fed1565e42d687aecec6897d35c6d37ccb71479a137c0deb2203e125c79"
+        }
+      ]
+    },
+    {
+      "name": "type-map",
+      "version": "0.5.1",
+      "license": "MIT/Apache-2.0",
+      "repository": "https://github.com/kardeiz/type-map",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Jacob Brown <kardeiz@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/type-map-0.5.1/LICENSE-APACHE",
+          "source": "Cargo registry package type-map-0.5.1/LICENSE-APACHE",
+          "bytes": 22600,
+          "sha256": "f70ebc7cddd5befd46ce2aa9a8782deb7b59ac9fd55e8c0e10647d1ac66cecd1"
+        },
+        {
+          "path": "crates/type-map-0.5.1/LICENSE-MIT",
+          "source": "Cargo registry package type-map-0.5.1/LICENSE-MIT",
+          "bytes": 3225,
+          "sha256": "b47fb719a40d9ef9c8e3be525c41ce129c46d613cfc96a91bddd7c19dcebf7a1"
+        }
+      ]
+    },
+    {
+      "name": "unicode-general-category",
+      "version": "1.1.0",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/yeslogic/unicode-general-category",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "YesLogic Pty. Ltd. <info@yeslogic.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/unicode-general-category-1.1.0/LICENSE",
+          "source": "Cargo registry package unicode-general-category-1.1.0/LICENSE",
+          "bytes": 11357,
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+        }
+      ]
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.27",
+      "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "repository": "https://github.com/dtolnay/unicode-ident",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/unicode-ident-1.0.27/LICENSE-APACHE",
+          "source": "Cargo registry package unicode-ident-1.0.27/LICENSE-APACHE",
+          "bytes": 9723,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+        },
+        {
+          "path": "crates/unicode-ident-1.0.27/LICENSE-MIT",
+          "source": "Cargo registry package unicode-ident-1.0.27/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        },
+        {
+          "path": "crates/unicode-ident-1.0.27/LICENSE-UNICODE",
+          "source": "Cargo registry package unicode-ident-1.0.27/LICENSE-UNICODE",
+          "bytes": 1995,
+          "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1"
+        }
+      ]
+    },
+    {
+      "name": "unicode-properties",
+      "version": "0.1.5",
+      "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+      "repository": "https://github.com/unicode-rs/unicode-properties",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Charles Lew <crlf0710@gmail.com>",
+        "Manish Goregaokar <manishsmail@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/unicode-properties-0.1.5/COPYRIGHT",
+          "source": "Cargo registry package unicode-properties-0.1.5/COPYRIGHT",
+          "bytes": 321,
+          "sha256": "23860c2a7b5d96b21569afedf033469bab9fe14a1b24a35068b8641c578ce24d"
+        },
+        {
+          "path": "crates/unicode-properties-0.1.5/LICENSE-APACHE",
+          "source": "Cargo registry package unicode-properties-0.1.5/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/unicode-properties-0.1.5/LICENSE-MIT",
+          "source": "Cargo registry package unicode-properties-0.1.5/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+        },
+        {
+          "path": "crates/unicode-properties-0.1.5/LICENSE-UNICODE",
+          "source": "Cargo registry package unicode-properties-0.1.5/LICENSE-UNICODE",
+          "bytes": 1995,
+          "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+        }
+      ]
+    },
+    {
+      "name": "unicode-segmentation",
+      "version": "1.13.3",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/unicode-rs/unicode-segmentation",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "kwantam <kwantam@gmail.com>",
+        "Manish Goregaokar <manishsmail@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/unicode-segmentation-1.13.3/COPYRIGHT",
+          "source": "Cargo registry package unicode-segmentation-1.13.3/COPYRIGHT",
+          "bytes": 321,
+          "sha256": "23860c2a7b5d96b21569afedf033469bab9fe14a1b24a35068b8641c578ce24d"
+        },
+        {
+          "path": "crates/unicode-segmentation-1.13.3/LICENSE-APACHE",
+          "source": "Cargo registry package unicode-segmentation-1.13.3/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/unicode-segmentation-1.13.3/LICENSE-MIT",
+          "source": "Cargo registry package unicode-segmentation-1.13.3/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+        }
+      ]
+    },
+    {
+      "name": "unicode-width",
+      "version": "0.2.3",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/unicode-rs/unicode-width",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "kwantam <kwantam@gmail.com>",
+        "Manish Goregaokar <manishsmail@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/unicode-width-0.2.3/COPYRIGHT",
+          "source": "Cargo registry package unicode-width-0.2.3/COPYRIGHT",
+          "bytes": 321,
+          "sha256": "23860c2a7b5d96b21569afedf033469bab9fe14a1b24a35068b8641c578ce24d"
+        },
+        {
+          "path": "crates/unicode-width-0.2.3/LICENSE-APACHE",
+          "source": "Cargo registry package unicode-width-0.2.3/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/unicode-width-0.2.3/LICENSE-MIT",
+          "source": "Cargo registry package unicode-width-0.2.3/LICENSE-MIT",
+          "bytes": 1071,
+          "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+        }
+      ]
+    },
+    {
+      "name": "uuid",
+      "version": "1.29.2",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/uuid-rs/uuid",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/uuid-1.29.2/LICENSE-APACHE",
+          "source": "Cargo registry package uuid-1.29.2/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/uuid-1.29.2/LICENSE-MIT",
+          "source": "Cargo registry package uuid-1.29.2/LICENSE-MIT",
+          "bytes": 1157,
+          "sha256": "436bc5a105d8e57dcd8778730f3754f7bf39c14d2f530e4cde4bd2d17a83ec3d"
+        }
+      ]
+    },
+    {
+      "name": "vello_common",
+      "version": "0.2.0",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/vello",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/vello_common-0.2.0/LICENSE-APACHE",
+          "source": "Cargo registry package vello_common-0.2.0/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/vello_common-0.2.0/LICENSE-MIT",
+          "source": "Cargo registry package vello_common-0.2.0/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "adf157330f722fe7cfd5964a2a6974eff851b718228c6735724a11706e6f4dec"
+        }
+      ]
+    },
+    {
+      "name": "vello_cpu",
+      "version": "0.2.0",
+      "license": "Apache-2.0 OR MIT",
+      "repository": "https://github.com/linebender/vello",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/vello_cpu-0.2.0/LICENSE-APACHE",
+          "source": "Cargo registry package vello_cpu-0.2.0/LICENSE-APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/vello_cpu-0.2.0/LICENSE-MIT",
+          "source": "Cargo registry package vello_cpu-0.2.0/LICENSE-MIT",
+          "bytes": 1057,
+          "sha256": "adf157330f722fe7cfd5964a2a6974eff851b718228c6735724a11706e6f4dec"
+        }
+      ]
+    },
+    {
+      "name": "version_check",
+      "version": "0.9.5",
+      "license": "MIT/Apache-2.0",
+      "repository": "https://github.com/SergioBenitez/version_check",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Sergio Benitez <sb@sergio.bz>"
+      ],
+      "files": [
+        {
+          "path": "crates/version_check-0.9.5/LICENSE-APACHE",
+          "source": "Cargo registry package version_check-0.9.5/LICENSE-APACHE",
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        {
+          "path": "crates/version_check-0.9.5/LICENSE-MIT",
+          "source": "Cargo registry package version_check-0.9.5/LICENSE-MIT",
+          "bytes": 1085,
+          "sha256": "b7e650f3fce5c53249d1cdc608b54df156a97edd636cf9d23498d0cfe7aec63e"
+        }
+      ]
+    },
+    {
+      "name": "web-time",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/daxpedda/web-time",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/web-time-1.1.0/LICENSE-APACHE",
+          "source": "Cargo registry package web-time-1.1.0/LICENSE-APACHE",
+          "bytes": 11338,
+          "sha256": "54a744942eb3fa63a74d8d359989ed6962c04f3f10ff20cfa08ff8aa7efbe4e6"
+        },
+        {
+          "path": "crates/web-time-1.1.0/LICENSE-MIT",
+          "source": "Cargo registry package web-time-1.1.0/LICENSE-MIT",
+          "bytes": 1065,
+          "sha256": "f428305bbf2e70fbd807af0f3c7ac1b7acfb95311640f451e9d2e48db6d7e96b"
+        }
+      ]
+    },
+    {
+      "name": "wgpu",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "wgpu-core",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-core-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-core-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-core-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-core-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "wgpu-core-deps-windows-linux-android",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-core-deps-windows-linux-android-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-core-deps-windows-linux-android-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-core-deps-windows-linux-android-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-core-deps-windows-linux-android-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "wgpu-hal",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-hal-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-hal-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-hal-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-hal-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "wgpu-naga-bridge",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-naga-bridge-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-naga-bridge-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-naga-bridge-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-naga-bridge-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "wgpu-types",
+      "version": "30.0.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/gfx-rs/wgpu",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "gfx-rs developers"
+      ],
+      "files": [
+        {
+          "path": "crates/wgpu-types-30.0.2/LICENSE.APACHE",
+          "source": "Cargo registry package wgpu-types-30.0.2/LICENSE.APACHE",
+          "bytes": 10173,
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
+        },
+        {
+          "path": "crates/wgpu-types-30.0.2/LICENSE.MIT",
+          "source": "Cargo registry package wgpu-types-30.0.2/LICENSE.MIT",
+          "bytes": 1078,
+          "sha256": "dc0d97139e8205818c703741c7be7cb3b96888bd5917b8d6fc6133731e403c21"
+        }
+      ]
+    },
+    {
+      "name": "winapi",
+      "version": "0.3.9",
+      "license": "MIT/Apache-2.0",
+      "repository": "https://github.com/retep998/winapi-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Peter Atashian <retep998@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/winapi-0.3.9/LICENSE-APACHE",
+          "source": "Cargo registry package winapi-0.3.9/LICENSE-APACHE",
+          "bytes": 11357,
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+        },
+        {
+          "path": "crates/winapi-0.3.9/LICENSE-MIT",
+          "source": "Cargo registry package winapi-0.3.9/LICENSE-MIT",
+          "bytes": 1073,
+          "sha256": "ce7bc3499fee93d5022ef430d5e4201e79a6d9154f3974e42f41349f0569e09b"
+        }
+      ]
+    },
+    {
+      "name": "winapi-x86_64-pc-windows-gnu",
+      "version": "0.4.0",
+      "license": "MIT/Apache-2.0",
+      "repository": "https://github.com/retep998/winapi-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Peter Atashian <retep998@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/winapi-x86_64-pc-windows-gnu-0.4.0/upstream/LICENSE-MIT",
+          "source": "https://raw.githubusercontent.com/retep998/winapi-rs/796a8e6c2971dc2ff1bcff166e6671284f9b5b6b/LICENSE-MIT",
+          "bytes": 1073,
+          "sha256": "ce7bc3499fee93d5022ef430d5e4201e79a6d9154f3974e42f41349f0569e09b"
+        },
+        {
+          "path": "crates/winapi-x86_64-pc-windows-gnu-0.4.0/upstream/LICENSE-APACHE",
+          "source": "https://raw.githubusercontent.com/retep998/winapi-rs/796a8e6c2971dc2ff1bcff166e6671284f9b5b6b/LICENSE-APACHE",
+          "bytes": 11357,
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+        }
+      ],
+      "upstream_license_revision": "796a8e6c2971dc2ff1bcff166e6671284f9b5b6b",
+      "published_vcs_revision": null,
+      "upstream_source_note": {
+        "repository": "https://github.com/retep998/winapi-rs",
+        "published_revision": null,
+        "package_name": "winapi-x86_64-pc-windows-gnu",
+        "package_version": "0.4.0",
+        "replacement_revision": "796a8e6c2971dc2ff1bcff166e6671284f9b5b6b",
+        "reason": "winapi-x86_64-pc-windows-gnu 0.4.0 não inclui textos de licença nem .cargo_vcs_info.json no pacote publicado. Os textos MIT/Apache do mesmo projeto foram recuperados no commit 796a8e6c2971dc2ff1bcff166e6671284f9b5b6b, tag 0.3.9 e revisão publicada da crate winapi 0.3.9 que depende desse pacote. A origem é complementar; não é apresentada como revisão de publicação da crate GNU 0.4.0.",
+        "evidence_url": "https://github.com/retep998/winapi-rs/tree/796a8e6c2971dc2ff1bcff166e6671284f9b5b6b"
+      }
+    },
+    {
+      "name": "windows",
+      "version": "0.62.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-0.62.2/license-apache-2.0",
+          "source": "Cargo registry package windows-0.62.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-0.62.2/license-mit",
+          "source": "Cargo registry package windows-0.62.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-collections",
+      "version": "0.3.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-collections-0.3.2/license-apache-2.0",
+          "source": "Cargo registry package windows-collections-0.3.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-collections-0.3.2/license-mit",
+          "source": "Cargo registry package windows-collections-0.3.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-core",
+      "version": "0.62.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-core-0.62.2/license-apache-2.0",
+          "source": "Cargo registry package windows-core-0.62.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-core-0.62.2/license-mit",
+          "source": "Cargo registry package windows-core-0.62.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-future",
+      "version": "0.3.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-future-0.3.2/license-apache-2.0",
+          "source": "Cargo registry package windows-future-0.3.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-future-0.3.2/license-mit",
+          "source": "Cargo registry package windows-future-0.3.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-implement",
+      "version": "0.60.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-implement-0.60.2/license-apache-2.0",
+          "source": "Cargo registry package windows-implement-0.60.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-implement-0.60.2/license-mit",
+          "source": "Cargo registry package windows-implement-0.60.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-interface",
+      "version": "0.59.3",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-interface-0.59.3/license-apache-2.0",
+          "source": "Cargo registry package windows-interface-0.59.3/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-interface-0.59.3/license-mit",
+          "source": "Cargo registry package windows-interface-0.59.3/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-link",
+      "version": "0.2.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-link-0.2.1/license-apache-2.0",
+          "source": "Cargo registry package windows-link-0.2.1/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-link-0.2.1/license-mit",
+          "source": "Cargo registry package windows-link-0.2.1/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-numerics",
+      "version": "0.3.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-numerics-0.3.1/license-apache-2.0",
+          "source": "Cargo registry package windows-numerics-0.3.1/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-numerics-0.3.1/license-mit",
+          "source": "Cargo registry package windows-numerics-0.3.1/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-result",
+      "version": "0.4.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-result-0.4.1/license-apache-2.0",
+          "source": "Cargo registry package windows-result-0.4.1/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-result-0.4.1/license-mit",
+          "source": "Cargo registry package windows-result-0.4.1/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-strings",
+      "version": "0.5.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-strings-0.5.1/license-apache-2.0",
+          "source": "Cargo registry package windows-strings-0.5.1/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-strings-0.5.1/license-mit",
+          "source": "Cargo registry package windows-strings-0.5.1/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.52.0",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Microsoft"
+      ],
+      "files": [
+        {
+          "path": "crates/windows-sys-0.52.0/license-apache-2.0",
+          "source": "Cargo registry package windows-sys-0.52.0/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-sys-0.52.0/license-mit",
+          "source": "Cargo registry package windows-sys-0.52.0/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.61.2",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-sys-0.61.2/license-apache-2.0",
+          "source": "Cargo registry package windows-sys-0.61.2/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-sys-0.61.2/license-mit",
+          "source": "Cargo registry package windows-sys-0.61.2/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-targets",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Microsoft"
+      ],
+      "files": [
+        {
+          "path": "crates/windows-targets-0.52.6/license-apache-2.0",
+          "source": "Cargo registry package windows-targets-0.52.6/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-targets-0.52.6/license-mit",
+          "source": "Cargo registry package windows-targets-0.52.6/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows-threading",
+      "version": "0.2.1",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/windows-threading-0.2.1/license-apache-2.0",
+          "source": "Cargo registry package windows-threading-0.2.1/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows-threading-0.2.1/license-mit",
+          "source": "Cargo registry package windows-threading-0.2.1/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows_x86_64_gnu",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Microsoft"
+      ],
+      "files": [
+        {
+          "path": "crates/windows_x86_64_gnu-0.52.6/license-apache-2.0",
+          "source": "Cargo registry package windows_x86_64_gnu-0.52.6/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows_x86_64_gnu-0.52.6/license-mit",
+          "source": "Cargo registry package windows_x86_64_gnu-0.52.6/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "windows_x86_64_msvc",
+      "version": "0.52.6",
+      "license": "MIT OR Apache-2.0",
+      "repository": "https://github.com/microsoft/windows-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Microsoft"
+      ],
+      "files": [
+        {
+          "path": "crates/windows_x86_64_msvc-0.52.6/license-apache-2.0",
+          "source": "Cargo registry package windows_x86_64_msvc-0.52.6/license-apache-2.0",
+          "bytes": 11351,
+          "sha256": "c16f8dcf1a368b83be78d826ea23de4079fe1b4469a0ab9ee20563f37ff3d44b"
+        },
+        {
+          "path": "crates/windows_x86_64_msvc-0.52.6/license-mit",
+          "source": "Cargo registry package windows_x86_64_msvc-0.52.6/license-mit",
+          "bytes": 1141,
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "winit",
+      "version": "0.30.13",
+      "license": "Apache-2.0",
+      "repository": "https://github.com/rust-windowing/winit",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "The winit contributors",
+        "Pierre Krieger <pierre.krieger1708@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/winit-0.30.13/LICENSE",
+          "source": "Cargo registry package winit-0.30.13/LICENSE",
+          "bytes": 11323,
+          "sha256": "6dc0e068dcf3a5bc8e054205b85b7720e1d49265bbc64bf515d2cf79197df69a"
+        }
+      ]
+    },
+    {
+      "name": "xml-rs",
+      "version": "0.8.29",
+      "license": "MIT",
+      "repository": "https://github.com/kornelski/xml-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "Vladimir Matveev <vmatveev@citrine.cc>"
+      ],
+      "files": [
+        {
+          "path": "crates/xml-rs-0.8.29/LICENSE",
+          "source": "Cargo registry package xml-rs-0.8.29/LICENSE",
+          "bytes": 1083,
+          "sha256": "0dc18d924dc0a5f41172a393012843a5eaaef338e795b3645da9cc3b6068220b"
+        }
+      ]
+    },
+    {
+      "name": "zerocopy",
+      "version": "0.8.63",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "repository": "https://github.com/google/zerocopy",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/zerocopy-0.8.63/LICENSE-APACHE",
+          "source": "Cargo registry package zerocopy-0.8.63/LICENSE-APACHE",
+          "bytes": 11350,
+          "sha256": "9d185ac6703c4b0453974c0d85e9eee43e6941009296bb1f5eb0b54e2329e9f3"
+        },
+        {
+          "path": "crates/zerocopy-0.8.63/LICENSE-BSD",
+          "source": "Cargo registry package zerocopy-0.8.63/LICENSE-BSD",
+          "bytes": 1275,
+          "sha256": "83c1763356e822adde0a2cae748d938a73fdc263849ccff6b27776dff213bd32"
+        },
+        {
+          "path": "crates/zerocopy-0.8.63/LICENSE-MIT",
+          "source": "Cargo registry package zerocopy-0.8.63/LICENSE-MIT",
+          "bytes": 1060,
+          "sha256": "1a2f5c12ddc934d58956aa5dbdd3255fe55fd957633ab7d0d39e4f0daa73f7df"
+        }
+      ]
+    },
+    {
+      "name": "zerocopy-derive",
+      "version": "0.8.63",
+      "license": "BSD-2-Clause OR Apache-2.0 OR MIT",
+      "repository": "https://github.com/google/zerocopy",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/zerocopy-derive-0.8.63/LICENSE-APACHE",
+          "source": "Cargo registry package zerocopy-derive-0.8.63/LICENSE-APACHE",
+          "bytes": 11350,
+          "sha256": "9d185ac6703c4b0453974c0d85e9eee43e6941009296bb1f5eb0b54e2329e9f3"
+        },
+        {
+          "path": "crates/zerocopy-derive-0.8.63/LICENSE-BSD",
+          "source": "Cargo registry package zerocopy-derive-0.8.63/LICENSE-BSD",
+          "bytes": 1275,
+          "sha256": "83c1763356e822adde0a2cae748d938a73fdc263849ccff6b27776dff213bd32"
+        },
+        {
+          "path": "crates/zerocopy-derive-0.8.63/LICENSE-MIT",
+          "source": "Cargo registry package zerocopy-derive-0.8.63/LICENSE-MIT",
+          "bytes": 1060,
+          "sha256": "1a2f5c12ddc934d58956aa5dbdd3255fe55fd957633ab7d0d39e4f0daa73f7df"
+        }
+      ]
+    },
+    {
+      "name": "zlib-rs",
+      "version": "0.6.8",
+      "license": "Zlib",
+      "repository": "https://github.com/trifectatechfoundation/zlib-rs",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [],
+      "files": [
+        {
+          "path": "crates/zlib-rs-0.6.8/LICENSE",
+          "source": "Cargo registry package zlib-rs-0.6.8/LICENSE",
+          "bytes": 856,
+          "sha256": "e72111c52b7d96ebe25348dee19f0744f444d3c95ae6b1ecb6ccaecc5bce05ba"
+        }
+      ]
+    },
+    {
+      "name": "zmij",
+      "version": "1.0.23",
+      "license": "MIT",
+      "repository": "https://github.com/dtolnay/zmij",
+      "registry": "registry+https://github.com/rust-lang/crates.io-index",
+      "authors": [
+        "David Tolnay <dtolnay@gmail.com>"
+      ],
+      "files": [
+        {
+          "path": "crates/zmij-1.0.23/LICENSE-MIT",
+          "source": "Cargo registry package zmij-1.0.23/LICENSE-MIT",
+          "bytes": 1023,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+        }
+      ]
+    }
+  ],
+  "toolchain_files": [
+    {
+      "path": "toolchain/rust/COPYRIGHT-library.html",
+      "source": "Rust 1.100.0 distribution share/doc/rust/COPYRIGHT-library.html",
+      "bytes": 1512515,
+      "sha256": "626556344c12679d7cab2c1aa2ce80de01937b62c2c88c62f0650a469be18799"
+    },
+    {
+      "path": "toolchain/rust/licenses/Apache-2.0.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/Apache-2.0.txt",
+      "bytes": 10280,
+      "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+    },
+    {
+      "path": "toolchain/rust/licenses/BSD-2-Clause.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/BSD-2-Clause.txt",
+      "bytes": 1267,
+      "sha256": "f32fb3b417a194167cfad068223fc975ba96c5960513a10f66a3c28720aec1df"
+    },
+    {
+      "path": "toolchain/rust/licenses/CC-BY-SA-4.0.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/CC-BY-SA-4.0.txt",
+      "bytes": 20137,
+      "sha256": "23ee78c8bae49cf08ea2f0c84945c66b987ebe4520881fb51b3dad4fb43d07c2"
+    },
+    {
+      "path": "toolchain/rust/licenses/GCC-exception-3.1.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/GCC-exception-3.1.txt",
+      "bytes": 3320,
+      "sha256": "a3966c9410ef94a1efbfa9ec04e9c1994026a70623fbf0885ce36737bfba3b54"
+    },
+    {
+      "path": "toolchain/rust/licenses/GPL-2.0-only.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/GPL-2.0-only.txt",
+      "bytes": 17642,
+      "sha256": "54b212ba1f97f6948fa5486239ab505dd820b02e50cbfd296b4062c8609a70af"
+    },
+    {
+      "path": "toolchain/rust/licenses/GPL-3.0-or-later.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/GPL-3.0-or-later.txt",
+      "bytes": 34795,
+      "sha256": "05315fce6c35f79b8a35454828995fa26336f235895ac64557abc028f4ffcea2"
+    },
+    {
+      "path": "toolchain/rust/licenses/ISC.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/ISC.txt",
+      "bytes": 730,
+      "sha256": "0ff61769b238634e042ab759dddfd104a8e69d091e3600ae3410e401a6164381"
+    },
+    {
+      "path": "toolchain/rust/licenses/LLVM-exception.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/LLVM-exception.txt",
+      "bytes": 919,
+      "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e"
+    },
+    {
+      "path": "toolchain/rust/licenses/MIT.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/MIT.txt",
+      "bytes": 1078,
+      "sha256": "b85dcd3e453d05982552c52b5fc9e0bdd6d23c6f8e844b984a88af32570b0cc0"
+    },
+    {
+      "path": "toolchain/rust/licenses/NCSA.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/NCSA.txt",
+      "bytes": 1676,
+      "sha256": "39cb0234065c92b9e6cee3830cbb52b1aa289aa8fe9ba2e66730fec5cf05c630"
+    },
+    {
+      "path": "toolchain/rust/licenses/OFL-1.1.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/OFL-1.1.txt",
+      "bytes": 4016,
+      "sha256": "8eea8287e5876b539670cadb82e99f9a7afddec6f6730811be1daf25d2e9bcfd"
+    },
+    {
+      "path": "toolchain/rust/licenses/Unicode-3.0.txt",
+      "source": "Rust 1.100.0 distribution share/doc/rust/licenses/Unicode-3.0.txt",
+      "bytes": 1995,
+      "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+    },
+    {
+      "path": "toolchain/mingw/mingw-w64-x86-64-dev/copyright.txt",
+      "source": "Debian package mingw-w64-x86-64-dev, usr/share/doc/mingw-w64-x86-64-dev/copyright",
+      "bytes": 41584,
+      "sha256": "50e5bb66d222c7d4692c2d13670ddcd3664779358e389a026b69a0e0e18e7be5"
+    },
+    {
+      "path": "toolchain/mingw/mingw-w64-common/copyright.txt",
+      "source": "Debian package mingw-w64-common, usr/share/doc/mingw-w64-common/copyright",
+      "bytes": 41584,
+      "sha256": "50e5bb66d222c7d4692c2d13670ddcd3664779358e389a026b69a0e0e18e7be5"
+    },
+    {
+      "path": "toolchain/mingw/gcc-mingw-w64-x86-64-posix-runtime/copyright.txt",
+      "source": "Debian package gcc-mingw-w64-x86-64-posix-runtime, usr/share/doc/gcc-mingw-w64-x86-64-posix-runtime/copyright",
+      "bytes": 75729,
+      "sha256": "f891d7e0c56f503a92c7258d540b3d8215852d8387cbca8f1f07c6f4b6e67da6"
+    },
+    {
+      "path": "toolchain/mingw/gcc-mingw-w64-base/copyright.txt",
+      "source": "Debian package gcc-mingw-w64-base, usr/share/doc/gcc-mingw-w64-base/copyright",
+      "bytes": 75729,
+      "sha256": "f891d7e0c56f503a92c7258d540b3d8215852d8387cbca8f1f07c6f4b6e67da6"
+    },
+    {
+      "path": "toolchain/mingw/binutils-mingw-w64-x86-64/copyright.txt",
+      "source": "Debian package binutils-mingw-w64-x86-64, usr/share/doc/binutils-mingw-w64-x86-64/copyright",
+      "bytes": 1845,
+      "sha256": "f91370ce3fe50a653c1f91230ecb436b0973c2edfed68f21059400b846025456"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/Apache-2.0",
+      "source": "Debian common license usr/share/common-licenses/Apache-2.0",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/Artistic",
+      "source": "Debian common license usr/share/common-licenses/Artistic",
+      "bytes": 6111,
+      "sha256": "b7fd9b73ea99602016a326e0b62e6646060d18febdd065ceca8bb482208c3d88"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/BSD",
+      "source": "Debian common license usr/share/common-licenses/BSD",
+      "bytes": 1499,
+      "sha256": "5d588eb3b157d52112afea935c88a7ff9efddc1e2d95a42c25d3b96ad9055008"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/CC0-1.0",
+      "source": "Debian common license usr/share/common-licenses/CC0-1.0",
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GFDL",
+      "source": "Debian common license usr/share/common-licenses/GFDL",
+      "bytes": 22955,
+      "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GFDL-1.2",
+      "source": "Debian common license usr/share/common-licenses/GFDL-1.2",
+      "bytes": 20394,
+      "sha256": "2652c22ba086f92e55ae4a9f9c890ad4766ffd7814a73d318e22a597edf857a4"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GFDL-1.3",
+      "source": "Debian common license usr/share/common-licenses/GFDL-1.3",
+      "bytes": 22955,
+      "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GPL",
+      "source": "Debian common license usr/share/common-licenses/GPL",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GPL-1",
+      "source": "Debian common license usr/share/common-licenses/GPL-1",
+      "bytes": 12527,
+      "sha256": "49c007bafb5ad6dd9f9d4dae4d3ac0461975498150c05d684c551f0914ab486c"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GPL-2",
+      "source": "Debian common license usr/share/common-licenses/GPL-2",
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/GPL-3",
+      "source": "Debian common license usr/share/common-licenses/GPL-3",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/LGPL",
+      "source": "Debian common license usr/share/common-licenses/LGPL",
+      "bytes": 7652,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/LGPL-2",
+      "source": "Debian common license usr/share/common-licenses/LGPL-2",
+      "bytes": 25270,
+      "sha256": "cc535c21133c895b56b374c8a1dc1eb948d99003ed2b47372069456b62f42b24"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/LGPL-2.1",
+      "source": "Debian common license usr/share/common-licenses/LGPL-2.1",
+      "bytes": 26419,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/LGPL-3",
+      "source": "Debian common license usr/share/common-licenses/LGPL-3",
+      "bytes": 7652,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/MPL-1.1",
+      "source": "Debian common license usr/share/common-licenses/MPL-1.1",
+      "bytes": 25755,
+      "sha256": "f849fc26a7a99981611a3a370e83078deb617d12a45776d6c4cada4d338be469"
+    },
+    {
+      "path": "toolchain/mingw/common-licenses/MPL-2.0",
+      "source": "Debian common license usr/share/common-licenses/MPL-2.0",
+      "bytes": 16726,
+      "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+    }
+  ],
+  "package_count": 144,
+  "notice_count": 328,
+  "source_inventory_target": "x86_64-pc-windows-gnu",
+  "additional_metadata": [
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "sha256": "35935eeb53191a3c68c81b911e5377bd53d546ec1692bd22b60fcf96dd097a08",
+      "purpose": "Compare target graph and add MSVC-only import library notices"
+    }
+  ],
+  "source_inventory_cargo_lock_sha256": "c0b631c4be79ce72c8abede92293993df3ab943a9511dbbde287beb15998ccf2"
+}

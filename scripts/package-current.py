@@ -20,7 +20,7 @@ smoke = json.loads((evidence / "native-smoke-result.json").read_text(encoding="u
 assert smoke["exit_code"] == 0, "Native smoke failed"
 binary = project / "target/release/cpu-express.exe"
 assert binary.is_file()
-version = "0.3.0-rc.7"
+version = re.search(r'(?m)^version = "([^"]+)"', (project / "Cargo.toml").read_text()).group(1)
 release = root / "release" / f"CPU-Express-{version}"
 release.mkdir(parents=True, exist_ok=True)
 
@@ -32,7 +32,7 @@ assert smoke["taskbar_surface_verified"] and smoke["independent_panel_verified"]
 real = json.loads((evidence / "real-metrics-result.json").read_text(encoding="utf-8-sig"))
 assert real["exit_code"] == 0 and real["valid_real_samples"] >= 2
 assert real["binary_sha256"] == digest(binary)
-transitions = json.loads((evidence / "transitions-rc7/result.json").read_text(encoding="utf-8"))
+transitions = json.loads((evidence / "transitions-expansion/result.json").read_text(encoding="utf-8"))
 assert transitions["exit_code"] == 0 and len(transitions["stages"]) == 5
 assert transitions["binary_sha256"] == digest(binary)
 visual_refresh = json.loads((evidence / "visual-refresh/comparison.json").read_text(encoding="utf-8"))
@@ -40,8 +40,17 @@ assert visual_refresh["after"]["binary_sha256"] == digest(binary)
 weather = json.loads((evidence / "weather/result.json").read_text(encoding="utf-8"))
 assert weather["binary_sha256"] == digest(binary)
 assert weather["exit_code"] == 0 and weather["online_verified"]
+soak = json.loads((evidence / "soak/result.json").read_text(encoding="utf-8-sig"))
+assert soak["binary_sha256"] == digest(binary) and len(soak["runs"]) == 2
+assert all(r["exit_code"] == 0 for r in soak["runs"])
+migration = json.loads((evidence / "profile-migration-result.json").read_text(encoding="utf-8-sig"))
+assert migration["binary_sha256"] == digest(binary) and migration["exit_code"] == 0 and migration["v1_backup_verified"]
+portable_path = evidence / "portable-result.json"
+portable = json.loads(portable_path.read_text(encoding="utf-8-sig")) if portable_path.exists() else None
+if portable is not None:
+    assert portable["binary_sha256"] == digest(binary) and portable["exit_code"] == 0 and portable["zip_crc_verified"]
 ui_review = json.loads((evidence / "game-ui-result.json").read_text(encoding="utf-8"))
-assert len(ui_review["panels"]) == 10
+assert len(ui_review["panels"]) >= 13
 assert all(digest(project / p) == h for p, h in ui_review["sources"].items())
 assert all(digest(project / p) == h for p, h in ui_review["panels"].items())
 
@@ -86,8 +95,8 @@ info = {
     "version": version, "built_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "target": "x86_64-pc-windows-gnu", "rust": "1.100.0", "profile": "release", "signed": False,
     "executable_bytes": binary.stat().st_size, "executable_sha256": digest(binary),
-    "checks": checks, "rust_tests": summary, "local_weather": weather, "game_ui": ui_review, "mode_transitions": transitions, "visual_refresh": visual_refresh, "native_smoke": smoke, "real_metrics": real,
-    "python_tests": {"benchmark_analyzer": 19, "A2_reference": 10, "A3_reference": 23},
+    "checks": checks, "rust_tests": summary, "extracted_portable": portable, "short_native_soak": soak, "profile_migration": migration, "local_weather": weather, "game_ui": ui_review, "mode_transitions": transitions, "visual_refresh": visual_refresh, "native_smoke": smoke, "real_metrics": real,
+    "python_tests": {"scope": "Historical research tests are not certified for this build"},
     "production_sources": {str(p.relative_to(project)).replace('\\', '/'): digest(p) for p in production},
     "imports": dlls,
     "not_validated": ["Windows 10", "mixed-DPI monitors", "Explorer restart", "autohide", "long-duration stability", "taskbar left-widget conflicts"],
@@ -101,13 +110,20 @@ for name in ["BUILD-INFO.json", "SOURCE-MANIFEST.json"]:
 text = json.dumps(info, ensure_ascii=False, indent=2)
 (project / "BUILD-INFO.json").write_text(text, encoding="utf-8")
 (release / "BUILD-INFO.json").write_text(text, encoding="utf-8")
-shutil.copytree(evidence, release / "evidence/current", dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.ppm", "*.profile.lock"))
+# Evidence ships separately; the companion does not need build logs or headless meshes.
+with zipfile.ZipFile(root / "release" / f"CPU-Express-{version}-Evidencias.zip", "w", zipfile.ZIP_DEFLATED) as z:
+    for path in sorted(evidence.rglob("*")):
+        if path.is_file() and path.suffix not in {".ppm", ".lock"}: z.write(path, path.relative_to(project))
+for name in ["install-local.ps1", "uninstall-local.ps1"]:
+    if (project / "scripts" / name).is_file(): shutil.copy2(project / "scripts" / name, release / name)
+shutil.copy2(project / "docs/GUIA_04.md", release / "docs/GUIA_04.md")
+shutil.copy2(project / "docs/VALIDACAO_04.md", release / "docs/VALIDACAO_04.md")
 (release / "Iniciar_DEMO.cmd").write_text('@echo off\nstart "" "%~dp0cpu-express.exe" --demo\n', encoding="ascii")
 (release / "LEIA-ME.txt").write_text(
-    "CPU Express 0.3\nAbra cpu-express.exe. Clique no trem para abrir a central; botao direito pausa.\n"
+    "CPU Express 0.4\nAbra cpu-express.exe. Clique no trem para abrir a central; botao direito pausa.\n"
     "Janela: modo integrado/flutuante e deslocamento para evitar widgets.\n"
     "Viagem: paradas, objetivos e salvamento. Visual: vagoes e pinturas.\n"
-    "Sair: central ou menu da bandeja. Detalhes em docs/VERSAO_03.md.\n", encoding="utf-8")
+    "Sair: central ou menu da bandeja. Detalhes em docs/GUIA_04.md.\n", encoding="utf-8")
 (release / "SHA256SUMS.txt").write_text(f"{digest(binary)}  cpu-express.exe\n", encoding="ascii")
 with zipfile.ZipFile(Path(str(release) + ".zip"), "w", zipfile.ZIP_DEFLATED) as z:
     for path in sorted(release.rglob("*")):

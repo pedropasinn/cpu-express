@@ -1,0 +1,87 @@
+{
+  "environment": "Linux x86-64, Xorg dummy, Mesa software; Openbox for minimization; no Windows execution",
+  "logical_cpus": 9,
+  "affinity_logical_cpus": 9,
+  "measurement": "App process CPU seconds and RSS from /proc once per second; no artificial CPU load, no capture during these runs; diagnostics JSONL enabled at about 1 Hz. Excludes Xorg and probe CPU.",
+  "reports": {
+    "release-stability": {
+      "analysis_interval_seconds": [
+        15.089,
+        300.037
+      ],
+      "samples": 286,
+      "process_cpu_percent_one_logical_core": 10.254502575908587,
+      "process_cpu_percent_machine_capacity": 1.1393891751009542,
+      "rss_mib": {
+        "min": 72.23828125,
+        "median": 73.94921875,
+        "max": 74.04296875,
+        "first": 74.04296875,
+        "last": 72.23828125
+      },
+      "render_fps": 29.170045207905535,
+      "final_app_record": {
+        "cpu_percent": 2.3153252601623535,
+        "effective_cpu_percent": 2.3153252601623535,
+        "elapsed_seconds": 300.034295288,
+        "event": "shutdown",
+        "hidden": false,
+        "metric_age_seconds": 0.92343521,
+        "metric_status": "ready",
+        "metrics_stale": false,
+        "mode": "real",
+        "ram_percent": 36.829532623291016,
+        "received_samples": 300,
+        "rendered_frames": 8747,
+        "smoke_particles": 7,
+        "speed_kmh": 14.038517353422746,
+        "target_kmh": 14.037486228942871,
+        "total_memory_bytes": 10451427328,
+        "used_memory_bytes": 3849211904
+      },
+      "process_exit_code": 0
+    },
+    "release-minimized-final": {
+      "analysis_interval_seconds": [
+        20.074,
+        69.014
+      ],
+      "samples": 50,
+      "process_cpu_percent_one_logical_core": 0.10216591744993835,
+      "process_cpu_percent_machine_capacity": 0.011351768605548705,
+      "rss_mib": {
+        "min": 73.91015625,
+        "median": 73.91015625,
+        "max": 73.91015625,
+        "first": 73.91015625,
+        "last": 73.91015625
+      },
+      "render_fps": 0.0,
+      "final_app_record": {
+        "cpu_percent": 1.0011123418807983,
+        "effective_cpu_percent": 1.0011123418807983,
+        "elapsed_seconds": 90.020709648,
+        "event": "shutdown",
+        "hidden": false,
+        "metric_age_seconds": 0.99193003,
+        "metric_status": "ready",
+        "metrics_stale": false,
+        "mode": "real",
+        "ram_percent": 36.88929748535156,
+        "received_samples": 90,
+        "rendered_frames": 880,
+        "smoke_particles": 8,
+        "speed_kmh": 12.988001336536167,
+        "target_kmh": 12.880978860855102,
+        "total_memory_bytes": 10451427328,
+        "used_memory_bytes": 3855458304
+      },
+      "process_exit_code": 0,
+      "hidden_frame_count": 435,
+      "hidden_received_samples": [
+        21,
+        70
+      ]
+    }
+  }
+}

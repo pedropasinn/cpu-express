@@ -1,0 +1,59 @@
+{
+  "dimensions": [
+    640,
+    140
+  ],
+  "native_dimensions": [
+    320,
+    70
+  ],
+  "checks": [
+    {
+      "file": "01_legacy.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "fe006e3aaf90b9d68645f5c8e85b79e67150e54c018633493ae718e7526ef0ce"
+    },
+    {
+      "file": "02_green_valley_morning.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "aa0c7fae8041ad6893a03a17124b773ce439d645f73a496b8b6097aba16025e5"
+    },
+    {
+      "file": "03_coast_day.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "f19e7a0cee08c16b1d26f892bf423f5c90b43e3b694ca20bb3fd49f0594a8c8a"
+    },
+    {
+      "file": "04_high_desert_sunset.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "991c832780c44057a673514477f9286fa685be15ab8391e7773c589f2f4f1cf7"
+    },
+    {
+      "file": "05_valley_dusk_rain.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "03c7c5b8221c12d920f7453a81fb0ac0c8c6de5b99327a73b37a4ae7114b1a40"
+    },
+    {
+      "file": "06_valley_to_coast.png",
+      "nearest_2x_exact": true,
+      "ppm_png_pixels_equal": true,
+      "sha256": "d62a4bfc3197ffc183944d4c7f78074dadecebfea06bc2591cf90aed347367f9"
+    }
+  ],
+  "legacy_equals_independent_baseline_pixels": true,
+  "animation": {
+    "frames": 240,
+    "size": [
+      640,
+      140
+    ],
+    "duration_ms_per_frame": 50,
+    "palette_quantization": true,
+    "loop_seam": "Demonstration resets from coast end to valley start; not evidence of an application discontinuity."
+  }
+}

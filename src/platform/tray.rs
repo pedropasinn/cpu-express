@@ -290,7 +290,6 @@ impl TrayState {
         self.retries_left.set(remaining - 1);
         if self.add_icon(hwnd).is_ok() {
             self.retries_left.set(0);
-            self.shared.emit(TrayEvent::DisplayChanged);
         } else if remaining > 1 {
             // SAFETY: window timer with no callback, handled by this WNDPROC.
             if unsafe { SetTimer(hwnd, RECOVERY_TIMER, 1000, None) } == 0 {

@@ -1,0 +1,376 @@
+{
+  "arch": "x86_64",
+  "cases": [
+    {
+      "case": "legacy",
+      "color_image_copy": {
+        "max_us": 2.765505,
+        "median_us": 1.6989618,
+        "min_us": 1.637387,
+        "rounds_ns_per_frame": [
+          2765.505,
+          1793.5689,
+          2108.2279,
+          1637.387,
+          1698.9618,
+          1698.0343,
+          1642.5877
+        ]
+      },
+      "render": {
+        "max_us": 76.02550169999999,
+        "median_us": 68.1451184,
+        "min_us": 62.520496,
+        "rounds_ns_per_frame": [
+          68145.1184,
+          76025.5017,
+          63538.9393,
+          71640.1955,
+          63102.5277,
+          62520.496,
+          68212.9981
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.5340142,
+        "median_us": 2.0488594,
+        "min_us": 1.756395,
+        "rounds_ns_per_frame": [
+          2311.7419,
+          2048.8594,
+          2284.2358,
+          1860.9112,
+          1834.1691,
+          2534.0142,
+          1756.395
+        ]
+      }
+    },
+    {
+      "case": "green_valley_full",
+      "color_image_copy": {
+        "max_us": 2.5519724999999998,
+        "median_us": 1.7378888,
+        "min_us": 1.6119376,
+        "rounds_ns_per_frame": [
+          2551.9725,
+          1744.794,
+          1611.9376,
+          1670.7141,
+          1673.1997,
+          1737.8888,
+          1817.4996
+        ]
+      },
+      "render": {
+        "max_us": 69.0689702,
+        "median_us": 55.7401954,
+        "min_us": 50.6360881,
+        "rounds_ns_per_frame": [
+          69068.9702,
+          55725.0862,
+          50636.0881,
+          56350.4352,
+          52770.7101,
+          55740.1954,
+          60941.3135
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.3667921,
+        "median_us": 1.8230641,
+        "min_us": 1.7349686,
+        "rounds_ns_per_frame": [
+          2366.7921,
+          1764.5841,
+          1734.9686,
+          1744.3092,
+          1823.0641,
+          1844.1096,
+          1881.4565
+        ]
+      }
+    },
+    {
+      "case": "coast_full",
+      "color_image_copy": {
+        "max_us": 2.0315238,
+        "median_us": 1.8526342999999998,
+        "min_us": 1.6571312,
+        "rounds_ns_per_frame": [
+          1905.239,
+          2031.5238,
+          1970.7817,
+          1852.6343,
+          1664.3349,
+          1764.5809,
+          1657.1312
+        ]
+      },
+      "render": {
+        "max_us": 57.4264305,
+        "median_us": 51.0601619,
+        "min_us": 44.8587443,
+        "rounds_ns_per_frame": [
+          44858.7443,
+          57426.4305,
+          51060.1619,
+          51517.8036,
+          45521.164,
+          48648.4906,
+          53486.9093
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.3323593000000002,
+        "median_us": 2.1209670999999997,
+        "min_us": 1.808896,
+        "rounds_ns_per_frame": [
+          2143.3068,
+          2242.942,
+          1955.8007,
+          2120.9671,
+          1808.896,
+          2332.3593,
+          1815.9253
+        ]
+      }
+    },
+    {
+      "case": "high_desert_full",
+      "color_image_copy": {
+        "max_us": 2.1551034,
+        "median_us": 1.8506182,
+        "min_us": 1.7284295,
+        "rounds_ns_per_frame": [
+          1734.1873,
+          1798.2133,
+          1971.3845,
+          2006.3322,
+          1728.4295,
+          1850.6182,
+          2155.1034
+        ]
+      },
+      "render": {
+        "max_us": 57.3806998,
+        "median_us": 54.244590900000006,
+        "min_us": 48.543187100000004,
+        "rounds_ns_per_frame": [
+          52822.2121,
+          56805.5462,
+          54755.2389,
+          49919.4499,
+          48543.1871,
+          57380.6998,
+          54244.5909
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.2962617,
+        "median_us": 1.9103910000000002,
+        "min_us": 1.7306707,
+        "rounds_ns_per_frame": [
+          2000.7841,
+          1892.7401,
+          1910.391,
+          2296.2617,
+          1730.6707,
+          1966.87,
+          1901.3427
+        ]
+      }
+    },
+    {
+      "case": "transition_full",
+      "color_image_copy": {
+        "max_us": 2.1162474000000002,
+        "median_us": 1.9588913,
+        "min_us": 1.6240006,
+        "rounds_ns_per_frame": [
+          1689.4627,
+          1624.0006,
+          2071.9527,
+          1958.8913,
+          1815.3467,
+          2116.2474,
+          2049.7674
+        ]
+      },
+      "render": {
+        "max_us": 191.4513482,
+        "median_us": 181.41299220000002,
+        "min_us": 163.15800959999999,
+        "rounds_ns_per_frame": [
+          181412.9922,
+          163158.0096,
+          177838.8033,
+          186313.1382,
+          191451.3482,
+          174462.0133,
+          187014.7109
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 4.1813886,
+        "median_us": 2.2991821,
+        "min_us": 1.8403702000000002,
+        "rounds_ns_per_frame": [
+          1840.3702,
+          2474.1124,
+          4181.3886,
+          3114.4943,
+          1893.7879,
+          2299.1821,
+          2265.178
+        ]
+      }
+    },
+    {
+      "case": "rain_transition_full",
+      "color_image_copy": {
+        "max_us": 2.1640883,
+        "median_us": 1.9266145,
+        "min_us": 1.6372794,
+        "rounds_ns_per_frame": [
+          2065.2612,
+          1926.6145,
+          2029.5684,
+          1692.4365,
+          1637.2794,
+          2164.0883,
+          1675.6563
+        ]
+      },
+      "render": {
+        "max_us": 175.55507250000002,
+        "median_us": 167.34545310000001,
+        "min_us": 161.8968465,
+        "rounds_ns_per_frame": [
+          171915.9502,
+          170873.6579,
+          175555.0725,
+          165472.8586,
+          161896.8465,
+          166275.7498,
+          167345.4531
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.3456523000000002,
+        "median_us": 2.0279111,
+        "min_us": 1.7241543,
+        "rounds_ns_per_frame": [
+          2027.9111,
+          2335.9626,
+          2345.6523,
+          1828.0893,
+          1724.1543,
+          2277.1143,
+          1786.3913
+        ]
+      }
+    },
+    {
+      "case": "transition_low",
+      "color_image_copy": {
+        "max_us": 2.248341,
+        "median_us": 1.9701318,
+        "min_us": 1.635432,
+        "rounds_ns_per_frame": [
+          1635.432,
+          1970.1318,
+          2020.7524,
+          2248.341,
+          2198.1441,
+          1886.0058,
+          1911.5635
+        ]
+      },
+      "render": {
+        "max_us": 185.2993587,
+        "median_us": 165.0988771,
+        "min_us": 153.7123966,
+        "rounds_ns_per_frame": [
+          161014.7231,
+          153712.3966,
+          165098.8771,
+          159261.482,
+          173801.2279,
+          185299.3587,
+          178364.2204
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.5591634,
+        "median_us": 2.279952,
+        "min_us": 1.8640597,
+        "rounds_ns_per_frame": [
+          1864.0597,
+          2279.952,
+          2205.0217,
+          2486.2941,
+          2367.7117,
+          2559.1634,
+          1947.8439
+        ]
+      }
+    },
+    {
+      "case": "green_valley_low",
+      "color_image_copy": {
+        "max_us": 2.3650795,
+        "median_us": 1.7628495,
+        "min_us": 1.6252752000000001,
+        "rounds_ns_per_frame": [
+          1660.6009,
+          1762.8495,
+          2067.1986,
+          1799.2972,
+          1625.2752,
+          2365.0795,
+          1746.654
+        ]
+      },
+      "render": {
+        "max_us": 51.5284404,
+        "median_us": 45.0818194,
+        "min_us": 39.5744072,
+        "rounds_ns_per_frame": [
+          51528.4404,
+          45329.2667,
+          43254.0728,
+          41592.3523,
+          46287.3632,
+          45081.8194,
+          39574.4072
+        ]
+      },
+      "texture_set_and_cpu_delta_including_copy": {
+        "max_us": 2.3130656,
+        "median_us": 1.8400399,
+        "min_us": 1.7775994000000002,
+        "rounds_ns_per_frame": [
+          2066.3128,
+          1791.3575,
+          2313.0656,
+          1796.3629,
+          1777.5994,
+          2031.0139,
+          1840.0399
+        ]
+      }
+    }
+  ],
+  "clock": "monotonic wall time; host scheduling may affect microbenchmarks",
+  "debug_assertions": false,
+  "gpu_upload_measured": false,
+  "iterations_per_round": 10000,
+  "native_framebuffer_bytes": 89600,
+  "os": "linux",
+  "rounds": 7,
+  "state": "50 percent explicitly manual; 150 x 1/30 second updates; fixed state per measured case",
+  "submitted_bytes_per_frame": 89600,
+  "warmup_frames_per_case": 1000,
+  "windows_process_measured": false
+}

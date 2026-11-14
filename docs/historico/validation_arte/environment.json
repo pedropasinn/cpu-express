@@ -1,0 +1,11 @@
+{
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+  "cargo": "cargo 1.100.0 (3acc79c0c 2026-11-05)",
+  "native_target": "x86_64-unknown-linux-gnu",
+  "installed_cross_target": "x86_64-pc-windows-gnu",
+  "network": "offline cargo",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+  "gpu_upload_measured": false,
+  "windows_runtime_validated": false
+}

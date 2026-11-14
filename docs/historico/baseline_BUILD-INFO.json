@@ -1,0 +1,15 @@
+{
+  "application": "CPU Express",
+  "version": "0.1.0",
+  "target": "x86_64-pc-windows-gnu",
+  "profile": "release",
+  "rust": "1.100.0",
+  "edition": "2024",
+  "minimum_windows": "Windows 10 1607 or Windows 11, x64",
+  "code_revision": "48cb9d97fb2d0e95dca74f235a11dc07fb187557",
+  "executable_bytes": 5287936,
+  "executable_sha256": "759322f458eb223f163884b4d1c14450dd6bdc60a035edd4d906752a3aafa24f",
+  "native_windows_execution": "not performed; requires Windows device",
+  "graphics_test_environment": "Linux host-validation, Xorg dummy, Mesa software renderer",
+  "runtime_dependencies": "Windows system libraries and compatible OpenGL driver; no WebView2 or extra MinGW runtime DLL found in PE imports"
+}

@@ -1,6 +1,6 @@
 # CPU Express — orientação para próximas contribuições
 
-Esta árvore é a base integrada **0.3.0-rc.7**. Leia `README.md` e `docs/VERSAO_03.md` antes de alterar o projeto. Patches e evidências da rc.1 são históricos.
+Esta árvore é a base integrada **0.4.0-rc.1**. Leia `README.md` e `docs/GUIA_04.md` antes de alterar o projeto. Patches e evidências da rc.1 são históricos.
 
 ## Contratos
 
@@ -25,3 +25,11 @@ Mantenha `BUILD-INFO.json`, manifesto e documentação coerentes com o binário 
 
 
 RC2: a faixa usa uma janela independente no retangulo da barra, na mesma altura e alinhada a esquerda. O encaixe como filha do Explorer foi removido porque uma janela nativa visivel e um framebuffer valido nao garantiam exibicao pelo compositor. A superficie ocupa essa area sem reservar espaco para widgets. A confirmacao visual no desktop e separada dos testes de geometria.
+
+## Serviços e excursões
+
+- ServiceState pertence ao World e aplica transações na chegada, antes das notificações. Não conceder recompensas na UI.
+- Preservar aurora-v1. Excursões são estado separado; não reinterpretar distância acumulada.
+- Checkpoint v2 inclui jornada e serviço; o aplicativo restaura com load_world. O load legado não restaura serviços.
+- Não clonar Config por frame: preferências incluem strings da localização.
+- Os módulos src/app/ dividem jornada, oficina, serviços, excursões e recuperação; manter cada responsabilidade localizada.

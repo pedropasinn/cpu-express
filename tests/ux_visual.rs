@@ -77,9 +77,15 @@ fn export_floating_panels() {
         ("floating_viagem", "Viagem"),
         ("floating_objetivos", "Viagem/Objetivos"),
         ("floating_diario", "Viagem/Diário"),
+        ("floating_servicos", "Viagem/Serviços"),
+        ("floating_servicos_active", "Viagem/Serviços"),
+        ("floating_diario_active", "Viagem/Diário"),
+        ("floating_branch", "Viagem"),
+        ("floating_colecao", "Viagem/Coleção"),
         ("floating_visual", "Visual"),
         ("floating_janela", "Janela"),
         ("floating_pinturas", "Visual/Pinturas"),
+        ("floating_motores", "Visual/Motores"),
         ("floating_clima", "Visual/Clima"),
         ("floating_fluidez", "Visual/Fluidez"),
         ("floating_visual_small", "Visual"),
@@ -136,6 +142,13 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
             diagnostics: None,
         },
     );
+    if name.ends_with("active") || name.ends_with("branch") {
+        app.prepare_demo_review(
+            900,
+            name.ends_with("branch")
+                .then_some(cpu_express::simulation::BranchKind::Serra),
+        );
+    }
     let mut frame = eframe::Frame::_new_kittest();
     let mut textures = HashMap::new();
     let mut latest: Option<egui::FullOutput> = None;

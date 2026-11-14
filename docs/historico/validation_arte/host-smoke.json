@@ -1,0 +1,49 @@
+{
+  "command": [
+    "/workspace/scratch/5d47c62dd777/build-target/release/cpu-express",
+    "--cpu",
+    "50.0",
+    "--smoke-seconds",
+    "5.0",
+    "--config",
+    "/workspace/scratch/5d47c62dd777/qa-final/host-settings.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 5.167306452000048,
+  "samples": [
+    {
+      "seconds": 0.0,
+      "cpu_seconds": 0.0,
+      "rss_bytes": 98304
+    },
+    {
+      "seconds": 1.028,
+      "cpu_seconds": 0.18,
+      "rss_bytes": 77602816
+    },
+    {
+      "seconds": 2.03,
+      "cpu_seconds": 0.3,
+      "rss_bytes": 77602816
+    },
+    {
+      "seconds": 3.043,
+      "cpu_seconds": 0.38,
+      "rss_bytes": 77602816
+    },
+    {
+      "seconds": 4.052,
+      "cpu_seconds": 0.56,
+      "rss_bytes": 77602816
+    },
+    {
+      "seconds": 5.067,
+      "cpu_seconds": 0.64,
+      "rss_bytes": 77602816
+    }
+  ],
+  "note": "Linux Xorg dummy, Mesa software; no Windows runtime measurement. CPU seconds for app only, excludes Xorg.",
+  "cpu_percent_one_core": 12.630747977106768,
+  "rss_initial_mib": 0.09375,
+  "rss_final_mib": 74.0078125
+}

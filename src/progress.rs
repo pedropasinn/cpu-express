@@ -77,64 +77,159 @@ pub struct WorldCheckpoint {
     pub service: crate::simulation::ServiceState,
 }
 fn decode_world(bytes: &[u8]) -> Result<World, String> {
-    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| format!("Jornada inválida, preservada: {e}"))?;
-    let (checkpoint, service) = match value.get("version").and_then(|v|v.as_u64()) {
-        Some(1) => (serde_json::from_value::<Checkpoint>(value).map_err(|e|e.to_string())?, None),
+    let value: serde_json::Value =
+        serde_json::from_slice(bytes).map_err(|e| format!("Jornada inválida, preservada: {e}"))?;
+    let (checkpoint, service) = match value.get("version").and_then(|v| v.as_u64()) {
+        Some(1) => (
+            serde_json::from_value::<Checkpoint>(value).map_err(|e| e.to_string())?,
+            None,
+        ),
         Some(2) => {
-            let saved: WorldCheckpoint = serde_json::from_value(value).map_err(|e|e.to_string())?;
+            let saved: WorldCheckpoint =
+                serde_json::from_value(value).map_err(|e| e.to_string())?;
             (saved.journey, Some(saved.service))
         }
         _ => return Err("Versão da jornada incompatível; arquivo preservado.".into()),
     };
-    let journey=checkpoint.restore()?;
-    if checkpoint.station_wait>0.0 && journey.snapshot().at_station.is_none() {
+    let journey = checkpoint.restore()?;
+    if checkpoint.station_wait > 0.0 && journey.snapshot().at_station.is_none() {
         return Err("Parada fora da estação; arquivo preservado.".into());
     }
-    let mut world=World::with_seed(checkpoint.seed);
+    let mut world = World::with_seed(checkpoint.seed);
     world.restore_journey(journey);
     world.set_station_wait(checkpoint.station_wait);
-    if let Some(service)=service {world.restore_service(service)?;}
+    if let Some(service) = service {
+        world.restore_service(service)?;
+    }
     Ok(world)
 }
 /// Use this in the app: restoring just Journey intentionally cannot restore services.
-pub fn load_world(path:&Path) -> Result<Option<World>,String> {
+pub fn load_world(path: &Path) -> Result<Option<World>, String> {
+    if fs::metadata(path).is_ok_and(|m| m.len() > 1_048_576) {
+        return Err("Jornada grande demais; arquivo preservado.".into());
+    }
     match fs::read(path) {
         Ok(bytes) => {
-            if bytes.len()>1_048_576 {return Err("Jornada grande demais; arquivo preservado.".into());}
+            if bytes.len() > 1_048_576 {
+                return Err("Jornada grande demais; arquivo preservado.".into());
+            }
             decode_world(&bytes).map(Some)
         }
-        Err(e) if e.kind()==std::io::ErrorKind::NotFound => Ok(None),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
         Err(e) => Err(format!("Não foi possível ler a jornada: {e}")),
     }
 }
 /// Compatibility view for old tools; product callers must use load_world.
 pub fn load(path: &Path) -> Result<Option<(Journey, f64)>, String> {
-    load_world(path).map(|world|world.map(|w|(w.journey().clone(),w.station_wait())))
+    load_world(path).map(|world| world.map(|w| (w.journey().clone(), w.station_wait())))
 }
 
 pub fn save(path: &Path, world: &World) -> Result<(), String> {
     // Refuse to replace a corrupt or future save, even if it changed after startup.
     load(path)?;
-    let mut checkpoint = Checkpoint::capture(world.journey_snapshot());
-    checkpoint.station_wait = world.station_wait();
-    checkpoint.restore()?;
-    world.service_snapshot().validate(world.journey_snapshot())?;
-    let saved=WorldCheckpoint {version:2, journey:checkpoint, service:world.service_snapshot().clone()};
-    let bytes = serde_json::to_vec_pretty(&saved).map_err(|e| e.to_string())?;
+    let bytes = encode_world(world)?;
     // Keep the exact pre-migration document. Never overwrite an existing backup.
-    if let Ok(original)=fs::read(path) {
-        let value:serde_json::Value=serde_json::from_slice(&original).map_err(|e|e.to_string())?;
-        if value.get("version").and_then(|v|v.as_u64())==Some(1) {
-            let backup=path.with_extension("v1.backup.json");
-            match fs::OpenOptions::new().write(true).create_new(true).open(&backup) {
-                Ok(mut file)=>{file.write_all(&original).and_then(|()|file.sync_all()).map_err(|e|e.to_string())?;}
-                Err(e) if e.kind()==std::io::ErrorKind::AlreadyExists => {
-                    if fs::read(&backup).map_err(|e|e.to_string())? != original {return Err("Backup v1 existente difere do original; migração cancelada.".into());}
+    if let Ok(original) = fs::read(path) {
+        let value: serde_json::Value =
+            serde_json::from_slice(&original).map_err(|e| e.to_string())?;
+        if value.get("version").and_then(|v| v.as_u64()) == Some(1) {
+            let backup = path.with_extension("v1.backup.json");
+            match fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&backup)
+            {
+                Ok(mut file) => {
+                    file.write_all(&original)
+                        .and_then(|()| file.sync_all())
+                        .map_err(|e| e.to_string())?;
                 }
-                Err(e)=>return Err(e.to_string()),
+                Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+                    if fs::read(&backup).map_err(|e| e.to_string())? != original {
+                        return Err(
+                            "Backup v1 existente difere do original; migração cancelada.".into(),
+                        );
+                    }
+                }
+                Err(e) => return Err(e.to_string()),
             }
         }
     }
+    write_atomic(path, &bytes)
+}
+
+fn encode_world(world: &World) -> Result<Vec<u8>, String> {
+    let mut checkpoint = Checkpoint::capture(world.journey_snapshot());
+    checkpoint.station_wait = world.station_wait();
+    checkpoint.restore()?;
+    world
+        .service_snapshot()
+        .validate(world.journey_snapshot())?;
+    let saved = WorldCheckpoint {
+        version: 2,
+        journey: checkpoint,
+        service: world.service_snapshot().clone(),
+    };
+    let bytes = serde_json::to_vec_pretty(&saved).map_err(|e| e.to_string())?;
+    decode_world(&bytes)?;
+    Ok(bytes)
+}
+
+/// Explicit import is the only path allowed to replace an incompatible destination.
+/// The caller must hold the destination profile lock, as for normal saves.
+pub fn import_world(destination: &Path, source: &Path) -> Result<World, String> {
+    let world =
+        load_world(source)?.ok_or_else(|| "Arquivo de origem não encontrado.".to_owned())?;
+    let bytes = encode_world(&world)?;
+    if let (Ok(a), Ok(b)) = (fs::canonicalize(destination), fs::canonicalize(source))
+        && a == b
+    {
+        return Ok(world);
+    }
+    match fs::read(destination) {
+        Ok(original) => {
+            let nonce = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos();
+            let mut preserved = false;
+            for attempt in 0..128 {
+                let backup = destination.with_extension(format!(
+                    "before-import-{nonce}-{}-{attempt}.backup.json",
+                    std::process::id()
+                ));
+                match fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&backup)
+                {
+                    Ok(mut file) => {
+                        file.write_all(&original)
+                            .and_then(|()| file.sync_all())
+                            .map_err(|e| {
+                                format!("Backup não concluído; importação cancelada: {e}")
+                            })?;
+                        preserved = true;
+                        break;
+                    }
+                    Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                    Err(e) => {
+                        return Err(format!("Backup indisponível; importação cancelada: {e}"));
+                    }
+                }
+            }
+            if !preserved {
+                return Err("Nomes de backup ocupados; importação cancelada.".into());
+            }
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+        Err(e) => return Err(format!("Não foi possível preservar o destino: {e}")),
+    }
+    write_atomic(destination, &bytes)?;
+    Ok(world)
+}
+
+fn write_atomic(path: &Path, bytes: &[u8]) -> Result<(), String> {
     if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -159,7 +254,7 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
         })
         .map_err(|error| error.to_string())?;
     let result = (|| {
-        file.write_all(&bytes)?;
+        file.write_all(bytes)?;
         file.sync_all()?;
         drop(file);
         fs::rename(&temporary, path)

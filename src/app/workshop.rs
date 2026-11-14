@@ -1,0 +1,463 @@
+use super::*;
+
+impl CpuExpressApp {
+    pub(super) fn appearance_controls(&mut self, ui: &mut egui::Ui) {
+        game::apply_style(ui);
+        if self.stock_gallery.is_none() {
+            self.stock_gallery = Some(StockGallery::new(ui.ctx()));
+        }
+        let mut changed = false;
+        let equipment_before = (
+            self.config.visual.coaches,
+            self.config.visual.livery,
+            self.config.visual.engine,
+        );
+        let page_width = ((ui.available_width() - 32.0) / 5.0).floor().max(76.0);
+        ui.horizontal_wrapped(|ui| {
+            for (page, icon, label) in [
+                (0, Icon::Train, "Vagões"),
+                (1, Icon::Paint, "Pinturas"),
+                (2, Icon::Weather, "Clima"),
+                (3, Icon::Settings, "Fluidez"),
+                (4, Icon::Train, "Motores"),
+            ] {
+                if game::button(
+                    ui,
+                    ("workshop-page", page),
+                    icon,
+                    label,
+                    self.appearance_page == page,
+                    egui::vec2(page_width, if page_width < 100.0 { 46.0 } else { 34.0 }),
+                )
+                .clicked()
+                {
+                    self.appearance_page = page;
+                }
+            }
+        });
+        ui.add_space(8.0);
+        let journey = self.world.journey_snapshot();
+        match self.appearance_page {
+            0 => {
+                let slots =
+                    self.config
+                        .visual
+                        .coaches
+                        .map(|coach| crate::ui_stock::CompositionSlot {
+                            label: "",
+                            name: coach_name(coach),
+                            icon: match coach {
+                                CoachStyle::Freight | CoachStyle::Tank => Icon::Cargo,
+                                _ => Icon::Passenger,
+                            },
+                        });
+                let mut slots = slots;
+                for (index, slot) in slots.iter_mut().enumerate() {
+                    slot.label = ["Vagão 1", "Vagão 2", "Vagão 3"][index];
+                }
+                if let Some(slot) =
+                    crate::ui_stock::composition(ui, "consist", &slots, self.coach_slot).inner
+                {
+                    self.coach_slot = slot;
+                }
+                let (seats, hold) = self.world.service_snapshot().capacity();
+                ui.small(format!(
+                    "{} lugares · {} unidades de carga · cauda à esquerda",
+                    seats, hold
+                ));
+                egui::CollapsingHeader::new("Composições favoritas").show(ui, |ui| {
+                    if ui
+                        .add_enabled(
+                            self.config.visual.favorite_consists.len() < 4
+                                && !self
+                                    .config
+                                    .visual
+                                    .favorite_consists
+                                    .contains(&self.config.visual.coaches),
+                            egui::Button::new("Guardar composição atual"),
+                        )
+                        .clicked()
+                    {
+                        self.config
+                            .visual
+                            .favorite_consists
+                            .push(self.config.visual.coaches);
+                        changed = true;
+                    }
+                    let mut remove = None;
+                    for (index, coaches) in self
+                        .config
+                        .visual
+                        .favorite_consists
+                        .clone()
+                        .into_iter()
+                        .enumerate()
+                    {
+                        ui.horizontal_wrapped(|ui| {
+                            let label = coaches.map(coach_name).join(" / ");
+                            if ui.button(label).clicked() {
+                                match self
+                                    .world
+                                    .set_service_composition(coaches.map(service_wagon))
+                                {
+                                    Ok(()) => {
+                                        self.config.visual.coaches = coaches;
+                                        changed = true;
+                                    }
+                                    Err(error) => {
+                                        self.equipment_notice =
+                                            Some((error, Instant::now() + Duration::from_secs(5)))
+                                    }
+                                }
+                            }
+                            if ui.small_button("Remover").clicked() {
+                                remove = Some(index);
+                            }
+                        });
+                    }
+                    if let Some(index) = remove {
+                        self.config.visual.favorite_consists.remove(index);
+                        changed = true;
+                    }
+                });
+                let choices = [
+                    CoachStyle::Passenger,
+                    CoachStyle::Observation,
+                    CoachStyle::Sleeper,
+                    CoachStyle::Freight,
+                    CoachStyle::Tank,
+                ];
+                let count = if ui.available_width() >= 600.0 { 3 } else { 2 };
+                for pair in choices.chunks(count) {
+                    ui.columns(count, |columns| {
+                        for (column, &style) in columns.iter_mut().zip(pair) {
+                            let selected = self.config.visual.coaches[self.coach_slot] == style;
+                            let texture = self.stock_gallery.as_ref().unwrap().coach(style);
+                            let response = stock_card(
+                                column,
+                                texture,
+                                coach_name(style),
+                                if selected {
+                                    "EQUIPADO"
+                                } else {
+                                    "Equipar neste vagão"
+                                },
+                                selected,
+                                true,
+                            );
+                            let (seats, hold) = service_wagon(style).capacity();
+                            column.small(format!("{seats} lugares · {hold} carga"));
+                            if response.clicked() {
+                                let mut coaches = self.config.visual.coaches;
+                                coaches[self.coach_slot] = style;
+                                if let Err(error) = self
+                                    .world
+                                    .set_service_composition(coaches.map(service_wagon))
+                                {
+                                    self.equipment_notice =
+                                        Some((error, Instant::now() + Duration::from_secs(5)));
+                                    continue;
+                                }
+                                self.config.visual.coaches = coaches;
+                                self.equipment_notice = Some((
+                                    format!(
+                                        "{} equipado no vagão {}",
+                                        coach_name(style),
+                                        self.coach_slot + 1
+                                    ),
+                                    Instant::now() + Duration::from_secs(3),
+                                ));
+                                changed = true;
+                            }
+                        }
+                    });
+                    ui.add_space(10.0);
+                }
+                ui.small("Modelos visuais: personalize o trem sem alterar o ritmo dos objetivos.");
+            }
+            1 => {
+                ui.label(
+                    egui::RichText::new("Pinturas da locomotiva")
+                        .size(18.0)
+                        .strong(),
+                );
+                ui.small("Cada chegada aproxima você de uma nova pintura.");
+                for pair in crate::simulation::objectives::Livery::ALL.chunks(2) {
+                    ui.columns(2, |columns| {
+                        for (column, &livery) in columns.iter_mut().zip(pair) {
+                            let unlocked =
+                                self.demo_mode || self.world.service_snapshot().owns(livery);
+                            let selected = self.config.visual.livery == livery;
+                            let state = if !unlocked {
+                                format!(
+                                    "{} / {} chegadas",
+                                    journey.stations_visited,
+                                    livery.required_stops()
+                                )
+                            } else if selected {
+                                "EQUIPADA".into()
+                            } else {
+                                "Equipar pintura".into()
+                            };
+                            let texture = self.stock_gallery.as_ref().unwrap().livery(livery);
+                            let response = stock_card(
+                                column,
+                                texture,
+                                livery.name(),
+                                &state,
+                                selected,
+                                unlocked,
+                            );
+                            if self.highlight_livery == Some(livery) {
+                                response.scroll_to_me(Some(egui::Align::Center));
+                                self.highlight_livery = None;
+                            }
+                            if response.clicked() && !unlocked {
+                                self.equipment_notice = Some((
+                                    format!(
+                                        "{}: faltam {} chegadas. Consulte Viagem / Objetivos.",
+                                        livery.name(),
+                                        livery
+                                            .required_stops()
+                                            .saturating_sub(journey.stations_visited)
+                                    ),
+                                    Instant::now() + Duration::from_secs(6),
+                                ));
+                            }
+                            if response.clicked() && unlocked {
+                                self.config.visual.livery = livery;
+                                self.equipment_notice = Some((
+                                    format!("Pintura {} equipada", livery.name()),
+                                    Instant::now() + Duration::from_secs(3),
+                                ));
+                                changed = true;
+                            }
+                        }
+                    });
+                    ui.add_space(10.0);
+                }
+            }
+            2 => {
+                section(ui, "Paisagem e atmosfera", |ui| {
+                    ui.strong(&self.config.weather_location.city);
+                    ui.small("Paisagem completa · clima e iluminação locais");
+                    if let Some(snapshot) = &self.local_weather.last_good {
+                        ui.label(format!(
+                            "{} · {:.1} °C · {}",
+                            snapshot.description(),
+                            snapshot.temperature_c,
+                            if snapshot.is_day { "Dia" } else { "Noite" }
+                        ));
+                        ui.small(format!(
+                            "Condição das {} (horário local) · recebida há {} min",
+                            snapshot.local_time(),
+                            std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .unwrap_or_default()
+                                .as_secs()
+                                .saturating_sub(snapshot.received_unix)
+                                / 60
+                        ));
+                        if let Some(wind) = snapshot.wind_speed_kmh {
+                            ui.small(format!("Vento: {wind:.0} km/h"));
+                        }
+                        if let Some(rain) = snapshot.precipitation_mm {
+                            ui.small(format!("Precipitação no intervalo do modelo: {rain:.1} mm"));
+                        }
+                        if snapshot.sunrise_unix.is_some() && snapshot.sunset_unix.is_some() {
+                            ui.small("Iluminação gradual entre amanhecer, dia, entardecer e noite locais.");
+                        }
+                        if snapshot.stale() {
+                            ui.colored_label(game::BLUE, "Dados antigos; aguardando atualização. O cenário conserva a última condição.");
+                        }
+                    } else if self.local_weather.enabled {
+                        ui.label("Cenário ilustrativo até receber o clima local.");
+                    } else {
+                        ui.label(
+                            "Demonstração/teste: atmosfera ilustrativa, sem consulta à internet.",
+                        );
+                    }
+                    if self.local_weather.loading() {
+                        ui.label("Consultando clima…");
+                    }
+                    if let Some(error) = &self.local_weather.error {
+                        ui.colored_label(
+                            game::BLUE,
+                            "Clima indisponível; nova tentativa automática.",
+                        );
+                        ui.small(error);
+                    }
+                    if self.local_weather.enabled {
+                        if ui.add_enabled(self.local_weather.can_refresh(), egui::Button::new("Atualizar clima"))
+                    .on_hover_text("Atualização automática a cada 15 minutos. Atualização manual: intervalo mínimo de 1 minuto.")
+                    .clicked() { self.local_weather.refresh(ui.ctx()); }
+                        ui.small("Condições estimadas para a cidade; podem variar no seu bairro.");
+                    }
+                    if let Some(error) = &self.local_weather.cache_error {
+                        ui.small(error);
+                    }
+                    egui::CollapsingHeader::new("Alterar local do clima").show(ui, |ui| {
+                        ui.label("Cidade");
+                        ui.text_edit_singleline(&mut self.weather_draft.city);
+                        ui.horizontal_wrapped(|ui| {
+                            ui.label("Latitude"); ui.add(egui::DragValue::new(&mut self.weather_draft.latitude).range(-90.0..=90.0).speed(0.001).max_decimals(4));
+                            ui.label("Longitude"); ui.add(egui::DragValue::new(&mut self.weather_draft.longitude).range(-180.0..=180.0).speed(0.001).max_decimals(4));
+                        });
+                        ui.small("Use as coordenadas da sua cidade. O nome é uma identificação; não há localização automática do computador.");
+                        if ui.button("Usar São Paulo, SP").clicked() { self.weather_draft = Default::default(); }
+                        if ui.button("Aplicar local").clicked() {
+                            match self.local_weather.set_location(self.weather_draft.clone()) {
+                                Ok(()) => { self.config.weather_location = self.weather_draft.clone(); changed = true; self.local_weather.refresh(ui.ctx()); }
+                                Err(error) => self.local_weather.error = Some(error),
+                            }
+                        }
+                    });
+                    ui.hyperlink_to("Dados: Open-Meteo · CC BY 4.0", "https://open-meteo.com/");
+                });
+            }
+            4 => {
+                ui.heading("Locomotivas da coleção");
+                ui.small("Novas silhuetas para os serviços que sua ferrovia realiza.");
+                for engine in crate::rendering::EngineStyle::ALL {
+                    use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
+                    let requirement = match engine {
+                        EngineStyle::Steam => None,
+                        EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
+                        EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
+                    };
+                    let unlocked = self.demo_mode
+                        || requirement
+                            .is_none_or(|r| self.world.service_snapshot().collection.contains(&r));
+                    let description = match engine {
+                        EngineStyle::Steam => "Vapor original · disponível desde o início",
+                        EngineStyle::Diesel => "Entregue 20 unidades de carga",
+                        EngineStyle::Electric => "Entregue 20 passageiros",
+                    };
+                    let selected = self.config.visual.engine == engine;
+                    let texture = self.stock_gallery.as_ref().unwrap().engine(engine);
+                    let response = stock_card(
+                        ui,
+                        texture,
+                        engine.name(),
+                        if selected { "EQUIPADA" } else { description },
+                        selected,
+                        unlocked,
+                    );
+                    if response.clicked() && !unlocked {
+                        self.equipment_notice = Some((
+                            format!(
+                                "{} · {}. Consulte Viagem / Serviços.",
+                                engine.name(),
+                                description
+                            ),
+                            Instant::now() + Duration::from_secs(6),
+                        ));
+                    }
+                    if response.clicked() && unlocked {
+                        self.config.visual.engine = engine;
+                        changed = true;
+                        self.equipment_notice = Some((
+                            format!("{} equipada", engine.name()),
+                            Instant::now() + Duration::from_secs(3),
+                        ));
+                    }
+                }
+            }
+            _ => {
+                section(ui, "Fluidez", |ui| {
+                    ui.horizontal_wrapped(|ui| {
+                        changed |= ui
+                            .selectable_value(&mut self.config.fps, 60, "Fluido · 60 FPS")
+                            .changed();
+                        changed |= ui
+                            .selectable_value(&mut self.config.fps, 30, "Econômico · 30 FPS")
+                            .changed();
+                    });
+                    ui.small(
+                        "Apenas a animação muda: objetivos e recompensas mantêm o mesmo ritmo.",
+                    );
+                    egui::CollapsingHeader::new("Ajuste fino").show(ui, |ui| {
+                        changed |= ui
+                            .add(
+                                egui::Slider::new(&mut self.config.fps, 10..=60)
+                                    .text("Limite de FPS"),
+                            )
+                            .changed();
+                        changed |= ui
+                            .add(
+                                egui::Slider::new(&mut self.config.smoothing_k, 0.05..=20.0)
+                                    .logarithmic(true)
+                                    .text("Resposta à CPU"),
+                            )
+                            .changed();
+                    });
+                });
+                section(ui, "Conforto e atenção", |ui| {
+                    changed |= ui
+                        .checkbox(
+                            &mut self.config.reduce_menu_motion,
+                            "Reduzir animações dos menus",
+                        )
+                        .changed();
+                    changed |= ui
+                        .checkbox(
+                            &mut self.config.quiet_mode,
+                            "Trabalho tranquilo: ocultar avisos sobre a paisagem",
+                        )
+                        .changed();
+                    ui.small("A arte completa e o progresso da viagem são preservados. Consulte as chegadas no diário a qualquer momento.");
+                });
+                section(ui, "Sons da ferrovia", |ui| {
+                    changed |= ui
+                        .add(
+                            egui::Slider::new(&mut self.config.sound_volume, 0.0..=1.0)
+                                .text("Volume dos eventos"),
+                        )
+                        .changed();
+                    ui.small("Sons curtos de chegada, conquista e equipamento. Zero desliga; modo tranquilo mantém silêncio.");
+                    if ui
+                        .add_enabled(
+                            self.config.sound_volume > 0.0 && !self.config.quiet_mode,
+                            egui::Button::new("Ouvir exemplo"),
+                        )
+                        .clicked()
+                    {
+                        self.play_cue(crate::audio::AudioCue::Arrival);
+                    }
+                });
+                egui::CollapsingHeader::new("Informações na janela flutuante").show(ui, |ui| {
+                    let mut mode = self.config.effective_hud_mode();
+                    ui.horizontal_wrapped(|ui| {
+                        ui.selectable_value(&mut mode, HudMode::Compact, "Compacto");
+                        ui.selectable_value(&mut mode, HudMode::Detailed, "Completo");
+                        ui.selectable_value(&mut mode, HudMode::Clean, "Limpo");
+                    });
+                    if mode != self.config.effective_hud_mode() {
+                        self.config.set_hud_mode(mode);
+                        changed = true;
+                    }
+                    changed |= ui
+                        .checkbox(
+                            &mut self.config.auto_hide_controls,
+                            "Recolher controles sem mouse e sem foco",
+                        )
+                        .changed();
+                });
+            }
+        }
+        if changed {
+            if equipment_before
+                != (
+                    self.config.visual.coaches,
+                    self.config.visual.livery,
+                    self.config.visual.engine,
+                )
+            {
+                self.play_cue(crate::audio::AudioCue::Equip);
+            }
+            self.preferences_changed();
+            self.next_frame = Instant::now();
+            ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
+        }
+    }
+}

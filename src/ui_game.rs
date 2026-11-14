@@ -13,6 +13,19 @@ pub const GOLD: Color32 = Color32::from_rgb(191, 141, 55);
 pub const GREEN: Color32 = Color32::from_rgb(38, 107, 91);
 pub const BLUE: Color32 = Color32::from_rgb(47, 100, 126);
 
+/// Session-only menu preference. Does not alter scene art or simulation time.
+pub fn set_reduce_motion(ctx: &egui::Context, enabled: bool) {
+    ctx.data_mut(|data| data.insert_temp(egui::Id::unique("game-reduce-menu-motion"), enabled));
+}
+
+/// Read by custom menu widgets; absent preference defaults to full feedback.
+pub fn reduce_motion(ctx: &egui::Context) -> bool {
+    ctx.data(|data| {
+        data.get_temp(egui::Id::unique("game-reduce-menu-motion"))
+            .unwrap_or(false)
+    })
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Icon {
     Train,
@@ -44,24 +57,60 @@ pub enum Icon {
 pub fn icon(painter: &egui::Painter, rect: Rect, icon: Icon, color: Color32) {
     let rows: [&str; 12] = match icon {
         Icon::Passenger => [
-            "....####....", "...######...", "...######...", "....####....",
-            ".....##.....", "..########..", "..########..", "..#.##.#.#..",
-            "....####....", "....#..#....", "...##..##...", "...##..##...",
+            "....####....",
+            "...######...",
+            "...######...",
+            "....####....",
+            ".....##.....",
+            "..########..",
+            "..########..",
+            "..#.##.#.#..",
+            "....####....",
+            "....#..#....",
+            "...##..##...",
+            "...##..##...",
         ],
         Icon::Cargo => [
-            "............", ".##########.", ".##......##.", ".###....###.",
-            ".#.##..##.#.", ".#..####..#.", ".#..####..#.", ".#.##..##.#.",
-            ".###....###.", ".##......##.", ".##########.", "............",
+            "............",
+            ".##########.",
+            ".##......##.",
+            ".###....###.",
+            ".#.##..##.#.",
+            ".#..####..#.",
+            ".#..####..#.",
+            ".#.##..##.#.",
+            ".###....###.",
+            ".##......##.",
+            ".##########.",
+            "............",
         ],
         Icon::Ticket => [
-            "............", ".##########.", ".#.....#..#.", "##........##",
-            "#......#...#", "..###.......", "..###..#....", "#..........#",
-            "##.....#..##", ".#........#.", ".##########.", "............",
+            "............",
+            ".##########.",
+            ".#.....#..#.",
+            "##........##",
+            "#......#...#",
+            "..###.......",
+            "..###..#....",
+            "#..........#",
+            "##.....#..##",
+            ".#........#.",
+            ".##########.",
+            "............",
         ],
         Icon::Mail => [
-            "............", "############", "##........##", "###......###",
-            "#.##....##.#", "#..##..##..#", "#...####...#", "#....##....#",
-            "#..........#", "#..........#", "############", "............",
+            "............",
+            "############",
+            "##........##",
+            "###......###",
+            "#.##....##.#",
+            "#..##..##..#",
+            "#...####...#",
+            "#....##....#",
+            "#..........#",
+            "#..........#",
+            "############",
+            "............",
         ],
         Icon::Train => [
             "............",
@@ -376,17 +425,18 @@ pub fn button(
     // Sense::click participates in egui's standard Tab/Space/Enter handling.
     let response = ui.interact(rect, id, egui::Sense::click());
     let enabled = ui.is_enabled();
+    let reduced_motion = reduce_motion(ui.ctx());
     response
         .widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, enabled, selected, label));
     let hover = ui.ctx().animate_bool_with_time(
         id.with("hover"),
         enabled && (response.hovered() || response.has_focus()),
-        0.12,
+        if reduced_motion { 0.0 } else { 0.12 },
     );
     let pressed = ui.ctx().animate_bool_with_time(
         id.with("press"),
         enabled && response.is_pointer_button_down_on(),
-        0.07,
+        if reduced_motion { 0.0 } else { 0.07 },
     );
     if ui.is_rect_visible(rect) {
         let painter = ui.painter().with_clip_rect(rect.intersect(ui.clip_rect()));

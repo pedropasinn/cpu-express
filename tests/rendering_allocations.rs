@@ -10,7 +10,8 @@ use std::{
 use cpu_express::{
     config::Config,
     rendering::{
-        Biome, RenderQuality, SceneContext, SceneOptions, SceneRenderer, SceneTheme, Weather,
+        Biome, EngineStyle, RenderQuality, SceneContext, SceneOptions, SceneRenderer, SceneTheme,
+        StationService, Weather,
     },
     simulation::{Train, World},
 };
@@ -69,6 +70,28 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         world.update(1.0 / 30.0, distance, train.speed_kmh());
     }
     let mut renderer = SceneRenderer::new();
+    let branch_worlds = [
+        cpu_express::simulation::BranchKind::Serra,
+        cpu_express::simulation::BranchKind::Litoral,
+    ]
+    .map(|kind| {
+        let route = cpu_express::simulation::Route::default();
+        let mut branch_world = World::default();
+        branch_world.restore_journey(
+            cpu_express::simulation::Journey::restore_checkpoint(
+                route.seed(),
+                route.length_units(),
+                1000.0,
+            )
+            .unwrap(),
+        );
+        branch_world.request_excursion(kind).unwrap();
+        let mut branch_train = Train::new(&config);
+        for _ in 0..90 {
+            branch_world.advance_expedition(&mut branch_train, 40.0, 1.0, &config);
+        }
+        branch_world
+    });
     ALLOCATIONS.with(|count| count.set(0));
     COUNTING.with(|active| active.set(true));
     for theme in [SceneTheme::Journey, SceneTheme::Legacy] {
@@ -99,6 +122,36 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
                 renderer
                     .set_scene_context(Some(SceneContext::from_journey(&world.journey_snapshot())));
                 std::hint::black_box(renderer.render(&train, &world));
+            }
+        }
+    }
+    // Exercise a visible platform with real-service overrides and bounded crowds.
+    renderer.set_theme(SceneTheme::Journey);
+    renderer.set_quality(RenderQuality::Full);
+    world.set_station_wait(4.0);
+    for progress in [0.0, 0.5, 1.0, f32::NAN] {
+        renderer.set_station_service(Some(StationService {
+            progress,
+            boarding: u32::MAX,
+            alighting: u32::MAX,
+        }));
+        std::hint::black_box(renderer.render(&train, &world));
+    }
+    for engine in EngineStyle::ALL {
+        renderer.set_engine(engine);
+        renderer.set_local_lighting(Some(348.0));
+        for livery in cpu_express::simulation::objectives::Livery::ALL {
+            renderer.set_livery(livery);
+            std::hint::black_box(renderer.render(&train, &world));
+        }
+    }
+    renderer.set_local_lighting(None);
+    for branch_world in &branch_worlds {
+        for weather in [Weather::Rain, Weather::Snow, Weather::Thunderstorm] {
+            renderer.set_local_atmosphere(Some((weather, true)));
+            for detail in [None, Some(0.0), Some(100.0), Some(f32::MAX), Some(f32::NAN)] {
+                renderer.set_weather_detail(detail, detail);
+                std::hint::black_box(renderer.render(&train, branch_world));
             }
         }
     }

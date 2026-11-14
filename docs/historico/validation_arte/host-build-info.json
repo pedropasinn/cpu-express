@@ -1,0 +1,8 @@
+{
+  "binary": "/workspace/scratch/5d47c62dd777/build-target/release/cpu-express",
+  "sha256": "5e74e16d9795a3ec688f2a94ed281ed4037806b2fdb1066b5fa709790259947e",
+  "size_bytes": 6247960,
+  "target": "x86_64-unknown-linux-gnu",
+  "feature": "host-validation",
+  "windows_runtime": false
+}

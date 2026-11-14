@@ -1,0 +1,2352 @@
+{
+  "version": "0.4.0-rc.1",
+  "built_utc": "2026-11-14T04:05:18.478929+00:00",
+  "target": "x86_64-pc-windows-gnu",
+  "rust": "1.100.0",
+  "profile": "release",
+  "signed": false,
+  "executable_bytes": 5943808,
+  "executable_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+  "checks": [
+    {
+      "seconds": 0.5017668,
+      "name": "format",
+      "exit_code": 0
+    },
+    {
+      "seconds": 4.4017659,
+      "name": "clippy",
+      "exit_code": 0
+    },
+    {
+      "seconds": 60.649840299999994,
+      "name": "tests",
+      "exit_code": 0
+    }
+  ],
+  "rust_tests": {
+    "passed": 272,
+    "failed": 0,
+    "ignored": 2
+  },
+  "extracted_portable": {
+    "scope": "Portable ZIP extracted to path with spaces and run independently of toolchain",
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "zip_crc_verified": true,
+    "exit_code": 0
+  },
+  "short_native_soak": {
+    "scope": "Short native runs; process CPU/memory and application frame work, not compositor or battery",
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "runs": [
+      {
+        "scenario": "panel-closed",
+        "last": {
+          "completed_laps": 0,
+          "cpu_percent": 8.138381958007812,
+          "diagnostics_schema_version": 2,
+          "dropped_travel_events": 0,
+          "effective_cpu_percent": 8.138381958007812,
+          "effective_paused": false,
+          "elapsed_seconds": 120.0566864,
+          "event": "shutdown",
+          "frame_work": {
+            "max_ms": 0.8511000000000001,
+            "mean_ms": 0.347267578125,
+            "p95_ms": 0.5972,
+            "samples": 256,
+            "scope": "simulation_render_texture_submission_not_compositor"
+          },
+          "hidden": false,
+          "journey_active_seconds": 120.0163609,
+          "journey_distance_units": 2688.3926616,
+          "journey_segment": 1,
+          "local_weather": {
+            "age_seconds": null,
+            "cache_error": null,
+            "city": "SÃ£o Paulo, SP, Brasil",
+            "enabled": false,
+            "error": null,
+            "lighting_phase": null,
+            "loading": false,
+            "location": {
+              "city": "SÃ£o Paulo, SP, Brasil",
+              "latitude": -23.5505,
+              "longitude": -46.6333
+            },
+            "snapshot": null,
+            "source": "Open-Meteo",
+            "stale": false,
+            "status": "illustrative"
+          },
+          "metric_age_seconds": 0.7128826,
+          "metric_freshness": "current",
+          "metric_status": "ready",
+          "metrics_stale": false,
+          "mode": "real",
+          "native_window": {
+            "client_height": 133,
+            "client_width": 622,
+            "embedded": false,
+            "height": 180,
+            "panel": {
+              "height": 0,
+              "visible": false,
+              "width": 0,
+              "x": 0,
+              "y": 0
+            },
+            "parent_class": "",
+            "surface_mode": "independent",
+            "taskbar_aligned": false,
+            "taskbar_height": 60,
+            "taskbar_width": 1920,
+            "width": 640,
+            "x": 1100,
+            "y": 100
+          },
+          "next_station": "Serra Clara",
+          "paused": false,
+          "ram_percent": 51.02206802368164,
+          "received_samples": 119,
+          "render_surface_size": [
+            621.9921875,
+            133.0078125
+          ],
+          "rendered_frames": 7197,
+          "rendered_frames_hidden": 0,
+          "rendered_frames_visible": 7197,
+          "requested_taskbar_mode": false,
+          "scroll_px": 1256.1541624821596,
+          "segment_progress": 0.33195480488421053,
+          "services": {
+            "arrivals": [
+              {
+                "alighted": 0,
+                "boarded": 7,
+                "cargo_delivered": 0,
+                "cargo_loaded": 11,
+                "earned": 0,
+                "station": "pines",
+                "visit": 1
+              }
+            ],
+            "branch": {
+              "current": null,
+              "discoveries": [],
+              "pending": null
+            },
+            "cargo_delivered": 0,
+            "collection": [],
+            "composition": [
+              "observation",
+              "sleeper",
+              "freight"
+            ],
+            "contract": {
+              "destination": "aurora",
+              "id": 1,
+              "kind": "parcels",
+              "origin": "pines",
+              "reward": 110,
+              "status": "loaded",
+              "units": 11
+            },
+            "contracts_completed": 0,
+            "credits": 0,
+            "last_processed_visit": 1,
+            "owned_rewards": [
+              "aurora",
+              "ocean"
+            ],
+            "passengers": [
+              {
+                "count": 7,
+                "destination": "aurora",
+                "origin": "pines"
+              }
+            ],
+            "passengers_boarded": 7,
+            "passengers_delivered": 0
+          },
+          "smoke_particles": 9,
+          "speed_kmh": 19.000292323981768,
+          "station_wait_seconds": 0.0,
+          "stations_visited": 1,
+          "target_kmh": 19.161776123046874,
+          "total_memory_bytes": 16828755968,
+          "used_memory_bytes": 8586379264,
+          "world_elapsed_seconds": 120.01636090000021
+        },
+        "seconds": 120.70568739999999,
+        "samples": [
+          {
+            "elapsed": 0.0107529,
+            "working_set": 9539584,
+            "private_bytes": 1941504,
+            "cpu_seconds": 0.015625
+          },
+          {
+            "elapsed": 1.018063,
+            "working_set": 90345472,
+            "private_bytes": 56311808,
+            "cpu_seconds": 0.515625
+          },
+          {
+            "elapsed": 2.0221701999999997,
+            "working_set": 90505216,
+            "private_bytes": 56340480,
+            "cpu_seconds": 0.609375
+          },
+          {
+            "elapsed": 3.0258354,
+            "working_set": 90783744,
+            "private_bytes": 56619008,
+            "cpu_seconds": 0.734375
+          },
+          {
+            "elapsed": 4.0449683,
+            "working_set": 90783744,
+            "private_bytes": 56619008,
+            "cpu_seconds": 0.859375
+          },
+          {
+            "elapsed": 5.0475571,
+            "working_set": 90783744,
+            "private_bytes": 56619008,
+            "cpu_seconds": 0.953125
+          },
+          {
+            "elapsed": 6.051123,
+            "working_set": 90783744,
+            "private_bytes": 56619008,
+            "cpu_seconds": 1.09375
+          },
+          {
+            "elapsed": 7.0749308,
+            "working_set": 90783744,
+            "private_bytes": 56619008,
+            "cpu_seconds": 1.3125
+          },
+          {
+            "elapsed": 8.0935493,
+            "working_set": 90857472,
+            "private_bytes": 56594432,
+            "cpu_seconds": 1.53125
+          },
+          {
+            "elapsed": 9.0994642,
+            "working_set": 90857472,
+            "private_bytes": 56594432,
+            "cpu_seconds": 1.75
+          },
+          {
+            "elapsed": 10.1212068,
+            "working_set": 90857472,
+            "private_bytes": 56594432,
+            "cpu_seconds": 1.890625
+          },
+          {
+            "elapsed": 11.1276116,
+            "working_set": 88694784,
+            "private_bytes": 54431744,
+            "cpu_seconds": 2.0625
+          },
+          {
+            "elapsed": 12.1484422,
+            "working_set": 88694784,
+            "private_bytes": 54431744,
+            "cpu_seconds": 2.3125
+          },
+          {
+            "elapsed": 13.1702541,
+            "working_set": 88543232,
+            "private_bytes": 54280192,
+            "cpu_seconds": 2.484375
+          },
+          {
+            "elapsed": 14.191186799999999,
+            "working_set": 88543232,
+            "private_bytes": 54280192,
+            "cpu_seconds": 2.6875
+          },
+          {
+            "elapsed": 15.209377,
+            "working_set": 88543232,
+            "private_bytes": 54280192,
+            "cpu_seconds": 2.890625
+          },
+          {
+            "elapsed": 16.2167043,
+            "working_set": 88518656,
+            "private_bytes": 54255616,
+            "cpu_seconds": 3.125
+          },
+          {
+            "elapsed": 17.236797199999998,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 3.421875
+          },
+          {
+            "elapsed": 18.245686499999998,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 3.703125
+          },
+          {
+            "elapsed": 19.270428199999998,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 3.953125
+          },
+          {
+            "elapsed": 20.278622199999997,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 4.1875
+          },
+          {
+            "elapsed": 21.298653299999998,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 4.359375
+          },
+          {
+            "elapsed": 22.3211907,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 4.609375
+          },
+          {
+            "elapsed": 23.325995,
+            "working_set": 88514560,
+            "private_bytes": 54251520,
+            "cpu_seconds": 4.796875
+          },
+          {
+            "elapsed": 24.3325274,
+            "working_set": 88907776,
+            "private_bytes": 54644736,
+            "cpu_seconds": 4.96875
+          },
+          {
+            "elapsed": 25.3433907,
+            "working_set": 88907776,
+            "private_bytes": 54644736,
+            "cpu_seconds": 5.109375
+          },
+          {
+            "elapsed": 26.3525371,
+            "working_set": 88911872,
+            "private_bytes": 54648832,
+            "cpu_seconds": 5.34375
+          },
+          {
+            "elapsed": 27.3713207,
+            "working_set": 93110272,
+            "private_bytes": 58855424,
+            "cpu_seconds": 5.5625
+          },
+          {
+            "elapsed": 28.3785258,
+            "working_set": 93110272,
+            "private_bytes": 58855424,
+            "cpu_seconds": 5.84375
+          },
+          {
+            "elapsed": 29.4006688,
+            "working_set": 93110272,
+            "private_bytes": 58855424,
+            "cpu_seconds": 6.0625
+          },
+          {
+            "elapsed": 30.4213581,
+            "working_set": 93118464,
+            "private_bytes": 58855424,
+            "cpu_seconds": 6.296875
+          },
+          {
+            "elapsed": 31.4263826,
+            "working_set": 93118464,
+            "private_bytes": 58855424,
+            "cpu_seconds": 6.40625
+          },
+          {
+            "elapsed": 32.443595,
+            "working_set": 93118464,
+            "private_bytes": 58855424,
+            "cpu_seconds": 6.59375
+          },
+          {
+            "elapsed": 33.4544302,
+            "working_set": 93118464,
+            "private_bytes": 58855424,
+            "cpu_seconds": 6.71875
+          },
+          {
+            "elapsed": 34.4735497,
+            "working_set": 92725248,
+            "private_bytes": 58462208,
+            "cpu_seconds": 6.859375
+          },
+          {
+            "elapsed": 35.4756897,
+            "working_set": 93249536,
+            "private_bytes": 58986496,
+            "cpu_seconds": 7.015625
+          },
+          {
+            "elapsed": 36.4912229,
+            "working_set": 93245440,
+            "private_bytes": 58982400,
+            "cpu_seconds": 7.15625
+          },
+          {
+            "elapsed": 37.5025079,
+            "working_set": 93245440,
+            "private_bytes": 58982400,
+            "cpu_seconds": 7.3125
+          },
+          {
+            "elapsed": 38.5143422,
+            "working_set": 93245440,
+            "private_bytes": 58982400,
+            "cpu_seconds": 7.40625
+          },
+          {
+            "elapsed": 39.5270262,
+            "working_set": 93245440,
+            "private_bytes": 58982400,
+            "cpu_seconds": 7.5625
+          },
+          {
+            "elapsed": 40.538891799999995,
+            "working_set": 93245440,
+            "private_bytes": 58982400,
+            "cpu_seconds": 7.671875
+          },
+          {
+            "elapsed": 41.5533657,
+            "working_set": 92729344,
+            "private_bytes": 58466304,
+            "cpu_seconds": 7.8125
+          },
+          {
+            "elapsed": 42.565156099999996,
+            "working_set": 92729344,
+            "private_bytes": 58466304,
+            "cpu_seconds": 7.921875
+          },
+          {
+            "elapsed": 43.5770061,
+            "working_set": 92729344,
+            "private_bytes": 58466304,
+            "cpu_seconds": 8.03125
+          },
+          {
+            "elapsed": 44.5918348,
+            "working_set": 92729344,
+            "private_bytes": 58466304,
+            "cpu_seconds": 8.140625
+          },
+          {
+            "elapsed": 45.6121002,
+            "working_set": 92749824,
+            "private_bytes": 58503168,
+            "cpu_seconds": 8.296875
+          },
+          {
+            "elapsed": 46.6316096,
+            "working_set": 92749824,
+            "private_bytes": 58503168,
+            "cpu_seconds": 8.453125
+          },
+          {
+            "elapsed": 47.6474511,
+            "working_set": 92749824,
+            "private_bytes": 58503168,
+            "cpu_seconds": 8.578125
+          },
+          {
+            "elapsed": 48.6638409,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 8.71875
+          },
+          {
+            "elapsed": 49.669891199999995,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 8.90625
+          },
+          {
+            "elapsed": 50.6830516,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.015625
+          },
+          {
+            "elapsed": 51.6923454,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.09375
+          },
+          {
+            "elapsed": 52.7069907,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.21875
+          },
+          {
+            "elapsed": 53.715600099999996,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.359375
+          },
+          {
+            "elapsed": 54.728541899999996,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.53125
+          },
+          {
+            "elapsed": 55.7421192,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.6875
+          },
+          {
+            "elapsed": 56.750088,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.78125
+          },
+          {
+            "elapsed": 57.7590266,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.90625
+          },
+          {
+            "elapsed": 58.770703999999995,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 9.984375
+          },
+          {
+            "elapsed": 59.786941899999995,
+            "working_set": 93138944,
+            "private_bytes": 58904576,
+            "cpu_seconds": 10.109375
+          },
+          {
+            "elapsed": 60.8026662,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.234375
+          },
+          {
+            "elapsed": 61.8100745,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.40625
+          },
+          {
+            "elapsed": 62.8275887,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.53125
+          },
+          {
+            "elapsed": 63.8404131,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.65625
+          },
+          {
+            "elapsed": 64.8523423,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.796875
+          },
+          {
+            "elapsed": 65.8693378,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 10.953125
+          },
+          {
+            "elapsed": 66.8737065,
+            "working_set": 92692480,
+            "private_bytes": 58408960,
+            "cpu_seconds": 11.109375
+          },
+          {
+            "elapsed": 67.8838249,
+            "working_set": 92684288,
+            "private_bytes": 58380288,
+            "cpu_seconds": 11.234375
+          },
+          {
+            "elapsed": 68.8972824,
+            "working_set": 92684288,
+            "private_bytes": 58380288,
+            "cpu_seconds": 11.390625
+          },
+          {
+            "elapsed": 69.9138109,
+            "working_set": 92684288,
+            "private_bytes": 58380288,
+            "cpu_seconds": 11.515625
+          },
+          {
+            "elapsed": 70.9322892,
+            "working_set": 92684288,
+            "private_bytes": 58380288,
+            "cpu_seconds": 11.671875
+          },
+          {
+            "elapsed": 71.9457742,
+            "working_set": 93077504,
+            "private_bytes": 58773504,
+            "cpu_seconds": 11.8125
+          },
+          {
+            "elapsed": 72.96684379999999,
+            "working_set": 93081600,
+            "private_bytes": 58777600,
+            "cpu_seconds": 11.90625
+          },
+          {
+            "elapsed": 73.97673999999999,
+            "working_set": 93081600,
+            "private_bytes": 58777600,
+            "cpu_seconds": 12.015625
+          },
+          {
+            "elapsed": 74.98060939999999,
+            "working_set": 93605888,
+            "private_bytes": 59301888,
+            "cpu_seconds": 12.15625
+          },
+          {
+            "elapsed": 75.99407029999999,
+            "working_set": 93605888,
+            "private_bytes": 59301888,
+            "cpu_seconds": 12.296875
+          },
+          {
+            "elapsed": 77.0124048,
+            "working_set": 93605888,
+            "private_bytes": 59301888,
+            "cpu_seconds": 12.40625
+          },
+          {
+            "elapsed": 78.0292463,
+            "working_set": 93605888,
+            "private_bytes": 59301888,
+            "cpu_seconds": 12.515625
+          },
+          {
+            "elapsed": 79.04670519999999,
+            "working_set": 93605888,
+            "private_bytes": 59289600,
+            "cpu_seconds": 12.625
+          },
+          {
+            "elapsed": 80.06504509999999,
+            "working_set": 93605888,
+            "private_bytes": 59289600,
+            "cpu_seconds": 12.734375
+          },
+          {
+            "elapsed": 81.0809572,
+            "working_set": 93085696,
+            "private_bytes": 58769408,
+            "cpu_seconds": 12.828125
+          },
+          {
+            "elapsed": 82.0925328,
+            "working_set": 93085696,
+            "private_bytes": 58769408,
+            "cpu_seconds": 12.9375
+          },
+          {
+            "elapsed": 83.115206,
+            "working_set": 93085696,
+            "private_bytes": 58769408,
+            "cpu_seconds": 13.078125
+          },
+          {
+            "elapsed": 84.1262757,
+            "working_set": 92692480,
+            "private_bytes": 58376192,
+            "cpu_seconds": 13.21875
+          },
+          {
+            "elapsed": 85.1351257,
+            "working_set": 92692480,
+            "private_bytes": 58376192,
+            "cpu_seconds": 13.3125
+          },
+          {
+            "elapsed": 86.1476252,
+            "working_set": 92692480,
+            "private_bytes": 58376192,
+            "cpu_seconds": 13.453125
+          },
+          {
+            "elapsed": 87.1661957,
+            "working_set": 92692480,
+            "private_bytes": 58376192,
+            "cpu_seconds": 13.609375
+          },
+          {
+            "elapsed": 88.16962099999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 13.734375
+          },
+          {
+            "elapsed": 89.18655629999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 13.84375
+          },
+          {
+            "elapsed": 90.2036517,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 13.9375
+          },
+          {
+            "elapsed": 91.2178636,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 14.0625
+          },
+          {
+            "elapsed": 92.2369788,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 14.140625
+          },
+          {
+            "elapsed": 93.2511049,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 14.265625
+          },
+          {
+            "elapsed": 94.2686184,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 14.421875
+          },
+          {
+            "elapsed": 95.27756839999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 14.546875
+          },
+          {
+            "elapsed": 96.2823186,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 14.671875
+          },
+          {
+            "elapsed": 97.2866528,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 14.84375
+          },
+          {
+            "elapsed": 98.30352909999999,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 14.984375
+          },
+          {
+            "elapsed": 99.3165492,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.09375
+          },
+          {
+            "elapsed": 100.3259753,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.21875
+          },
+          {
+            "elapsed": 101.340175,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.328125
+          },
+          {
+            "elapsed": 102.354486,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.453125
+          },
+          {
+            "elapsed": 103.3709312,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.59375
+          },
+          {
+            "elapsed": 104.3832595,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.734375
+          },
+          {
+            "elapsed": 105.39831,
+            "working_set": 93077504,
+            "private_bytes": 58761216,
+            "cpu_seconds": 15.875
+          },
+          {
+            "elapsed": 106.40952279999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.046875
+          },
+          {
+            "elapsed": 107.41023279999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.21875
+          },
+          {
+            "elapsed": 108.41542659999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.359375
+          },
+          {
+            "elapsed": 109.42779949999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.515625
+          },
+          {
+            "elapsed": 110.43044979999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.703125
+          },
+          {
+            "elapsed": 111.4468807,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 16.859375
+          },
+          {
+            "elapsed": 112.4658298,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.03125
+          },
+          {
+            "elapsed": 113.476935,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.21875
+          },
+          {
+            "elapsed": 114.49334259999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.40625
+          },
+          {
+            "elapsed": 115.5090922,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.578125
+          },
+          {
+            "elapsed": 116.52955589999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.734375
+          },
+          {
+            "elapsed": 117.53634509999999,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 17.953125
+          },
+          {
+            "elapsed": 118.555899,
+            "working_set": 92684288,
+            "private_bytes": 58368000,
+            "cpu_seconds": 18.15625
+          },
+          {
+            "elapsed": 119.57342039999999,
+            "working_set": 93077504,
+            "private_bytes": 58773504,
+            "cpu_seconds": 18.5
+          }
+        ],
+        "exit_code": 0
+      },
+      {
+        "scenario": "panel-open",
+        "last": {
+          "completed_laps": 0,
+          "cpu_percent": 6.803657531738281,
+          "diagnostics_schema_version": 2,
+          "dropped_travel_events": 0,
+          "effective_cpu_percent": 6.803657531738281,
+          "effective_paused": false,
+          "elapsed_seconds": 120.0656796,
+          "event": "shutdown",
+          "frame_work": {
+            "max_ms": 0.6802,
+            "mean_ms": 0.3074765625,
+            "p95_ms": 0.4626,
+            "samples": 256,
+            "scope": "simulation_render_texture_submission_not_compositor"
+          },
+          "hidden": false,
+          "journey_active_seconds": 120.0161553,
+          "journey_distance_units": 2688.3877272,
+          "journey_segment": 1,
+          "local_weather": {
+            "age_seconds": null,
+            "cache_error": null,
+            "city": "SÃ£o Paulo, SP, Brasil",
+            "enabled": false,
+            "error": null,
+            "lighting_phase": null,
+            "loading": false,
+            "location": {
+              "city": "SÃ£o Paulo, SP, Brasil",
+              "latitude": -23.5505,
+              "longitude": -46.6333
+            },
+            "snapshot": null,
+            "source": "Open-Meteo",
+            "stale": false,
+            "status": "illustrative"
+          },
+          "metric_age_seconds": 0.9928462,
+          "metric_freshness": "current",
+          "metric_status": "ready",
+          "metrics_stale": false,
+          "mode": "real",
+          "native_window": {
+            "client_height": 133,
+            "client_width": 622,
+            "embedded": false,
+            "height": 180,
+            "panel": {
+              "height": 947,
+              "visible": true,
+              "width": 968,
+              "x": 970,
+              "y": 10
+            },
+            "parent_class": "",
+            "surface_mode": "independent",
+            "taskbar_aligned": false,
+            "taskbar_height": 60,
+            "taskbar_width": 1920,
+            "width": 640,
+            "x": 1100,
+            "y": 100
+          },
+          "next_station": "Serra Clara",
+          "paused": false,
+          "ram_percent": 51.416996002197266,
+          "received_samples": 119,
+          "render_surface_size": [
+            621.9921875,
+            133.0078125
+          ],
+          "rendered_frames": 7168,
+          "rendered_frames_hidden": 0,
+          "rendered_frames_visible": 7168,
+          "requested_taskbar_mode": false,
+          "scroll_px": 1141.1734723093455,
+          "segment_progress": 0.3319527272421053,
+          "services": {
+            "arrivals": [
+              {
+                "alighted": 0,
+                "boarded": 7,
+                "cargo_delivered": 0,
+                "cargo_loaded": 11,
+                "earned": 0,
+                "station": "pines",
+                "visit": 1
+              }
+            ],
+            "branch": {
+              "current": null,
+              "discoveries": [],
+              "pending": null
+            },
+            "cargo_delivered": 0,
+            "collection": [],
+            "composition": [
+              "observation",
+              "sleeper",
+              "freight"
+            ],
+            "contract": {
+              "destination": "aurora",
+              "id": 1,
+              "kind": "parcels",
+              "origin": "pines",
+              "reward": 110,
+              "status": "loaded",
+              "units": 11
+            },
+            "contracts_completed": 0,
+            "credits": 0,
+            "last_processed_visit": 1,
+            "owned_rewards": [
+              "aurora",
+              "ocean"
+            ],
+            "passengers": [
+              {
+                "count": 7,
+                "destination": "aurora",
+                "origin": "pines"
+              }
+            ],
+            "passengers_boarded": 7,
+            "passengers_delivered": 0
+          },
+          "smoke_particles": 10,
+          "speed_kmh": 18.336065700372185,
+          "station_wait_seconds": 0.0,
+          "stations_visited": 1,
+          "target_kmh": 17.98721862792969,
+          "total_memory_bytes": 16828755968,
+          "used_memory_bytes": 8652840960,
+          "world_elapsed_seconds": 120.01615530000004
+        },
+        "seconds": 120.8400331,
+        "samples": [
+          {
+            "elapsed": 8.15e-05,
+            "working_set": 2048000,
+            "private_bytes": 417792,
+            "cpu_seconds": 0
+          },
+          {
+            "elapsed": 1.0083176999999999,
+            "working_set": 113332224,
+            "private_bytes": 64634880,
+            "cpu_seconds": 0.671875
+          },
+          {
+            "elapsed": 2.0140998999999997,
+            "working_set": 113627136,
+            "private_bytes": 64962560,
+            "cpu_seconds": 0.953125
+          },
+          {
+            "elapsed": 3.0315317999999998,
+            "working_set": 114188288,
+            "private_bytes": 65544192,
+            "cpu_seconds": 1.21875
+          },
+          {
+            "elapsed": 4.0366015,
+            "working_set": 114188288,
+            "private_bytes": 65482752,
+            "cpu_seconds": 1.5625
+          },
+          {
+            "elapsed": 5.0546402,
+            "working_set": 114188288,
+            "private_bytes": 65482752,
+            "cpu_seconds": 1.828125
+          },
+          {
+            "elapsed": 6.0596407999999995,
+            "working_set": 114188288,
+            "private_bytes": 65482752,
+            "cpu_seconds": 2.1875
+          },
+          {
+            "elapsed": 7.0806293,
+            "working_set": 114188288,
+            "private_bytes": 65482752,
+            "cpu_seconds": 2.640625
+          },
+          {
+            "elapsed": 8.0987747,
+            "working_set": 114188288,
+            "private_bytes": 65396736,
+            "cpu_seconds": 3
+          },
+          {
+            "elapsed": 9.1085253,
+            "working_set": 114188288,
+            "private_bytes": 65396736,
+            "cpu_seconds": 3.34375
+          },
+          {
+            "elapsed": 10.1274103,
+            "working_set": 114188288,
+            "private_bytes": 65396736,
+            "cpu_seconds": 3.640625
+          },
+          {
+            "elapsed": 11.147262999999999,
+            "working_set": 112082944,
+            "private_bytes": 63291392,
+            "cpu_seconds": 3.984375
+          },
+          {
+            "elapsed": 12.166736799999999,
+            "working_set": 112074752,
+            "private_bytes": 63283200,
+            "cpu_seconds": 4.3125
+          },
+          {
+            "elapsed": 13.1733247,
+            "working_set": 112074752,
+            "private_bytes": 63283200,
+            "cpu_seconds": 4.578125
+          },
+          {
+            "elapsed": 14.1734955,
+            "working_set": 112074752,
+            "private_bytes": 63283200,
+            "cpu_seconds": 4.9375
+          },
+          {
+            "elapsed": 15.1818482,
+            "working_set": 111697920,
+            "private_bytes": 62922752,
+            "cpu_seconds": 5.296875
+          },
+          {
+            "elapsed": 16.2038741,
+            "working_set": 111693824,
+            "private_bytes": 62918656,
+            "cpu_seconds": 5.6875
+          },
+          {
+            "elapsed": 17.209544299999997,
+            "working_set": 111673344,
+            "private_bytes": 62898176,
+            "cpu_seconds": 6.015625
+          },
+          {
+            "elapsed": 18.2295794,
+            "working_set": 112066560,
+            "private_bytes": 63291392,
+            "cpu_seconds": 6.265625
+          },
+          {
+            "elapsed": 19.2466959,
+            "working_set": 112054272,
+            "private_bytes": 63283200,
+            "cpu_seconds": 6.546875
+          },
+          {
+            "elapsed": 20.266745099999998,
+            "working_set": 112054272,
+            "private_bytes": 63283200,
+            "cpu_seconds": 6.84375
+          },
+          {
+            "elapsed": 21.2723199,
+            "working_set": 112050176,
+            "private_bytes": 63279104,
+            "cpu_seconds": 7.203125
+          },
+          {
+            "elapsed": 22.2929237,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 7.5625
+          },
+          {
+            "elapsed": 23.3092258,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 7.875
+          },
+          {
+            "elapsed": 24.322408799999998,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 8.234375
+          },
+          {
+            "elapsed": 25.3383999,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 8.5
+          },
+          {
+            "elapsed": 26.357028999999997,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 8.796875
+          },
+          {
+            "elapsed": 27.3742095,
+            "working_set": 112046080,
+            "private_bytes": 63275008,
+            "cpu_seconds": 9.171875
+          },
+          {
+            "elapsed": 28.394148599999998,
+            "working_set": 111652864,
+            "private_bytes": 62881792,
+            "cpu_seconds": 9.484375
+          },
+          {
+            "elapsed": 29.430370399999997,
+            "working_set": 111652864,
+            "private_bytes": 62881792,
+            "cpu_seconds": 9.84375
+          },
+          {
+            "elapsed": 30.435640199999998,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 10.1875
+          },
+          {
+            "elapsed": 31.4401552,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 10.5625
+          },
+          {
+            "elapsed": 32.4601168,
+            "working_set": 111640576,
+            "private_bytes": 62844928,
+            "cpu_seconds": 10.859375
+          },
+          {
+            "elapsed": 33.481393499999996,
+            "working_set": 111640576,
+            "private_bytes": 62844928,
+            "cpu_seconds": 11.15625
+          },
+          {
+            "elapsed": 34.5043309,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 11.5
+          },
+          {
+            "elapsed": 35.5208818,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 11.84375
+          },
+          {
+            "elapsed": 36.5414394,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 12.109375
+          },
+          {
+            "elapsed": 37.561659999999996,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 12.484375
+          },
+          {
+            "elapsed": 38.5819494,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 12.78125
+          },
+          {
+            "elapsed": 39.604112099999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 13.109375
+          },
+          {
+            "elapsed": 40.607610099999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 13.453125
+          },
+          {
+            "elapsed": 41.613149,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 13.90625
+          },
+          {
+            "elapsed": 42.634733999999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 14.328125
+          },
+          {
+            "elapsed": 43.6406729,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 14.625
+          },
+          {
+            "elapsed": 44.658229899999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 14.890625
+          },
+          {
+            "elapsed": 45.675107999999994,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 15.125
+          },
+          {
+            "elapsed": 46.6798072,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 15.453125
+          },
+          {
+            "elapsed": 47.703633499999995,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 15.765625
+          },
+          {
+            "elapsed": 48.7233683,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 16.15625
+          },
+          {
+            "elapsed": 49.7434529,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 16.421875
+          },
+          {
+            "elapsed": 50.7628665,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 16.75
+          },
+          {
+            "elapsed": 51.7815017,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 17.1875
+          },
+          {
+            "elapsed": 52.795187299999995,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 17.390625
+          },
+          {
+            "elapsed": 53.8098975,
+            "working_set": 111644672,
+            "private_bytes": 62849024,
+            "cpu_seconds": 17.765625
+          },
+          {
+            "elapsed": 54.829259,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 18.09375
+          },
+          {
+            "elapsed": 55.849405399999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 18.46875
+          },
+          {
+            "elapsed": 56.8542482,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 18.828125
+          },
+          {
+            "elapsed": 57.873066099999996,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 19.09375
+          },
+          {
+            "elapsed": 58.8933167,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 19.421875
+          },
+          {
+            "elapsed": 59.912639899999995,
+            "working_set": 112037888,
+            "private_bytes": 63242240,
+            "cpu_seconds": 19.671875
+          },
+          {
+            "elapsed": 60.932023199999996,
+            "working_set": 112005120,
+            "private_bytes": 63176704,
+            "cpu_seconds": 20.0625
+          },
+          {
+            "elapsed": 61.9402498,
+            "working_set": 112005120,
+            "private_bytes": 63176704,
+            "cpu_seconds": 20.40625
+          },
+          {
+            "elapsed": 62.945569899999995,
+            "working_set": 112005120,
+            "private_bytes": 63176704,
+            "cpu_seconds": 20.765625
+          },
+          {
+            "elapsed": 63.952903799999994,
+            "working_set": 112005120,
+            "private_bytes": 63176704,
+            "cpu_seconds": 21.09375
+          },
+          {
+            "elapsed": 64.9708677,
+            "working_set": 111611904,
+            "private_bytes": 62783488,
+            "cpu_seconds": 21.453125
+          },
+          {
+            "elapsed": 65.98902939999999,
+            "working_set": 111611904,
+            "private_bytes": 62783488,
+            "cpu_seconds": 21.78125
+          },
+          {
+            "elapsed": 66.9910783,
+            "working_set": 111611904,
+            "private_bytes": 62783488,
+            "cpu_seconds": 22.15625
+          },
+          {
+            "elapsed": 68.0120469,
+            "working_set": 111595520,
+            "private_bytes": 62750720,
+            "cpu_seconds": 22.5625
+          },
+          {
+            "elapsed": 69.0337487,
+            "working_set": 111595520,
+            "private_bytes": 62750720,
+            "cpu_seconds": 22.828125
+          },
+          {
+            "elapsed": 70.0393836,
+            "working_set": 111595520,
+            "private_bytes": 62750720,
+            "cpu_seconds": 23.09375
+          },
+          {
+            "elapsed": 71.0440098,
+            "working_set": 111595520,
+            "private_bytes": 62750720,
+            "cpu_seconds": 23.328125
+          },
+          {
+            "elapsed": 72.0468068,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 23.609375
+          },
+          {
+            "elapsed": 73.0676245,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 23.984375
+          },
+          {
+            "elapsed": 74.0692049,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 24.328125
+          },
+          {
+            "elapsed": 75.0775349,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 24.640625
+          },
+          {
+            "elapsed": 76.0950068,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 24.96875
+          },
+          {
+            "elapsed": 77.1138232,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 25.28125
+          },
+          {
+            "elapsed": 78.1324355,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 25.65625
+          },
+          {
+            "elapsed": 79.1542561,
+            "working_set": 111988736,
+            "private_bytes": 63143936,
+            "cpu_seconds": 26.0625
+          },
+          {
+            "elapsed": 80.1743821,
+            "working_set": 110682112,
+            "private_bytes": 61906944,
+            "cpu_seconds": 26.40625
+          },
+          {
+            "elapsed": 81.18102309999999,
+            "working_set": 110682112,
+            "private_bytes": 61906944,
+            "cpu_seconds": 26.828125
+          },
+          {
+            "elapsed": 82.2003776,
+            "working_set": 110764032,
+            "private_bytes": 61906944,
+            "cpu_seconds": 27.171875
+          },
+          {
+            "elapsed": 83.2216881,
+            "working_set": 110764032,
+            "private_bytes": 61906944,
+            "cpu_seconds": 27.578125
+          },
+          {
+            "elapsed": 84.2423647,
+            "working_set": 110768128,
+            "private_bytes": 61906944,
+            "cpu_seconds": 27.875
+          },
+          {
+            "elapsed": 85.2511682,
+            "working_set": 110768128,
+            "private_bytes": 61906944,
+            "cpu_seconds": 28.203125
+          },
+          {
+            "elapsed": 86.2714428,
+            "working_set": 110436352,
+            "private_bytes": 61575168,
+            "cpu_seconds": 28.484375
+          },
+          {
+            "elapsed": 87.29005459999999,
+            "working_set": 110436352,
+            "private_bytes": 61575168,
+            "cpu_seconds": 28.796875
+          },
+          {
+            "elapsed": 88.29480799999999,
+            "working_set": 110440448,
+            "private_bytes": 61575168,
+            "cpu_seconds": 29.140625
+          },
+          {
+            "elapsed": 89.31473,
+            "working_set": 110440448,
+            "private_bytes": 61575168,
+            "cpu_seconds": 29.46875
+          },
+          {
+            "elapsed": 90.3338074,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 29.796875
+          },
+          {
+            "elapsed": 91.35506409999999,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 30.125
+          },
+          {
+            "elapsed": 92.3615349,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 30.359375
+          },
+          {
+            "elapsed": 93.38159669999999,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 30.78125
+          },
+          {
+            "elapsed": 94.4050278,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 31.046875
+          },
+          {
+            "elapsed": 95.4227985,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 31.484375
+          },
+          {
+            "elapsed": 96.4280831,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 31.796875
+          },
+          {
+            "elapsed": 97.4477738,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 32.15625
+          },
+          {
+            "elapsed": 98.45418629999999,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 32.515625
+          },
+          {
+            "elapsed": 99.458389,
+            "working_set": 110772224,
+            "private_bytes": 61906944,
+            "cpu_seconds": 32.921875
+          },
+          {
+            "elapsed": 100.4620356,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 33.296875
+          },
+          {
+            "elapsed": 101.4806851,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 33.75
+          },
+          {
+            "elapsed": 102.49903499999999,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 34.109375
+          },
+          {
+            "elapsed": 103.51952879999999,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 34.546875
+          },
+          {
+            "elapsed": 104.53823399999999,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 34.8125
+          },
+          {
+            "elapsed": 105.559851,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 35.109375
+          },
+          {
+            "elapsed": 106.57844399999999,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 35.453125
+          },
+          {
+            "elapsed": 107.5970705,
+            "working_set": 110387200,
+            "private_bytes": 61513728,
+            "cpu_seconds": 35.765625
+          },
+          {
+            "elapsed": 108.61763119999999,
+            "working_set": 110780416,
+            "private_bytes": 61906944,
+            "cpu_seconds": 36.078125
+          },
+          {
+            "elapsed": 109.6390916,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 36.484375
+          },
+          {
+            "elapsed": 110.641853,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 36.859375
+          },
+          {
+            "elapsed": 111.6601216,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 37.21875
+          },
+          {
+            "elapsed": 112.6780184,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 37.578125
+          },
+          {
+            "elapsed": 113.683172,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 37.953125
+          },
+          {
+            "elapsed": 114.70706559999999,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 38.28125
+          },
+          {
+            "elapsed": 115.7115042,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 38.609375
+          },
+          {
+            "elapsed": 116.72213149999999,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 38.921875
+          },
+          {
+            "elapsed": 117.7263914,
+            "working_set": 110854144,
+            "private_bytes": 62513152,
+            "cpu_seconds": 39.203125
+          },
+          {
+            "elapsed": 118.75058449999999,
+            "working_set": 110460928,
+            "private_bytes": 62119936,
+            "cpu_seconds": 39.546875
+          },
+          {
+            "elapsed": 119.7639564,
+            "working_set": 110460928,
+            "private_bytes": 62119936,
+            "cpu_seconds": 39.9375
+          }
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "profile_migration": {
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "v1_backup_verified": true,
+    "exit_code": 0,
+    "before_distance": 123625.0,
+    "owned_paintings": [
+      "aurora",
+      "ocean",
+      "sunset",
+      "midnight"
+    ],
+    "after_distance": 123836.81808,
+    "scope": "Isolated copy of existing v1 profile; original untouched",
+    "after_version": 2
+  },
+  "local_weather": {
+    "exit_code": 0,
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "online_verified": true,
+    "ready_samples": 25,
+    "weather": {
+      "age_seconds": 496,
+      "cache_error": null,
+      "city": "São Paulo, SP, Brasil",
+      "enabled": true,
+      "error": null,
+      "lighting_phase": 500.3599299251473,
+      "loading": false,
+      "location": {
+        "city": "São Paulo, SP, Brasil",
+        "latitude": -23.5505,
+        "longitude": -46.6333
+      },
+      "snapshot": {
+        "is_day": false,
+        "observed_unix": 1794627900,
+        "precipitation_mm": 0.0,
+        "received_unix": 1794628372,
+        "sunrise_unix": 1794644037,
+        "sunset_unix": 1794691688,
+        "temperature_c": 17.899999618530273,
+        "utc_offset_seconds": -10800,
+        "weather": "clear",
+        "weather_code": 1,
+        "wind_speed_kmh": 3.0999999046325684
+      },
+      "source": "Open-Meteo",
+      "stale": false,
+      "status": "ready"
+    },
+    "evidence_directory": "evidence\\current\\weather\\run-20261114-005251"
+  },
+  "game_ui": {
+    "version": "0.4.0-rc.1",
+    "scope": "Actual egui layout and renderer exported headlessly; not Windows compositor screenshots",
+    "reviewed_utc": "2026-11-14T03:52:08.017093+00:00",
+    "sources": {
+      "src/app.rs": "fa7e0b747c8e9982175430d2d20f7d144dd2b98a47dbf08b225b8abd367288a5",
+      "src/audio.rs": "3671a7fd0bc59b4e69a1355eb4ee4487b22fcaa029333fd0f663f3c53984f963",
+      "src/config.rs": "53defb564e71ee54d447596867da17ad67b7453f53d68d93f257fafb838f2f78",
+      "src/diagnostics.rs": "4a4b91eaa43f5e56e7cfc6b21651909556ab19ec5a1a52c0498be0fa43dcc645",
+      "src/frame_pacing.rs": "10553c30a8bd2f2d2dee5b88e3e1f434cbce6d23338aea24f7e3040e5f840e1c",
+      "src/frame_timings.rs": "a9288125376b5dddd8c4492c7b7ed1bb75f06c08ce0783409bea4407765aa704",
+      "src/lib.rs": "2fa5ae8d43142ad39b7bd01f35e3f7162149850f82829b1b9d0335e7aabc55af",
+      "src/local_weather.rs": "5cbf6e6db5eac3b3965e1dd176f0aeef78e1ca1d89ed34275f6570dc46b5fd06",
+      "src/main.rs": "59b985fc59e164b0d2676a7288c60dec69cf2bcce33a09463b11622df945d3b4",
+      "src/progress.rs": "0a3a5848eb58ad39785ebe9ae015e21d4e53a4fea89b207945c75ac4aed16e37",
+      "src/ui_game.rs": "e232eb6f0f7e68153a213261381af4b67e129f7b5eadf4202eb92a68bc5facf0",
+      "src/ui_services.rs": "09fedc227b0c63c8b3219bbf95c28b962ded2b75d88c8fdea8d9b23b72267086",
+      "src/ui_stock.rs": "ac3bbb8abe49905c5512a676d7470e196042f75e1cd4ae2b646e636dff8c8a37",
+      "src/app/branches.rs": "961ef62c3b175fb7bba0a49ace5b90443634107d03766480fcda207c6ce0f89a",
+      "src/app/journey.rs": "4a002829bdd7f92e4f97e8cc85d2f1ed9ebf90505707e9338ae7ac0e4a4d5514",
+      "src/app/services.rs": "6936349e0c78fa1c3dddaf2d3780d56d7740fa379378e550f9f02bae4dcf4273",
+      "src/app/storage.rs": "33cb8d083dd3ddfcd89c2f5425f0072af8aec44d478b15604cba139e210fa520",
+      "src/app/workshop.rs": "3d87e42352d6509640eac32250834aaddf0096ac25fd26fbb985d721091f65af",
+      "src/metrics/mod.rs": "f6270e9aa4c2bccfbfa254b6ecad03fcafe1c711e4196472ecba5552828e583e",
+      "src/metrics/sysinfo_provider.rs": "aeaabcac2ebe3072d92de675521341cd537efadcb4eb9cec7fd954cc7075531f",
+      "src/platform/desktop.rs": "c814a78a8e713c4fb04f29b4c6d74f6b67be5b43370da4363cdcbe2bb1913755",
+      "src/platform/geometry.rs": "4c76be7322fc24f184c25e95be89da3d8e6589230c0044f88c275843f8a97be8",
+      "src/platform/journey_dialog.rs": "7847d91730cdca5d2e45c055bdecfd4d9870fd987335bf4745360d404cf1e895",
+      "src/platform/lifecycle.rs": "f7a96b5a869ee1b78cddd17432a59aba65b34e8230c20e800906fcb888b8b755",
+      "src/platform/mod.rs": "58a87a433370a5ef5b0c466f9ae7b82540c978f10012a2812b698c89b4611f20",
+      "src/platform/tray.rs": "56b36bdfd48c25deb7beb4dd37e005da40a8e85fb74255756910ff3b5e686cc8",
+      "src/platform/windows.rs": "2dea1aa6580b413a733e53d96528bc4d8f2955ca95c32c119c491fa12216024d",
+      "src/rendering/engines.rs": "323364b77092c5e51bc4164cdc470fabfb6bb0e1c3b0194837d23dd1e2f13d21",
+      "src/rendering/legacy.rs": "333ada705cc5cea3d1d2597dcfb91da38f0f3f1d61a9b98221c9d262747ea271",
+      "src/rendering/mod.rs": "63211c129ecddcfd1fbc32c633fd892350775fedce1cfccda1705c40295556d7",
+      "src/rendering/palette.rs": "7e012b8574c9e22603ea7c1247253004ceace7ece448b9606fece0cf259a56ef",
+      "src/rendering/rolling_stock.rs": "da9db241fac406fdb444183ab008532028684e516fc8d972509392b0394361db",
+      "src/rendering/scene.rs": "5465669d43c87c7b1fa4398b018071a9ba32bad9322cd1b79cf1673e5821f188",
+      "src/rendering/scenery.rs": "67c8bb6edb881a18ee6d38ebdec35b568d64398649c7d6a55159323626b0c0ab",
+      "src/rendering/sprites.rs": "6c3a3afe514a7281d6758f1e4e345afde4bb73d2792e7ba1b813ed28df58ef98",
+      "src/rendering/stations.rs": "982a0e431421aa00a7e1d7f490455ca6a46930a0873506f4655dfafdbbe4338f",
+      "src/rendering/theme.rs": "e83c59ccdc3061fcec8ab568fd6eb39de2fa48d229245fc497073eae0cc12629",
+      "src/simulation/branch.rs": "ae1d9a583bd6db082a88f8668d8adc109ae819c2f85e9af945d4ed924391420c",
+      "src/simulation/journey.rs": "5630c59df78a2053223e32ee2f0580a97d4cb87fd23717a9b397e93dc3ae8350",
+      "src/simulation/mod.rs": "0c89313030b6d53e77ef2f518210c7b06cbc3551b9ae06b94e70d2b8d8082994",
+      "src/simulation/objectives.rs": "335df8aeafd36133cc5e0dde7212704bc8a466251e402909a9bb5e17e090ebae",
+      "src/simulation/route.rs": "1ce7968fef2196bac830784ba216699eaabbe737b6848a2ce809b83d7b1772df",
+      "src/simulation/service.rs": "4cc4797f4c821a3ec7d80688efe3f11a16810ba4fc4d2ed50f51c43a9179e7ee",
+      "src/simulation/timing.rs": "beaa2331d3cbf671b8e87e3e2bb6e0c7202eccc14f94f8a24457b274467c92ef",
+      "src/simulation/train.rs": "fd00839a4108dabad94f87764a39b1bd5f30651a492eb21502413fef8fb360f5",
+      "src/simulation/world.rs": "cf2856efcaf513aed1279cb87902e0755f25418b3ea0195a0fff9385fea970c9",
+      "tests/ux_visual.rs": "b1cf9dc00b9a5233512abd1365ad9ba1ab366a94c8ab62cfa6b5f25ee3fb2153",
+      "Cargo.toml": "8ad8353261f6c9936727ffae5632415c116256e5b936a9466074264177d382f4",
+      "Cargo.lock": "6016e40dfd62ca6ed1443e813b659418f9eb2c2db0fce50ec1cc8283d3d35b5c"
+    },
+    "panels": {
+      "evidence/current/panels-expansion/floating_branch.png": "dfce47b21485006d8954d0386151f0a6f528099cd2ce3bd3ea7c447cc67ecac9",
+      "evidence/current/panels-expansion/floating_clima.png": "fd7ec4f6df96d8645c5535017259307fba0d222691d0aab6175feb2c758b23ac",
+      "evidence/current/panels-expansion/floating_colecao.png": "8174bce5b426e1d72a54f95f8863f73bc59f4fc7f99ddcb34950c07eaa8a8d34",
+      "evidence/current/panels-expansion/floating_diario.png": "44824809e77861b590e703f39c68da72b21e1f9c8704b5cb4fe76903e5863a80",
+      "evidence/current/panels-expansion/floating_diario_active.png": "bf5b38bfbc2e13f7706743b6be57c8e7e826d473eab74e1278cd116deb23b379",
+      "evidence/current/panels-expansion/floating_fluidez.png": "25a43f09877a33786b49d0f9d6ff97728bbc6438c17252b4e061d9f3f6ba11a6",
+      "evidence/current/panels-expansion/floating_janela.png": "490e944d94bab2dfdb6d8b3bd2b5aac86cfb78054d19dba460335ed77170c5ac",
+      "evidence/current/panels-expansion/floating_motores.png": "dda61ff6f200e980aa758e5c060e383ec5c405eed83473662c93ae44a08242bd",
+      "evidence/current/panels-expansion/floating_objetivos.png": "1815d45af6b7fdb71feb4c64b2783a3c0f2a2f5259db26f730973fa944c4c80e",
+      "evidence/current/panels-expansion/floating_pinturas.png": "b02d1ad8e06cfa60b90474e81aea8857c55d8552f6e2aa0353372af1bc23d6de",
+      "evidence/current/panels-expansion/floating_servicos.png": "788171895407fea5f65229aa200eaed46b1cfb3e9cd81b33bce8a6f0fb3db70c",
+      "evidence/current/panels-expansion/floating_servicos_active.png": "548d45c6e47b2a36240493cd3c800e3b1dc248fbba1482dc528cd239ca029ee8",
+      "evidence/current/panels-expansion/floating_trem.png": "d7680255284bd2e560780d5861545ef7b13014c9bb5117542effa73850051603",
+      "evidence/current/panels-expansion/floating_viagem.png": "a5aaf53260eac3d3a69cfad60d38a9b8103e2bb09ef0ed4249691026c5a2a855",
+      "evidence/current/panels-expansion/floating_visual.png": "ed5af4542217c96968abbc6776af9db834a311377656ec49c2af47ed767c2217",
+      "evidence/current/panels-expansion/floating_visual_small.png": "9000c49e2fb3ca1202f80bd5fe3c03b545762e4a0a281414c1ff72c4f7dbd80c"
+    },
+    "meshes": {
+      "evidence/current/panels-expansion/floating_branch.json": "d62576205b6665e20bb1476a02e9421c374a12561cac913ac91ab8134af3b094",
+      "evidence/current/panels-expansion/floating_clima.json": "4906f5938970fe06799969964ae20b65aa883499dd6621eb103029879e5f40b6",
+      "evidence/current/panels-expansion/floating_colecao.json": "29e5f425f2c93056009d7f81ff602919ea672c8b6475ef85d9cb200beb51f42a",
+      "evidence/current/panels-expansion/floating_diario.json": "fba61cab0ada4a66ff82c1e605e4b8c3c9982afd92269d81b78347429243cc7e",
+      "evidence/current/panels-expansion/floating_diario_active.json": "319dbf77745edf3140d634a5a228fbda2675036c614914717fb8cf482edf2b3e",
+      "evidence/current/panels-expansion/floating_fluidez.json": "f22df18960426bf5787bce2a9fac445ab971bf936e9f65340a70709a3bb5023b",
+      "evidence/current/panels-expansion/floating_janela.json": "2143737833e8874a01f30a3d6a4658b746e27d276da2e00e128f8ff80b55e42a",
+      "evidence/current/panels-expansion/floating_motores.json": "ad7fc2e3c7d9ba7fef0b36aa1224e64a053bcacd9f7df0644af1caf5c4f78f8c",
+      "evidence/current/panels-expansion/floating_objetivos.json": "63fdc1cf26313062d0ce2ca3e2fac146f91b2975842404cbada543e7d8da795f",
+      "evidence/current/panels-expansion/floating_pinturas.json": "85b5c7c1dd56663d2cc67a78329a9d8fcfdad14704f5c5b6e11d202aaff93aa5",
+      "evidence/current/panels-expansion/floating_servicos.json": "6cc10f720b91cb839c856428c79a638c1266d3d2c04ee9f3951d1403cb6077df",
+      "evidence/current/panels-expansion/floating_servicos_active.json": "95c74f02e2ee2d1f590b505543a648f19a532fc5897c989dcc38b26a1523aaef",
+      "evidence/current/panels-expansion/floating_trem.json": "1079ccc473adc625aadfa4c3226e718df036aaadc446319d3f8134ccf59b8d8e",
+      "evidence/current/panels-expansion/floating_viagem.json": "a914811935d949203511d9863908f76fb65b3fb298354bbfce4073050cca54c0",
+      "evidence/current/panels-expansion/floating_visual.json": "38089e3f91ab51fe6e081d62305039d005d02ebe49e66efbf55790aad7d36046",
+      "evidence/current/panels-expansion/floating_visual_small.json": "4e847ca733f7156758ea6fca5224a05365820df1eba233a1d2003af85e4bdbac"
+    },
+    "coverage": [
+      "compact workshop",
+      "passengers and cargo populated",
+      "persistent arrival tickets",
+      "excursion in progress",
+      "engines",
+      "weather",
+      "settings",
+      "objectives",
+      "collection"
+    ]
+  },
+  "mode_transitions": {
+    "exit_code": 0,
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "evidence_directory": "evidence\\current\\visual-refresh\\run-20261114-005139",
+    "stages": [
+      {
+        "stage": 0,
+        "taskbar": true,
+        "geometry": {
+          "client_height": 60,
+          "client_width": 274,
+          "embedded": false,
+          "height": 60,
+          "panel": {
+            "height": 947,
+            "visible": true,
+            "width": 968,
+            "x": 10,
+            "y": 70
+          },
+          "parent_class": "",
+          "surface_mode": "independent",
+          "taskbar_aligned": true,
+          "taskbar_height": 60,
+          "taskbar_width": 1920,
+          "width": 274,
+          "x": 0,
+          "y": 1020
+        },
+        "render_surface_size": [
+          273.984375,
+          60.0
+        ]
+      },
+      {
+        "stage": 1,
+        "taskbar": false,
+        "geometry": {
+          "client_height": 193,
+          "client_width": 782,
+          "embedded": false,
+          "height": 240,
+          "panel": {
+            "height": 947,
+            "visible": true,
+            "width": 968,
+            "x": 10,
+            "y": 70
+          },
+          "parent_class": "",
+          "surface_mode": "independent",
+          "taskbar_aligned": false,
+          "taskbar_height": 60,
+          "taskbar_width": 1920,
+          "width": 800,
+          "x": 120,
+          "y": 140
+        },
+        "render_surface_size": [
+          781.9921875,
+          193.0078125
+        ]
+      },
+      {
+        "stage": 2,
+        "taskbar": true,
+        "geometry": {
+          "client_height": 60,
+          "client_width": 274,
+          "embedded": false,
+          "height": 60,
+          "panel": {
+            "height": 947,
+            "visible": true,
+            "width": 968,
+            "x": 10,
+            "y": 70
+          },
+          "parent_class": "",
+          "surface_mode": "independent",
+          "taskbar_aligned": true,
+          "taskbar_height": 60,
+          "taskbar_width": 1920,
+          "width": 274,
+          "x": 0,
+          "y": 1020
+        },
+        "render_surface_size": [
+          273.984375,
+          60.0
+        ]
+      },
+      {
+        "stage": 3,
+        "taskbar": false,
+        "geometry": {
+          "client_height": 193,
+          "client_width": 782,
+          "embedded": false,
+          "height": 240,
+          "panel": {
+            "height": 947,
+            "visible": true,
+            "width": 968,
+            "x": 10,
+            "y": 70
+          },
+          "parent_class": "",
+          "surface_mode": "independent",
+          "taskbar_aligned": false,
+          "taskbar_height": 60,
+          "taskbar_width": 1920,
+          "width": 800,
+          "x": 120,
+          "y": 140
+        },
+        "render_surface_size": [
+          781.9921875,
+          193.0078125
+        ]
+      },
+      {
+        "stage": 4,
+        "taskbar": true,
+        "geometry": {
+          "client_height": 60,
+          "client_width": 274,
+          "embedded": false,
+          "height": 60,
+          "panel": {
+            "height": 947,
+            "visible": true,
+            "width": 968,
+            "x": 10,
+            "y": 70
+          },
+          "parent_class": "",
+          "surface_mode": "independent",
+          "taskbar_aligned": true,
+          "taskbar_height": 60,
+          "taskbar_width": 1920,
+          "width": 274,
+          "x": 0,
+          "y": 1020
+        },
+        "render_surface_size": [
+          273.984375,
+          60.0
+        ]
+      }
+    ]
+  },
+  "visual_refresh": {
+    "scope": "Short local runs; same 60 FPS limit, DEMO, 640x180 floating window, closed panel. Rendered frames, not compositor frames or CPU cost.",
+    "before": {
+      "binary_sha256": "177815c8a241e2a2c79731b25654d88378826a1dd1d47f9dcfd2e6f9c31b6580",
+      "rendered_frames": 641,
+      "elapsed_seconds": 12.0278727,
+      "warm_average_fps": 52.87271510184026,
+      "settings": {
+        "fps": 60,
+        "mode": "demo",
+        "window": [
+          640,
+          180
+        ]
+      }
+    },
+    "after": {
+      "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+      "rendered_frames": 718,
+      "elapsed_seconds": 12.0538097,
+      "warm_average_fps": 59.80034797391763,
+      "settings": {
+        "fps": 60,
+        "mode": "demo",
+        "window": [
+          640,
+          180
+        ]
+      }
+    }
+  },
+  "native_smoke": {
+    "binary": "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\release\\cpu-express.exe",
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "exit_code": 0,
+    "timed_out": false,
+    "records": 13,
+    "taskbar_surface_verified": true,
+    "independent_panel_verified": true,
+    "strip_capture": true,
+    "panel_capture": false,
+    "final_event": "shutdown",
+    "rendered_frames": 716,
+    "native_window": {
+      "client_height": 60,
+      "client_width": 274,
+      "embedded": false,
+      "height": 60,
+      "panel": {
+        "height": 947,
+        "visible": true,
+        "width": 968,
+        "x": 10,
+        "y": 70
+      },
+      "parent_class": "",
+      "surface_mode": "independent",
+      "taskbar_aligned": true,
+      "taskbar_height": 60,
+      "taskbar_width": 1920,
+      "width": 274,
+      "x": 0,
+      "y": 1020
+    },
+    "evidence_directory": "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\evidence\\current\\native-20261114-005139"
+  },
+  "real_metrics": {
+    "exit_code": 0,
+    "binary_sha256": "439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a",
+    "valid_real_samples": 4,
+    "last": {
+      "completed_laps": 0,
+      "cpu_percent": 10.923507690429688,
+      "diagnostics_schema_version": 2,
+      "dropped_travel_events": 0,
+      "effective_cpu_percent": 10.923507690429688,
+      "effective_paused": false,
+      "elapsed_seconds": 5.0558726,
+      "event": "shutdown",
+      "frame_work": {
+        "max_ms": 0.2553,
+        "mean_ms": 0.11499374999999992,
+        "p95_ms": 0.1603,
+        "samples": 256,
+        "scope": "simulation_render_texture_submission_not_compositor"
+      },
+      "hidden": false,
+      "journey_active_seconds": 5.0159115,
+      "journey_distance_units": 120.381876,
+      "journey_segment": 0,
+      "local_weather": {
+        "age_seconds": null,
+        "cache_error": null,
+        "city": "SÃ£o Paulo, SP, Brasil",
+        "enabled": false,
+        "error": null,
+        "lighting_phase": null,
+        "loading": false,
+        "location": {
+          "city": "SÃ£o Paulo, SP, Brasil",
+          "latitude": -23.5505,
+          "longitude": -46.6333
+        },
+        "snapshot": null,
+        "source": "Open-Meteo",
+        "stale": false,
+        "status": "illustrative"
+      },
+      "metric_age_seconds": 0.7194035,
+      "metric_freshness": "current",
+      "metric_status": "ready",
+      "metrics_stale": false,
+      "mode": "real",
+      "native_window": {
+        "client_height": 60,
+        "client_width": 274,
+        "embedded": false,
+        "height": 60,
+        "panel": {
+          "height": 0,
+          "visible": false,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "parent_class": "",
+        "surface_mode": "independent",
+        "taskbar_aligned": true,
+        "taskbar_height": 60,
+        "taskbar_width": 1920,
+        "width": 274,
+        "x": 0,
+        "y": 1020
+      },
+      "next_station": "Bosque dos Pinheiros",
+      "paused": false,
+      "ram_percent": 51.808616638183594,
+      "received_samples": 5,
+      "render_surface_size": [
+        273.984375,
+        60.0
+      ],
+      "rendered_frames": 301,
+      "rendered_frames_hidden": 0,
+      "rendered_frames_visible": 301,
+      "requested_taskbar_mode": true,
+      "scroll_px": 55.5874178881493,
+      "segment_progress": 0.06335888210526316,
+      "services": {
+        "arrivals": [],
+        "branch": {
+          "current": null,
+          "discoveries": [],
+          "pending": null
+        },
+        "cargo_delivered": 0,
+        "collection": [],
+        "composition": [
+          "observation",
+          "sleeper",
+          "freight"
+        ],
+        "contract": null,
+        "contracts_completed": 0,
+        "credits": 0,
+        "last_processed_visit": 0,
+        "owned_rewards": [
+          "aurora"
+        ],
+        "passengers": [],
+        "passengers_boarded": 0,
+        "passengers_delivered": 0
+      },
+      "smoke_particles": 11,
+      "speed_kmh": 21.764128473104837,
+      "station_wait_seconds": 0.0,
+      "stations_visited": 0,
+      "target_kmh": 21.612686767578126,
+      "total_memory_bytes": 16828755968,
+      "used_memory_bytes": 8718745600,
+      "world_elapsed_seconds": 5.0159115
+    }
+  },
+  "python_tests": {
+    "scope": "Historical research tests are not certified for this build"
+  },
+  "production_sources": {
+    "Cargo.toml": "8ad8353261f6c9936727ffae5632415c116256e5b936a9466074264177d382f4",
+    "Cargo.lock": "6016e40dfd62ca6ed1443e813b659418f9eb2c2db0fce50ec1cc8283d3d35b5c",
+    "src/app/branches.rs": "961ef62c3b175fb7bba0a49ace5b90443634107d03766480fcda207c6ce0f89a",
+    "src/app/journey.rs": "4a002829bdd7f92e4f97e8cc85d2f1ed9ebf90505707e9338ae7ac0e4a4d5514",
+    "src/app/services.rs": "6936349e0c78fa1c3dddaf2d3780d56d7740fa379378e550f9f02bae4dcf4273",
+    "src/app/storage.rs": "33cb8d083dd3ddfcd89c2f5425f0072af8aec44d478b15604cba139e210fa520",
+    "src/app/workshop.rs": "3d87e42352d6509640eac32250834aaddf0096ac25fd26fbb985d721091f65af",
+    "src/app.rs": "fa7e0b747c8e9982175430d2d20f7d144dd2b98a47dbf08b225b8abd367288a5",
+    "src/audio.rs": "3671a7fd0bc59b4e69a1355eb4ee4487b22fcaa029333fd0f663f3c53984f963",
+    "src/config.rs": "53defb564e71ee54d447596867da17ad67b7453f53d68d93f257fafb838f2f78",
+    "src/diagnostics.rs": "4a4b91eaa43f5e56e7cfc6b21651909556ab19ec5a1a52c0498be0fa43dcc645",
+    "src/frame_pacing.rs": "10553c30a8bd2f2d2dee5b88e3e1f434cbce6d23338aea24f7e3040e5f840e1c",
+    "src/frame_timings.rs": "a9288125376b5dddd8c4492c7b7ed1bb75f06c08ce0783409bea4407765aa704",
+    "src/lib.rs": "2fa5ae8d43142ad39b7bd01f35e3f7162149850f82829b1b9d0335e7aabc55af",
+    "src/local_weather.rs": "5cbf6e6db5eac3b3965e1dd176f0aeef78e1ca1d89ed34275f6570dc46b5fd06",
+    "src/main.rs": "59b985fc59e164b0d2676a7288c60dec69cf2bcce33a09463b11622df945d3b4",
+    "src/metrics/mod.rs": "f6270e9aa4c2bccfbfa254b6ecad03fcafe1c711e4196472ecba5552828e583e",
+    "src/metrics/sysinfo_provider.rs": "aeaabcac2ebe3072d92de675521341cd537efadcb4eb9cec7fd954cc7075531f",
+    "src/platform/desktop.rs": "c814a78a8e713c4fb04f29b4c6d74f6b67be5b43370da4363cdcbe2bb1913755",
+    "src/platform/geometry.rs": "4c76be7322fc24f184c25e95be89da3d8e6589230c0044f88c275843f8a97be8",
+    "src/platform/journey_dialog.rs": "7847d91730cdca5d2e45c055bdecfd4d9870fd987335bf4745360d404cf1e895",
+    "src/platform/lifecycle.rs": "f7a96b5a869ee1b78cddd17432a59aba65b34e8230c20e800906fcb888b8b755",
+    "src/platform/mod.rs": "58a87a433370a5ef5b0c466f9ae7b82540c978f10012a2812b698c89b4611f20",
+    "src/platform/tray.rs": "56b36bdfd48c25deb7beb4dd37e005da40a8e85fb74255756910ff3b5e686cc8",
+    "src/platform/windows.rs": "2dea1aa6580b413a733e53d96528bc4d8f2955ca95c32c119c491fa12216024d",
+    "src/progress.rs": "0a3a5848eb58ad39785ebe9ae015e21d4e53a4fea89b207945c75ac4aed16e37",
+    "src/rendering/engines.rs": "323364b77092c5e51bc4164cdc470fabfb6bb0e1c3b0194837d23dd1e2f13d21",
+    "src/rendering/legacy.rs": "333ada705cc5cea3d1d2597dcfb91da38f0f3f1d61a9b98221c9d262747ea271",
+    "src/rendering/mod.rs": "63211c129ecddcfd1fbc32c633fd892350775fedce1cfccda1705c40295556d7",
+    "src/rendering/palette.rs": "7e012b8574c9e22603ea7c1247253004ceace7ece448b9606fece0cf259a56ef",
+    "src/rendering/rolling_stock.rs": "da9db241fac406fdb444183ab008532028684e516fc8d972509392b0394361db",
+    "src/rendering/scene.rs": "5465669d43c87c7b1fa4398b018071a9ba32bad9322cd1b79cf1673e5821f188",
+    "src/rendering/scenery.rs": "67c8bb6edb881a18ee6d38ebdec35b568d64398649c7d6a55159323626b0c0ab",
+    "src/rendering/sprites.rs": "6c3a3afe514a7281d6758f1e4e345afde4bb73d2792e7ba1b813ed28df58ef98",
+    "src/rendering/stations.rs": "982a0e431421aa00a7e1d7f490455ca6a46930a0873506f4655dfafdbbe4338f",
+    "src/rendering/theme.rs": "e83c59ccdc3061fcec8ab568fd6eb39de2fa48d229245fc497073eae0cc12629",
+    "src/simulation/branch.rs": "ae1d9a583bd6db082a88f8668d8adc109ae819c2f85e9af945d4ed924391420c",
+    "src/simulation/journey.rs": "5630c59df78a2053223e32ee2f0580a97d4cb87fd23717a9b397e93dc3ae8350",
+    "src/simulation/mod.rs": "0c89313030b6d53e77ef2f518210c7b06cbc3551b9ae06b94e70d2b8d8082994",
+    "src/simulation/objectives.rs": "335df8aeafd36133cc5e0dde7212704bc8a466251e402909a9bb5e17e090ebae",
+    "src/simulation/route.rs": "1ce7968fef2196bac830784ba216699eaabbe737b6848a2ce809b83d7b1772df",
+    "src/simulation/service.rs": "4cc4797f4c821a3ec7d80688efe3f11a16810ba4fc4d2ed50f51c43a9179e7ee",
+    "src/simulation/timing.rs": "beaa2331d3cbf671b8e87e3e2bb6e0c7202eccc14f94f8a24457b274467c92ef",
+    "src/simulation/train.rs": "fd00839a4108dabad94f87764a39b1bd5f30651a492eb21502413fef8fb360f5",
+    "src/simulation/world.rs": "cf2856efcaf513aed1279cb87902e0755f25418b3ea0195a0fff9385fea970c9",
+    "src/ui_game.rs": "e232eb6f0f7e68153a213261381af4b67e129f7b5eadf4202eb92a68bc5facf0",
+    "src/ui_services.rs": "09fedc227b0c63c8b3219bbf95c28b962ded2b75d88c8fdea8d9b23b72267086",
+    "src/ui_stock.rs": "ac3bbb8abe49905c5512a676d7470e196042f75e1cd4ae2b646e636dff8c8a37"
+  },
+  "imports": [
+    "KERNEL32.dll",
+    "ntdll.dll",
+    "gdi32.dll",
+    "imm32.dll",
+    "ole32.dll",
+    "user32.dll",
+    "KERNEL32.dll",
+    "api-ms-win-crt-environment-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-private-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "OPENGL32.dll",
+    "WINMM.dll",
+    "kernel32.dll",
+    "bcryptprimitives.dll",
+    "advapi32.dll",
+    "api-ms-win-core-synch-l1-2-0.dll",
+    "kernel32.dll",
+    "ntdll.dll",
+    "pdh.dll",
+    "powrprof.dll",
+    "psapi.dll",
+    "shell32.dll",
+    "kernel32.dll",
+    "oleaut32.dll",
+    "comdlg32.dll",
+    "dwmapi.dll",
+    "gdi32.dll",
+    "kernel32.dll",
+    "ole32.dll",
+    "shell32.dll",
+    "user32.dll",
+    "uxtheme.dll",
+    "winhttp.dll"
+  ],
+  "not_validated": [
+    "Windows 10",
+    "mixed-DPI monitors",
+    "Explorer restart",
+    "autohide",
+    "long-duration stability",
+    "taskbar left-widget conflicts"
+  ],
+  "capture_scope": "Native app framebuffers only; not a desktop compositor screenshot"
+}

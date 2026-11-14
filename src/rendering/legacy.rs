@@ -1,9 +1,10 @@
 //! Baseline pastoral renderer, preserved pixel for pixel for rollback.
+use super::engines::{self, EngineStyle};
 use super::sprites::{Canvas, cloud, coach, locomotive, pine, rgb};
 use crate::simulation::{Train, World};
 use eframe::egui::Color32;
 
-pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World) {
+pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World, engine: EngineStyle) {
     let mut canvas = Canvas::new(pixels);
     draw_sky(&mut canvas, world.elapsed_seconds());
 
@@ -15,7 +16,11 @@ pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World) {
     draw_trees_and_fence(&mut canvas, world.scroll_px() * 0.5);
     draw_track(&mut canvas, world.scroll_px());
 
-    for puff in world.smoke() {
+    for puff in world
+        .smoke()
+        .iter()
+        .filter(|_| engine == EngineStyle::Steam)
+    {
         let life = (1.0 - puff.age / puff.lifetime).clamp(0.0, 1.0);
         let x = 220 + (puff.x * 0.5).round() as i32;
         let y = 32 + (puff.y * 0.5).round() as i32;
@@ -28,7 +33,11 @@ pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World) {
     for (index, x) in [58, 100, 142].into_iter().enumerate() {
         coach(&mut canvas, x, phase, index);
     }
-    locomotive(&mut canvas, phase);
+    if engine == EngineStyle::Steam {
+        locomotive(&mut canvas, phase);
+    } else {
+        engines::draw_modern(&mut canvas, phase, engine, false);
+    }
     draw_foreground(&mut canvas, world.scroll_px());
 }
 

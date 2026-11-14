@@ -1,0 +1,108 @@
+{
+  "toolchain": "rustc 1.100.0",
+  "host": "x86_64-unknown-linux-gnu",
+  "test_source_hashes": {
+    "examples/export_frame.rs": "71d903bdcbb82efbed57cb2825fa81379942da00378ec536be05a229be7c304f",
+    "examples/metrics_probe.rs": "90b659bb1e9234cf9d43da6e352f5aa9aa47bbc2605a83a07b5c653dff7a45b1",
+    "examples/window_smoke.rs": "1f7328eee01a1a11448b80a6d3918961c0a40eebb27c5a6e94b1127d7bc16e2d",
+    "src/app.rs": "ddfe47dcaa48c95d0b72a21acb50c3f1eaa778d6b0f44e4145c76be1dec167ad",
+    "src/config.rs": "732bfe503872c2472f46b0392fb3ddcfc65c3fc307ca4c1c62e2810e7d030fb2",
+    "src/diagnostics.rs": "f6c183bf04a828154b493d6e14ad97a7048e06d3198e4305e13a13a969562927",
+    "src/lib.rs": "64fc870fbea3865738b8b99f9d3fb4c1e4376134fd7c8bc7d442ec07a2fa3add",
+    "src/main.rs": "d8a700e53526bcca3c3dfc5bcf569652e10bb4f1a45db90e08868dfa9de29fc6",
+    "src/metrics/mod.rs": "3edab1b16011c871679aa90849552a14d41a331c086dd8fa2741fcbc9dfeb1b6",
+    "src/metrics/sysinfo_provider.rs": "e1efdae0067aff519372fd8bcf4750a173becaabba3e2c64e0f588f51b38d2e1",
+    "src/platform/mod.rs": "8453e394d6afe9f04763d75c0fdb88ad54a90c8148c3197c08518589ac6c8be4",
+    "src/platform/windows.rs": "a30575dacef61a59d4277350a7704b5519dad005da1f7e7a79bdd44b0e270cec",
+    "src/rendering/mod.rs": "3a99ee632fe502ebb35ecf7b048244f29386152abe434a9e5160c3eb4aa12f87",
+    "src/rendering/scene.rs": "241b397c75e3b2fbe904865831d3cfc884f820a42f8b8770ce99af9f3c559e7a",
+    "src/rendering/sprites.rs": "e35b35dac101c4a54c70f9078cf89423a2259a786356cda10c15a708e8aa18b4",
+    "src/simulation/mod.rs": "edb45515ecc6810e310d2c50933d13a45c2fcb62b6e21d3bc8dadb0d9154ffe1",
+    "src/simulation/train.rs": "b2742b99b86a23ba2cbab59f00d8ed87c7d996f3afb37be659e806bf4e6af836",
+    "src/simulation/world.rs": "dbda202f529c123b7656ba0bd9474f1e81af28f37d816f9c0c462ed65e68d7e2",
+    "tests/config.rs": "edb5ba0ae22542c20e5b7ea9d367d9a493081ee3dcaef9c8f2b950fa6419919f",
+    "tests/metrics.rs": "1f20d4a29fecce24b5c3eec85e75ae3d72a8f1801a503bcce4ab0c880e0b1ae7",
+    "tests/simulation.rs": "c991a50c346ffc78d5ce7be852abbed1ecdcb35e2fcf8c63d79b6298388ad9bc",
+    "tests/ux_app.rs": "3b2990735292ef6ec2ebbfc7b4b77eb6df2fd271f9b71abec539a6dd93dd70ba",
+    "tests/ux_cli.rs": "2794998322a5af90483f4de27b20f612f6840c0713937c808ec4e1bc80cf7f7c",
+    "tests/ux_config.rs": "e1b93c0746a0685a7f86d85686394b8a425f4b3db7ea1115d9e39dc63a5d0736",
+    "tests/ux_visual.rs": "bd6e115dbaf32978f0c7bd34799db91618101dd34557dd18e79d666562bb9a72",
+    "tests/window_placement.rs": "f92e3c28f702d23443d534da25d1503f9c6f5594daa04fd62e99147a18ad82d3"
+  },
+  "source_unchanged_during_gates": true,
+  "checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.167,
+      "log": "gate-fmt.log"
+    },
+    {
+      "name": "test",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "seconds": 7.958,
+      "log": "gate-test.log"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--features",
+        "host-validation",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 1.895,
+      "log": "gate-clippy.log"
+    },
+    {
+      "name": "windows-check",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-gnu"
+      ],
+      "exit_code": 0,
+      "seconds": 1.567,
+      "log": "gate-windows-check.log"
+    },
+    {
+      "name": "release",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--release",
+        "--features",
+        "host-validation"
+      ],
+      "exit_code": 0,
+      "seconds": 48.399,
+      "log": "gate-release.log"
+    }
+  ],
+  "native_windows_execution": false,
+  "native_linux_gui_execution": false
+}

@@ -395,3 +395,30 @@ fn persisted_bounds_reject_overflow_before_native_monitor_lookup() {
         Some(rect(-1920, -400, -1280, -260))
     );
 }
+
+#[test]
+fn panel_recovery_handles_removed_monitor_and_scaled_negative_origin() {
+    use cpu_express::platform::fit_panel_rect;
+    let work = rect(-1920, -300, 0, 1040);
+    let fitted = fit_panel_rect([3000.0, 200.0, 760.0, 720.0], 1.5, work);
+    assert_eq!(fitted[0], -760.0);
+    assert!((fitted[1] - (-40.0 / 1.5)).abs() < 0.001);
+    let valid = [-1000.25, 0.25, 400.0, 400.0];
+    assert_eq!(fit_panel_rect(valid, 1.5, work), valid);
+    let tiny = fit_panel_rect(valid, 2.0, rect(0, 0, 640, 480));
+    assert_eq!(tiny, [0.0, 0.0, 320.0, 240.0]);
+}
+
+#[test]
+fn panel_invalid_persistence_scale_and_transient_work_area_are_safe() {
+    use cpu_express::platform::{fit_panel_rect, normalize_panel_rect};
+    assert_eq!(
+        normalize_panel_rect([f32::NAN, f32::INFINITY, -1.0, 0.0]),
+        [40.0, 40.0, 760.0, 720.0]
+    );
+    let valid = [-1000.0, 10.0, 760.0, 720.0];
+    for scale in [0.0, -1.0, f32::NAN, f32::INFINITY, f32::MAX] {
+        assert_eq!(fit_panel_rect(valid, scale, rect(0, 0, 1920, 1080)), valid);
+    }
+    assert_eq!(fit_panel_rect(valid, 1.0, rect(0, 0, 0, 0)), valid);
+}

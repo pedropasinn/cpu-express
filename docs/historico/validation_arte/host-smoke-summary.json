@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "app_elapsed_seconds": 5.03,
+  "harness_elapsed_seconds": 5.167306452000048,
+  "rendered_frames": 144,
+  "manual_cpu_percent": 50.0,
+  "final_speed_kmh": 55.994,
+  "capture_width": 640,
+  "capture_height": 140,
+  "captured_images_differ_pixels": 13824,
+  "capture_sha256": "165f2a2f154f804dac18b824677360ed61bb3172e4415b908b76c2da7536fbd3",
+  "visual_review": "640x140: new journey valley, varied train coaches, UI controls and clearly labeled CPU SIM50%; no blank or corrupt texture observed.",
+  "environment": "Linux Xorg dummy, software Mesa; real UI render.",
+  "windows_runtime_validated": false,
+  "gpu_upload_duration_measured": false
+}

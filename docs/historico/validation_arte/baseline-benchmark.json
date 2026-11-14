@@ -1,0 +1,40 @@
+{
+  "color_image_copy_ns": [
+    1630.5493,
+    2025.5247,
+    2136.3668,
+    1789.2117,
+    1804.2027,
+    1641.398,
+    2855.6214
+  ],
+  "framebuffer_bytes": 89600,
+  "gpu_upload_measured": false,
+  "iterations_per_round": 10000,
+  "render_ns": [
+    61881.7432,
+    59581.0509,
+    65578.081,
+    55601.1168,
+    54637.3494,
+    53526.6565,
+    69087.9192
+  ],
+  "rounds": 7,
+  "state": "50 percent manual; 150 x 1/30 second updates",
+  "texture_set_and_cpu_delta_ns": [
+    1804.6549,
+    2156.5275,
+    2095.5038,
+    1830.2401,
+    2185.7369,
+    1841.6199,
+    2024.5561
+  ],
+  "warmup_frames": 1000,
+  "median_us": {
+    "render_ns": 59.5810509,
+    "color_image_copy_ns": 1.8042027,
+    "texture_set_and_cpu_delta_ns": 2.0245561
+  }
+}

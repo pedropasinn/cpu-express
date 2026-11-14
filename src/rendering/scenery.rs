@@ -13,6 +13,8 @@ use super::{
 
 #[derive(Clone, Copy)]
 pub(super) struct View {
+    pub wind_speed_kmh: Option<f32>,
+    pub precipitation_mm: Option<f32>,
     pub distance: f64,
     pub seconds: f64,
     pub light_seconds: f64,
@@ -825,15 +827,30 @@ pub(super) fn weather(canvas: &mut Canvas<'_>, view: View) {
         return;
     }
     let t = finite_nonnegative(view.seconds).rem_euclid(20.0);
-    // Both movements loop exactly after 20 s; this is not frame-count driven.
+    // Default movements loop exactly after 20 s; neither uses frame counts.
     let snow = view.options.weather == Weather::Snow;
-    let count = if view.options.weather == Weather::Thunderstorm {
+    let default_count = if view.options.weather == Weather::Thunderstorm {
         40
     } else {
         24
     };
+    // Bounded artistic density from an interval amount, not inferred mm/hour.
+    // The condition above remains authoritative, including zero observed amount.
+    let count = view.precipitation_mm.map_or(default_count, |mm| {
+        if mm == 0.0 {
+            0
+        } else {
+            (8.0 + (mm / 100.0).sqrt() * 56.0).round() as i32
+        }
+    });
+    let drift = view.wind_speed_kmh.map_or(t * 16.0, |wind| {
+        (finite_nonnegative(view.seconds) * f64::from(wind) * (48.0 / 250.0)).rem_euclid(320.0)
+    });
+    let slant = view
+        .wind_speed_kmh
+        .map_or(1, |wind| (wind * (4.0 / 250.0)).round() as i32);
     for index in 0..count {
-        let x = (f64::from(index * 47) - t * 16.0).rem_euclid(320.0).floor() as i32;
+        let x = (f64::from(index * 47) - drift).rem_euclid(320.0).floor() as i32;
         let y = (f64::from(index * 23) + t * if snow { 7.0 } else { 35.0 })
             .rem_euclid(70.0)
             .floor() as i32;
@@ -843,7 +860,7 @@ pub(super) fn weather(canvas: &mut Canvas<'_>, view: View) {
                 canvas.pixel(x + 1, y, rgb(196, 215, 222));
             }
         } else {
-            canvas.line((x, y), (x - 1, y + 3), rgb(176, 202, 201));
+            canvas.line((x, y), (x - slant, y + 3), rgb(176, 202, 201));
         }
     }
 }

@@ -2,6 +2,10 @@
 use cpu_express::ui_game::{self, Icon};
 use eframe::egui::{self, Event, Key, Modifiers, Rect, Response, Shape};
 
+// Compile the presentation-only module before the integrator registers it.
+#[path = "../src/ui_services.rs"]
+mod ui_services;
+
 struct PaintOutput {
     shapes: Vec<egui::epaint::ClippedShape>,
     pixels_per_point: f32,
@@ -247,5 +251,169 @@ fn invalid_progress_produces_finite_shapes_and_clamps_the_fill() {
             vertices > 0,
             "the bar must actually produce visible geometry"
         );
+    }
+}
+
+#[test]
+fn reduced_menu_motion_is_context_local_and_preserves_keyboard_actions() {
+    let ctx = egui::Context::default();
+    let other = egui::Context::default();
+    assert!(!ui_game::reduce_motion(&ctx));
+    ui_game::set_reduce_motion(&ctx, true);
+    assert!(ui_game::reduce_motion(&ctx));
+    assert!(!ui_game::reduce_motion(&other));
+    button_frame(&ctx, 0.0, vec![], true, true);
+    let activated = button_frame(&ctx, 0.1, key_events(Key::Enter), true, false);
+    assert!(activated.clicked());
+    ui_game::set_reduce_motion(&ctx, false);
+    assert!(!ui_game::reduce_motion(&ctx));
+}
+
+#[test]
+fn new_service_icons_have_distinct_finite_pixel_meshes() {
+    let ctx = egui::Context::default();
+    let mut meshes = Vec::new();
+    for icon in [Icon::Passenger, Icon::Cargo, Icon::Ticket, Icon::Mail] {
+        let output = frame(&ctx, 0.0, vec![], |ui| {
+            ui_game::icon(
+                ui.painter(),
+                Rect::from_min_size(egui::pos2(10.0, 10.0), egui::vec2(24.0, 24.0)),
+                icon,
+                ui_game::INK,
+            );
+        });
+        let mesh = output
+            .shapes
+            .iter()
+            .find_map(|shape| match &shape.shape {
+                Shape::Mesh(mesh) => Some(mesh.clone()),
+                _ => None,
+            })
+            .expect("pixel icon mesh");
+        assert!(!mesh.vertices.is_empty());
+        assert!(mesh.vertices.iter().all(|v| v.pos.is_finite()));
+        assert!(
+            !meshes.contains(&mesh),
+            "icons must have distinct silhouettes"
+        );
+        meshes.push(mesh);
+    }
+}
+
+#[test]
+fn services_show_exact_facts_and_zero_capacity_without_nan() {
+    use ui_services::*;
+    let ctx = egui::Context::default();
+    let output = frame(&ctx, 0.0, vec![], |ui| {
+        let items = [ArrivalItem {
+            icon: Icon::Passenger,
+            label: "Passageiros entregues",
+            value: "7",
+        }];
+        arrival_summary(
+            ui,
+            "arrival",
+            &ArrivalSummary {
+                station: "Porto do Sol",
+                detail: "Serviço concluído",
+                items: &items,
+                reward: Some("Azul do Porto"),
+                action_label: Some("Ver pintura liberada"),
+            },
+        );
+        capacity_meter(
+            ui,
+            "capacity",
+            &CapacityView {
+                label: "Correio",
+                icon: Icon::Mail,
+                used: 0,
+                total: 0,
+            },
+        );
+    });
+    let mut labels = Vec::new();
+    for shape in &output.shapes {
+        text_labels(&shape.shape, &mut labels);
+    }
+    for expected in [
+        "Porto do Sol",
+        "Passageiros entregues",
+        "7",
+        "Azul do Porto",
+        "Ver pintura liberada",
+        "Correio",
+        "0 / 0",
+        "Sem capacidade",
+    ] {
+        assert!(
+            labels.iter().any(|label| label == expected),
+            "missing {expected:?}"
+        );
+    }
+    for primitive in ctx.tessellate(output.shapes, output.pixels_per_point) {
+        if let egui::epaint::Primitive::Mesh(mesh) = primitive.primitive {
+            assert!(mesh.vertices.iter().all(|v| v.pos.is_finite()));
+        }
+    }
+}
+
+fn text_center(shape: &Shape, label: &str) -> Option<egui::Pos2> {
+    match shape {
+        Shape::Text(text) if text.galley.job.text == label => {
+            Some(text.visual_bounding_rect().center())
+        }
+        Shape::Vec(shapes) => shapes.iter().find_map(|shape| text_center(shape, label)),
+        _ => None,
+    }
+}
+
+#[test]
+fn service_dashboard_only_returns_enabled_actions() {
+    use ui_services::*;
+    for blocked in [false, true] {
+        let ctx = egui::Context::default();
+        let services = [ServiceView {
+            id: "mail",
+            icon: Icon::Mail,
+            title: "Correio",
+            detail: "Porto do Sol",
+            status: "Aguardando",
+            progress: Some(ServiceProgress {
+                fraction: 0.25,
+                label: "1 / 4",
+            }),
+            action_label: Some("Aceitar correio"),
+            unavailable_reason: blocked.then_some("Requer vagão de carga"),
+        }];
+        let mut action = None;
+        let output = frame(&ctx, 0.0, vec![], |ui| {
+            action = service_dashboard(ui, "services", &services, "Sem serviços").inner;
+        });
+        assert!(action.is_none());
+        let pos = output
+            .shapes
+            .iter()
+            .find_map(|shape| text_center(&shape.shape, "Aceitar correio"))
+            .expect("action label");
+        for (index, pressed) in [true, false].into_iter().enumerate() {
+            frame(
+                &ctx,
+                0.1 + index as f64 * 0.1,
+                vec![
+                    Event::PointerMoved(pos),
+                    Event::PointerButton {
+                        pos,
+                        button: egui::PointerButton::Primary,
+                        pressed,
+                        modifiers: Modifiers::NONE,
+                    },
+                ],
+                |ui| {
+                    action = service_dashboard(ui, "services", &services, "Sem serviços").inner;
+                },
+            );
+        }
+        assert_eq!(action, if blocked { None } else { Some(0) });
     }
 }

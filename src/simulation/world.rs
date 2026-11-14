@@ -54,9 +54,37 @@ impl Default for World {
 }
 
 impl World {
-    pub fn service_snapshot(&self) -> &super::ServiceState { &self.service }
-    pub fn set_service_composition(&mut self, composition: [super::ServiceWagon;3]) -> Result<(),String> { self.service.set_composition(composition) }
-    pub fn restore_service(&mut self, service: super::ServiceState) -> Result<(),String> { service.validate(self.journey_snapshot())?; self.service=service; Ok(()) }
+    pub fn excursion_snapshot(&self) -> &super::BranchState {
+        &self.service.branch
+    }
+    pub fn request_excursion(&mut self, kind: super::BranchKind) -> Result<(), String> {
+        self.service.branch.request(kind, self.journey.snapshot())?;
+        self.service
+            .branch
+            .try_depart(self.journey.snapshot(), self.station_wait);
+        Ok(())
+    }
+
+    pub fn service_state(&self) -> &super::ServiceState {
+        &self.service
+    }
+    pub fn service_snapshot(&self) -> &super::ServiceState {
+        &self.service
+    }
+    pub fn set_service_composition(
+        &mut self,
+        composition: [super::ServiceWagon; 3],
+    ) -> Result<(), String> {
+        self.service.set_composition(composition)
+    }
+    pub fn restore_service(&mut self, service: super::ServiceState) -> Result<(), String> {
+        service.validate(self.journey_snapshot())?;
+        if service.branch.current.is_some() && self.station_wait > 0.0 {
+            return Err("Excursão e serviço na base simultâneos.".into());
+        }
+        self.service = service;
+        Ok(())
+    }
 
     pub fn station_wait(&self) -> f64 {
         self.station_wait
@@ -91,7 +119,21 @@ impl World {
         let initial_distance = self.journey.snapshot().total_distance_units;
         // At most a departure and an arrival can occur within a <=1 second step.
         while remaining > 1e-10 {
-            if self.station_wait > 0.0 {
+            self.service
+                .branch
+                .try_depart(self.journey.snapshot(), self.station_wait);
+            if let Some(excursion) = self.service.branch.current {
+                let step = remaining.min(excursion.phase.duration() - excursion.phase_seconds);
+                let distance = if excursion.phase == super::BranchPhase::Service {
+                    train.stop_at_station();
+                    0.0
+                } else {
+                    train.update(cpu, step, config)
+                };
+                self.advance_scene_with_route(step, distance, train.speed_kmh(), 0.0);
+                self.service.branch.advance(step);
+                remaining -= step;
+            } else if self.station_wait > 0.0 {
                 let step = remaining.min(self.station_wait);
                 train.stop_at_station();
                 self.advance_scene_with_route(step, 0.0, 0.0, 0.0);
@@ -103,11 +145,8 @@ impl World {
                 if step <= 0.0 {
                     break;
                 }
-                let mut approach = config.clone();
                 let braking = (to_station / 120.0).clamp(0.05, 1.0);
-                approach.min_speed_kmh *= braking;
-                approach.max_speed_kmh *= braking;
-                let distance = train.update(cpu, step, &approach);
+                let distance = train.update_with_braking(cpu, step, config, braking);
                 let previous_visits = self.journey.snapshot().stations_visited;
                 self.advance_scene_with_route(step, distance, train.speed_kmh(), step * 24.0);
                 if self.journey.snapshot().stations_visited > previous_visits {

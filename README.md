@@ -1,6 +1,10 @@
-# CPU Express 0.3.0-rc.7
+# CPU Express 0.4.0-rc.1
 
 Uma ferrovia de desktop em Rust: animação ligada à CPU, viagem com estações e objetivos, salvamento local e faixa integrada à esquerda da barra de tarefas do Windows.
+
+## Expansão 0.4
+
+Passageiros e cargas reais, composição com capacidade, bilhetes persistentes, postais, locomotivas originais e excursões. Clima configurável com cache e iluminação solar gradual. Veja o [guia da versão atual](docs/GUIA_04.md). Os tópicos rc.5–rc.7 abaixo registram a evolução anterior.
 
 ## Usar
 

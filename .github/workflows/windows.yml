@@ -1,0 +1,85 @@
+name: Windows MSVC - unsigned build and automated tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# This workflow uploads test artifacts only; it never publishes a release.
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-msvc-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: pwsh
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  windows:
+    name: MSVC x64 - integrated build and tests
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - name: Check out the workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Install the pinned Rust toolchain
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force artifacts/logs | Out-Null
+          $toolchainText = Get-Content -LiteralPath rust-toolchain.toml -Raw
+          $channelMatch = [regex]::Match($toolchainText, '(?m)^channel\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"\s*$')
+          if (-not $channelMatch.Success) { throw 'rust-toolchain.toml must pin a stable Rust version.' }
+          $channel = $channelMatch.Groups[1].Value
+          rustup toolchain install $channel --profile minimal --component rustfmt --component clippy --target x86_64-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustc --version --verbose | Tee-Object -FilePath artifacts/logs/rustc.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git rev-parse HEAD | Set-Content -LiteralPath artifacts/logs/source-commit.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Validate and package all five integrated fronts
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Start-Transcript -Path artifacts/logs/build-and-tests.txt
+          try {
+            ./scripts/build-windows.ps1 -Target x86_64-pc-windows-msvc -OutputDir artifacts/packages
+          } finally {
+            Stop-Transcript
+          }
+
+      - name: Explain the resulting artifact
+        run: |
+          @(
+            '## CPU Express integrated Windows build'
+            ''
+            'Formatting, Clippy, native tests and release build completed.'
+            'The package contains the integrated application and checked third-party notices.'
+            'The executable is unsigned. GUI acceptance on Windows 10/11 remains manual.'
+            'No GitHub Release or deployment was created.'
+          ) | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+
+      - name: Upload the portable test package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cpu-express-windows-msvc-UNSIGNED-${{ github.sha }}
+          path: artifacts/packages/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Preserve build and test logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: cpu-express-windows-msvc-logs-${{ github.sha }}
+          path: artifacts/logs/
+          if-no-files-found: warn
+          retention-days: 14

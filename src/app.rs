@@ -16,6 +16,12 @@ use crate::{
     ui_game::{self as game, Icon},
     ui_stock::StockGallery,
 };
+mod branches;
+mod journey;
+mod services;
+mod storage;
+mod workshop;
+
 use eframe::egui;
 #[cfg(windows)]
 use raw_window_handle::HasWindowHandle;
@@ -54,85 +60,18 @@ fn stock_card(
     selected: bool,
     unlocked: bool,
 ) -> egui::Response {
-    let width = ui.available_width();
-    let (rect, _) = ui.allocate_exact_size(egui::vec2(width, 118.0), egui::Sense::hover());
-    let response = ui.interact(rect, ui.scope_id().with(name), egui::Sense::click());
-    response.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, name));
-    let painter = ui.painter_at(rect);
-    let hover = ui
-        .ctx()
-        .animate_bool_with_time(response.id, response.hovered() && unlocked, 0.12);
-    let face = if selected {
-        egui::Color32::from_rgb(219, 231, 183)
-    } else {
-        game::CARD
-    };
-    painter.rect_filled(rect.translate(egui::vec2(0.0, 3.0)), 2.0, game::EDGE);
-    painter.rect_filled(rect, 2.0, face);
-    painter.rect_stroke(
-        rect.shrink(1.0),
-        2.0,
-        egui::Stroke::new(
-            if selected { 3.0 } else { 1.0 + hover },
-            if selected { game::GREEN } else { game::EDGE },
-        ),
-        egui::StrokeKind::Inside,
-    );
-    let scale = ((width - 20.0) / texture.size()[0] as f32)
-        .floor()
-        .clamp(1.0, 2.0);
-    let size = texture.size_vec2() * scale;
-    let image_rect =
-        egui::Rect::from_center_size(egui::pos2(rect.center().x, rect.top() + 39.0), size);
-    painter.image(
-        texture.id(),
-        image_rect,
-        egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
-        if unlocked {
-            egui::Color32::WHITE
-        } else {
-            egui::Color32::from_gray(125)
-        },
-    );
-    painter.text(
-        egui::pos2(rect.center().x, rect.top() + 73.0),
-        egui::Align2::CENTER_CENTER,
+    crate::ui_stock::stock_card(
+        ui,
         name,
-        egui::FontId::proportional(13.0),
-        game::INK,
-    );
-    painter.text(
-        egui::pos2(rect.center().x, rect.top() + 98.0),
-        egui::Align2::CENTER_CENTER,
-        state,
-        egui::FontId::proportional(11.0),
-        if selected { game::GREEN } else { game::MUTED },
-    );
-    game::icon(
-        &painter,
-        egui::Rect::from_min_size(rect.min + egui::vec2(7.0, 7.0), egui::vec2(16.0, 16.0)),
-        if !unlocked {
-            Icon::Lock
-        } else if selected {
-            Icon::Check
-        } else {
-            Icon::Train
+        &crate::ui_stock::StockCard {
+            texture,
+            name,
+            state,
+            selected,
+            locked_reason: (!unlocked).then_some(state),
         },
-        game::INK,
-    );
-    if response.has_focus() {
-        painter.rect_stroke(
-            rect.shrink(4.0),
-            0.0,
-            egui::Stroke::new(2.0, game::BLUE),
-            egui::StrokeKind::Inside,
-        );
-    }
-    response.on_hover_text(if unlocked {
-        format!("Equipar {name}")
-    } else {
-        state.to_owned()
-    })
+    )
+    .response
 }
 
 fn achievement_name(achievement: Achievement) -> &'static str {
@@ -140,6 +79,27 @@ fn achievement_name(achievement: Achievement) -> &'static str {
         Achievement::FirstStation => "Primeira estação",
         Achievement::FirstCircuit => "Primeiro circuito",
         Achievement::LongJourney => "Longa jornada",
+    }
+}
+
+fn service_wagon(style: CoachStyle) -> crate::simulation::ServiceWagon {
+    use crate::simulation::ServiceWagon as W;
+    match style {
+        CoachStyle::Passenger => W::Passenger,
+        CoachStyle::Sleeper => W::Sleeper,
+        CoachStyle::Freight => W::Freight,
+        CoachStyle::Tank => W::Tank,
+        CoachStyle::Observation => W::Observation,
+    }
+}
+fn coach_style(style: crate::simulation::ServiceWagon) -> CoachStyle {
+    use crate::simulation::ServiceWagon as W;
+    match style {
+        W::Passenger => CoachStyle::Passenger,
+        W::Sleeper => CoachStyle::Sleeper,
+        W::Freight => CoachStyle::Freight,
+        W::Tank => CoachStyle::Tank,
+        W::Observation => CoachStyle::Observation,
     }
 }
 
@@ -301,15 +261,19 @@ pub struct CpuExpressApp {
     panel_tab: PanelTab,
     appearance_page: u8,
     journey_page: u8,
+    selected_station: Option<crate::simulation::StationId>,
     coach_slot: usize,
     stock_gallery: Option<StockGallery>,
     equipment_notice: Option<(String, Instant)>,
+    seen_rewards: (usize, usize),
+    highlight_livery: Option<crate::simulation::objectives::Livery>,
     pending_dock: bool,
     applied_window_mode: Option<bool>,
     layout_test_step: Option<u8>,
     render_surface_size: [f32; 2],
     next_taskbar_check: Instant,
     next_panel_save: Instant,
+    taskbar_failures: u8,
     native_status: serde_json::Value,
     validation_captures: [bool; 2],
     #[cfg(windows)]
@@ -326,6 +290,7 @@ pub struct CpuExpressApp {
     renderer: SceneRenderer,
     scene_dirty: bool,
     local_weather: LocalWeather,
+    weather_draft: crate::local_weather::WeatherLocation,
     travel_notice: Option<(String, Instant)>,
     texture: Option<egui::TextureHandle>,
     next_frame: Instant,
@@ -340,6 +305,8 @@ pub struct CpuExpressApp {
     samples: u64,
     closing: bool,
     frames: u64,
+    frame_timings: crate::frame_timings::FrameTimings,
+    audio: crate::audio::AudioPlayer,
     frames_hidden: u64,
 }
 
@@ -351,6 +318,43 @@ impl CpuExpressApp {
     /// Starts a CPU-only manual provider without opening real CPU/RAM counters.
     pub fn new_demo(ctx: &egui::Context, options: LaunchOptions) -> Self {
         Self::create(ctx, options, true)
+    }
+
+    /// Prepare a bounded, deterministic populated demonstration for visual review.
+    /// Never advances a real profile or writes files. Product time remains wall-clock driven.
+    #[doc(hidden)]
+    pub fn prepare_demo_review(
+        &mut self,
+        seconds: u32,
+        excursion: Option<crate::simulation::BranchKind>,
+    ) {
+        if !self.demo_mode {
+            return;
+        }
+        self.world.set_paused(false);
+        for _ in 0..seconds.min(3600) {
+            self.world
+                .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+        }
+        if let Some(kind) = excursion
+            && self.world.request_excursion(kind).is_ok()
+        {
+            for _ in 0..600 {
+                if self.world.excursion_snapshot().current.is_some() {
+                    break;
+                }
+                self.world
+                    .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+            }
+            for _ in 0..75 {
+                self.world
+                    .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+            }
+        }
+        self.consume_travel_events();
+        self.travel_notice = None;
+        self.world.set_paused(self.suspended());
+        self.scene_dirty = true;
     }
 
     fn create(ctx: &egui::Context, options: LaunchOptions, demo_mode: bool) -> Self {
@@ -375,7 +379,7 @@ impl CpuExpressApp {
         // even before the mouse enters the compact options/help panel.
         style.spacing.scroll = egui::style::ScrollStyle::solid();
         ctx.set_global_style(style);
-        let config = options.config.normalized();
+        let mut config = options.config.normalized();
         let manual_value = options.cpu_override.unwrap_or(50.0);
         let manual_value = if manual_value.is_finite() {
             manual_value.clamp(0.0, 100.0)
@@ -425,15 +429,52 @@ impl CpuExpressApp {
         };
         let mut progress_notice = None;
         if let Some(path) = &progress_path {
-            match crate::progress::load(path) {
-                Ok(Some((journey, wait))) => {
-                    world.restore_journey(journey);
-                    world.set_station_wait(wait);
+            match crate::progress::load_world(path) {
+                Ok(Some(saved_world)) => {
+                    world = saved_world;
                 }
                 Ok(None) => {}
                 Err(error) => progress_notice = Some(error),
             }
         }
+        // The service transaction owns occupied capacity. A stale preference file must
+        // never discard a loaded consignment or passengers after restart.
+        if world
+            .set_service_composition(config.visual.coaches.map(service_wagon))
+            .is_err()
+        {
+            config.visual.coaches = world.service_snapshot().composition.map(coach_style);
+        }
+        if !demo_mode {
+            use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
+            let reward = match config.visual.engine {
+                EngineStyle::Steam => None,
+                EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
+                EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
+            };
+            if reward.is_some_and(|r| !world.service_snapshot().collection.contains(&r)) {
+                config.visual.engine = EngineStyle::Steam;
+            }
+        }
+        let mut local_weather = LocalWeather::new(
+            (!demo_mode && options.exit_after.is_none())
+                || std::env::var("CPU_EXPRESS_LIVE_WEATHER").is_ok_and(|v| v == "1"),
+        );
+        let weather_draft = config.weather_location.clone();
+        if let Err(error) = local_weather.set_location(weather_draft.clone()) {
+            local_weather.error = Some(error);
+        }
+        if !demo_mode
+            && options.exit_after.is_none()
+            && let Some(path) = &options.config_path
+            && let Err(error) = local_weather.set_cache_path(path.with_extension("weather.json"))
+        {
+            local_weather.cache_error = Some(error);
+        }
+        let seen_rewards = (
+            world.service_snapshot().owned_rewards.len(),
+            world.service_snapshot().collection.len(),
+        );
         world.set_paused(config.start_paused);
         Self {
             train: Train::new(&config),
@@ -453,9 +494,12 @@ impl CpuExpressApp {
             panel_tab: PanelTab::default(),
             appearance_page: 0,
             journey_page: 0,
+            selected_station: None,
             coach_slot: 0,
             stock_gallery: None,
             equipment_notice: None,
+            seen_rewards,
+            highlight_livery: None,
             pending_dock: true,
             applied_window_mode: None,
             layout_test_step: (options.exit_after.is_some()
@@ -464,6 +508,7 @@ impl CpuExpressApp {
             render_surface_size: [0.0; 2],
             next_taskbar_check: opened,
             next_panel_save: opened + Duration::from_secs(2),
+            taskbar_failures: 0,
             native_status: serde_json::Value::Null,
             validation_captures: [false; 2],
             #[cfg(windows)]
@@ -477,10 +522,8 @@ impl CpuExpressApp {
             world,
             renderer: SceneRenderer::new(),
             scene_dirty: true,
-            local_weather: LocalWeather::new(
-                (!demo_mode && options.exit_after.is_none())
-                    || std::env::var("CPU_EXPRESS_LIVE_WEATHER").is_ok_and(|v| v == "1"),
-            ),
+            local_weather,
+            weather_draft,
             travel_notice: None,
             texture: None,
             next_frame: opened,
@@ -495,6 +538,8 @@ impl CpuExpressApp {
             samples: 0,
             closing: false,
             frames: 0,
+            frame_timings: Default::default(),
+            audio: crate::audio::AudioPlayer::new(),
             frames_hidden: 0,
         }
     }
@@ -726,6 +771,7 @@ impl CpuExpressApp {
             "elapsed_seconds": self.opened.elapsed().as_secs_f64(),
             "mode": mode,
             "local_weather": self.local_weather.diagnostics(),
+            "frame_work": self.frame_timings.diagnostics(),
             "cpu_percent": if self.demo_mode { self.cpu_override } else { self.metrics.cpu_percent },
             "effective_cpu_percent": self.cpu_percent(), "ram_percent": self.ram_percent(),
             "used_memory_bytes": self.metrics.used_memory_bytes, "total_memory_bytes": self.metrics.total_memory_bytes,
@@ -740,7 +786,7 @@ impl CpuExpressApp {
             "journey_distance_units": journey.total_distance_units,
             "journey_active_seconds": journey.active_seconds,
             "journey_segment": journey.route_segment.index,
-            "next_station": journey.next_station.name,
+            "next_station": self.destination_name(),
             "segment_progress": journey.segment_progress,
             "completed_laps": journey.completed_laps,
             "stations_visited": journey.stations_visited,
@@ -749,6 +795,7 @@ impl CpuExpressApp {
             "requested_taskbar_mode": self.config.taskbar_mode,
             "render_surface_size": self.render_surface_size,
             "station_wait_seconds": self.world.station_wait(),
+            "services": self.world.service_snapshot(),
         });
         if let Some(diagnostics) = &mut self.diagnostics
             && let Err(error) = diagnostics.record(&record)
@@ -785,6 +832,7 @@ impl CpuExpressApp {
                 self.renderer.set_quality(self.config.visual.quality);
                 self.renderer.set_options(self.config.visual.scene);
                 self.renderer.set_coaches(self.config.visual.coaches);
+                self.renderer.set_engine(self.config.visual.engine);
             }
             self.renderer
                 .set_scene_context(Some(SceneContext::from_journey(
@@ -792,7 +840,7 @@ impl CpuExpressApp {
                 )));
             let livery = self.config.visual.livery;
             self.renderer.set_livery(
-                if livery.available(self.world.journey_snapshot()) || self.demo_mode {
+                if self.world.service_snapshot().owns(livery) || self.demo_mode {
                     livery
                 } else {
                     crate::simulation::objectives::Livery::Aurora
@@ -800,6 +848,25 @@ impl CpuExpressApp {
             );
             self.renderer
                 .set_local_atmosphere(self.local_weather.atmosphere());
+            self.renderer
+                .set_local_lighting(self.local_weather.lighting_phase());
+            self.renderer.set_weather_detail(
+                self.local_weather
+                    .last_good
+                    .as_ref()
+                    .and_then(|s| s.wind_speed_kmh),
+                self.local_weather
+                    .last_good
+                    .as_ref()
+                    .and_then(|s| s.precipitation_mm),
+            );
+            let arrival = self.world.service_snapshot().arrivals.last();
+            self.renderer
+                .set_station_service(Some(crate::rendering::StationService {
+                    progress: (1.0 - self.world.station_wait() / 8.0) as f32,
+                    boarding: arrival.map_or(0, |a| a.boarded),
+                    alighting: arrival.map_or(0, |a| a.alighted),
+                }));
             let image = egui::ColorImage::new(
                 [WIDTH, HEIGHT],
                 self.renderer.render(&self.train, &self.world).to_vec(),
@@ -813,6 +880,7 @@ impl CpuExpressApp {
                     egui::TextureOptions::NEAREST,
                 ));
             }
+            self.frame_timings.record(now.elapsed());
             self.frames += 1;
             if self.was_hidden {
                 self.frames_hidden += 1;
@@ -833,16 +901,63 @@ impl CpuExpressApp {
         self.save_after = Instant::now() + Duration::from_millis(400);
     }
 
+    fn play_cue(&mut self, cue: crate::audio::AudioCue) {
+        self.audio.play(
+            cue,
+            if self.config.quiet_mode {
+                0.0
+            } else {
+                self.config.sound_volume
+            },
+        );
+    }
+
     fn consume_travel_events(&mut self) {
+        let mut messages = Vec::new();
+        let mut reward = false;
+        let state = self.world.service_snapshot();
+        for livery in state.owned_rewards.iter().skip(self.seen_rewards.0) {
+            messages.push(format!("Pintura conquistada: {}", livery.name()));
+            reward = true;
+        }
+        for item in state.collection.iter().skip(self.seen_rewards.1) {
+            messages.push(
+                match item {
+                    crate::simulation::service::ServiceReward::PassengerPostcard => {
+                        "Postal conquistado · Elétrica da Serra liberada"
+                    }
+                    crate::simulation::service::ServiceReward::CargoPostcard => {
+                        "Postal conquistado · Diesel do Porto liberada"
+                    }
+                }
+                .to_owned(),
+            );
+            reward = true;
+        }
+        self.seen_rewards = (state.owned_rewards.len(), state.collection.len());
+
         while let Some(event) = self.world.pop_travel_event() {
             let message = match event {
                 TravelEvent::StationArrived { station, .. } => {
-                    Some(format!("Chegada: {}", station.name()))
+                    let arrival = self.world.service_snapshot().arrivals.last();
+                    Some(arrival.map_or_else(
+                        || format!("Chegada: {}", station.name()),
+                        |a| {
+                            format!(
+                                "{} · {} embarcaram · {} desembarcaram · +{} pontos",
+                                station.name(),
+                                a.boarded,
+                                a.alighted,
+                                a.earned
+                            )
+                        },
+                    ))
                 }
                 TravelEvent::CircuitCompleted { completed_laps, .. } => {
                     Some(format!("Circuito {completed_laps} concluído"))
                 }
                 TravelEvent::AchievementUnlocked { achievement, .. } => {
+                    reward = true;
                     Some(format!("Conquista: {}", achievement_name(achievement)))
                 }
                 TravelEvent::StationDeparted { .. } => None,
@@ -852,8 +967,19 @@ impl CpuExpressApp {
                     self.travel_log.pop_front();
                 }
                 self.travel_log.push_back(message.clone());
-                self.travel_notice = Some((message, Instant::now() + Duration::from_secs(5)));
+                messages.push(message);
             }
+        }
+        if !messages.is_empty() {
+            self.play_cue(if reward {
+                crate::audio::AudioCue::Reward
+            } else {
+                crate::audio::AudioCue::Arrival
+            });
+            self.travel_notice = Some((
+                messages.join(" · "),
+                Instant::now() + Duration::from_secs(7),
+            ));
         }
     }
 
@@ -1224,8 +1350,8 @@ impl CpuExpressApp {
                 egui::Align2::LEFT_CENTER,
                 format!(
                     "Para {} · {:.0}%",
-                    journey.next_station.name,
-                    journey.segment_progress * 100.0
+                    self.destination_name(),
+                    f64::from(self.travel_progress()) * 100.0
                 ),
                 egui::FontId::proportional(11.0),
                 INK,
@@ -1239,14 +1365,14 @@ impl CpuExpressApp {
             ui.painter().rect_filled(
                 egui::Rect::from_min_size(
                     track.min,
-                    egui::vec2(track.width() * journey.segment_progress as f32, 2.0),
+                    egui::vec2(track.width() * self.travel_progress(), 2.0),
                 ),
                 0.0,
                 ACCENT,
             );
             ui.interact(rect, egui::Id::unique("journey-progress"), egui::Sense::hover())
                 .on_hover_text(format!("{} até {}\nFaltam {:.0} unidades fictícias.\n{} visitas · {} circuitos. Abra Opções / Viagem para detalhes.",
-                    journey.route_segment.from.name(), journey.next_station.name, journey.distance_to_next_station_units, journey.stations_visited, journey.completed_laps));
+                    journey.route_segment.from.name(), self.destination_name(), journey.distance_to_next_station_units, journey.stations_visited, journey.completed_laps));
         }
         if let Some((message, until)) = &self.travel_notice
             && Instant::now() < *until
@@ -1264,292 +1390,6 @@ impl CpuExpressApp {
                 false,
                 "Abra Viagem para acompanhar objetivos e salvamento.",
             );
-        }
-    }
-
-    fn journey_controls(&mut self, ui: &mut egui::Ui) {
-        game::apply_style(ui);
-        let journey = self.world.journey_snapshot();
-        ui.horizontal_wrapped(|ui| {
-            for (page, icon, label) in [
-                (0, Icon::Map, "Mapa"),
-                (1, Icon::Star, "Objetivos"),
-                (2, Icon::Book, "Diário"),
-            ] {
-                if game::button(
-                    ui,
-                    ("journey-page", page),
-                    icon,
-                    label,
-                    self.journey_page == page,
-                    egui::vec2(118.0, 34.0),
-                )
-                .clicked()
-                {
-                    self.journey_page = page;
-                }
-            }
-        });
-        ui.add_space(8.0);
-        if self.journey_page == 0 {
-            section(ui, "Circuito Aurora", |ui| {
-                let (map, _) = ui.allocate_exact_size(
-                    egui::vec2(ui.available_width(), 180.0),
-                    egui::Sense::hover(),
-                );
-                let painter = ui.painter_at(map);
-                painter.rect_filled(map, 2.0, egui::Color32::from_rgb(198, 213, 169));
-                painter.rect_filled(
-                    egui::Rect::from_min_max(egui::pos2(map.center().x, map.top()), map.max),
-                    2.0,
-                    egui::Color32::from_rgb(175, 202, 199),
-                );
-                let positions =
-                    [(0.19, 0.32), (0.67, 0.26), (0.80, 0.73), (0.27, 0.77)].map(|(x, y)| {
-                        egui::pos2(map.left() + map.width() * x, map.top() + map.height() * y)
-                    });
-                for index in 0..4 {
-                    let a = positions[index];
-                    let b = positions[(index + 1) % 4];
-                    painter.line_segment([a, b], egui::Stroke::new(6.0, game::EDGE));
-                    painter.line_segment([a, b], egui::Stroke::new(3.0, if index == journey.route_segment.index { game::GOLD } else { game::CARD }));
-                }
-                for (index, label) in ["Vila Aurora", "Bosque", "Serra Clara", "Porto do Sol"]
-                    .iter()
-                    .enumerate()
-                {
-                    let pos = positions[index];
-                    painter.circle_filled(pos, 13.0, game::CARD);
-                    game::icon(
-                        &painter,
-                        egui::Rect::from_center_size(pos, egui::vec2(21.0, 21.0)),
-                        Icon::Station,
-                        if journey.discovered_stations[index] {
-                            game::GREEN
-                        } else {
-                            game::MUTED
-                        },
-                    );
-                    painter.text(
-                        pos + egui::vec2(0.0, 18.0),
-                        egui::Align2::CENTER_TOP,
-                        label,
-                        egui::FontId::proportional(12.0),
-                        game::INK,
-                    );
-                }
-                let a = positions[journey.route_segment.index];
-                let b = positions[(journey.route_segment.index + 1) % 4];
-                let train_pos = a + (b - a) * journey.segment_progress as f32;
-                painter.circle_filled(train_pos, 12.0, game::GOLD);
-                game::icon(
-                    &painter,
-                    egui::Rect::from_center_size(train_pos, egui::vec2(20.0, 20.0)),
-                    Icon::Train,
-                    game::INK,
-                );
-                ui.add_space(5.0);
-                ui.label(
-                    egui::RichText::new(format!(
-                        "{} até {}",
-                        journey.route_segment.from.name(),
-                        journey.next_station.name
-                    ))
-                    .size(17.0)
-                    .strong(),
-                );
-                let status = if self.world.station_wait() > 0.0 {
-                    format!(
-                        "Embarque · partida em {:.0} s",
-                        self.world.station_wait().ceil()
-                    )
-                } else {
-                    format!(
-                        "Próxima parada em {:.0} s",
-                        (journey.distance_to_next_station_units / 24.0).ceil()
-                    )
-                };
-                game::progress(
-                    ui,
-                    "route-progress",
-                    journey.segment_progress as f32,
-                    &status,
-                    game::GREEN,
-                );
-                ui.small(format!(
-                    "{} chegadas  ·  {} circuitos completos",
-                    journey.stations_visited, journey.completed_laps
-                ));
-            });
-            if game::button(
-                ui,
-                "open-objectives",
-                Icon::Star,
-                "Ver objetivos e recompensas",
-                false,
-                egui::vec2(270.0, 38.0),
-            )
-            .clicked()
-            {
-                self.journey_page = 1;
-            }
-        }
-        if self.journey_page == 1 {
-            ui.label(
-                egui::RichText::new("Caderno de objetivos")
-                    .size(20.0)
-                    .strong(),
-            );
-            ui.small("Viaje, descubra estações e conquiste novas pinturas.");
-            for objective in crate::simulation::objectives::OBJECTIVES {
-                let done = journey.stations_visited >= objective.goal;
-                ui.push_id(objective.id, |ui| {
-                    section(ui, objective.title, |ui| {
-                        ui.horizontal_wrapped(|ui| {
-                            let (badge, _) = ui
-                                .allocate_exact_size(egui::vec2(35.0, 35.0), egui::Sense::hover());
-                            game::icon(
-                                ui.painter(),
-                                badge,
-                                if done { Icon::Star } else { Icon::Lock },
-                                if done { game::GOLD } else { game::MUTED },
-                            );
-                            ui.vertical(|ui| {
-                                ui.label(objective.detail);
-                                ui.label(
-                                    egui::RichText::new(format!(
-                                        "Recompensa: {}",
-                                        objective.reward.name()
-                                    ))
-                                    .strong()
-                                    .color(game::BLUE),
-                                );
-                            });
-                        });
-                        game::progress(
-                            ui,
-                            objective.id,
-                            (journey.stations_visited as f32 / objective.goal as f32).min(1.0),
-                            &format!(
-                                "{} / {} chegadas",
-                                journey.stations_visited.min(objective.goal),
-                                objective.goal
-                            ),
-                            if done { game::GREEN } else { game::BLUE },
-                        );
-                        if done {
-                            if game::button(
-                                ui,
-                                (objective.id, "reward"),
-                                Icon::Paint,
-                                "Ver pintura liberada",
-                                false,
-                                egui::vec2(210.0, 32.0),
-                            )
-                            .clicked()
-                            {
-                                self.panel_tab = PanelTab::Appearance;
-                                self.appearance_page = 1;
-                            }
-                        } else {
-                            ui.small("Desbloqueio automático ao completar o objetivo.");
-                        }
-                    });
-                });
-            }
-        }
-        if self.journey_page == 2 {
-            ui.separator();
-            if let Some(message) = &self.progress_notice {
-                ui.colored_label(game::BLUE, message);
-            }
-            if self.progress_path.is_some() {
-                ui.small("Progresso salvo a cada 30 s e ao sair. Sem avanço offline.");
-                if ui.button("Salvar viagem agora").clicked() {
-                    self.persist_progress(true);
-                }
-            } else {
-                ui.small("Viagem temporária de demonstração/teste.");
-            }
-            egui::CollapsingHeader::new("Diário da viagem").show(ui, |ui| {
-                if self.travel_log.is_empty() {
-                    ui.label("As próximas chegadas e conquistas aparecerão aqui.");
-                }
-                for message in self.travel_log.iter().rev() {
-                    ui.label(message);
-                }
-            });
-            egui::CollapsingHeader::new("Estações e conquistas").show(ui, |ui| {
-                let journey = self.world.journey_snapshot();
-                ui.label(
-                    egui::RichText::new(journey.route_name)
-                        .strong()
-                        .color(game::BLUE),
-                );
-                ui.label(format!(
-                    "{} até {}",
-                    journey.route_segment.from.name(),
-                    journey.next_station.name
-                ));
-                ui.add(
-                    egui::ProgressBar::new(journey.segment_progress as f32).text(format!(
-                        "Trecho {:.0}% · faltam {:.0} un.",
-                        journey.segment_progress * 100.0,
-                        journey.distance_to_next_station_units
-                    )),
-                );
-                ui.label(format!(
-                    "{} visitas · {} circuitos · {:.0} un. percorridas",
-                    journey.stations_visited, journey.completed_laps, journey.total_distance_units
-                ));
-                ui.horizontal_wrapped(|ui| {
-                    for station in self.world.journey().route().stations() {
-                        ui.label(
-                            egui::RichText::new(format!(
-                                "{} {}",
-                                if journey.discovered_stations[station.id.index()] {
-                                    "[visitada]"
-                                } else {
-                                    "[ ]"
-                                },
-                                station.name
-                            ))
-                            .size(10.5)
-                            .color(
-                                if journey.discovered_stations[station.id.index()] {
-                                    ACCENT
-                                } else {
-                                    game::INK
-                                },
-                            ),
-                        );
-                    }
-                });
-                for achievement in [
-                    Achievement::FirstStation,
-                    Achievement::FirstCircuit,
-                    Achievement::LongJourney,
-                ] {
-                    ui.label(
-                        egui::RichText::new(format!(
-                            "{} {}",
-                            if journey.achievements.contains(achievement) {
-                                "[x]"
-                            } else {
-                                "[ ]"
-                            },
-                            achievement_name(achievement)
-                        ))
-                        .size(10.5),
-                    );
-                }
-                ui.label(
-                egui::RichText::new(
-                    "Chegadas liberam pinturas. Pausar não perde progresso; não há avanço offline.",
-                )
-                .size(10.5),
-            );
-            });
         }
     }
 
@@ -1666,17 +1506,20 @@ impl CpuExpressApp {
         }
         game::apply_style(ui);
         let journey = self.world.journey_snapshot();
+        if self.world.excursion_snapshot().current.is_some() {
+            self.branch_controls(ui);
+        }
         section(ui, "Próxima parada", |ui| {
             ui.label(
-                egui::RichText::new(journey.next_station.name)
+                egui::RichText::new(self.destination_name())
                     .size(19.0)
                     .color(game::BLUE),
             );
             game::progress(
                 ui,
                 "next-stop",
-                journey.segment_progress as f32,
-                &format!("Trecho · {:.0}%", journey.segment_progress * 100.0),
+                self.travel_progress(),
+                &format!("Trecho · {:.0}%", f64::from(self.travel_progress()) * 100.0),
                 game::GREEN,
             );
             ui.label(format!(
@@ -1710,7 +1553,11 @@ impl CpuExpressApp {
         );
         ui.add_space(8.0);
         self.scene_preview(ui, false);
-        let speed = if self.suspended() { "Parado".to_owned() } else { format!("{:.0} km/h", self.train.speed_kmh()) };
+        let speed = if self.suspended() {
+            "Parado".to_owned()
+        } else {
+            format!("{:.0} km/h", self.train.speed_kmh())
+        };
         let cpu = if self.demo_mode
             || self.cpu_override.is_some()
             || (self.metrics.cpu_percent.is_some() && !self.metrics_stale())
@@ -1719,7 +1566,9 @@ impl CpuExpressApp {
         } else {
             "—".to_owned()
         };
-        if self.demo_mode { ui.small("DEMO · CPU simulada · memória não consultada"); }
+        if self.demo_mode {
+            ui.small("DEMO · CPU simulada · memória não consultada");
+        }
         let ram = self
             .ram_percent()
             .map_or_else(|| "—".to_owned(), |value| format!("{value:.0}%"));
@@ -1758,6 +1607,20 @@ impl CpuExpressApp {
             }
         });
         ui.add_space(12.0);
+        if game::button(
+            ui,
+            "open-services",
+            Icon::Passenger,
+            "Passageiros e encomendas",
+            false,
+            egui::vec2(ui.available_width(), 36.0),
+        )
+        .clicked()
+        {
+            self.panel_tab = PanelTab::Journey;
+            self.journey_page = 3;
+        }
+        self.arrival_ticket(ui, true);
         if let Some(notice) = self.telemetry_notice() {
             ui.colored_label(game::BLUE, notice);
         }
@@ -1805,256 +1668,6 @@ impl CpuExpressApp {
                     ui.colored_label(game::BLUE, error);
                 }
             });
-    }
-
-    fn appearance_controls(&mut self, ui: &mut egui::Ui) {
-        game::apply_style(ui);
-        if self.stock_gallery.is_none() {
-            self.stock_gallery = Some(StockGallery::new(ui.ctx()));
-        }
-        let mut changed = false;
-        ui.horizontal_wrapped(|ui| {
-            for (page, icon, label) in [
-                (0, Icon::Train, "Vagões"),
-                (1, Icon::Paint, "Pinturas"),
-                (2, Icon::Weather, "Clima"),
-                (3, Icon::Settings, "Fluidez"),
-            ] {
-                if game::button(
-                    ui,
-                    ("workshop-page", page),
-                    icon,
-                    label,
-                    self.appearance_page == page,
-                    egui::vec2(100.0, 34.0),
-                )
-                .clicked()
-                {
-                    self.appearance_page = page;
-                }
-            }
-        });
-        ui.add_space(8.0);
-        let journey = self.world.journey_snapshot();
-        match self.appearance_page {
-            0 => {
-                section(ui, "Monte sua composição", |ui| {
-                    ui.small("Escolha uma posição e equipe um vagão da coleção.");
-                    ui.horizontal_wrapped(|ui| {
-                        for slot in 0..3 {
-                            if game::button(
-                                ui,
-                                ("slot", slot),
-                                Icon::Train,
-                                &format!("Vagão {}", slot + 1),
-                                self.coach_slot == slot,
-                                egui::vec2(110.0, 36.0),
-                            )
-                            .clicked()
-                            {
-                                self.coach_slot = slot;
-                            }
-                        }
-                    });
-                    ui.small("Ordem: cauda, vagões 1 / 2 / 3, locomotiva");
-                });
-                let choices = [
-                    CoachStyle::Passenger,
-                    CoachStyle::Observation,
-                    CoachStyle::Sleeper,
-                    CoachStyle::Freight,
-                    CoachStyle::Tank,
-                ];
-                let count = if ui.available_width() >= 600.0 { 3 } else { 2 };
-                for pair in choices.chunks(count) {
-                    ui.columns(count, |columns| {
-                        for (column, &style) in columns.iter_mut().zip(pair) {
-                            let selected = self.config.visual.coaches[self.coach_slot] == style;
-                            let texture = self.stock_gallery.as_ref().unwrap().coach(style);
-                            let response = stock_card(
-                                column,
-                                texture,
-                                coach_name(style),
-                                if selected {
-                                    "EQUIPADO"
-                                } else {
-                                    "Equipar neste vagão"
-                                },
-                                selected,
-                                true,
-                            );
-                            if response.clicked() {
-                                self.config.visual.coaches[self.coach_slot] = style;
-                                self.equipment_notice = Some((
-                                    format!(
-                                        "{} equipado no vagão {}",
-                                        coach_name(style),
-                                        self.coach_slot + 1
-                                    ),
-                                    Instant::now() + Duration::from_secs(3),
-                                ));
-                                changed = true;
-                            }
-                        }
-                    });
-                    ui.add_space(10.0);
-                }
-                ui.small("Modelos visuais: personalize o trem sem alterar o ritmo dos objetivos.");
-            }
-            1 => {
-                ui.label(
-                    egui::RichText::new("Pinturas da locomotiva")
-                        .size(18.0)
-                        .strong(),
-                );
-                ui.small("Cada chegada aproxima você de uma nova pintura.");
-                for pair in crate::simulation::objectives::Livery::ALL.chunks(2) {
-                    ui.columns(2, |columns| {
-                        for (column, &livery) in columns.iter_mut().zip(pair) {
-                            let unlocked = self.demo_mode || livery.available(journey);
-                            let selected = self.config.visual.livery == livery;
-                            let state = if !unlocked {
-                                format!(
-                                    "{} / {} chegadas",
-                                    journey.stations_visited,
-                                    livery.required_stops()
-                                )
-                            } else if selected {
-                                "EQUIPADA".into()
-                            } else {
-                                "Equipar pintura".into()
-                            };
-                            let texture = self.stock_gallery.as_ref().unwrap().livery(livery);
-                            let response = stock_card(
-                                column,
-                                texture,
-                                livery.name(),
-                                &state,
-                                selected,
-                                unlocked,
-                            );
-                            if response.clicked() && unlocked {
-                                self.config.visual.livery = livery;
-                                self.equipment_notice = Some((
-                                    format!("Pintura {} equipada", livery.name()),
-                                    Instant::now() + Duration::from_secs(3),
-                                ));
-                                changed = true;
-                            }
-                        }
-                    });
-                    ui.add_space(10.0);
-                }
-            }
-            2 => {
-                section(ui, "Paisagem e atmosfera", |ui| {
-                    ui.strong("São Paulo, SP · Brasil");
-                    ui.small("Paisagem completa · clima e iluminação locais");
-                    if let Some(snapshot) = &self.local_weather.last_good {
-                        ui.label(format!(
-                            "{} · {:.1} °C · {}",
-                            snapshot.description(),
-                            snapshot.temperature_c,
-                            if snapshot.is_day { "Dia" } else { "Noite" }
-                        ));
-                        ui.small(format!(
-                            "Condição das {} (São Paulo) · recebida há {} min",
-                            snapshot.local_time(),
-                            std::time::SystemTime::now()
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .unwrap_or_default()
-                                .as_secs()
-                                .saturating_sub(snapshot.received_unix)
-                                / 60
-                        ));
-                        if snapshot.stale() {
-                            ui.colored_label(game::BLUE, "Dados antigos; aguardando atualização. O cenário conserva a última condição.");
-                        }
-                    } else if self.local_weather.enabled {
-                        ui.label("Cenário ilustrativo até receber o clima local.");
-                    } else {
-                        ui.label(
-                            "Demonstração/teste: atmosfera ilustrativa, sem consulta à internet.",
-                        );
-                    }
-                    if self.local_weather.loading() {
-                        ui.label("Consultando clima…");
-                    }
-                    if let Some(error) = &self.local_weather.error {
-                        ui.colored_label(
-                            game::BLUE,
-                            "Clima indisponível; nova tentativa automática.",
-                        );
-                        ui.small(error);
-                    }
-                    if self.local_weather.enabled {
-                        if ui.add_enabled(self.local_weather.can_refresh(), egui::Button::new("Atualizar clima"))
-                    .on_hover_text("Atualização automática a cada 15 minutos. Atualização manual: intervalo mínimo de 1 minuto.")
-                    .clicked() { self.local_weather.refresh(ui.ctx()); }
-                        ui.small("Condições estimadas para a cidade; podem variar no seu bairro.");
-                    }
-                    ui.hyperlink_to("Dados: Open-Meteo · CC BY 4.0", "https://open-meteo.com/");
-                });
-            }
-            _ => {
-                section(ui, "Fluidez", |ui| {
-                    ui.horizontal_wrapped(|ui| {
-                        changed |= ui
-                            .selectable_value(&mut self.config.fps, 60, "Fluido · 60 FPS")
-                            .changed();
-                        changed |= ui
-                            .selectable_value(&mut self.config.fps, 30, "Econômico · 30 FPS")
-                            .changed();
-                    });
-                    ui.small(
-                        "Apenas a animação muda: objetivos e recompensas mantêm o mesmo ritmo.",
-                    );
-                    egui::CollapsingHeader::new("Ajuste fino").show(ui, |ui| {
-                        changed |= ui
-                            .add(
-                                egui::Slider::new(&mut self.config.fps, 10..=60)
-                                    .text("Limite de FPS"),
-                            )
-                            .changed();
-                        changed |= ui
-                            .add(
-                                egui::Slider::new(&mut self.config.smoothing_k, 0.05..=20.0)
-                                    .logarithmic(true)
-                                    .text("Resposta à CPU"),
-                            )
-                            .changed();
-                    });
-                });
-                section(ui, "Conforto e atenção", |ui| {
-                    changed |= ui.checkbox(&mut self.config.reduce_menu_motion, "Reduzir animações dos menus").changed();
-                    changed |= ui.checkbox(&mut self.config.quiet_mode, "Trabalho tranquilo: ocultar avisos sobre a paisagem").changed();
-                    ui.small("A arte completa e o progresso da viagem são preservados. Consulte as chegadas no diário a qualquer momento.");
-                });
-                egui::CollapsingHeader::new("Informações na janela flutuante").show(ui, |ui| {
-                    let mut mode = self.config.effective_hud_mode();
-                    ui.horizontal_wrapped(|ui| {
-                        ui.selectable_value(&mut mode, HudMode::Compact, "Compacto");
-                        ui.selectable_value(&mut mode, HudMode::Detailed, "Completo");
-                        ui.selectable_value(&mut mode, HudMode::Clean, "Limpo");
-                    });
-                    if mode != self.config.effective_hud_mode() {
-                        self.config.set_hud_mode(mode);
-                        changed = true;
-                    }
-                    changed |= ui
-                        .checkbox(
-                            &mut self.config.auto_hide_controls,
-                            "Recolher controles sem mouse e sem foco",
-                        )
-                        .changed();
-                });
-            }
-        }
-        if changed {
-            self.preferences_changed();
-            self.next_frame = Instant::now();
-            ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
-        }
     }
 
     fn behavior_controls(&mut self, ui: &mut egui::Ui) {
@@ -2323,17 +1936,22 @@ impl CpuExpressApp {
             self.overlay(ctx, bounds);
             return;
         }
-        let builder = egui::ViewportBuilder::default()
-            .with_title(platform::PANEL_TITLE)
-            .with_inner_size([760.0, 720.0])
-            .with_min_inner_size([480.0, 480.0])
-            .with_position(ctx.input(|i| {
+        game::set_reduce_motion(ctx, self.config.reduce_menu_motion);
+        let saved = self.config.panel_rect.unwrap_or_else(|| {
+            ctx.input(|i| {
                 i.viewport()
                     .outer_rect
-                    .map_or(egui::pos2(24.0, 80.0), |rect| {
-                        egui::pos2(rect.left().max(8.0), (rect.top() - 760.0).max(8.0))
+                    .map_or([24.0, 80.0, 760.0, 720.0], |r| {
+                        [r.left().max(8.0), (r.top() - 760.0).max(8.0), 760.0, 720.0]
                     })
-            }))
+            })
+        });
+        let panel_rect = platform::clamp_panel_rect(saved, ctx.pixels_per_point());
+        let builder = egui::ViewportBuilder::default()
+            .with_title(platform::PANEL_TITLE)
+            .with_inner_size([panel_rect[2], panel_rect[3]])
+            .with_min_inner_size([480.0, 480.0])
+            .with_position(egui::pos2(panel_rect[0], panel_rect[1]))
             .with_resizable(true)
             .with_window_level(egui::WindowLevel::AlwaysOnTop);
         ctx.show_viewport_immediate(
@@ -2347,6 +1965,26 @@ impl CpuExpressApp {
                     self.show_controls = false;
                     self.show_help = false;
                 }
+                if Instant::now() >= self.next_panel_save {
+                    self.next_panel_save = Instant::now() + Duration::from_secs(1);
+                    let rect = ctx.input(|i| {
+                        let v = i.viewport();
+                        if v.minimized == Some(true) {
+                            return None;
+                        }
+                        v.outer_rect.zip(v.inner_rect).map(|(outer, inner)| {
+                            [outer.left(), outer.top(), inner.width(), inner.height()]
+                        })
+                    });
+                    if let Some(rect) = rect
+                        && rect[2] >= 480.0
+                        && rect[3] >= 480.0
+                        && self.config.panel_rect != Some(rect)
+                    {
+                        self.config.panel_rect = Some(rect);
+                        self.preferences_changed();
+                    }
+                }
                 game::apply_style(root_ui);
                 egui::Frame::new()
                     .fill(game::EDGE)
@@ -2355,7 +1993,8 @@ impl CpuExpressApp {
                         game::panel_frame().show(ui, |ui| {
                             ui.set_min_size(ui.available_size());
                             ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
-                            let compact = ui.available_height() < 610.0 || ui.available_width() < 560.0;
+                            let compact =
+                                ui.available_height() < 610.0 || ui.available_width() < 560.0;
                             let (title, subtitle, emblem) = if self.show_help {
                                 (
                                     "Manual do maquinista",
@@ -2388,7 +2027,10 @@ impl CpuExpressApp {
                             };
                             ui.horizontal(|ui| {
                                 let (crest, _) = ui.allocate_exact_size(
-                                    egui::vec2(if compact { 30.0 } else { 44.0 }, if compact { 32.0 } else { 52.0 }),
+                                    egui::vec2(
+                                        if compact { 30.0 } else { 44.0 },
+                                        if compact { 32.0 } else { 52.0 },
+                                    ),
                                     egui::Sense::hover(),
                                 );
                                 ui.painter().rect_filled(crest, 2.0, game::GOLD);
@@ -2406,7 +2048,13 @@ impl CpuExpressApp {
                                             .strong()
                                             .color(game::INK),
                                     );
-                                    if !compact { ui.label(egui::RichText::new(subtitle).size(12.0).color(game::MUTED)); }
+                                    if !compact {
+                                        ui.label(
+                                            egui::RichText::new(subtitle)
+                                                .size(12.0)
+                                                .color(game::MUTED),
+                                        );
+                                    }
                                 });
                             });
                             ui.add_space(3.0);
@@ -2674,6 +2322,14 @@ impl eframe::App for CpuExpressApp {
             if result.is_err() {
                 self.pending_dock = true;
                 self.next_taskbar_check = Instant::now() + Duration::from_secs(2);
+                if self.config.taskbar_mode {
+                    self.taskbar_failures = self.taskbar_failures.saturating_add(1);
+                    if self.taskbar_failures >= 3 {
+                        self.config.taskbar_mode = false;
+                    }
+                }
+            } else {
+                self.taskbar_failures = 0;
             }
             self.note_result(result);
             if !self.pending_dock {
@@ -2720,10 +2376,15 @@ impl eframe::App for CpuExpressApp {
                 self.config.taskbar_width,
                 self.config.taskbar_height,
             ) {
-                self.config.taskbar_mode = false;
-                self.pending_dock = true;
-                self.next_taskbar_check = Instant::now();
-                self.add_notice(error);
+                self.taskbar_failures = self.taskbar_failures.saturating_add(1);
+                if self.taskbar_failures >= 3 {
+                    self.config.taskbar_mode = false;
+                    self.pending_dock = true;
+                    self.next_taskbar_check = Instant::now();
+                    self.add_notice(error);
+                }
+            } else {
+                self.taskbar_failures = 0;
             }
             self.native_status = platform::taskbar_status(frame).unwrap_or(serde_json::Value::Null);
         }

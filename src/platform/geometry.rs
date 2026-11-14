@@ -281,3 +281,58 @@ pub fn taskbar_placement(
         height: strip_height,
     })
 }
+
+/// Sanitize persisted logical panel geometry before creating a viewport.
+pub fn normalize_panel_rect(saved: [f32; 4]) -> [f32; 4] {
+    let defaults = [40.0, 40.0, 760.0, 720.0];
+    std::array::from_fn(|i| {
+        let value = saved[i];
+        if !value.is_finite() || value.abs() > 1_000_000.0 || (i >= 2 && value <= 0.0) {
+            defaults[i]
+        } else {
+            value
+        }
+    })
+}
+
+pub(super) fn panel_physical(saved: [f32; 4], scale: f32) -> Option<WindowPlacement> {
+    if !scale.is_finite() || scale <= 0.0 {
+        return None;
+    }
+    let values = saved.map(|v| f64::from(v) * f64::from(scale));
+    if values
+        .iter()
+        .any(|v| !v.is_finite() || *v < f64::from(i32::MIN) || *v > f64::from(i32::MAX))
+    {
+        return None;
+    }
+    let p = WindowPlacement {
+        x: values[0].round() as i32,
+        y: values[1].round() as i32,
+        width: (values[2].round() as i32).max(1),
+        height: (values[3].round() as i32).max(1),
+    };
+    p.checked_bounds()?;
+    Some(p)
+}
+
+/// Pure panel recovery. Origin and size use the caller's logical coordinate scale.
+/// A valid unchanged rectangle retains its fractional coordinates.
+pub fn fit_panel_rect(saved: [f32; 4], scale: f32, work: PhysicalRect) -> [f32; 4] {
+    let saved = normalize_panel_rect(saved);
+    let Some(current) = panel_physical(saved, scale) else {
+        return saved;
+    };
+    let Some(fitted) = fit_placement_to_work_area(work, current) else {
+        return saved;
+    };
+    if fitted == current {
+        return saved;
+    }
+    [
+        fitted.x as f32 / scale,
+        fitted.y as f32 / scale,
+        fitted.width as f32 / scale,
+        fitted.height as f32 / scale,
+    ]
+}

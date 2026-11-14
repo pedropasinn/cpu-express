@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-13",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "machine_arch": "x86_64",
+  "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+  "cargo": "cargo 1.100.0 (3acc79c0c 2026-11-05)",
+  "windows_native_execution": false,
+  "native_gui_execution": false,
+  "measurements_scope": "headless metrics_probe on Linux; no performance comparison",
+  "windows_gnu_linker_available": false,
+  "powershell_available": false
+}

@@ -1,0 +1,17 @@
+{
+  "targets": [
+    "x86_64-pc-windows-gnu",
+    "x86_64-pc-windows-msvc"
+  ],
+  "scope": "Union of supplied GNU notices and locally inspected MSVC-only crate; byte/version audit",
+  "registry_package_count": 144,
+  "notice_file_count": 328,
+  "new_ms_vector": "windows_x86_64_msvc 0.52.6",
+  "new_notice_sources": "Original files in the matching local Cargo registry package; no network request",
+  "source_inventory_cargo_lock_sha256": "c0b631c4be79ce72c8abede92293993df3ab943a9511dbbde287beb15998ccf2",
+  "current_cargo_lock_sha256": "b8ba3e03f82104bf16fd53ab478a63c95a7e33d888a022b00bd6526b10f61651",
+  "rust_version": "1.100.0",
+  "supplied_texts_preserved": 326,
+  "new_texts": 2,
+  "unresolved_text_gaps": []
+}
