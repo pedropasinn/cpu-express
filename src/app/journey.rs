@@ -206,7 +206,7 @@ impl CpuExpressApp {
                     .size(20.0)
                     .strong(),
             );
-            ui.small("Viaje, descubra estações e conquiste novas pinturas.");
+            game::hint(ui, "Viaje, descubra estações e conquiste novas pinturas.");
             for objective in crate::simulation::objectives::OBJECTIVES {
                 let done = journey.stations_visited >= objective.goal;
                 ui.push_id(objective.id, |ui| {
@@ -259,7 +259,7 @@ impl CpuExpressApp {
                                 self.highlight_livery = Some(objective.reward);
                             }
                         } else {
-                            ui.small("Desbloqueio automático ao completar o objetivo.");
+                            game::hint(ui, "Desbloqueio automático ao completar o objetivo.");
                         }
                     });
                 });
@@ -278,12 +278,15 @@ impl CpuExpressApp {
                 ui.colored_label(game::BLUE, message);
             }
             if self.progress_path.is_some() {
-                ui.small("Progresso salvo a cada 30 s e ao sair. Sem avanço offline.");
+                game::hint(
+                    ui,
+                    "Progresso salvo a cada 30 s e ao sair. Sem avanço offline.",
+                );
                 if ui.button("Salvar viagem agora").clicked() {
                     self.persist_progress(true);
                 }
             } else {
-                ui.small("Viagem temporária de demonstração/teste.");
+                game::hint(ui, "Viagem temporária de demonstração/teste.");
             }
             self.arrival_ticket(ui, false);
             egui::CollapsingHeader::new("Diário da viagem")

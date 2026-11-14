@@ -31,7 +31,8 @@ impl CpuExpressApp {
                 total: seats,
             },
         );
-        ui.small(
+        game::hint(
+            ui,
             "Embarque e entrega são automáticos nas estações. Sem prazos ou cobrança por ausência.",
         );
         if state.passengers.is_empty() {
@@ -99,7 +100,10 @@ impl CpuExpressApp {
                 )
                 .clicked();
                 if c.status == ContractStatus::Loaded {
-                    ui.small("A devolução mantém a carga a bordo até a origem. O espaço só é liberado ao descarregar; não há prêmio nem penalidade.");
+                    game::hint(
+                        ui,
+                        "A devolução mantém a carga a bordo até a origem. O espaço só é liberado ao descarregar; não há prêmio nem penalidade.",
+                    );
                 }
             }
             widgets::capacity_meter(
@@ -141,7 +145,10 @@ impl CpuExpressApp {
             "{} passageiros entregues · {} contratos concluídos · {} pontos de serviço",
             state.passengers_delivered, state.contracts_completed, state.credits
         ));
-        ui.small("Pontos registram o serviço realizado; não são uma moeda de compra.");
+        game::hint(
+            ui,
+            "Pontos registram o serviço realizado; não são uma moeda de compra.",
+        );
         if accept || cancel {
             let result = if accept {
                 self.world.accept_cargo_contract()
@@ -214,7 +221,7 @@ impl CpuExpressApp {
     pub(super) fn collection_controls(&mut self, ui: &mut egui::Ui) {
         let journey = self.world.journey_snapshot();
         ui.heading("Postais da ferrovia");
-        ui.small("As descobertas e os serviços completam seu caderno.");
+        game::hint(ui, "As descobertas e os serviços completam seu caderno.");
         for station in self.world.journey().route().stations() {
             let known = journey.discovered_stations[station.id.index()];
             section(ui, station.name, |ui| {

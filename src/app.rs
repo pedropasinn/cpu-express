@@ -37,16 +37,8 @@ const CARD: egui::Color32 = egui::Color32::from_rgb(27, 43, 46);
 const ACCENT: egui::Color32 = egui::Color32::from_rgb(242, 197, 112);
 
 fn section(ui: &mut egui::Ui, title: &str, content: impl FnOnce(&mut egui::Ui)) {
-    game::panel_frame().show(ui, |ui| {
+    game::section_frame(ui, title, |ui| {
         game::apply_style(ui);
-        ui.set_width(ui.available_width());
-        ui.label(
-            egui::RichText::new(title)
-                .size(16.0)
-                .strong()
-                .color(game::INK),
-        );
-        ui.separator();
         content(ui);
     });
     ui.add_space(8.0);
@@ -1591,7 +1583,8 @@ impl CpuExpressApp {
                 "{} visitas  ·  {} circuitos",
                 journey.stations_visited, journey.completed_laps
             ));
-            ui.small(
+            game::hint(
+                ui,
                 "A CPU muda o ritmo visual. A viagem progride igualmente em qualquer computador.",
             );
         });
@@ -1632,7 +1625,7 @@ impl CpuExpressApp {
             "—".to_owned()
         };
         if self.demo_mode {
-            ui.small("DEMO · CPU simulada · memória não consultada");
+            game::hint(ui, "DEMO · CPU simulada · memória não consultada");
         }
         let ram = self
             .ram_percent()
@@ -1768,7 +1761,10 @@ impl CpuExpressApp {
                     .max_decimals(4),
             );
         });
-        ui.small("O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.");
+        game::hint(
+            ui,
+            "O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.",
+        );
         if ui.button("Manter São Paulo, SP").clicked() {
             self.weather_draft = Default::default();
         }
@@ -1776,7 +1772,7 @@ impl CpuExpressApp {
         ui.strong("Onde mostrar o trem");
         ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
         ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
-        ui.small("Você pode mudar essas escolhas depois na central.");
+        game::hint(ui, "Você pode mudar essas escolhas depois na central.");
         if let Some(notice) = self.notification_message() {
             ui.colored_label(ACCENT, notice);
         }
@@ -1992,7 +1988,10 @@ impl CpuExpressApp {
                 }
                 ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
             }
-            ui.small("Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.");
+            game::hint(
+                ui,
+                "Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.",
+            );
         } else {
             let rect = self.config.floating_rect.get_or_insert([40, 40, 640, 180]);
             ui.horizontal(|ui| {
@@ -2010,7 +2009,10 @@ impl CpuExpressApp {
             placement_changed |= ui
                 .add(egui::Slider::new(&mut rect[3], 140..=1200).text("Altura (px)"))
                 .changed();
-            ui.small("Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.");
+            game::hint(
+                ui,
+                "Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.",
+            );
         }
         if ui.button("Restaurar posição e tamanho").clicked() {
             self.slider_geometry = None;
@@ -2027,7 +2029,10 @@ impl CpuExpressApp {
             self.preferences_changed();
             ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
         }
-        ui.small("Clique na faixa para abrir o painel; botão direito pausa.");
+        game::hint(
+            ui,
+            "Clique na faixa para abrir o painel; botão direito pausa.",
+        );
         let mut pinned = self.config.always_on_top;
         if ui.checkbox(&mut pinned, "Sempre no topo (P)").changed() {
             self.dispatch(AppAction::TogglePin, ui.ctx());
@@ -2278,11 +2283,11 @@ impl CpuExpressApp {
                     }
                 }
                 game::apply_style(root_ui);
+                game::wood_frame(root_ui.painter(), root_ui.max_rect());
                 egui::Frame::new()
-                    .fill(game::EDGE)
-                    .inner_margin(6)
+                    .inner_margin(game::FRAME as i8 + 2)
                     .show(root_ui, |ui| {
-                        game::panel_frame().show(ui, |ui| {
+                        egui::Frame::new().inner_margin(6).show(ui, |ui| {
                             ui.set_min_size(ui.available_size());
                             if self.welcome {
                                 self.welcome_controls(ui);
@@ -2321,76 +2326,11 @@ impl CpuExpressApp {
                                     ),
                                 }
                             };
-                            ui.horizontal(|ui| {
-                                let (crest, _) = ui.allocate_exact_size(
-                                    egui::vec2(
-                                        if compact { 30.0 } else { 44.0 },
-                                        if compact { 32.0 } else { 52.0 },
-                                    ),
-                                    egui::Sense::hover(),
-                                );
-                                ui.painter().rect_filled(crest, 2.0, game::GOLD);
-                                game::icon(ui.painter(), crest.shrink(7.0), emblem, game::INK);
-                                ui.vertical(|ui| {
-                                    ui.label(
-                                        egui::RichText::new("CPU EXPRESS  /  CIRCUITO AURORA")
-                                            .monospace()
-                                            .size(10.0)
-                                            .color(game::MUTED),
-                                    );
-                                    ui.label(
-                                        egui::RichText::new(title)
-                                            .size(if compact { 18.0 } else { 24.0 })
-                                            .strong()
-                                            .color(game::INK),
-                                    );
-                                    if !compact {
-                                        ui.label(
-                                            egui::RichText::new(subtitle)
-                                                .size(12.0)
-                                                .color(game::MUTED),
-                                        );
-                                    }
-                                });
-                            });
-                            ui.add_space(3.0);
-                            let tab_width = ((ui.available_width() - 64.0) / 5.0).floor().max(64.0);
-                            ui.horizontal_wrapped(|ui| {
-                                for (tab, label, icon) in [
-                                    (PanelTab::Drive, "Trem", Icon::Train),
-                                    (PanelTab::Journey, "Viagem", Icon::Map),
-                                    (PanelTab::Appearance, "Visual", Icon::Paint),
-                                    (PanelTab::Behavior, "Janela", Icon::Settings),
-                                ] {
-                                    if game::button(
-                                        ui,
-                                        ("nav", tab as u8),
-                                        icon,
-                                        label,
-                                        self.panel_tab == tab && !self.show_help,
-                                        egui::vec2(tab_width, if compact { 46.0 } else { 56.0 }),
-                                    )
-                                    .clicked()
-                                    {
-                                        self.panel_tab = tab;
-                                        self.show_help = false;
-                                    }
-                                }
-                                if game::button(
-                                    ui,
-                                    "help-nav",
-                                    Icon::Help,
-                                    "Ajuda",
-                                    self.show_help,
-                                    egui::vec2(tab_width, if compact { 46.0 } else { 56.0 }),
-                                )
-                                .clicked()
-                                {
-                                    self.show_help = !self.show_help;
-                                }
-                            });
-                            ui.add_space(4.0);
-                            let content_height = (ui.available_height() - 76.0).max(90.0);
+                            game::ribbon(ui, title, emblem, compact);
+                            let _ = subtitle;
+                            let dock_height = if compact { 48.0 } else { 72.0 };
+                            let content_height =
+                                (ui.available_height() - 34.0 - dock_height).max(90.0);
                             egui::ScrollArea::vertical()
                                 .id_salt((
                                     "game-panel-content",
@@ -2414,6 +2354,21 @@ impl CpuExpressApp {
                                                 section(ui, "Posição e tamanho", |ui| {
                                                     self.behavior_controls(ui)
                                                 });
+                                                section(ui, "Sessão", |ui| {
+                                                    game::hint(ui, "O progresso é salvo ao sair. O jogo também fecha pelo ícone da bandeja.");
+                                                    if game::button(
+                                                        ui,
+                                                        "quit-game",
+                                                        Icon::Save,
+                                                        "Salvar e sair",
+                                                        false,
+                                                        egui::vec2(180.0, 34.0),
+                                                    )
+                                                    .clicked()
+                                                    {
+                                                        self.dispatch(AppAction::Quit, ctx);
+                                                    }
+                                                });
                                             }
                                         }
                                     }
@@ -2428,7 +2383,7 @@ impl CpuExpressApp {
                                         response.scroll_to_me(Some(egui::Align::Center));
                                     }
                                 });
-                            ui.separator();
+                            ui.add_space(2.0);
                             let toast = self
                                 .equipment_notice
                                 .as_ref()
@@ -2458,40 +2413,60 @@ impl CpuExpressApp {
                                     .strong()
                                     .color(game::GREEN),
                             );
+                            // Bottom dock: the places of the game, then help and close.
+                            let tile = egui::vec2(
+                                ((ui.available_width() - 5.0 * 6.0) / 6.0)
+                                    .floor()
+                                    .clamp(44.0, 132.0),
+                                dock_height,
+                            );
                             ui.horizontal(|ui| {
-                                let journey = self.world.journey_snapshot();
-                                ui.label(
-                                    egui::RichText::new(format!(
-                                        "{} chegadas · {} voltas",
-                                        journey.stations_visited, journey.completed_laps
-                                    ))
-                                    .size(11.0)
-                                    .color(game::MUTED),
-                                );
-                                ui.with_layout(
-                                    egui::Layout::right_to_left(egui::Align::Center),
-                                    |ui| {
-                                        if game::button(
-                                            ui,
-                                            "close-book",
-                                            Icon::Close,
-                                            "Fechar painel",
-                                            false,
-                                            egui::vec2(144.0, 30.0),
-                                        )
-                                        .clicked()
-                                        {
-                                            self.dispatch(AppAction::ClosePanel, ctx);
-                                        }
-                                        if ui
-                                            .small_button("Sair")
-                                            .on_hover_text("Salvar e encerrar CPU Express")
-                                            .clicked()
-                                        {
-                                            self.dispatch(AppAction::Quit, ctx);
-                                        }
-                                    },
-                                );
+                                ui.spacing_mut().item_spacing.x = 6.0;
+                                for (tab, label, icon) in [
+                                    (PanelTab::Drive, "Trem", Icon::Train),
+                                    (PanelTab::Journey, "Viagem", Icon::Map),
+                                    (PanelTab::Appearance, "Visual", Icon::Paint),
+                                    (PanelTab::Behavior, "Janela", Icon::Settings),
+                                ] {
+                                    if game::dock_button(
+                                        ui,
+                                        ("nav", tab as u8),
+                                        icon,
+                                        label,
+                                        self.panel_tab == tab && !self.show_help,
+                                        tile,
+                                    )
+                                    .clicked()
+                                    {
+                                        self.panel_tab = tab;
+                                        self.show_help = false;
+                                    }
+                                }
+                                if game::dock_button(
+                                    ui,
+                                    "help-nav",
+                                    Icon::Help,
+                                    "Ajuda",
+                                    self.show_help,
+                                    tile,
+                                )
+                                .clicked()
+                                {
+                                    self.show_help = !self.show_help;
+                                }
+                                if game::dock_button(
+                                    ui,
+                                    "close-book",
+                                    Icon::Close,
+                                    "Fechar",
+                                    false,
+                                    tile,
+                                )
+                                .on_hover_text("Fechar painel (Esc). Sair do jogo: ícone da bandeja.")
+                                .clicked()
+                                {
+                                    self.dispatch(AppAction::ClosePanel, ctx);
+                                }
                             });
                         });
                     });
