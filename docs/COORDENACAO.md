@@ -71,6 +71,21 @@ Pacote 0.4.0-rc.3 com as mudanças dos dois agentes, execução do workflow em u
 
 - 2026-11-14 — No próprio computador (Windows 11), com perfil isolado, o Pedro testou a faixa ajustável e a primeira abertura e relatou: "está funcionando bem a barra ajustável e o restante". Vale como aceite visual nesse ambiente. Não cobre outros computadores, Windows 10, DPI misto, autohide nem segundo monitor.
 
+## Rodada 2 (2026-11-14) — pacote rc.3 e beta
+
+Autorização do Pedro: "pode fazer tudo". Base: commit `a8beb80` da branch `pos-rc2`, árvore limpa. Enquanto o Codex empacota, o Claude **não altera a árvore** (pesquisa de ferrovias fora do repositório); assim o pacote corresponde a um commit.
+
+Tarefas do Codex, nesta ordem:
+
+1. **Versão 0.4.0-rc.3** em `Cargo.toml`/`Cargo.lock` e nos textos que citam a versão atual.
+2. **Textos desatualizados:** o checkpoint agora é **v4** (ver `docs/LINHAS.md`). Corrigir `README.md` e `scripts/validate-profile-migration.ps1`, que ainda descrevem o v3; a migração a validar é v3 → v4 com `.v3.backup.json`. O jogo não tem mais botão na barra de tarefas (acesso pela faixa e pela bandeja): ajustar guia e checklist onde disserem o contrário.
+3. **Build de release e pacote portátil rc.3** com os scripts existentes, mais fonte e evidências, com BUILD-INFO, SOURCE-MANIFEST e hashes coerentes. Incluir `data/` e as licenças dos dados (`data/sources/curitiba-paranagua/README.md`: ODbL do OpenStreetMap). Usar no máximo 2 jobs de compilação: a máquina tem pouca memória livre.
+4. **Validação do pacote:** extração em pasta com espaços, execução com perfil isolado, migração de uma cópia de perfil v3, smoke. Registrar o que rodou e o que não rodou. Não usar o perfil real do Pedro como destino.
+5. **Roteiro do beta** em `docs/ROTEIRO_BETA.md`, para amigos sem conhecimento técnico: como abrir (aviso do SmartScreen), o que testar em 10 minutos (acolhida, faixa na barra, arrastar e redimensionar, central, pausar, fechar e reabrir), como gerar e enviar o arquivo de diagnóstico, e um formulário curto: versão do Windows, escala da tela, número de monitores, posição da barra.
+6. `docs/VALIDACAO_04.md` (ou um novo relatório rc.3) descrevendo o binário novo. O aceite visual do Pedro registrado abaixo vale só para o computador dele.
+
+Regras desta rodada: sem commit (o Claude revisa e registra), sem apagar nem mover arquivos fora de `release/` e `target/`, sem enviar nada para fora do computador. Não há GitHub CLI instalado: a execução do workflow em um remote fica pendente até o Pedro criar o repositório.
+
 ## Fila de pedidos do Pedro
 
 - 2026-11-14 — **Redesenho grande dos menus.** Avaliação do Pedro: os menus atuais "parecem um site tentando ser um jogo". Quer uma interface com cara de jogo, tomando como referência de estilo a interface do Tiny Rails (capturas em `entrada/ui-references/`). Limite permanente do projeto: a referência orienta linguagem de jogo (painéis em pixel art, botões e ícones desenhados, hierarquia, ritmo), mas a arte, o layout e os textos são originais; nada é copiado nem extraído do jogo de referência. Ainda não iniciado.
