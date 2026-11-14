@@ -133,11 +133,94 @@ pub(super) fn place_strip(
                 return Err(os_error("Taskbar surface placement"));
             }
             strip_corners(hwnd, placement.width, placement.height, Some(rounded))?;
+            set_tool_window(hwnd, true)?;
+            restack_above(hwnd, taskbar)?;
             if outer_placement(hwnd)? != placement {
                 return Err("Windows não confirmou a posição e o tamanho da faixa.".to_owned());
             }
         }
         Ok(())
+    })
+}
+
+/// A tool window has no taskbar button and is left out of Alt+Tab: the strip is
+/// part of the bar, not another application in it.
+fn set_tool_window(hwnd: HWND, tool: bool) -> Result<(), String> {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        GWL_EXSTYLE, GetWindowLongPtrW, SetWindowLongPtrW, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
+    };
+    // SAFETY: style query and update on the validated own window, on its UI thread.
+    unsafe {
+        let current = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        let wanted = if tool {
+            (current | WS_EX_TOOLWINDOW as isize) & !(WS_EX_APPWINDOW as isize)
+        } else {
+            current & !(WS_EX_TOOLWINDOW as isize)
+        };
+        if wanted != current {
+            windows_sys::Win32::Foundation::SetLastError(0);
+            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, wanted);
+            if windows_sys::Win32::Foundation::GetLastError() != 0 {
+                return Err(os_error("Estilo da faixa"));
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Puts the strip directly above the taskbar in the window order, without taking
+/// focus. Windows raises the taskbar whenever another window is activated, which
+/// would otherwise cover the strip. Following the taskbar, instead of forcing the
+/// very top, also lets a full-screen application cover both.
+/// Returns whether the order had to change.
+fn restack_above(hwnd: HWND, taskbar: HWND) -> Result<bool, String> {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        GW_HWNDPREV, GetWindow, HWND_TOPMOST, SWP_NOMOVE,
+    };
+    // SAFETY: read-only order query, then a reorder of the own window only.
+    unsafe {
+        let above = GetWindow(taskbar, GW_HWNDPREV);
+        if above == hwnd {
+            return Ok(false);
+        }
+        let after = if above.is_null() { HWND_TOPMOST } else { above };
+        if SetWindowPos(
+            hwnd,
+            after,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE,
+        ) == 0
+            && SetWindowPos(
+                hwnd,
+                HWND_TOPMOST,
+                0,
+                0,
+                0,
+                0,
+                SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE,
+            ) == 0
+        {
+            return Err(os_error("Ordem da faixa"));
+        }
+    }
+    Ok(true)
+}
+
+/// Cheap periodic check for the strip mode: two window queries when nothing changed.
+pub fn keep_strip_above_taskbar(frame: &eframe::Frame) -> Result<bool, String> {
+    use windows_sys::Win32::UI::WindowsAndMessaging::FindWindowW;
+    with_hwnd(frame, |hwnd| {
+        let class: Vec<u16> = "Shell_TrayWnd\0".encode_utf16().collect();
+        // SAFETY: valid NUL-terminated class string; the handle is only compared and queried.
+        let taskbar = unsafe { FindWindowW(class.as_ptr(), ptr::null()) };
+        // SAFETY: read-only visibility queries on the own window.
+        if taskbar.is_null() || unsafe { IsWindowVisible(hwnd) == 0 || IsIconic(hwnd) != 0 } {
+            return Ok(false);
+        }
+        restack_above(hwnd, taskbar)
     })
 }
 
@@ -318,6 +401,8 @@ pub fn place_floating(frame: &eframe::Frame, saved: [i32; 4]) -> Result<(), Stri
     with_hwnd(frame, |hwnd| {
         require_physical_coordinates(hwnd)?;
         strip_corners(hwnd, 0, 0, None)?;
+        // A floating window stays reachable with Alt+Tab.
+        set_tool_window(hwnd, false)?;
         let [x, y, width, height] = saved;
         let requested = WindowPlacement {
             x,

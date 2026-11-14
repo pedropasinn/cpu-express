@@ -31,7 +31,7 @@ pub use desktop::{DesktopController, DesktopUpdate};
 pub use tray::{SystemTray, TrayEvent};
 
 #[cfg(windows)]
-pub use windows::{confirm_strip_surface, strip_environment};
+pub use windows::{confirm_strip_surface, keep_strip_above_taskbar, strip_environment};
 #[cfg(windows)]
 pub use windows::{detach_taskbar, embed_taskbar, place_floating, taskbar_status};
 #[cfg(windows)]

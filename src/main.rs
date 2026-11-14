@@ -241,7 +241,8 @@ fn run() -> Result<(), Box<dyn Error>> {
             .with_resizable(!config.taskbar_mode)
             .with_decorations(!config.taskbar_mode)
             .with_active(false)
-            .with_taskbar(true)
+            // The strip belongs to the bar and the tray icon reaches the app: no taskbar button.
+            .with_taskbar(false)
             .with_app_id("cpu-express")
             .with_window_level(if config.always_on_top {
                 egui::WindowLevel::AlwaysOnTop

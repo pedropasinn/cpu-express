@@ -18,13 +18,16 @@ fn advance(world: &mut World, seconds: usize, parts: usize) {
     }
 }
 fn path() -> std::path::PathBuf {
+    // Tests run in parallel and the clock is coarse: the counter keeps every file distinct.
+    static NEXT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
     std::env::temp_dir().join(format!(
-        "ce-branch-{}-{}.json",
+        "ce-branch-{}-{}-{}.json",
         std::process::id(),
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
-            .as_nanos()
+            .as_nanos(),
+        NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
     ))
 }
 #[test]

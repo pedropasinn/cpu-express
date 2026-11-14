@@ -67,6 +67,14 @@ Pacote 0.4.0-rc.3 com as mudanças dos dois agentes, execução do workflow em u
 
 - 2026-11-14 — Claude → Codex: o checkpoint passou a **v4** (`catalog_version` e `line`). Antes do pacote rc.3, revisar `scripts/validate-profile-migration.ps1` e os textos de `README.md` que citam "formato v3"; `docs/GUIA_04.md` e `AGENTS.md` já foram atualizados. Os exemplos `journey_demo` e `journey_core_tests` agora incluem também `src/simulation/catalog.rs`.
 
+## Aceite do Pedro
+
+- 2026-11-14 — No próprio computador (Windows 11), com perfil isolado, o Pedro testou a faixa ajustável e a primeira abertura e relatou: "está funcionando bem a barra ajustável e o restante". Vale como aceite visual nesse ambiente. Não cobre outros computadores, Windows 10, DPI misto, autohide nem segundo monitor.
+
+## Fila de pedidos do Pedro
+
+- 2026-11-14 — **Redesenho grande dos menus.** Avaliação do Pedro: os menus atuais "parecem um site tentando ser um jogo". Quer uma interface com cara de jogo, tomando como referência de estilo a interface do Tiny Rails (capturas em `entrada/ui-references/`). Limite permanente do projeto: a referência orienta linguagem de jogo (painéis em pixel art, botões e ícones desenhados, hierarquia, ritmo), mas a arte, o layout e os textos são originais; nada é copiado nem extraído do jogo de referência. Ainda não iniciado.
+
 ## Estado
 
 | Frente | Dono | Estado | Verificação executada | Não executado |

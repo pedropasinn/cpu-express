@@ -274,7 +274,10 @@ pub struct CpuExpressApp {
     layout_test_step: Option<u8>,
     render_surface_size: [f32; 2],
     next_taskbar_check: Instant,
+    next_strip_raise: Instant,
     next_panel_save: Instant,
+    /// Frames painted since the panel was opened; zero while it is closed.
+    panel_frames: u8,
     taskbar_failures: u8,
     strip_gesture: Option<platform::StripGesture>,
     slider_geometry: Option<[i32; 3]>,
@@ -554,7 +557,9 @@ impl CpuExpressApp {
             .then_some(0),
             render_surface_size: [0.0; 2],
             next_taskbar_check: opened,
+            next_strip_raise: opened,
             next_panel_save: opened + Duration::from_secs(2),
+            panel_frames: 0,
             taskbar_failures: 0,
             strip_gesture: None,
             slider_geometry: None,
@@ -2203,11 +2208,19 @@ impl CpuExpressApp {
 
     fn floating_panel(&mut self, ctx: &egui::Context, bounds: egui::Rect) {
         if !self.show_controls && !self.show_help {
+            self.panel_frames = 0;
             return;
         }
         if ctx.embed_viewports() {
             self.overlay(ctx, bounds);
             return;
+        }
+        // The native window is created hidden and revealed once its content was
+        // painted; otherwise an empty title bar flashes before the panel appears.
+        let revealed = self.panel_frames >= 2;
+        self.panel_frames = self.panel_frames.saturating_add(1);
+        if !revealed {
+            ctx.request_repaint();
         }
         game::set_reduce_motion(ctx, self.config.reduce_menu_motion);
         let saved = self.config.panel_rect.unwrap_or_else(|| {
@@ -2226,6 +2239,8 @@ impl CpuExpressApp {
             .with_min_inner_size([480.0, 480.0])
             .with_position(egui::pos2(panel_rect[0], panel_rect[1]))
             .with_resizable(true)
+            .with_taskbar(false)
+            .with_visible(revealed)
             .with_window_level(egui::WindowLevel::AlwaysOnTop);
         ctx.show_viewport_immediate(
             egui::ViewportId::from_hash_of("journey-panel"),
@@ -2692,6 +2707,20 @@ impl eframe::App for CpuExpressApp {
                 self.taskbar_failures = 0;
             }
             self.native_status = platform::taskbar_status(frame).unwrap_or(serde_json::Value::Null);
+        }
+        // Activating another window makes Windows raise the taskbar over the strip.
+        // Put the strip back within a tenth of a second, without taking focus.
+        #[cfg(windows)]
+        if self.config.taskbar_mode
+            && !self.pending_dock
+            && !self.was_hidden
+            && self.desktop.is_some()
+            && Instant::now() >= self.next_strip_raise
+        {
+            self.next_strip_raise = Instant::now() + Duration::from_millis(100);
+            if platform::keep_strip_above_taskbar(frame) == Ok(true) {
+                ctx.request_repaint();
+            }
         }
         #[cfg(windows)]
         if !self.config.taskbar_mode
