@@ -1,0 +1,6 @@
+/target/
+/dist/
+*.log
+!/validation/*.log
+*.ppm
+*.tmp

@@ -1,0 +1,21 @@
+{
+  "overrides": [
+    {
+      "repository": "https://github.com/emilk/egui",
+      "published_revision": "7c0b40402271e8d40cda69f87cf3c2617c2e4382",
+      "package_version": "0.37.0",
+      "replacement_revision": "841a328ba2dd8f6996beb7189ebb7fc00e668a2a",
+      "reason": "Alguns pacotes egui 0.37.0 declaram o commit 7c0b40402271e8d40cda69f87cf3c2617c2e4382, que estava indisponível no upstream em 13/11/2026. Seus textos complementares foram recuperados no commit 841a328ba2dd8f6996beb7189ebb7fc00e668a2a, alvo do tag de release 0.37.0. Essa origem alternativa é registrada, sem atribuir os textos ao commit indisponível.",
+      "evidence_url": "https://api.github.com/repos/emilk/egui/git/ref/tags/0.37.0"
+    },
+    {
+      "repository": "https://github.com/retep998/winapi-rs",
+      "published_revision": null,
+      "package_name": "winapi-x86_64-pc-windows-gnu",
+      "package_version": "0.4.0",
+      "replacement_revision": "796a8e6c2971dc2ff1bcff166e6671284f9b5b6b",
+      "reason": "winapi-x86_64-pc-windows-gnu 0.4.0 não inclui textos de licença nem .cargo_vcs_info.json no pacote publicado. Os textos MIT/Apache do mesmo projeto foram recuperados no commit 796a8e6c2971dc2ff1bcff166e6671284f9b5b6b, tag 0.3.9 e revisão publicada da crate winapi 0.3.9 que depende desse pacote. A origem é complementar; não é apresentada como revisão de publicação da crate GNU 0.4.0.",
+      "evidence_url": "https://github.com/retep998/winapi-rs/tree/796a8e6c2971dc2ff1bcff166e6671284f9b5b6b"
+    }
+  ]
+}
