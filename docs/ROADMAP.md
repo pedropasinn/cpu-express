@@ -1,6 +1,6 @@
 # CPU Express — prioridades atuais
 
-Base: **0.4.0-rc.2**. Guia em [GUIA_04.md](GUIA_04.md), evidências em [VALIDACAO_04.md](VALIDACAO_04.md), acompanhamento detalhado em [PLANO_EXECUCAO.md](PLANO_EXECUCAO.md).
+Base: **0.4.0-rc.3**. Guia em [GUIA_04.md](GUIA_04.md), evidências em [VALIDACAO_RC3.md](VALIDACAO_RC3.md), acompanhamento detalhado em [PLANO_EXECUCAO.md](PLANO_EXECUCAO.md).
 
 ## Implementado
 

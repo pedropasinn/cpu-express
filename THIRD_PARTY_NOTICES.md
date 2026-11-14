@@ -187,3 +187,7 @@ Python 3.11 ou posterior. O script não compila nem instala pacotes; lê o metad
 ## Open-Meteo weather data
 
 Current weather estimates for São Paulo are supplied by https://open-meteo.com/ under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . The app translates WMO weather codes into original pixel-art effects. Free API endpoint terms: https://open-meteo.com/en/terms (non-commercial usage). No Open-Meteo artwork is bundled.
+
+## Dados da linha Curitiba–Paranaguá
+
+© OpenStreetMap contributors. Dados derivados sob Open Database License (ODbL) 1.0: https://opendatacommons.org/licenses/odbl/1-0/ e https://www.openstreetmap.org/copyright. Os extratos e a base derivada são distribuídos em `data/`, separados da licença MIT do código. Licenças, atribuições, datas e método em [data/sources/curitiba-paranagua/README.md](data/sources/curitiba-paranagua/README.md), incluindo Wikidata (CC0) e Open-Meteo/Copernicus. A linha é rascunho não jogável nesta edição. Nenhuma nova consulta foi feita no empacotamento.

@@ -1,10 +1,10 @@
-# CPU Express 0.4.0-rc.2 — serviços e escolhas
+# CPU Express 0.4.0-rc.3 — serviços e escolhas
 
 Esta edição amplia a ferrovia mantendo o encaixe à esquerda, o modo flutuante e os menus independentes. A viagem usa tempo ativo, não a carga de CPU. Pausa, ocultação e fechamento não rendem progresso offline.
 
 ## Começar
 
-Abra `cpu-express.exe` ou o iniciador da raiz. Clique no trem para abrir o caderno. **Trem** mostra destino e pausa; **Viagem** reúne mapa, objetivos, diário, serviços e coleção; **Visual** contém vagões, pinturas, clima, fluidez e motores. A janela do caderno guarda sua posição e tamanho separadamente da faixa.
+Abra `cpu-express.exe` do portátil rc.3. Clique no trem para abrir o caderno. O jogo não tem botão na barra de tarefas; para mostrar o trem oculto ou minimizado, use **Mostrar trem** no ícone da bandeja (inclusive na seta de ícones ocultos). **Trem** mostra destino e pausa; **Viagem** reúne mapa, objetivos, diário, serviços e coleção; **Visual** contém vagões, pinturas, clima, fluidez e motores. A janela do caderno guarda sua posição e tamanho separadamente da faixa.
 
 ## Passageiros e composição
 
@@ -46,9 +46,9 @@ A última condição válida fica em cache entre aberturas, com idade e erro vis
 
 ## Salvamento e recuperação
 
-Preferências: `%LOCALAPPDATA%\CPU Express\config.json`. Jornada: `config.journey.json`. O formato v3 preserva itinerário, serviços, propriedade, coleção e excursões, acrescentando despacho e devolução. Nas versões posteriores à rc.2 o formato é o v4, que registra também a linha percorrida e a versão do catálogo; o v3 migra com backup exato (`.v3.backup.json`) e a rc.2 não lê o v4. Ao migrar v1 ou v2, o arquivo anterior recebe backup exato (`.v1.backup.json` ou `.v2.backup.json`) antes da substituição. A rc.1 não lê o formato v3: para voltar àquela versão, encerre o jogo novo e restaure uma cópia do backup v2; o progresso feito depois desse backup não existe na versão antiga. Versões futuras ou arquivos inválidos não são sobrescritos pelo salvamento comum.
+Preferências: `%LOCALAPPDATA%\CPU Express\config.json`. Jornada: `config.journey.json`. O formato v3 preserva itinerário, serviços, propriedade, coleção e excursões, acrescentando despacho e devolução. Na rc.3 o formato é o v4, que registra também a linha percorrida e a versão do catálogo; o v3 migra com backup exato (`.v3.backup.json`) e a rc.2 não lê o v4. Ao migrar v1 ou v2, o arquivo anterior recebe backup exato (`.v1.backup.json` ou `.v2.backup.json`) antes da substituição. A rc.1 não lê o formato v3: para voltar àquela versão, encerre o jogo novo e restaure uma cópia do backup v2; o progresso feito depois desse backup não existe na versão antiga. Versões futuras ou arquivos inválidos não são sobrescritos pelo salvamento comum.
 
-Nas versões posteriores à rc.2, cada salvamento guarda o checkpoint anterior em `config.journey.previous.json`. Se o arquivo principal estiver danificado na abertura, ele é renomeado para `config.journey.damaged-….json`, sem alteração de conteúdo, e a viagem retoma do checkpoint anterior com um aviso; perde-se no máximo o intervalo desde o save anterior. Um save gravado por versão mais nova nunca é movido nem rebaixado.
+Na rc.3, cada salvamento guarda o checkpoint anterior em `config.journey.previous.json`. Se o arquivo principal estiver danificado na abertura, ele é renomeado para `config.journey.damaged-….json`, sem alteração de conteúdo, e a viagem retoma do checkpoint anterior com um aviso; perde-se no máximo o intervalo desde o save anterior. Um save gravado por versão mais nova nunca é movido nem rebaixado.
 
 Em **Viagem → Diário**, use salvar, exportar e importar. A importação valida a origem e guarda cópia do destino antes de substituí-lo, inclusive quando o destino está inválido. A ação substitui a viagem atual; não combina perfis. O app salva periodicamente e na saída normal. Fechamento forçado pode perder o intervalo desde o último save.
 
@@ -56,7 +56,7 @@ Em **Viagem → Diário**, use salvar, exportar e importar. A importação valid
 
 A versão portátil funciona sem instalação. Os scripts `install-local.ps1` e `uninstall-local.ps1` oferecem instalação por usuário, sem administrador, quando incluídos no pacote. A inicialização com o Windows é opcional e só é configurada com o parâmetro explícito. A desinstalação preserva o perfil e as viagens. Consulte a ajuda/comentários dos scripts para os parâmetros desta distribuição.
 
-## Ajustes da faixa na fonte posterior à rc.2
+## Ajustes da faixa na rc.3
 
 Segure e arraste a faixa para movê-la horizontalmente. As laterais ajustam a largura; a lateral esquerda mantém a direita fixa. Um movimento menor que 4 pixels físicos continua sendo clique para abrir a central; o botão direito pausa. Os sliders em **Janela** e **Restaurar posição e tamanho** continuam disponíveis. Geometria de arrastes e sliders só é gravada ao soltar.
 
@@ -64,7 +64,7 @@ Segure e arraste a faixa para movê-la horizontalmente. As laterais ajustam a la
 
 A paisagem tem 70 linhas e largura interna entre 160 e 32768 colunas. Quando a barra inteira é menor que 160 px, a janela usa a largura disponível e recorta a cena. A largura acompanha o viewport dividido pela escala inteira; a última coluna pode ser recortada para preencher uma largura física não divisível pela escala. Filtros permanecem nearest, sem alongar o trem. Abaixo de 320 colunas o trem é recentrado; na largura mínima parte da traseira fica fora da vista, preservando o tamanho dos pixels e da locomotiva. Os períodos de parallax não dependem da largura. Os buffers do renderer só realocam ao mudar a largura; o upload de textura egui mantém seu staging habitual. O contrato de compatibilidade continua sendo 320 × 70.
 
-Preferências acrescentadas: `taskbar_fit_height: true` e `taskbar_rounded: false`; JSON antigo recebe esses defaults. A largura persistida admite até 32768 px para comportar barras acima de 2400 px e é limitada pela barra atual na aplicação. Jornada e formato de checkpoint não são alterados por estes ajustes. Estas mudanças ainda não estão nos pacotes rc.2 existentes.
+Preferências acrescentadas: `taskbar_fit_height: true` e `taskbar_rounded: false`; JSON antigo recebe esses defaults. A largura persistida admite até 32768 px para comportar barras acima de 2400 px e é limitada pela barra atual na aplicação. Jornada e formato de checkpoint não são alterados por estes ajustes. Estas mudanças estão incluídas na rc.3; os pacotes rc.2 permanecem históricos.
 
 ## Limites de validação
 

@@ -1,6 +1,6 @@
 # CPU Express — orientação para próximas contribuições
 
-Esta árvore é a base integrada **0.4.0-rc.2**. Leia `README.md` e `docs/GUIA_04.md` antes de alterar o projeto. Patches e evidências da rc.1 são históricos.
+Esta árvore é a base integrada **0.4.0-rc.3**. Leia `README.md` e `docs/GUIA_04.md` antes de alterar o projeto. Patches e evidências da rc.1 são históricos.
 
 ## Contratos
 

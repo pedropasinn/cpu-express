@@ -1,2388 +1,278 @@
 {
-  "version": "0.4.0-rc.2",
-  "built_utc": "2026-11-14T09:49:03.864974+00:00",
-  "target": "x86_64-pc-windows-gnu",
-  "rust": "1.100.0",
-  "profile": "release",
-  "signed": false,
-  "executable_bytes": 5969408,
-  "executable_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-  "checks": [
-    {
-      "seconds": 0.5108374,
-      "name": "format",
-      "exit_code": 0
-    },
-    {
-      "seconds": 4.411364,
-      "name": "clippy",
-      "exit_code": 0
-    },
-    {
-      "seconds": 82.0588303,
-      "name": "tests",
-      "exit_code": 0
-    }
-  ],
-  "rust_tests": {
-    "passed": 288,
-    "failed": 0,
-    "ignored": 2
-  },
-  "extracted_portable": {
-    "scope": "Portable extracted into path with spaces; isolated profile and Windows-only PATH",
-    "version": "0.4.0-rc.2",
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "zip_crc_verified": true,
-    "exit_code": 0
-  },
-  "short_native_soak": {
-    "scope": "Short native runs; process CPU/memory and application frame work, not compositor or battery",
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "runs": [
-      {
-        "scenario": "panel-closed",
-        "last": {
-          "completed_laps": 0,
-          "cpu_percent": 11.917549133300781,
-          "diagnostics_schema_version": 2,
-          "dropped_travel_events": 0,
-          "effective_cpu_percent": 11.917549133300781,
-          "effective_paused": false,
-          "elapsed_seconds": 120.059439,
-          "event": "shutdown",
-          "frame_work": {
-            "max_ms": 0.3463,
-            "mean_ms": 0.23235742187499983,
-            "p95_ms": 0.2858,
-            "samples": 256,
-            "scope": "simulation_render_texture_submission_not_compositor"
-          },
-          "hidden": false,
-          "journey_active_seconds": 120.0164721,
-          "journey_distance_units": 2688.3953304,
-          "journey_segment": 1,
-          "local_weather": {
-            "age_seconds": null,
-            "cache_error": null,
-            "city": "SÃ£o Paulo, SP, Brasil",
-            "enabled": false,
-            "error": null,
-            "lighting_phase": null,
-            "loading": false,
-            "location": {
-              "city": "SÃ£o Paulo, SP, Brasil",
-              "latitude": -23.5505,
-              "longitude": -46.6333
-            },
-            "snapshot": null,
-            "source": "Open-Meteo",
-            "stale": false,
-            "status": "illustrative"
-          },
-          "metric_age_seconds": 0.0727998,
-          "metric_freshness": "current",
-          "metric_status": "ready",
-          "metrics_stale": false,
-          "mode": "real",
-          "native_window": {
-            "client_height": 133,
-            "client_width": 622,
-            "embedded": false,
-            "height": 180,
-            "panel": {
-              "height": 0,
-              "visible": false,
-              "width": 0,
-              "x": 0,
-              "y": 0
-            },
-            "parent_class": "",
-            "surface_mode": "independent",
-            "taskbar_aligned": false,
-            "taskbar_height": 60,
-            "taskbar_width": 1920,
-            "width": 640,
-            "x": 1100,
-            "y": 100
-          },
-          "next_station": "Serra Clara",
-          "paused": false,
-          "ram_percent": 69.42252349853516,
-          "received_samples": 120,
-          "render_surface_size": [
-            621.9921875,
-            133.0078125
-          ],
-          "rendered_frames": 7200,
-          "rendered_frames_hidden": 0,
-          "rendered_frames_visible": 7200,
-          "requested_taskbar_mode": false,
-          "scroll_px": 1614.676680393393,
-          "segment_progress": 0.3319559285894737,
-          "services": {
-            "arrivals": [
-              {
-                "alighted": 0,
-                "boarded": 7,
-                "cargo_delivered": 0,
-                "cargo_loaded": 11,
-                "cargo_returned": 0,
-                "earned": 0,
-                "station": "pines",
-                "visit": 1
-              }
-            ],
-            "automatic_contracts": true,
-            "branch": {
-              "current": null,
-              "discoveries": [],
-              "pending": null
-            },
-            "cargo_delivered": 0,
-            "collection": [],
-            "composition": [
-              "observation",
-              "sleeper",
-              "freight"
-            ],
-            "contract": {
-              "destination": "aurora",
-              "id": 1,
-              "kind": "parcels",
-              "origin": "pines",
-              "reward": 110,
-              "status": "loaded",
-              "units": 11
-            },
-            "contracts_completed": 0,
-            "credits": 0,
-            "last_processed_visit": 1,
-            "owned_rewards": [
-              "aurora",
-              "ocean"
-            ],
-            "passengers": [
-              {
-                "count": 7,
-                "destination": "aurora",
-                "origin": "pines"
-              }
-            ],
-            "passengers_boarded": 7,
-            "passengers_delivered": 0
-          },
-          "smoke_particles": 10,
-          "speed_kmh": 22.63927629609476,
-          "station_wait_seconds": 0.0,
-          "stations_visited": 1,
-          "target_kmh": 22.48744323730469,
-          "total_memory_bytes": 16828755968,
-          "used_memory_bytes": 11682947072,
-          "world_elapsed_seconds": 120.01647209999975
-        },
-        "seconds": 120.4507632,
-        "samples": [
-          {
-            "elapsed": 0.0053823,
-            "working_set": 9891840,
-            "private_bytes": 2019328,
-            "cpu_seconds": 0.015625
-          },
-          {
-            "elapsed": 1.0063049,
-            "working_set": 90427392,
-            "private_bytes": 56193024,
-            "cpu_seconds": 0.546875
-          },
-          {
-            "elapsed": 2.0187756,
-            "working_set": 90583040,
-            "private_bytes": 56315904,
-            "cpu_seconds": 0.609375
-          },
-          {
-            "elapsed": 3.0362734,
-            "working_set": 90861568,
-            "private_bytes": 56614912,
-            "cpu_seconds": 0.71875
-          },
-          {
-            "elapsed": 4.0375988,
-            "working_set": 90861568,
-            "private_bytes": 56553472,
-            "cpu_seconds": 0.90625
-          },
-          {
-            "elapsed": 5.0417752,
-            "working_set": 90861568,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.03125
-          },
-          {
-            "elapsed": 6.0437918,
-            "working_set": 90861568,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.15625
-          },
-          {
-            "elapsed": 7.0471029,
-            "working_set": 90861568,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.25
-          },
-          {
-            "elapsed": 8.0494037,
-            "working_set": 90861568,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.296875
-          },
-          {
-            "elapsed": 9.0514038,
-            "working_set": 90894336,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.421875
-          },
-          {
-            "elapsed": 10.054961299999999,
-            "working_set": 90894336,
-            "private_bytes": 56553472,
-            "cpu_seconds": 1.53125
-          },
-          {
-            "elapsed": 11.065757699999999,
-            "working_set": 90304512,
-            "private_bytes": 55951360,
-            "cpu_seconds": 1.640625
-          },
-          {
-            "elapsed": 12.0831878,
-            "working_set": 88563712,
-            "private_bytes": 54210560,
-            "cpu_seconds": 1.765625
-          },
-          {
-            "elapsed": 13.0924959,
-            "working_set": 88563712,
-            "private_bytes": 54210560,
-            "cpu_seconds": 1.859375
-          },
-          {
-            "elapsed": 14.1053698,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 1.96875
-          },
-          {
-            "elapsed": 15.1080586,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.0625
-          },
-          {
-            "elapsed": 16.1108521,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.1875
-          },
-          {
-            "elapsed": 17.1294877,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.34375
-          },
-          {
-            "elapsed": 18.1333415,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.453125
-          },
-          {
-            "elapsed": 19.1347585,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.59375
-          },
-          {
-            "elapsed": 20.140192199999998,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.671875
-          },
-          {
-            "elapsed": 21.1716171,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 2.796875
-          },
-          {
-            "elapsed": 22.1877675,
-            "working_set": 88555520,
-            "private_bytes": 54202368,
-            "cpu_seconds": 3.015625
-          },
-          {
-            "elapsed": 23.2041404,
-            "working_set": 88551424,
-            "private_bytes": 54198272,
-            "cpu_seconds": 3.171875
-          },
-          {
-            "elapsed": 24.220138,
-            "working_set": 88940544,
-            "private_bytes": 54587392,
-            "cpu_seconds": 3.296875
-          },
-          {
-            "elapsed": 25.2218636,
-            "working_set": 88940544,
-            "private_bytes": 54587392,
-            "cpu_seconds": 3.40625
-          },
-          {
-            "elapsed": 26.227050799999997,
-            "working_set": 88940544,
-            "private_bytes": 54587392,
-            "cpu_seconds": 3.53125
-          },
-          {
-            "elapsed": 27.2277252,
-            "working_set": 93138944,
-            "private_bytes": 58793984,
-            "cpu_seconds": 3.6875
-          },
-          {
-            "elapsed": 28.239825699999997,
-            "working_set": 93138944,
-            "private_bytes": 58793984,
-            "cpu_seconds": 3.796875
-          },
-          {
-            "elapsed": 29.2473779,
-            "working_set": 93138944,
-            "private_bytes": 58793984,
-            "cpu_seconds": 3.984375
-          },
-          {
-            "elapsed": 30.2542908,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.171875
-          },
-          {
-            "elapsed": 31.2658107,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.375
-          },
-          {
-            "elapsed": 32.2739472,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.578125
-          },
-          {
-            "elapsed": 33.2835398,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.734375
-          },
-          {
-            "elapsed": 34.288675,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.890625
-          },
-          {
-            "elapsed": 35.2924006,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 4.984375
-          },
-          {
-            "elapsed": 36.3088999,
-            "working_set": 93147136,
-            "private_bytes": 58793984,
-            "cpu_seconds": 5.09375
-          },
-          {
-            "elapsed": 37.3255158,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.203125
-          },
-          {
-            "elapsed": 38.3316273,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.328125
-          },
-          {
-            "elapsed": 39.350118599999995,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.390625
-          },
-          {
-            "elapsed": 40.368260899999996,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.46875
-          },
-          {
-            "elapsed": 41.385662599999996,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.515625
-          },
-          {
-            "elapsed": 42.4044046,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.625
-          },
-          {
-            "elapsed": 43.4156931,
-            "working_set": 92762112,
-            "private_bytes": 58408960,
-            "cpu_seconds": 5.71875
-          },
-          {
-            "elapsed": 44.434686899999996,
-            "working_set": 92753920,
-            "private_bytes": 58400768,
-            "cpu_seconds": 5.796875
-          },
-          {
-            "elapsed": 45.4550194,
-            "working_set": 92753920,
-            "private_bytes": 58400768,
-            "cpu_seconds": 5.953125
-          },
-          {
-            "elapsed": 46.471526999999995,
-            "working_set": 92753920,
-            "private_bytes": 58400768,
-            "cpu_seconds": 6.109375
-          },
-          {
-            "elapsed": 47.4894271,
-            "working_set": 92753920,
-            "private_bytes": 58400768,
-            "cpu_seconds": 6.1875
-          },
-          {
-            "elapsed": 48.5088656,
-            "working_set": 93147136,
-            "private_bytes": 58806272,
-            "cpu_seconds": 6.296875
-          },
-          {
-            "elapsed": 49.5265917,
-            "working_set": 93147136,
-            "private_bytes": 58806272,
-            "cpu_seconds": 6.375
-          },
-          {
-            "elapsed": 50.5467544,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 6.53125
-          },
-          {
-            "elapsed": 51.5648251,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 6.640625
-          },
-          {
-            "elapsed": 52.568523199999994,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 6.796875
-          },
-          {
-            "elapsed": 53.585414,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 6.90625
-          },
-          {
-            "elapsed": 54.5917909,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.015625
-          },
-          {
-            "elapsed": 55.6021018,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.140625
-          },
-          {
-            "elapsed": 56.6185252,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.296875
-          },
-          {
-            "elapsed": 57.6236926,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.359375
-          },
-          {
-            "elapsed": 58.6385899,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.46875
-          },
-          {
-            "elapsed": 59.643671,
-            "working_set": 93151232,
-            "private_bytes": 58810368,
-            "cpu_seconds": 7.59375
-          },
-          {
-            "elapsed": 60.6633395,
-            "working_set": 93106176,
-            "private_bytes": 58716160,
-            "cpu_seconds": 7.796875
-          },
-          {
-            "elapsed": 61.6805015,
-            "working_set": 92712960,
-            "private_bytes": 58322944,
-            "cpu_seconds": 7.9375
-          },
-          {
-            "elapsed": 62.7004106,
-            "working_set": 92712960,
-            "private_bytes": 58322944,
-            "cpu_seconds": 8.09375
-          },
-          {
-            "elapsed": 63.717339499999994,
-            "working_set": 92712960,
-            "private_bytes": 58322944,
-            "cpu_seconds": 8.28125
-          },
-          {
-            "elapsed": 64.7200101,
-            "working_set": 92729344,
-            "private_bytes": 58355712,
-            "cpu_seconds": 8.453125
-          },
-          {
-            "elapsed": 65.7385634,
-            "working_set": 92729344,
-            "private_bytes": 58355712,
-            "cpu_seconds": 8.671875
-          },
-          {
-            "elapsed": 66.7422465,
-            "working_set": 92733440,
-            "private_bytes": 58359808,
-            "cpu_seconds": 8.875
-          },
-          {
-            "elapsed": 67.7550419,
-            "working_set": 92721152,
-            "private_bytes": 58327040,
-            "cpu_seconds": 9.046875
-          },
-          {
-            "elapsed": 68.7553599,
-            "working_set": 92721152,
-            "private_bytes": 58327040,
-            "cpu_seconds": 9.234375
-          },
-          {
-            "elapsed": 69.7598184,
-            "working_set": 92721152,
-            "private_bytes": 58327040,
-            "cpu_seconds": 9.40625
-          },
-          {
-            "elapsed": 70.77793299999999,
-            "working_set": 92721152,
-            "private_bytes": 58327040,
-            "cpu_seconds": 9.609375
-          },
-          {
-            "elapsed": 71.7857038,
-            "working_set": 93114368,
-            "private_bytes": 58720256,
-            "cpu_seconds": 9.75
-          },
-          {
-            "elapsed": 72.8000419,
-            "working_set": 93114368,
-            "private_bytes": 58720256,
-            "cpu_seconds": 9.90625
-          },
-          {
-            "elapsed": 73.8181604,
-            "working_set": 93114368,
-            "private_bytes": 58720256,
-            "cpu_seconds": 10.015625
-          },
-          {
-            "elapsed": 74.8360744,
-            "working_set": 93114368,
-            "private_bytes": 58720256,
-            "cpu_seconds": 10.1875
-          },
-          {
-            "elapsed": 75.8379779,
-            "working_set": 93114368,
-            "private_bytes": 58720256,
-            "cpu_seconds": 10.359375
-          },
-          {
-            "elapsed": 76.8564585,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 10.53125
-          },
-          {
-            "elapsed": 77.875778,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 10.734375
-          },
-          {
-            "elapsed": 78.8867981,
-            "working_set": 93110272,
-            "private_bytes": 58703872,
-            "cpu_seconds": 10.875
-          },
-          {
-            "elapsed": 79.9060904,
-            "working_set": 93110272,
-            "private_bytes": 58703872,
-            "cpu_seconds": 11
-          },
-          {
-            "elapsed": 80.9125435,
-            "working_set": 93110272,
-            "private_bytes": 58703872,
-            "cpu_seconds": 11.078125
-          },
-          {
-            "elapsed": 81.9269041,
-            "working_set": 93110272,
-            "private_bytes": 58703872,
-            "cpu_seconds": 11.15625
-          },
-          {
-            "elapsed": 82.9463033,
-            "working_set": 93110272,
-            "private_bytes": 58703872,
-            "cpu_seconds": 11.28125
-          },
-          {
-            "elapsed": 83.9493354,
-            "working_set": 92725248,
-            "private_bytes": 58318848,
-            "cpu_seconds": 11.375
-          },
-          {
-            "elapsed": 84.9672023,
-            "working_set": 92725248,
-            "private_bytes": 58318848,
-            "cpu_seconds": 11.46875
-          },
-          {
-            "elapsed": 85.9845539,
-            "working_set": 92725248,
-            "private_bytes": 58318848,
-            "cpu_seconds": 11.65625
-          },
-          {
-            "elapsed": 86.98827159999999,
-            "working_set": 92725248,
-            "private_bytes": 58318848,
-            "cpu_seconds": 11.765625
-          },
-          {
-            "elapsed": 88.0062803,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 11.921875
-          },
-          {
-            "elapsed": 89.0256551,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.0625
-          },
-          {
-            "elapsed": 90.0356008,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.265625
-          },
-          {
-            "elapsed": 91.0548967,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.421875
-          },
-          {
-            "elapsed": 92.0608151,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.578125
-          },
-          {
-            "elapsed": 93.0755259,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.703125
-          },
-          {
-            "elapsed": 94.0803445,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.828125
-          },
-          {
-            "elapsed": 95.0956429,
-            "working_set": 92717056,
-            "private_bytes": 58310656,
-            "cpu_seconds": 12.984375
-          },
-          {
-            "elapsed": 96.10127089999999,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.109375
-          },
-          {
-            "elapsed": 97.11896209999999,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.234375
-          },
-          {
-            "elapsed": 98.1213811,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.34375
-          },
-          {
-            "elapsed": 99.12388779999999,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.546875
-          },
-          {
-            "elapsed": 100.14411009999999,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.703125
-          },
-          {
-            "elapsed": 101.1607183,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 13.859375
-          },
-          {
-            "elapsed": 102.1741287,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 14.03125
-          },
-          {
-            "elapsed": 103.17611989999999,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 14.296875
-          },
-          {
-            "elapsed": 104.1943426,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 14.546875
-          },
-          {
-            "elapsed": 105.2114486,
-            "working_set": 93110272,
-            "private_bytes": 58716160,
-            "cpu_seconds": 14.75
-          },
-          {
-            "elapsed": 106.2153321,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 14.859375
-          },
-          {
-            "elapsed": 107.23307659999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 14.984375
-          },
-          {
-            "elapsed": 108.2520717,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.171875
-          },
-          {
-            "elapsed": 109.2710723,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.359375
-          },
-          {
-            "elapsed": 110.29028819999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.5
-          },
-          {
-            "elapsed": 111.29301629999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.640625
-          },
-          {
-            "elapsed": 112.30597209999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.8125
-          },
-          {
-            "elapsed": 113.3227311,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 15.984375
-          },
-          {
-            "elapsed": 114.32506749999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.109375
-          },
-          {
-            "elapsed": 115.3296475,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.296875
-          },
-          {
-            "elapsed": 116.3323494,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.484375
-          },
-          {
-            "elapsed": 117.34895569999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.59375
-          },
-          {
-            "elapsed": 118.3677496,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.734375
-          },
-          {
-            "elapsed": 119.38581119999999,
-            "working_set": 92717056,
-            "private_bytes": 58322944,
-            "cpu_seconds": 16.859375
-          }
-        ],
-        "exit_code": 0
-      },
-      {
-        "scenario": "panel-open",
-        "last": {
-          "completed_laps": 0,
-          "cpu_percent": 21.631141662597656,
-          "diagnostics_schema_version": 2,
-          "dropped_travel_events": 0,
-          "effective_cpu_percent": 21.631141662597656,
-          "effective_paused": false,
-          "elapsed_seconds": 120.0739635,
-          "event": "shutdown",
-          "frame_work": {
-            "max_ms": 0.42210000000000003,
-            "mean_ms": 0.2890375000000002,
-            "p95_ms": 0.3514,
-            "samples": 256,
-            "scope": "simulation_render_texture_submission_not_compositor"
-          },
-          "hidden": false,
-          "journey_active_seconds": 120.0002962,
-          "journey_distance_units": 2688.0071088,
-          "journey_segment": 1,
-          "local_weather": {
-            "age_seconds": null,
-            "cache_error": null,
-            "city": "SÃ£o Paulo, SP, Brasil",
-            "enabled": false,
-            "error": null,
-            "lighting_phase": null,
-            "loading": false,
-            "location": {
-              "city": "SÃ£o Paulo, SP, Brasil",
-              "latitude": -23.5505,
-              "longitude": -46.6333
-            },
-            "snapshot": null,
-            "source": "Open-Meteo",
-            "stale": false,
-            "status": "illustrative"
-          },
-          "metric_age_seconds": 0.9454326,
-          "metric_freshness": "current",
-          "metric_status": "ready",
-          "metrics_stale": false,
-          "mode": "real",
-          "native_window": {
-            "client_height": 133,
-            "client_width": 622,
-            "embedded": false,
-            "height": 180,
-            "panel": {
-              "height": 947,
-              "visible": true,
-              "width": 968,
-              "x": 970,
-              "y": 10
-            },
-            "parent_class": "",
-            "surface_mode": "independent",
-            "taskbar_aligned": false,
-            "taskbar_height": 60,
-            "taskbar_width": 1920,
-            "width": 640,
-            "x": 1100,
-            "y": 100
-          },
-          "next_station": "Serra Clara",
-          "paused": false,
-          "ram_percent": 63.04548263549805,
-          "received_samples": 119,
-          "render_surface_size": [
-            621.9921875,
-            133.0078125
-          ],
-          "rendered_frames": 7189,
-          "rendered_frames_hidden": 0,
-          "rendered_frames_visible": 7189,
-          "requested_taskbar_mode": false,
-          "scroll_px": 1864.5695003290723,
-          "segment_progress": 0.33179246686315783,
-          "services": {
-            "arrivals": [
-              {
-                "alighted": 0,
-                "boarded": 7,
-                "cargo_delivered": 0,
-                "cargo_loaded": 11,
-                "cargo_returned": 0,
-                "earned": 0,
-                "station": "pines",
-                "visit": 1
-              }
-            ],
-            "automatic_contracts": true,
-            "branch": {
-              "current": null,
-              "discoveries": [],
-              "pending": null
-            },
-            "cargo_delivered": 0,
-            "collection": [],
-            "composition": [
-              "observation",
-              "sleeper",
-              "freight"
-            ],
-            "contract": {
-              "destination": "aurora",
-              "id": 1,
-              "kind": "parcels",
-              "origin": "pines",
-              "reward": 110,
-              "status": "loaded",
-              "units": 11
-            },
-            "contracts_completed": 0,
-            "credits": 0,
-            "last_processed_visit": 1,
-            "owned_rewards": [
-              "aurora",
-              "ocean"
-            ],
-            "passengers": [
-              {
-                "count": 7,
-                "destination": "aurora",
-                "origin": "pines"
-              }
-            ],
-            "passengers_boarded": 7,
-            "passengers_delivered": 0
-          },
-          "smoke_particles": 12,
-          "speed_kmh": 30.89588795838605,
-          "station_wait_seconds": 0.0,
-          "stations_visited": 1,
-          "target_kmh": 31.035404663085938,
-          "total_memory_bytes": 16828755968,
-          "used_memory_bytes": 10609770496,
-          "world_elapsed_seconds": 120.00029619999991
-        },
-        "seconds": 120.3746183,
-        "samples": [
-          {
-            "elapsed": 4.84e-05,
-            "working_set": 4542464,
-            "private_bytes": 1404928,
-            "cpu_seconds": 0
-          },
-          {
-            "elapsed": 1.0052493,
-            "working_set": 111013888,
-            "private_bytes": 62869504,
-            "cpu_seconds": 0.71875
-          },
-          {
-            "elapsed": 2.022833,
-            "working_set": 111464448,
-            "private_bytes": 63193088,
-            "cpu_seconds": 1
-          },
-          {
-            "elapsed": 3.0368484,
-            "working_set": 112295936,
-            "private_bytes": 64376832,
-            "cpu_seconds": 1.171875
-          },
-          {
-            "elapsed": 4.051309,
-            "working_set": 112295936,
-            "private_bytes": 64315392,
-            "cpu_seconds": 1.421875
-          },
-          {
-            "elapsed": 5.0619923,
-            "working_set": 112300032,
-            "private_bytes": 64315392,
-            "cpu_seconds": 1.65625
-          },
-          {
-            "elapsed": 6.0738332,
-            "working_set": 112300032,
-            "private_bytes": 64315392,
-            "cpu_seconds": 1.890625
-          },
-          {
-            "elapsed": 7.0880502,
-            "working_set": 112332800,
-            "private_bytes": 64315392,
-            "cpu_seconds": 2.140625
-          },
-          {
-            "elapsed": 8.103046299999999,
-            "working_set": 112537600,
-            "private_bytes": 64307200,
-            "cpu_seconds": 2.328125
-          },
-          {
-            "elapsed": 9.1044921,
-            "working_set": 112537600,
-            "private_bytes": 64307200,
-            "cpu_seconds": 2.53125
-          },
-          {
-            "elapsed": 10.1197936,
-            "working_set": 112537600,
-            "private_bytes": 64307200,
-            "cpu_seconds": 2.703125
-          },
-          {
-            "elapsed": 11.1349217,
-            "working_set": 109686784,
-            "private_bytes": 61423616,
-            "cpu_seconds": 2.9375
-          },
-          {
-            "elapsed": 12.1448819,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 3.078125
-          },
-          {
-            "elapsed": 13.1604937,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 3.296875
-          },
-          {
-            "elapsed": 14.17408,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 3.484375
-          },
-          {
-            "elapsed": 15.189287499999999,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 3.6875
-          },
-          {
-            "elapsed": 16.2045633,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 3.875
-          },
-          {
-            "elapsed": 17.2195549,
-            "working_set": 109740032,
-            "private_bytes": 61423616,
-            "cpu_seconds": 4.078125
-          },
-          {
-            "elapsed": 18.2327901,
-            "working_set": 110116864,
-            "private_bytes": 61800448,
-            "cpu_seconds": 4.328125
-          },
-          {
-            "elapsed": 19.2468747,
-            "working_set": 110112768,
-            "private_bytes": 61796352,
-            "cpu_seconds": 4.53125
-          },
-          {
-            "elapsed": 20.252093199999997,
-            "working_set": 110112768,
-            "private_bytes": 61796352,
-            "cpu_seconds": 4.671875
-          },
-          {
-            "elapsed": 21.2687183,
-            "working_set": 110112768,
-            "private_bytes": 61796352,
-            "cpu_seconds": 4.859375
-          },
-          {
-            "elapsed": 22.2731319,
-            "working_set": 110108672,
-            "private_bytes": 61792256,
-            "cpu_seconds": 5.0625
-          },
-          {
-            "elapsed": 23.2789358,
-            "working_set": 110108672,
-            "private_bytes": 61792256,
-            "cpu_seconds": 5.25
-          },
-          {
-            "elapsed": 24.300184299999998,
-            "working_set": 110108672,
-            "private_bytes": 61792256,
-            "cpu_seconds": 5.515625
-          },
-          {
-            "elapsed": 25.3127094,
-            "working_set": 110104576,
-            "private_bytes": 61788160,
-            "cpu_seconds": 5.640625
-          },
-          {
-            "elapsed": 26.3283733,
-            "working_set": 110104576,
-            "private_bytes": 61788160,
-            "cpu_seconds": 5.90625
-          },
-          {
-            "elapsed": 27.3471394,
-            "working_set": 110104576,
-            "private_bytes": 61788160,
-            "cpu_seconds": 6.109375
-          },
-          {
-            "elapsed": 28.354487499999998,
-            "working_set": 110104576,
-            "private_bytes": 61788160,
-            "cpu_seconds": 6.328125
-          },
-          {
-            "elapsed": 29.3582686,
-            "working_set": 110104576,
-            "private_bytes": 61788160,
-            "cpu_seconds": 6.546875
-          },
-          {
-            "elapsed": 30.364551199999998,
-            "working_set": 109723648,
-            "private_bytes": 61399040,
-            "cpu_seconds": 6.765625
-          },
-          {
-            "elapsed": 31.3837199,
-            "working_set": 109723648,
-            "private_bytes": 61399040,
-            "cpu_seconds": 7
-          },
-          {
-            "elapsed": 32.4046063,
-            "working_set": 109723648,
-            "private_bytes": 61399040,
-            "cpu_seconds": 7.203125
-          },
-          {
-            "elapsed": 33.4063138,
-            "working_set": 109723648,
-            "private_bytes": 61399040,
-            "cpu_seconds": 7.390625
-          },
-          {
-            "elapsed": 34.412518,
-            "working_set": 109809664,
-            "private_bytes": 61427712,
-            "cpu_seconds": 7.625
-          },
-          {
-            "elapsed": 35.4245507,
-            "working_set": 109838336,
-            "private_bytes": 61427712,
-            "cpu_seconds": 7.875
-          },
-          {
-            "elapsed": 36.4386361,
-            "working_set": 110358528,
-            "private_bytes": 61829120,
-            "cpu_seconds": 8.015625
-          },
-          {
-            "elapsed": 37.4416268,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 8.1875
-          },
-          {
-            "elapsed": 38.4449891,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 8.359375
-          },
-          {
-            "elapsed": 39.4542113,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 8.484375
-          },
-          {
-            "elapsed": 40.4691781,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 8.640625
-          },
-          {
-            "elapsed": 41.490355,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 8.84375
-          },
-          {
-            "elapsed": 42.5085243,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 9.03125
-          },
-          {
-            "elapsed": 43.513481399999996,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 9.21875
-          },
-          {
-            "elapsed": 44.531041599999995,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 9.390625
-          },
-          {
-            "elapsed": 45.5457075,
-            "working_set": 110362624,
-            "private_bytes": 61833216,
-            "cpu_seconds": 9.609375
-          },
-          {
-            "elapsed": 46.5627326,
-            "working_set": 110366720,
-            "private_bytes": 61833216,
-            "cpu_seconds": 9.859375
-          },
-          {
-            "elapsed": 47.567509699999995,
-            "working_set": 110362624,
-            "private_bytes": 61829120,
-            "cpu_seconds": 10.09375
-          },
-          {
-            "elapsed": 48.5856097,
-            "working_set": 110362624,
-            "private_bytes": 61829120,
-            "cpu_seconds": 10.34375
-          },
-          {
-            "elapsed": 49.6053862,
-            "working_set": 110292992,
-            "private_bytes": 61759488,
-            "cpu_seconds": 10.546875
-          },
-          {
-            "elapsed": 50.6081566,
-            "working_set": 110292992,
-            "private_bytes": 61759488,
-            "cpu_seconds": 10.71875
-          },
-          {
-            "elapsed": 51.6266405,
-            "working_set": 110292992,
-            "private_bytes": 61759488,
-            "cpu_seconds": 10.890625
-          },
-          {
-            "elapsed": 52.6296602,
-            "working_set": 110292992,
-            "private_bytes": 61759488,
-            "cpu_seconds": 11.046875
-          },
-          {
-            "elapsed": 53.6466676,
-            "working_set": 110292992,
-            "private_bytes": 61759488,
-            "cpu_seconds": 11.265625
-          },
-          {
-            "elapsed": 54.664476099999995,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 11.484375
-          },
-          {
-            "elapsed": 55.667255499999996,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 11.6875
-          },
-          {
-            "elapsed": 56.685682299999996,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 11.921875
-          },
-          {
-            "elapsed": 57.6862253,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 12.09375
-          },
-          {
-            "elapsed": 58.692374699999995,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 12.34375
-          },
-          {
-            "elapsed": 59.7107854,
-            "working_set": 110686208,
-            "private_bytes": 62156800,
-            "cpu_seconds": 12.546875
-          },
-          {
-            "elapsed": 60.7161664,
-            "working_set": 110632960,
-            "private_bytes": 62054400,
-            "cpu_seconds": 12.78125
-          },
-          {
-            "elapsed": 61.7235106,
-            "working_set": 110632960,
-            "private_bytes": 62054400,
-            "cpu_seconds": 13.015625
-          },
-          {
-            "elapsed": 62.741557699999994,
-            "working_set": 110632960,
-            "private_bytes": 62054400,
-            "cpu_seconds": 13.296875
-          },
-          {
-            "elapsed": 63.7616266,
-            "working_set": 110632960,
-            "private_bytes": 62054400,
-            "cpu_seconds": 13.53125
-          },
-          {
-            "elapsed": 64.7658836,
-            "working_set": 109752320,
-            "private_bytes": 61595648,
-            "cpu_seconds": 13.703125
-          },
-          {
-            "elapsed": 65.7863661,
-            "working_set": 110018560,
-            "private_bytes": 61595648,
-            "cpu_seconds": 14.03125
-          },
-          {
-            "elapsed": 66.8031106,
-            "working_set": 110018560,
-            "private_bytes": 61595648,
-            "cpu_seconds": 14.234375
-          },
-          {
-            "elapsed": 67.8194953,
-            "working_set": 110006272,
-            "private_bytes": 61562880,
-            "cpu_seconds": 14.46875
-          },
-          {
-            "elapsed": 68.822606,
-            "working_set": 110006272,
-            "private_bytes": 61562880,
-            "cpu_seconds": 14.6875
-          },
-          {
-            "elapsed": 69.82394289999999,
-            "working_set": 110010368,
-            "private_bytes": 61562880,
-            "cpu_seconds": 14.84375
-          },
-          {
-            "elapsed": 70.84034969999999,
-            "working_set": 110010368,
-            "private_bytes": 61562880,
-            "cpu_seconds": 15.015625
-          },
-          {
-            "elapsed": 71.8510634,
-            "working_set": 110403584,
-            "private_bytes": 61956096,
-            "cpu_seconds": 15.203125
-          },
-          {
-            "elapsed": 72.8688105,
-            "working_set": 110403584,
-            "private_bytes": 61956096,
-            "cpu_seconds": 15.390625
-          },
-          {
-            "elapsed": 73.87381409999999,
-            "working_set": 110403584,
-            "private_bytes": 61956096,
-            "cpu_seconds": 15.578125
-          },
-          {
-            "elapsed": 74.8776925,
-            "working_set": 110403584,
-            "private_bytes": 61956096,
-            "cpu_seconds": 15.796875
-          },
-          {
-            "elapsed": 75.897385,
-            "working_set": 110452736,
-            "private_bytes": 61956096,
-            "cpu_seconds": 16.015625
-          },
-          {
-            "elapsed": 76.91561449999999,
-            "working_set": 110452736,
-            "private_bytes": 61956096,
-            "cpu_seconds": 16.21875
-          },
-          {
-            "elapsed": 77.9201485,
-            "working_set": 110452736,
-            "private_bytes": 61956096,
-            "cpu_seconds": 16.4375
-          },
-          {
-            "elapsed": 78.9271493,
-            "working_set": 110452736,
-            "private_bytes": 61952000,
-            "cpu_seconds": 16.640625
-          },
-          {
-            "elapsed": 79.9467876,
-            "working_set": 110583808,
-            "private_bytes": 62013440,
-            "cpu_seconds": 16.828125
-          },
-          {
-            "elapsed": 80.9545811,
-            "working_set": 110600192,
-            "private_bytes": 62013440,
-            "cpu_seconds": 17.078125
-          },
-          {
-            "elapsed": 81.9570291,
-            "working_set": 110751744,
-            "private_bytes": 62607360,
-            "cpu_seconds": 17.296875
-          },
-          {
-            "elapsed": 82.97617989999999,
-            "working_set": 110968832,
-            "private_bytes": 62607360,
-            "cpu_seconds": 17.5
-          },
-          {
-            "elapsed": 83.9813995,
-            "working_set": 110968832,
-            "private_bytes": 62607360,
-            "cpu_seconds": 17.6875
-          },
-          {
-            "elapsed": 84.9873784,
-            "working_set": 110968832,
-            "private_bytes": 62607360,
-            "cpu_seconds": 17.890625
-          },
-          {
-            "elapsed": 85.9920571,
-            "working_set": 110641152,
-            "private_bytes": 62279680,
-            "cpu_seconds": 18.140625
-          },
-          {
-            "elapsed": 87.0020127,
-            "working_set": 110641152,
-            "private_bytes": 62279680,
-            "cpu_seconds": 18.390625
-          },
-          {
-            "elapsed": 88.0071035,
-            "working_set": 110641152,
-            "private_bytes": 62279680,
-            "cpu_seconds": 18.640625
-          },
-          {
-            "elapsed": 89.0256156,
-            "working_set": 110645248,
-            "private_bytes": 62279680,
-            "cpu_seconds": 18.859375
-          },
-          {
-            "elapsed": 90.0323897,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.0625
-          },
-          {
-            "elapsed": 91.0551131,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.28125
-          },
-          {
-            "elapsed": 92.0621024,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.4375
-          },
-          {
-            "elapsed": 93.06618329999999,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.5625
-          },
-          {
-            "elapsed": 94.0689072,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.765625
-          },
-          {
-            "elapsed": 95.07489369999999,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 19.90625
-          },
-          {
-            "elapsed": 96.08119579999999,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 20.078125
-          },
-          {
-            "elapsed": 97.0859555,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 20.25
-          },
-          {
-            "elapsed": 98.0899469,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 20.453125
-          },
-          {
-            "elapsed": 99.09661609999999,
-            "working_set": 110972928,
-            "private_bytes": 62615552,
-            "cpu_seconds": 20.671875
-          },
-          {
-            "elapsed": 100.1127812,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 20.859375
-          },
-          {
-            "elapsed": 101.1316556,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 21.046875
-          },
-          {
-            "elapsed": 102.13687709999999,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 21.296875
-          },
-          {
-            "elapsed": 103.1571371,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 21.46875
-          },
-          {
-            "elapsed": 104.16204809999999,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 21.71875
-          },
-          {
-            "elapsed": 105.16957599999999,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 21.921875
-          },
-          {
-            "elapsed": 106.1850274,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 22.109375
-          },
-          {
-            "elapsed": 107.1890658,
-            "working_set": 110579712,
-            "private_bytes": 62222336,
-            "cpu_seconds": 22.265625
-          },
-          {
-            "elapsed": 108.1934579,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 22.421875
-          },
-          {
-            "elapsed": 109.2108262,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 22.59375
-          },
-          {
-            "elapsed": 110.2256961,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 22.796875
-          },
-          {
-            "elapsed": 111.22738899999999,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 23.046875
-          },
-          {
-            "elapsed": 112.2303043,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 23.265625
-          },
-          {
-            "elapsed": 113.24921219999999,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 23.5625
-          },
-          {
-            "elapsed": 114.2706151,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 23.765625
-          },
-          {
-            "elapsed": 115.2876376,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 24
-          },
-          {
-            "elapsed": 116.29176919999999,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 24.3125
-          },
-          {
-            "elapsed": 117.2943028,
-            "working_set": 110972928,
-            "private_bytes": 62619648,
-            "cpu_seconds": 24.609375
-          },
-          {
-            "elapsed": 118.2994593,
-            "working_set": 110579712,
-            "private_bytes": 62218240,
-            "cpu_seconds": 24.890625
-          },
-          {
-            "elapsed": 119.3170866,
-            "working_set": 110579712,
-            "private_bytes": 62218240,
-            "cpu_seconds": 25.203125
-          }
-        ],
-        "exit_code": 0
-      }
-    ]
-  },
-  "profile_migration": {
-    "before_distance": 154854.9083568,
-    "after_distance": 155189.0694408,
-    "owned_paintings": [
-      "aurora",
-      "ocean",
-      "sunset",
-      "midnight"
-    ],
-    "scope": "Isolated copy of historical profile; source untouched",
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "after_version": 3,
-    "exit_code": 0,
-    "before_version": 2,
-    "migration_backup_verified": true
-  },
-  "local_weather": {
-    "exit_code": 0,
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "online_verified": true,
-    "ready_samples": 25,
-    "weather": {
-      "age_seconds": 619,
-      "cache_error": null,
-      "city": "São Paulo, SP, Brasil",
-      "enabled": true,
-      "error": null,
-      "lighting_phase": 39.14965058445783,
-      "loading": false,
-      "location": {
-        "city": "São Paulo, SP, Brasil",
-        "latitude": -23.5505,
-        "longitude": -46.6333
-      },
-      "snapshot": {
-        "is_day": true,
-        "observed_unix": 1794648600,
-        "precipitation_mm": 0.0,
-        "received_unix": 1794649194,
-        "sunrise_unix": 1794644037,
-        "sunset_unix": 1794691688,
-        "temperature_c": 16.899999618530273,
-        "utc_offset_seconds": -10800,
-        "weather": "cloudy",
-        "weather_code": 3,
-        "wind_speed_kmh": 2.299999952316284
-      },
-      "source": "Open-Meteo",
-      "stale": false,
-      "status": "ready"
-    },
-    "evidence_directory": "evidence\\current\\weather\\run-20261114-063954"
-  },
-  "game_ui": {
-    "version": "0.4.0-rc.2",
-    "scope": "Actual egui layout exported headlessly; not native compositor screenshots",
-    "reviewed_utc": "2026-11-14T09:47:27.696493+00:00",
-    "sources": {
-      "src/app/branches.rs": "5908f9a43b05156f33f733534fdcfdfcb17125b302122f2aa8aa2d8967fbc9c3",
-      "src/app/journey.rs": "8fd9d8479740e803e17d3e4ca671071aa7b43e4a60d73d2da08cd04ad965dd04",
-      "src/app/services.rs": "bc68c8d5b52c244bf98129e95f81c5f82860099772025e7cbedca0dfe98e60fe",
-      "src/app/storage.rs": "33cb8d083dd3ddfcd89c2f5425f0072af8aec44d478b15604cba139e210fa520",
-      "src/app/workshop.rs": "d7621b89aa3812675557952e21ff6f93af08a0e2986538f307fba228a55b9a38",
-      "src/app.rs": "6e6372e28eb525568e912f6407e3f34fd3915a5e8e0513ec8342e91466fc5d9c",
-      "src/audio.rs": "3671a7fd0bc59b4e69a1355eb4ee4487b22fcaa029333fd0f663f3c53984f963",
-      "src/config.rs": "53defb564e71ee54d447596867da17ad67b7453f53d68d93f257fafb838f2f78",
-      "src/diagnostics.rs": "4a4b91eaa43f5e56e7cfc6b21651909556ab19ec5a1a52c0498be0fa43dcc645",
-      "src/frame_pacing.rs": "10553c30a8bd2f2d2dee5b88e3e1f434cbce6d23338aea24f7e3040e5f840e1c",
-      "src/frame_timings.rs": "a9288125376b5dddd8c4492c7b7ed1bb75f06c08ce0783409bea4407765aa704",
-      "src/lib.rs": "2fa5ae8d43142ad39b7bd01f35e3f7162149850f82829b1b9d0335e7aabc55af",
-      "src/local_weather.rs": "5cbf6e6db5eac3b3965e1dd176f0aeef78e1ca1d89ed34275f6570dc46b5fd06",
-      "src/main.rs": "59b985fc59e164b0d2676a7288c60dec69cf2bcce33a09463b11622df945d3b4",
-      "src/metrics/mod.rs": "f6270e9aa4c2bccfbfa254b6ecad03fcafe1c711e4196472ecba5552828e583e",
-      "src/metrics/sysinfo_provider.rs": "aeaabcac2ebe3072d92de675521341cd537efadcb4eb9cec7fd954cc7075531f",
-      "src/platform/desktop.rs": "c814a78a8e713c4fb04f29b4c6d74f6b67be5b43370da4363cdcbe2bb1913755",
-      "src/platform/geometry.rs": "4c76be7322fc24f184c25e95be89da3d8e6589230c0044f88c275843f8a97be8",
-      "src/platform/journey_dialog.rs": "7847d91730cdca5d2e45c055bdecfd4d9870fd987335bf4745360d404cf1e895",
-      "src/platform/lifecycle.rs": "f7a96b5a869ee1b78cddd17432a59aba65b34e8230c20e800906fcb888b8b755",
-      "src/platform/mod.rs": "58a87a433370a5ef5b0c466f9ae7b82540c978f10012a2812b698c89b4611f20",
-      "src/platform/tray.rs": "56b36bdfd48c25deb7beb4dd37e005da40a8e85fb74255756910ff3b5e686cc8",
-      "src/platform/windows.rs": "2dea1aa6580b413a733e53d96528bc4d8f2955ca95c32c119c491fa12216024d",
-      "src/progress.rs": "2d372f2718f4dd8ab2f2a8907eae0b72906f6d4c2355080d57b4f2309d6d3c0c",
-      "src/rendering/engines.rs": "323364b77092c5e51bc4164cdc470fabfb6bb0e1c3b0194837d23dd1e2f13d21",
-      "src/rendering/legacy.rs": "333ada705cc5cea3d1d2597dcfb91da38f0f3f1d61a9b98221c9d262747ea271",
-      "src/rendering/mod.rs": "63211c129ecddcfd1fbc32c633fd892350775fedce1cfccda1705c40295556d7",
-      "src/rendering/palette.rs": "7e012b8574c9e22603ea7c1247253004ceace7ece448b9606fece0cf259a56ef",
-      "src/rendering/rolling_stock.rs": "da9db241fac406fdb444183ab008532028684e516fc8d972509392b0394361db",
-      "src/rendering/scene.rs": "5465669d43c87c7b1fa4398b018071a9ba32bad9322cd1b79cf1673e5821f188",
-      "src/rendering/scenery.rs": "67c8bb6edb881a18ee6d38ebdec35b568d64398649c7d6a55159323626b0c0ab",
-      "src/rendering/sprites.rs": "6c3a3afe514a7281d6758f1e4e345afde4bb73d2792e7ba1b813ed28df58ef98",
-      "src/rendering/stations.rs": "982a0e431421aa00a7e1d7f490455ca6a46930a0873506f4655dfafdbbe4338f",
-      "src/rendering/theme.rs": "e83c59ccdc3061fcec8ab568fd6eb39de2fa48d229245fc497073eae0cc12629",
-      "src/simulation/branch.rs": "ae1d9a583bd6db082a88f8668d8adc109ae819c2f85e9af945d4ed924391420c",
-      "src/simulation/journey.rs": "5630c59df78a2053223e32ee2f0580a97d4cb87fd23717a9b397e93dc3ae8350",
-      "src/simulation/mod.rs": "0c89313030b6d53e77ef2f518210c7b06cbc3551b9ae06b94e70d2b8d8082994",
-      "src/simulation/objectives.rs": "335df8aeafd36133cc5e0dde7212704bc8a466251e402909a9bb5e17e090ebae",
-      "src/simulation/route.rs": "1ce7968fef2196bac830784ba216699eaabbe737b6848a2ce809b83d7b1772df",
-      "src/simulation/service.rs": "30d22185e88928e965d13a53534446697cf507af0583162a4ac454969a0112b4",
-      "src/simulation/timing.rs": "beaa2331d3cbf671b8e87e3e2bb6e0c7202eccc14f94f8a24457b274467c92ef",
-      "src/simulation/train.rs": "fd00839a4108dabad94f87764a39b1bd5f30651a492eb21502413fef8fb360f5",
-      "src/simulation/world.rs": "0bb84f4ad7640eab42d774fcdfbfbf94ea4978e563b83fee92c1b11c4b5c1637",
-      "src/ui_game.rs": "f24ca1a69bbdb556d25507a5bd99b5c0b89248ba344812f35e88cb9eb4cf1f39",
-      "src/ui_services.rs": "09fedc227b0c63c8b3219bbf95c28b962ded2b75d88c8fdea8d9b23b72267086",
-      "src/ui_stock.rs": "ac3bbb8abe49905c5512a676d7470e196042f75e1cd4ae2b646e636dff8c8a37",
-      "Cargo.toml": "57424a00e76bc69836e799ec56b22efd14cf6e8e01b4fb2ba6fa2cae08698079",
-      "Cargo.lock": "9bc47891eef5161187687d4fba459c938419e08b3ed36950c89d8185afb12e08",
-      "tests/ux_visual.rs": "77ca7040fcdd66860129c4a25917ea9e2922ca571e6055caf4f6a8e6d82120c1"
-    },
-    "panels": {
-      "evidence/current/panels-dispatch-final/floating_branch.png": "82361fbfa4492807b5cfaa3dbd3413ffd36fe537baf60e533148105d1f4341f8",
-      "evidence/current/panels-dispatch-final/floating_branch_minimum.png": "bdb9657146548c82f29af4f0da365cb3b1b64a9bdcc3f5199b065237cf9d89b9",
-      "evidence/current/panels-dispatch-final/floating_branch_minimum_scrolled.png": "b90dfaae80d70308f06ba28ef5a102cc163cd63ca394e416aaa5534e94dd4f2a",
-      "evidence/current/panels-dispatch-final/floating_clima.png": "fd7ec4f6df96d8645c5535017259307fba0d222691d0aab6175feb2c758b23ac",
-      "evidence/current/panels-dispatch-final/floating_colecao.png": "8174bce5b426e1d72a54f95f8863f73bc59f4fc7f99ddcb34950c07eaa8a8d34",
-      "evidence/current/panels-dispatch-final/floating_contract_blocked.png": "5120487e0ae13d3622c1e36a1bdaa07380b60fbfb301434038076ddb72d75f33",
-      "evidence/current/panels-dispatch-final/floating_contract_minimum.png": "9c511f7f2b84e9f1d306044fb28646f217d76369c06d7169c32bb479d3a32735",
-      "evidence/current/panels-dispatch-final/floating_contract_minimum_scrolled.png": "ceb0cfb06708a142939d6040373f91898d374cc61c54f4d052dad53478b540d4",
-      "evidence/current/panels-dispatch-final/floating_contract_offer.png": "4974444095fbefb57c3f0b21edf261a608916c1735c404b282854e39fd6b7325",
-      "evidence/current/panels-dispatch-final/floating_contract_return.png": "04154df812cad23d7c8decc1a97f04ceff7476ee0369c28444ef8adf76ba149d",
-      "evidence/current/panels-dispatch-final/floating_contract_small.png": "f8336eef4ed851fddcb50e8e3482ac787f0e9e73d76e1890d869d0968447dd9b",
-      "evidence/current/panels-dispatch-final/floating_diario.png": "44824809e77861b590e703f39c68da72b21e1f9c8704b5cb4fe76903e5863a80",
-      "evidence/current/panels-dispatch-final/floating_diario_active.png": "2295996857487b24b37f63fd81bc45f7cc80024ab920c599dc1d62859928dbbb",
-      "evidence/current/panels-dispatch-final/floating_fluidez.png": "25a43f09877a33786b49d0f9d6ff97728bbc6438c17252b4e061d9f3f6ba11a6",
-      "evidence/current/panels-dispatch-final/floating_janela.png": "490e944d94bab2dfdb6d8b3bd2b5aac86cfb78054d19dba460335ed77170c5ac",
-      "evidence/current/panels-dispatch-final/floating_motores.png": "dda61ff6f200e980aa758e5c060e383ec5c405eed83473662c93ae44a08242bd",
-      "evidence/current/panels-dispatch-final/floating_objetivos.png": "1815d45af6b7fdb71feb4c64b2783a3c0f2a2f5259db26f730973fa944c4c80e",
-      "evidence/current/panels-dispatch-final/floating_pinturas.png": "b02d1ad8e06cfa60b90474e81aea8857c55d8552f6e2aa0353372af1bc23d6de",
-      "evidence/current/panels-dispatch-final/floating_servicos.png": "fca38b086caf5df6cec0da846d76a93a23b06838524caad17d6a625ec8ae20cd",
-      "evidence/current/panels-dispatch-final/floating_servicos_active.png": "8a583f8c32f2d5737c38d57edef324284beaf3e99c22446e1e1020720dd377e7",
-      "evidence/current/panels-dispatch-final/floating_trem.png": "d7680255284bd2e560780d5861545ef7b13014c9bb5117542effa73850051603",
-      "evidence/current/panels-dispatch-final/floating_viagem.png": "a5aaf53260eac3d3a69cfad60d38a9b8103e2bb09ef0ed4249691026c5a2a855",
-      "evidence/current/panels-dispatch-final/floating_visual.png": "a7b79b0d6da10a251eae2c88691c055db8f6b8cc31263a1fdc626304e4d51dee",
-      "evidence/current/panels-dispatch-final/floating_visual_minimum.png": "1e162581019c68385bbc2d9bcf5dca9e43ac595140125ed450b3c95715455c26",
-      "evidence/current/panels-dispatch-final/floating_visual_minimum_scrolled.png": "2e086a54b4c4667a012d74ae2a8cc27d0456eb959967a36ce30b4b883d00a352",
-      "evidence/current/panels-dispatch-final/floating_visual_small.png": "f04af42513b36a4461440eba731a0566c509e0bbc17df7aab4380e216ed58842"
-    },
-    "meshes": {
-      "evidence/current/panels-dispatch-final/floating_branch.json": "fe5350ce7c254e44e238c729425409dccf7c067e7521a06daf2ea8bb1b383db0",
-      "evidence/current/panels-dispatch-final/floating_branch_minimum.json": "92d32033009926ecc6d2009df302b1fe11f934c706a6e9d32262a45ecc84da82",
-      "evidence/current/panels-dispatch-final/floating_branch_minimum_scrolled.json": "690f2992f6d797f8879dcedcbe71c54d00097080d1f3dfb5cfc1c81826191ab2",
-      "evidence/current/panels-dispatch-final/floating_clima.json": "b3e478af1721ea188c5d55826caf088b2284d589236384ea932af020ba910f19",
-      "evidence/current/panels-dispatch-final/floating_colecao.json": "0dee6273d2d1fe47478abe89877595be5ec4ff2446ef5a2f63722f7842926186",
-      "evidence/current/panels-dispatch-final/floating_contract_blocked.json": "7c9868d38943231a2c7ed3eb99b58beeb519d8d378522db12be9342ddcbeea4d",
-      "evidence/current/panels-dispatch-final/floating_contract_minimum.json": "0633ccadb24061a753f958922672611c11e55542b8a77918413bb63ca255e88e",
-      "evidence/current/panels-dispatch-final/floating_contract_minimum_scrolled.json": "eafc8beb53a236ee9e5a9e70df8fea14532c51e041e26df14f09abd768d87613",
-      "evidence/current/panels-dispatch-final/floating_contract_offer.json": "841ee7a573dada714dc4e2c2a17c0ac6eb033e5730a0344530ea68697f18375c",
-      "evidence/current/panels-dispatch-final/floating_contract_return.json": "3b4cdd302c312ca4ba5c41758a35f18b5652b802d7bed904f7c6baa19423b5cb",
-      "evidence/current/panels-dispatch-final/floating_contract_small.json": "003f9aac365176be9b46557239aed13a3d97d034a9b38d3d5ce71f3e83dbb723",
-      "evidence/current/panels-dispatch-final/floating_diario.json": "d0a6e34dd2c37d44230efa9b33f44e814714d6fb154b980976c636728512f642",
-      "evidence/current/panels-dispatch-final/floating_diario_active.json": "b8038a943391371c0199eca3a11a8283cb9905aa8f455e5d7603723e31b684dc",
-      "evidence/current/panels-dispatch-final/floating_fluidez.json": "14102fc40d57f8ab6e9ca5698767251979658687af2303b8143ac287d51fb32e",
-      "evidence/current/panels-dispatch-final/floating_janela.json": "2143737833e8874a01f30a3d6a4658b746e27d276da2e00e128f8ff80b55e42a",
-      "evidence/current/panels-dispatch-final/floating_motores.json": "cf6322e35ecd526d85de636c5c95f894db9cc9dd4db025da1a0a5108a3303792",
-      "evidence/current/panels-dispatch-final/floating_objetivos.json": "63fdc1cf26313062d0ce2ca3e2fac146f91b2975842404cbada543e7d8da795f",
-      "evidence/current/panels-dispatch-final/floating_pinturas.json": "286f9756b17316ddd9f5bb89141702fad455f4f08d5886c87491cf1878ac4aa7",
-      "evidence/current/panels-dispatch-final/floating_servicos.json": "b6baf0e54ce8875e6c745de19ad17166bc3bfe9dad9c72376ef272489d72ceca",
-      "evidence/current/panels-dispatch-final/floating_servicos_active.json": "7a7c54b6072cada0ed6ea09121e551490399f153b6ac1986d0afba5213fbe26f",
-      "evidence/current/panels-dispatch-final/floating_trem.json": "1079ccc473adc625aadfa4c3226e718df036aaadc446319d3f8134ccf59b8d8e",
-      "evidence/current/panels-dispatch-final/floating_viagem.json": "52bd8ae6f90f48a9c8a8fc5b0d9cae9a978e451c7b8e46e46fb70e9137f60a7a",
-      "evidence/current/panels-dispatch-final/floating_visual.json": "2cbc4bec6ee686a0f256cdc79e5857d128d5134fa30b8c17ef4b6edff07abaea",
-      "evidence/current/panels-dispatch-final/floating_visual_minimum.json": "dd4e465dfcc06a0d2022d6b63f5cb0643f1e557fa521b4d737012bf95d52f8d9",
-      "evidence/current/panels-dispatch-final/floating_visual_minimum_scrolled.json": "66e5f61644dab7dfe615090f879a8de9220a3a454d4882fced48d9eff718f3ca",
-      "evidence/current/panels-dispatch-final/floating_visual_small.json": "5c18ef4fa821c8df113d5b8f298adf976c336327e2ffaafb431f6d16821c4b1c"
-    },
-    "inspected_panels": [
-      "floating_contract_minimum",
-      "floating_branch_minimum",
-      "floating_visual_minimum",
-      "floating_contract_offer",
-      "floating_contract_return",
-      "floating_visual_small",
-      "floating_branch",
-      "floating_contract_minimum_scrolled",
-      "floating_branch_minimum_scrolled",
-      "floating_visual_minimum_scrolled"
-    ],
-    "coverage": [
-      "manual offer",
-      "capacity warning",
-      "cargo return",
-      "480x480 navigation and scroll",
-      "branch phases",
-      "workshop previews"
-    ]
-  },
-  "mode_transitions": {
-    "exit_code": 0,
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "evidence_directory": "evidence\\current\\visual-refresh\\run-20261114-064113",
-    "stages": [
-      {
-        "stage": 0,
-        "taskbar": true,
-        "geometry": {
-          "client_height": 60,
-          "client_width": 274,
-          "embedded": false,
-          "height": 60,
-          "panel": {
-            "height": 947,
-            "visible": true,
-            "width": 968,
-            "x": 10,
-            "y": 70
-          },
-          "parent_class": "",
-          "surface_mode": "independent",
-          "taskbar_aligned": true,
-          "taskbar_height": 60,
-          "taskbar_width": 1920,
-          "width": 274,
-          "x": 0,
-          "y": 1020
-        },
-        "render_surface_size": [
-          273.984375,
-          60.0
-        ]
-      },
-      {
-        "stage": 1,
-        "taskbar": false,
-        "geometry": {
-          "client_height": 193,
-          "client_width": 782,
-          "embedded": false,
-          "height": 240,
-          "panel": {
-            "height": 947,
-            "visible": true,
-            "width": 968,
-            "x": 10,
-            "y": 70
-          },
-          "parent_class": "",
-          "surface_mode": "independent",
-          "taskbar_aligned": false,
-          "taskbar_height": 60,
-          "taskbar_width": 1920,
-          "width": 800,
-          "x": 120,
-          "y": 140
-        },
-        "render_surface_size": [
-          781.9921875,
-          193.0078125
-        ]
-      },
-      {
-        "stage": 2,
-        "taskbar": true,
-        "geometry": {
-          "client_height": 60,
-          "client_width": 274,
-          "embedded": false,
-          "height": 60,
-          "panel": {
-            "height": 947,
-            "visible": true,
-            "width": 968,
-            "x": 10,
-            "y": 70
-          },
-          "parent_class": "",
-          "surface_mode": "independent",
-          "taskbar_aligned": true,
-          "taskbar_height": 60,
-          "taskbar_width": 1920,
-          "width": 274,
-          "x": 0,
-          "y": 1020
-        },
-        "render_surface_size": [
-          273.984375,
-          60.0
-        ]
-      },
-      {
-        "stage": 3,
-        "taskbar": false,
-        "geometry": {
-          "client_height": 193,
-          "client_width": 782,
-          "embedded": false,
-          "height": 240,
-          "panel": {
-            "height": 947,
-            "visible": true,
-            "width": 968,
-            "x": 10,
-            "y": 70
-          },
-          "parent_class": "",
-          "surface_mode": "independent",
-          "taskbar_aligned": false,
-          "taskbar_height": 60,
-          "taskbar_width": 1920,
-          "width": 800,
-          "x": 120,
-          "y": 140
-        },
-        "render_surface_size": [
-          781.9921875,
-          193.0078125
-        ]
-      },
-      {
-        "stage": 4,
-        "taskbar": true,
-        "geometry": {
-          "client_height": 60,
-          "client_width": 274,
-          "embedded": false,
-          "height": 60,
-          "panel": {
-            "height": 947,
-            "visible": true,
-            "width": 968,
-            "x": 10,
-            "y": 70
-          },
-          "parent_class": "",
-          "surface_mode": "independent",
-          "taskbar_aligned": true,
-          "taskbar_height": 60,
-          "taskbar_width": 1920,
-          "width": 274,
-          "x": 0,
-          "y": 1020
-        },
-        "render_surface_size": [
-          273.984375,
-          60.0
-        ]
-      }
-    ]
-  },
-  "visual_refresh": {
-    "scope": "Short local runs; same 60 FPS limit, DEMO, 640x180 floating window, closed panel. Rendered frames, not compositor frames or CPU cost.",
-    "before": {
-      "binary_sha256": "177815c8a241e2a2c79731b25654d88378826a1dd1d47f9dcfd2e6f9c31b6580",
-      "rendered_frames": 641,
-      "elapsed_seconds": 12.0278727,
-      "warm_average_fps": 52.87271510184026,
-      "settings": {
-        "fps": 60,
-        "mode": "demo",
-        "window": [
-          640,
-          180
-        ]
-      }
-    },
-    "after": {
-      "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-      "rendered_frames": 720,
-      "elapsed_seconds": 12.0390507,
-      "warm_average_fps": 59.79569291623924,
-      "settings": {
-        "fps": 60,
-        "mode": "demo",
-        "window": [
-          640,
-          180
-        ]
-      }
-    }
-  },
-  "native_smoke": {
-    "binary": "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\release\\cpu-express.exe",
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "exit_code": 0,
-    "timed_out": false,
-    "records": 13,
-    "taskbar_surface_verified": true,
-    "independent_panel_verified": true,
-    "strip_capture": true,
-    "panel_capture": false,
-    "final_event": "shutdown",
-    "rendered_frames": 716,
-    "native_window": {
-      "client_height": 60,
-      "client_width": 274,
-      "embedded": false,
-      "height": 60,
-      "panel": {
-        "height": 947,
-        "visible": true,
-        "width": 968,
-        "x": 10,
-        "y": 70
-      },
-      "parent_class": "",
-      "surface_mode": "independent",
-      "taskbar_aligned": true,
-      "taskbar_height": 60,
-      "taskbar_width": 1920,
-      "width": 274,
-      "x": 0,
-      "y": 1020
-    },
-    "evidence_directory": "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\evidence\\current\\native-20261114-064113"
-  },
-  "real_metrics": {
-    "exit_code": 0,
-    "binary_sha256": "f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985",
-    "valid_real_samples": 4,
-    "last": {
-      "completed_laps": 0,
-      "cpu_percent": 11.826835632324219,
-      "diagnostics_schema_version": 2,
-      "dropped_travel_events": 0,
-      "effective_cpu_percent": 11.826835632324219,
-      "effective_paused": false,
-      "elapsed_seconds": 5.0555559,
-      "event": "shutdown",
-      "frame_work": {
-        "max_ms": 0.3345,
-        "mean_ms": 0.11448085937500001,
-        "p95_ms": 0.1799,
-        "samples": 256,
-        "scope": "simulation_render_texture_submission_not_compositor"
-      },
-      "hidden": false,
-      "journey_active_seconds": 5.0054901,
-      "journey_distance_units": 120.1317624,
-      "journey_segment": 0,
-      "local_weather": {
-        "age_seconds": null,
-        "cache_error": null,
-        "city": "SÃ£o Paulo, SP, Brasil",
-        "enabled": false,
-        "error": null,
-        "lighting_phase": null,
-        "loading": false,
-        "location": {
-          "city": "SÃ£o Paulo, SP, Brasil",
-          "latitude": -23.5505,
-          "longitude": -46.6333
-        },
-        "snapshot": null,
-        "source": "Open-Meteo",
-        "stale": false,
-        "status": "illustrative"
-      },
-      "metric_age_seconds": 0.7046718,
-      "metric_freshness": "current",
-      "metric_status": "ready",
-      "metrics_stale": false,
-      "mode": "real",
-      "native_window": {
-        "client_height": 60,
-        "client_width": 274,
-        "embedded": false,
-        "height": 60,
-        "panel": {
-          "height": 0,
-          "visible": false,
-          "width": 0,
-          "x": 0,
-          "y": 0
-        },
-        "parent_class": "",
-        "surface_mode": "independent",
-        "taskbar_aligned": true,
-        "taskbar_height": 60,
-        "taskbar_width": 1920,
-        "width": 274,
-        "x": 0,
-        "y": 1020
-      },
-      "next_station": "Bosque dos Pinheiros",
-      "paused": false,
-      "ram_percent": 69.47171020507812,
-      "received_samples": 5,
-      "render_surface_size": [
-        273.984375,
-        60.0
-      ],
-      "rendered_frames": 300,
-      "rendered_frames_hidden": 0,
-      "rendered_frames_visible": 300,
-      "requested_taskbar_mode": true,
-      "scroll_px": 56.30268617940324,
-      "segment_progress": 0.06322724336842105,
-      "services": {
-        "arrivals": [],
-        "automatic_contracts": true,
-        "branch": {
-          "current": null,
-          "discoveries": [],
-          "pending": null
-        },
-        "cargo_delivered": 0,
-        "collection": [],
-        "composition": [
-          "observation",
-          "sleeper",
-          "freight"
-        ],
-        "contract": null,
-        "contracts_completed": 0,
-        "credits": 0,
-        "last_processed_visit": 0,
-        "owned_rewards": [
-          "aurora"
-        ],
-        "passengers": [],
-        "passengers_boarded": 0,
-        "passengers_delivered": 0
-      },
-      "smoke_particles": 11,
-      "speed_kmh": 22.652373841308542,
-      "station_wait_seconds": 0.0,
-      "stations_visited": 0,
-      "target_kmh": 22.407615356445312,
-      "total_memory_bytes": 16828755968,
-      "used_memory_bytes": 11691225088,
-      "world_elapsed_seconds": 5.005490100000004
-    }
-  },
-  "python_tests": {
-    "scope": "Historical research tests are not certified for this build"
-  },
-  "production_sources": {
-    "Cargo.toml": "57424a00e76bc69836e799ec56b22efd14cf6e8e01b4fb2ba6fa2cae08698079",
-    "Cargo.lock": "9bc47891eef5161187687d4fba459c938419e08b3ed36950c89d8185afb12e08",
-    "src/app/branches.rs": "5908f9a43b05156f33f733534fdcfdfcb17125b302122f2aa8aa2d8967fbc9c3",
-    "src/app/journey.rs": "8fd9d8479740e803e17d3e4ca671071aa7b43e4a60d73d2da08cd04ad965dd04",
-    "src/app/services.rs": "bc68c8d5b52c244bf98129e95f81c5f82860099772025e7cbedca0dfe98e60fe",
-    "src/app/storage.rs": "33cb8d083dd3ddfcd89c2f5425f0072af8aec44d478b15604cba139e210fa520",
-    "src/app/workshop.rs": "d7621b89aa3812675557952e21ff6f93af08a0e2986538f307fba228a55b9a38",
-    "src/app.rs": "6e6372e28eb525568e912f6407e3f34fd3915a5e8e0513ec8342e91466fc5d9c",
-    "src/audio.rs": "3671a7fd0bc59b4e69a1355eb4ee4487b22fcaa029333fd0f663f3c53984f963",
-    "src/config.rs": "53defb564e71ee54d447596867da17ad67b7453f53d68d93f257fafb838f2f78",
-    "src/diagnostics.rs": "4a4b91eaa43f5e56e7cfc6b21651909556ab19ec5a1a52c0498be0fa43dcc645",
-    "src/frame_pacing.rs": "10553c30a8bd2f2d2dee5b88e3e1f434cbce6d23338aea24f7e3040e5f840e1c",
-    "src/frame_timings.rs": "a9288125376b5dddd8c4492c7b7ed1bb75f06c08ce0783409bea4407765aa704",
-    "src/lib.rs": "2fa5ae8d43142ad39b7bd01f35e3f7162149850f82829b1b9d0335e7aabc55af",
-    "src/local_weather.rs": "5cbf6e6db5eac3b3965e1dd176f0aeef78e1ca1d89ed34275f6570dc46b5fd06",
-    "src/main.rs": "59b985fc59e164b0d2676a7288c60dec69cf2bcce33a09463b11622df945d3b4",
-    "src/metrics/mod.rs": "f6270e9aa4c2bccfbfa254b6ecad03fcafe1c711e4196472ecba5552828e583e",
-    "src/metrics/sysinfo_provider.rs": "aeaabcac2ebe3072d92de675521341cd537efadcb4eb9cec7fd954cc7075531f",
-    "src/platform/desktop.rs": "c814a78a8e713c4fb04f29b4c6d74f6b67be5b43370da4363cdcbe2bb1913755",
-    "src/platform/geometry.rs": "4c76be7322fc24f184c25e95be89da3d8e6589230c0044f88c275843f8a97be8",
-    "src/platform/journey_dialog.rs": "7847d91730cdca5d2e45c055bdecfd4d9870fd987335bf4745360d404cf1e895",
-    "src/platform/lifecycle.rs": "f7a96b5a869ee1b78cddd17432a59aba65b34e8230c20e800906fcb888b8b755",
-    "src/platform/mod.rs": "58a87a433370a5ef5b0c466f9ae7b82540c978f10012a2812b698c89b4611f20",
-    "src/platform/tray.rs": "56b36bdfd48c25deb7beb4dd37e005da40a8e85fb74255756910ff3b5e686cc8",
-    "src/platform/windows.rs": "2dea1aa6580b413a733e53d96528bc4d8f2955ca95c32c119c491fa12216024d",
-    "src/progress.rs": "2d372f2718f4dd8ab2f2a8907eae0b72906f6d4c2355080d57b4f2309d6d3c0c",
-    "src/rendering/engines.rs": "323364b77092c5e51bc4164cdc470fabfb6bb0e1c3b0194837d23dd1e2f13d21",
-    "src/rendering/legacy.rs": "333ada705cc5cea3d1d2597dcfb91da38f0f3f1d61a9b98221c9d262747ea271",
-    "src/rendering/mod.rs": "63211c129ecddcfd1fbc32c633fd892350775fedce1cfccda1705c40295556d7",
-    "src/rendering/palette.rs": "7e012b8574c9e22603ea7c1247253004ceace7ece448b9606fece0cf259a56ef",
-    "src/rendering/rolling_stock.rs": "da9db241fac406fdb444183ab008532028684e516fc8d972509392b0394361db",
-    "src/rendering/scene.rs": "5465669d43c87c7b1fa4398b018071a9ba32bad9322cd1b79cf1673e5821f188",
-    "src/rendering/scenery.rs": "67c8bb6edb881a18ee6d38ebdec35b568d64398649c7d6a55159323626b0c0ab",
-    "src/rendering/sprites.rs": "6c3a3afe514a7281d6758f1e4e345afde4bb73d2792e7ba1b813ed28df58ef98",
-    "src/rendering/stations.rs": "982a0e431421aa00a7e1d7f490455ca6a46930a0873506f4655dfafdbbe4338f",
-    "src/rendering/theme.rs": "e83c59ccdc3061fcec8ab568fd6eb39de2fa48d229245fc497073eae0cc12629",
-    "src/simulation/branch.rs": "ae1d9a583bd6db082a88f8668d8adc109ae819c2f85e9af945d4ed924391420c",
-    "src/simulation/journey.rs": "5630c59df78a2053223e32ee2f0580a97d4cb87fd23717a9b397e93dc3ae8350",
-    "src/simulation/mod.rs": "0c89313030b6d53e77ef2f518210c7b06cbc3551b9ae06b94e70d2b8d8082994",
-    "src/simulation/objectives.rs": "335df8aeafd36133cc5e0dde7212704bc8a466251e402909a9bb5e17e090ebae",
-    "src/simulation/route.rs": "1ce7968fef2196bac830784ba216699eaabbe737b6848a2ce809b83d7b1772df",
-    "src/simulation/service.rs": "30d22185e88928e965d13a53534446697cf507af0583162a4ac454969a0112b4",
-    "src/simulation/timing.rs": "beaa2331d3cbf671b8e87e3e2bb6e0c7202eccc14f94f8a24457b274467c92ef",
-    "src/simulation/train.rs": "fd00839a4108dabad94f87764a39b1bd5f30651a492eb21502413fef8fb360f5",
-    "src/simulation/world.rs": "0bb84f4ad7640eab42d774fcdfbfbf94ea4978e563b83fee92c1b11c4b5c1637",
-    "src/ui_game.rs": "f24ca1a69bbdb556d25507a5bd99b5c0b89248ba344812f35e88cb9eb4cf1f39",
-    "src/ui_services.rs": "09fedc227b0c63c8b3219bbf95c28b962ded2b75d88c8fdea8d9b23b72267086",
-    "src/ui_stock.rs": "ac3bbb8abe49905c5512a676d7470e196042f75e1cd4ae2b646e636dff8c8a37"
-  },
-  "imports": [
-    "KERNEL32.dll",
-    "ntdll.dll",
-    "gdi32.dll",
-    "imm32.dll",
-    "ole32.dll",
-    "user32.dll",
-    "KERNEL32.dll",
-    "api-ms-win-crt-environment-l1-1-0.dll",
-    "api-ms-win-crt-heap-l1-1-0.dll",
-    "api-ms-win-crt-locale-l1-1-0.dll",
-    "api-ms-win-crt-math-l1-1-0.dll",
-    "api-ms-win-crt-private-l1-1-0.dll",
-    "api-ms-win-crt-runtime-l1-1-0.dll",
-    "api-ms-win-crt-stdio-l1-1-0.dll",
-    "api-ms-win-crt-string-l1-1-0.dll",
-    "OPENGL32.dll",
-    "WINMM.dll",
-    "kernel32.dll",
-    "bcryptprimitives.dll",
-    "advapi32.dll",
-    "api-ms-win-core-synch-l1-2-0.dll",
-    "kernel32.dll",
-    "ntdll.dll",
-    "pdh.dll",
-    "powrprof.dll",
-    "psapi.dll",
-    "shell32.dll",
-    "kernel32.dll",
-    "oleaut32.dll",
-    "comdlg32.dll",
-    "dwmapi.dll",
-    "gdi32.dll",
-    "kernel32.dll",
-    "ole32.dll",
-    "shell32.dll",
-    "user32.dll",
-    "uxtheme.dll",
-    "winhttp.dll"
-  ],
-  "not_validated": [
-    "Windows 10",
-    "mixed-DPI monitors",
-    "Explorer restart",
-    "autohide",
-    "long-duration stability",
-    "taskbar left-widget conflicts"
-  ],
-  "capture_scope": "Native app framebuffers only; not a desktop compositor screenshot"
+    "version":  "0.4.0-rc.3",
+    "status":  "beta local validado no escopo descrito",
+    "target":  "x86_64-pc-windows-gnu",
+    "profile":  "release",
+    "signed":  false,
+    "built_utc":  "2026-11-14T20:32:23.0984464Z",
+    "rustc":  "rustc 1.100.0 (0ef1bc386 2026-11-09)\r\nbinary: rustc\r\ncommit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a\r\ncommit-date: 2026-11-09\r\nhost: x86_64-pc-windows-gnu\r\nrelease: 1.100.0\r\nLLVM version: 23.1.5",
+    "base_commit":  "efeb74ac31d97b9b5d9d8013dd3cd28a53f7196c",
+    "working_tree":  "alterações não commitadas; manifesto identifica a fonte exata",
+    "executable_sha256":  "85f6b91569eca70b256b5fdc5a6d4637b0e187d268b27f3a5136e7c9a0f9fd4f",
+    "executable_bytes":  6185472,
+    "checks":  {
+                   "value":  [
+                                 {
+                                     "seconds":  1.9173801,
+                                     "name":  "format",
+                                     "exit_code":  0
+                                 },
+                                 {
+                                     "seconds":  95.4621962,
+                                     "name":  "clippy",
+                                     "exit_code":  0
+                                 },
+                                 {
+                                     "seconds":  246.25401309999998,
+                                     "name":  "tests",
+                                     "exit_code":  0
+                                 }
+                             ],
+                   "Count":  3
+               },
+    "rust_tests":  {
+                       "passed":  340,
+                       "failed":  0,
+                       "ignored":  2
+                   },
+    "production_and_test_sources":  {
+                                        "Cargo.lock":  "fee0b6dbbcea0cde4832b51a3d5a7ec7b4393071c3814c3ead2a8620f07f0bbc",
+                                        "Cargo.toml":  "a949dec90e77a39cdd539dd2bb597013b3f6787a3119692e19b7ce4f4fa695fd",
+                                        "data/catalog/core.json":  "aca35b4e8054c561ac6c084683cac9df1d44436c8096566738edf93a9a0f07cc",
+                                        "data/lines/aurora-v1.json":  "12f9026b17a4c6a4e28abfdb9aa3a2f2bd4bf6216e5834cf72f547948d697fd7",
+                                        "data/lines/curitiba-paranagua.json":  "ebe744a04c01170eae4a6614c3c54d2dad59311b0bdb7f6e8a298cc099bd3b8c",
+                                        "data/sources/curitiba-paranagua/build_line.py":  "a37d8a808662e657b705968b9a491b21b42fa1fcfe10feacaf3c4fcb05238e5b",
+                                        "data/sources/curitiba-paranagua/derive_path.py":  "17bb93026ebb1e40a5ff38c5cc338c31aed8124a363bc011cf82d807ceb84f28",
+                                        "data/sources/curitiba-paranagua/derived-path.json":  "eea3d6d20015a3d5366147c2f002a4e2e3053c767fb65bcf208a198cca8f283c",
+                                        "data/sources/curitiba-paranagua/open-meteo-elevation.json":  "81deee592e0aa37d2600825b1af877580d831ad12c18971f0e3792e16302b008",
+                                        "data/sources/curitiba-paranagua/osm-points.json":  "e358177b10b5220f39d2840f706a52459962280c59f8388a5b5bb26af70834cf",
+                                        "data/sources/curitiba-paranagua/osm-railways.json":  "991756cc5b5ee422bcb4c115e75332127447437832cc8445439ec52dbfd84677",
+                                        "data/sources/curitiba-paranagua/overpass-points.overpassql":  "72b45c8fa480349f2a511a94dc0dc19a9a87082404c64bf489cd0cdc03211f0c",
+                                        "data/sources/curitiba-paranagua/overpass-railways.overpassql":  "014fa341f307a99c7247eef0c13af66d1a92c680f3b4c767b968b063d45ecd15",
+                                        "data/sources/curitiba-paranagua/README.md":  "4ce3189587d3b6cf51cb9863a2d0b10c26b2f679c664fa45ce0c88c1af19c178",
+                                        "data/sources/curitiba-paranagua/wikidata-stations.json":  "e77fcd5e576263668a1dbe88dd3111d68abf79f331e664f3e9aa7e3a9002b990",
+                                        "data/sources/curitiba-paranagua/wikidata-stations.sparql":  "f4203a1ab2cf033a10460799967d03c0d8da1b97f499acb0b412a0915a307dc4",
+                                        "examples/art_review.rs":  "c9ca6d800e5228563c9200681fa4e7303030960f4bac454186ce84f74bf33d88",
+                                        "examples/engine_gallery.rs":  "405a61df27d4ebbea3e719bc03acda27fb6ec398b0aef0396853dc07829b26b3",
+                                        "examples/export_frame.rs":  "71d903bdcbb82efbed57cb2825fa81379942da00378ec536be05a229be7c304f",
+                                        "examples/journey_core_tests.rs":  "0619095e7755bab554d441927d67a1dbda1bd59d665737468e62fb3c16810b93",
+                                        "examples/journey_demo.rs":  "d1128ce36ea8832e631593bd91dffd72efd5db7d3e66cc9e88a16ffa4c081bbd",
+                                        "examples/metrics_probe.rs":  "90b659bb1e9234cf9d43da6e352f5aa9aa47bbc2605a83a07b5c653dff7a45b1",
+                                        "examples/scene_bench.rs":  "6eeba3ead353adfc32dd9f0476a21afb68f7ee343424f8a543cffdfdb5ee3cb6",
+                                        "examples/scene_gallery.rs":  "a3634cafa5c949ceec4993f67b829191cce0089a1b2c20795950f053eed8bf3c",
+                                        "examples/station_gallery.rs":  "45c46a2a2693e4938d6c9d609c5be8d821ca727f35e89185b94fa9093ffb11bc",
+                                        "examples/weather_review.rs":  "1ea79e033028019d52b95e08f8884124d683ec2204ead7f5ab3586d971fd44e7",
+                                        "examples/window_smoke.rs":  "1f7328eee01a1a11448b80a6d3918961c0a40eebb27c5a6e94b1127d7bc16e2d",
+                                        "examples/windows_desktop.rs":  "0126774ce91843ea82406a5684776fa58bd9d77c39971410648d49db6a756090",
+                                        "src/app.rs":  "60adc68b437aa071bf08506449176797df3652d9f222e2dedcfd5e1a1ae435d2",
+                                        "src/app/branches.rs":  "5908f9a43b05156f33f733534fdcfdfcb17125b302122f2aa8aa2d8967fbc9c3",
+                                        "src/app/journey.rs":  "8fd9d8479740e803e17d3e4ca671071aa7b43e4a60d73d2da08cd04ad965dd04",
+                                        "src/app/services.rs":  "bc68c8d5b52c244bf98129e95f81c5f82860099772025e7cbedca0dfe98e60fe",
+                                        "src/app/storage.rs":  "b9f2d30706e44e378d2735e68a5d980c1fbc99a8282a062c406ac23fc2bfe125",
+                                        "src/app/workshop.rs":  "d7621b89aa3812675557952e21ff6f93af08a0e2986538f307fba228a55b9a38",
+                                        "src/audio.rs":  "3671a7fd0bc59b4e69a1355eb4ee4487b22fcaa029333fd0f663f3c53984f963",
+                                        "src/config.rs":  "bdba43904a804903d68ee1f8c6a140bd43f0d43dc89fa17e1374ede20cc2aa99",
+                                        "src/diagnostics.rs":  "e9bdb4bbc660d82988457b069646a50ad91c24254667b1d90a32a0d10f96f6f3",
+                                        "src/frame_pacing.rs":  "10553c30a8bd2f2d2dee5b88e3e1f434cbce6d23338aea24f7e3040e5f840e1c",
+                                        "src/frame_timings.rs":  "a9288125376b5dddd8c4492c7b7ed1bb75f06c08ce0783409bea4407765aa704",
+                                        "src/lib.rs":  "2fa5ae8d43142ad39b7bd01f35e3f7162149850f82829b1b9d0335e7aabc55af",
+                                        "src/local_weather.rs":  "5cbf6e6db5eac3b3965e1dd176f0aeef78e1ca1d89ed34275f6570dc46b5fd06",
+                                        "src/main.rs":  "39cc74ab8f74781fb2d6b3c9ffa1e6b26c8ec1f1d84b35448a31fa98d5b0f9c6",
+                                        "src/metrics/mod.rs":  "f6270e9aa4c2bccfbfa254b6ecad03fcafe1c711e4196472ecba5552828e583e",
+                                        "src/metrics/sysinfo_provider.rs":  "aeaabcac2ebe3072d92de675521341cd537efadcb4eb9cec7fd954cc7075531f",
+                                        "src/platform/desktop.rs":  "a0d7c32147d68703560fc51c83ee47b10a3119ff7383a7cda345c344310a8995",
+                                        "src/platform/geometry.rs":  "4c76be7322fc24f184c25e95be89da3d8e6589230c0044f88c275843f8a97be8",
+                                        "src/platform/journey_dialog.rs":  "7847d91730cdca5d2e45c055bdecfd4d9870fd987335bf4745360d404cf1e895",
+                                        "src/platform/lifecycle.rs":  "f7a96b5a869ee1b78cddd17432a59aba65b34e8230c20e800906fcb888b8b755",
+                                        "src/platform/mod.rs":  "82e1043198aa6c19dd0959e6af8fe549e39cde2696ff358864882379610fdb4d",
+                                        "src/platform/strip.rs":  "aa488c3cc95c95fd803907e42b51c0189424b126a22804d589d9504a33220372",
+                                        "src/platform/tray.rs":  "56b36bdfd48c25deb7beb4dd37e005da40a8e85fb74255756910ff3b5e686cc8",
+                                        "src/platform/windows.rs":  "c22b60b8e9126efbddbd23c58bc2faabf2144a69e19ff112baf600aff1cb2d7c",
+                                        "src/progress.rs":  "c3bbe59a0af1029ac26627c7e0e650cdbe961405e45fe7787062305fb1281225",
+                                        "src/rendering/engines.rs":  "323364b77092c5e51bc4164cdc470fabfb6bb0e1c3b0194837d23dd1e2f13d21",
+                                        "src/rendering/legacy.rs":  "65825cbff24d5d324d05012cb5386216bb69fb31883c40fb656c981b540a0681",
+                                        "src/rendering/mod.rs":  "bde0892ff931b155c790816c3808e7dabe8b3c22c33429abea9d7b5f27872a81",
+                                        "src/rendering/palette.rs":  "7e012b8574c9e22603ea7c1247253004ceace7ece448b9606fece0cf259a56ef",
+                                        "src/rendering/rolling_stock.rs":  "da9db241fac406fdb444183ab008532028684e516fc8d972509392b0394361db",
+                                        "src/rendering/scene.rs":  "fbf74c5d093ec1330b1370a3e20afdf117ef939c3ce502263385a2ebd6534927",
+                                        "src/rendering/scenery.rs":  "dfee84316c30156d5b73aeec95f08bb35cf2b02a9633e3dd428e83c3c9460cf8",
+                                        "src/rendering/sprites.rs":  "5822b3e467dd6033b6d05bc9373d5f731580470f61892a0ca7f0f4df839a66fc",
+                                        "src/rendering/stations.rs":  "01b819c8c8006a53b6985bf0da9bf80d7bed02e7112e2b4247124af120cb164e",
+                                        "src/rendering/theme.rs":  "e83c59ccdc3061fcec8ab568fd6eb39de2fa48d229245fc497073eae0cc12629",
+                                        "src/simulation/branch.rs":  "ae1d9a583bd6db082a88f8668d8adc109ae819c2f85e9af945d4ed924391420c",
+                                        "src/simulation/catalog.rs":  "ae0541baff4b8bfcc9cd42b66ec46f977723abd45521769abd3f37c2e9702f66",
+                                        "src/simulation/itinerary.rs":  "1c06ae2a16b0c9b83d00cdd1d902150a3c7c4d3e4a50391b221bbd025cbab30f",
+                                        "src/simulation/journey.rs":  "5630c59df78a2053223e32ee2f0580a97d4cb87fd23717a9b397e93dc3ae8350",
+                                        "src/simulation/mod.rs":  "661e2a3bc7b69dea5bdef4f84256bab518bd82e2012e34afd02dd4f4cf5b665f",
+                                        "src/simulation/objectives.rs":  "335df8aeafd36133cc5e0dde7212704bc8a466251e402909a9bb5e17e090ebae",
+                                        "src/simulation/route.rs":  "73a28e21f6703efc97c9657dda6e3936a140972ee4a773c003e4052a7f751d58",
+                                        "src/simulation/service.rs":  "34b5efaab001d706721dca9449de65ad87389a4ee37362309cb56f2c178172d0",
+                                        "src/simulation/timing.rs":  "beaa2331d3cbf671b8e87e3e2bb6e0c7202eccc14f94f8a24457b274467c92ef",
+                                        "src/simulation/train.rs":  "fd00839a4108dabad94f87764a39b1bd5f30651a492eb21502413fef8fb360f5",
+                                        "src/simulation/world.rs":  "0bb84f4ad7640eab42d774fcdfbfbf94ea4978e563b83fee92c1b11c4b5c1637",
+                                        "src/ui_game.rs":  "f24ca1a69bbdb556d25507a5bd99b5c0b89248ba344812f35e88cb9eb4cf1f39",
+                                        "src/ui_services.rs":  "09fedc227b0c63c8b3219bbf95c28b962ded2b75d88c8fdea8d9b23b72267086",
+                                        "src/ui_stock.rs":  "ac3bbb8abe49905c5512a676d7470e196042f75e1cd4ae2b646e636dff8c8a37",
+                                        "tests/catalog.rs":  "4bab4fe68d3b6ad2792b2360e3ba8caa7e1c51bcc7c980c30ebde1d5e2f54ec8",
+                                        "tests/config.rs":  "d49be2e24b322abee9276664e684b0969fbaf874969b2b406b3ee382c224f283",
+                                        "tests/expedition.rs":  "3b4b8b8bb95e988ef975ae3df2e341b2d91bb16643a107dad959c12e7d065bfb",
+                                        "tests/fixtures/rc7/mid-segment.journey.json":  "934fc9f66b812a3824c3fb9a8476d28abc009137ef7d161838b86f0b4bcc1daa",
+                                        "tests/fixtures/rc7/new-profile.journey.json":  "aa9340e2944cd192b07c9c7bdd5ea5cc33165256d7b6554df9a3d1fb5fa82f81",
+                                        "tests/fixtures/rc7/old-preferences.config.json":  "be2347a413f55b5552ae70a975969342203347a3b47014ad149915147a996cd9",
+                                        "tests/fixtures/rc7/README.md":  "59b1e9595d13efc67f97f46ef83d17d1fc506d1c2ee5839a602d0c1989bda3f2",
+                                        "tests/fixtures/rc7/rewards-unlocked.journey.json":  "efe968622eeb23e856d142d5f0fd4fdcfd7b0f6b8ab9d535993abc75e7123084",
+                                        "tests/fixtures/rc7/station-stop.journey.json":  "29ddfba0d9b9b09424126cdf1b84e534a4c3947001edaed84103bd5c2f6779c2",
+                                        "tests/itinerary.rs":  "3c23274a84e6b544f1bf327a150117b3636a2411ced2a24978d7301d830a103d",
+                                        "tests/journey_invariants.rs":  "19ddb3615a3537faa3e67624576a6cce78a454568d59dd5b9b098cd545653e88",
+                                        "tests/journey_rendering.rs":  "a9f759a865ffb1c7eadcf0a9b71f919eb8045579ae6aaa4b2d6dbbd9be65d511",
+                                        "tests/journey_route.rs":  "e0f0bdb1052a237c61439cf1c085d569a5442b89c554fe3e0df599256d85eefd",
+                                        "tests/local_weather_cache.rs":  "1916aaabda1967fd3b906f8748c890176cad7ce80c9a01c045dfc0d77e707fd8",
+                                        "tests/metrics.rs":  "07fc992c504a0c803269b1f36f9990d5420845825fe708e4db2b2424bde05b8f",
+                                        "tests/metrics_worker.rs":  "a2878f869def50603a1129651a2230788b274eb8b3468048828fee4e3d8507ed",
+                                        "tests/platform_geometry.rs":  "668c01f8e7eb56d34598e11e27451396107f390a94f5f29f572743ae221832aa",
+                                        "tests/platform_lifecycle.rs":  "04f7614aa1cd8c8a97246ddcb8137bfed13fbd0b9d6e2be09133834a227cf24c",
+                                        "tests/rendering_allocations.rs":  "4f496e2b44200513c88e6bd28461be42b60be30eb78d3fb0ece39c6065239422",
+                                        "tests/rendering_branch.rs":  "a83f829f9a40536db4aa4e1caf88763b9cbc8107efb2d160259a26df7bde1516",
+                                        "tests/rendering_contract.rs":  "7986971daa515cb34da7679f8853bf27cae11bbb8008385d13c9f70f2101b3a1",
+                                        "tests/rendering_engines.rs":  "8840319b4ce6fc6296407f963aa2b8683747fc1d3b7409845923055a9e451297",
+                                        "tests/rendering_lighting.rs":  "588f9f7e4bdd42906d1211b5d2049fa46a70c222853f7d963b4405f19f94ee9d",
+                                        "tests/rendering_weather_detail.rs":  "fe53536ba3da9174ad0852b78a9778897de67938ac60eba36c462f8e564c3e1b",
+                                        "tests/save_fixtures.rs":  "216437f4fa56d06beeda3e556b563977f28bdb719f83ad3a7570ac58ba064aea",
+                                        "tests/save_recovery.rs":  "dbd004724882d94d9b89e12db8ef5bbb54acdf81d842f6069353b63239648676",
+                                        "tests/service_branch.rs":  "0ae29225c9e4478151fd8ba7a0142ca5b0c16e5ec25f3e8f409fe04d9be1d312",
+                                        "tests/service_dispatch.rs":  "6bda2c650647f63071438377d4b8d4a51bacfddd23add3f2556c677d325bdeb0",
+                                        "tests/service_gameplay.rs":  "56b4385457786849b928994a67c1e9c8e0515757184853c54d053c033aa97dd6",
+                                        "tests/service_import.rs":  "b436bd823e8ab81a7b69158817d1bb5660aa6681b39862915cd69d02d355be72",
+                                        "tests/service_motion.rs":  "b97e5f0cdc01d533c32bf0d79595ee2b857607106f195369cc8b8e7e909733b7",
+                                        "tests/simulation.rs":  "c991a50c346ffc78d5ce7be852abbed1ecdcb35e2fcf8c63d79b6298388ad9bc",
+                                        "tests/ui_game.rs":  "787ecd32b17eb5da55d485e77f9e1ef529a4e4515270e360434b6a62d89f9d44",
+                                        "tests/ui_stock.rs":  "b85936cb3fb0ba0aa3ab2f47b2a552b860999c3fa79fcddd0f75aab07730c78e",
+                                        "tests/ux_app.rs":  "1cc85f0b737e48fc80815fea866b2955f0d24312a2ebf7f2744e17351047bb44",
+                                        "tests/ux_cli.rs":  "2794998322a5af90483f4de27b20f612f6840c0713937c808ec4e1bc80cf7f7c",
+                                        "tests/ux_config.rs":  "366052b3d538fd2c133cd9232fabab976145143931b0aaa8fcbc6ce54b1b4455",
+                                        "tests/ux_visual.rs":  "77ca7040fcdd66860129c4a25917ea9e2922ca571e6055caf4f6a8e6d82120c1",
+                                        "tests/window_placement.rs":  "f92e3c28f702d23443d534da25d1503f9c6f5594daa04fd62e99147a18ad82d3"
+                                    },
+    "native":  {
+                   "native-smoke-result.json":  {
+                                                    "binary":  "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\portable acceptance 20261114-174014-370\\CPU-Express-0.4.0-rc.3\\cpu-express.exe",
+                                                    "binary_sha256":  "85f6b91569eca70b256b5fdc5a6d4637b0e187d268b27f3a5136e7c9a0f9fd4f",
+                                                    "exit_code":  0,
+                                                    "timed_out":  false,
+                                                    "records":  13,
+                                                    "taskbar_surface_verified":  false,
+                                                    "floating_fallback_verified":  true,
+                                                    "visual_confirmation":  "Não executada; somente consultas Win32 e framebuffer",
+                                                    "independent_panel_verified":  true,
+                                                    "strip_capture":  true,
+                                                    "panel_capture":  false,
+                                                    "final_event":  "shutdown",
+                                                    "rendered_frames":  143,
+                                                    "native_window":  {
+                                                                          "client_height":  133,
+                                                                          "client_width":  622,
+                                                                          "embedded":  false,
+                                                                          "height":  180,
+                                                                          "panel":  {
+                                                                                        "height":  947,
+                                                                                        "visible":  true,
+                                                                                        "width":  968,
+                                                                                        "x":  160,
+                                                                                        "y":  10
+                                                                                    },
+                                                                          "parent_class":  "",
+                                                                          "surface_mode":  "independent",
+                                                                          "taskbar_aligned":  false,
+                                                                          "taskbar_height":  0,
+                                                                          "taskbar_width":  0,
+                                                                          "width":  640,
+                                                                          "x":  40,
+                                                                          "y":  40
+                                                                      },
+                                                    "evidence_directory":  "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\native-rc3-20261114-174059"
+                                                },
+                   "portable-result.json":  {
+                                                "exit_code":  0,
+                                                "binary_sha256":  "85f6b91569eca70b256b5fdc5a6d4637b0e187d268b27f3a5136e7c9a0f9fd4f",
+                                                "version":  "0.4.0-rc.3",
+                                                "scope":  "Três ZIPs extraídos em caminho com espaços; hashes conferidos; perfil isolado; PATH somente Windows; offline",
+                                                "archive_payload_hashes_verified":  true,
+                                                "final_event":  "shutdown",
+                                                "directory":  "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\portable acceptance 20261114-174014-370",
+                                                "executable":  "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\portable acceptance 20261114-174014-370\\CPU-Express-0.4.0-rc.3\\cpu-express.exe"
+                                            },
+                   "profile-migration-result.json":  {
+                                                         "before_distance":  3100.5,
+                                                         "after_distance":  3100.5,
+                                                         "directory":  "C:\\Users\\pedro\\repo\\Active\\cpu-express\\desenvolvimento\\cpu-express\\target\\profile-migration-20261114-174041",
+                                                         "owned_paintings":  [
+                                                                                 "aurora",
+                                                                                 "ocean"
+                                                                             ],
+                                                         "service_preserved":  true,
+                                                         "scope":  "Cópia isolada de fixture sintética v3; origem intocada; pausado; rede desativada",
+                                                         "source_sha256":  "7ff07bff6443f8204d00eb28f4b19cb603d0dad9c25c25118094de348fb57433",
+                                                         "binary_sha256":  "85f6b91569eca70b256b5fdc5a6d4637b0e187d268b27f3a5136e7c9a0f9fd4f",
+                                                         "after_version":  4,
+                                                         "exit_code":  0,
+                                                         "before_version":  3,
+                                                         "migration_backup_verified":  true
+                                                     }
+               },
+    "imports":  [
+                    "KERNEL32.dll",
+                    "ntdll.dll",
+                    "gdi32.dll",
+                    "imm32.dll",
+                    "ole32.dll",
+                    "user32.dll",
+                    "KERNEL32.dll",
+                    "api-ms-win-crt-environment-l1-1-0.dll",
+                    "api-ms-win-crt-heap-l1-1-0.dll",
+                    "api-ms-win-crt-locale-l1-1-0.dll",
+                    "api-ms-win-crt-math-l1-1-0.dll",
+                    "api-ms-win-crt-private-l1-1-0.dll",
+                    "api-ms-win-crt-runtime-l1-1-0.dll",
+                    "api-ms-win-crt-stdio-l1-1-0.dll",
+                    "api-ms-win-crt-string-l1-1-0.dll",
+                    "OPENGL32.dll",
+                    "WINMM.dll",
+                    "kernel32.dll",
+                    "bcryptprimitives.dll",
+                    "advapi32.dll",
+                    "api-ms-win-core-synch-l1-2-0.dll",
+                    "kernel32.dll",
+                    "ntdll.dll",
+                    "pdh.dll",
+                    "powrprof.dll",
+                    "psapi.dll",
+                    "shell32.dll",
+                    "kernel32.dll",
+                    "oleaut32.dll",
+                    "comdlg32.dll",
+                    "dwmapi.dll",
+                    "gdi32.dll",
+                    "kernel32.dll",
+                    "ole32.dll",
+                    "shell32.dll",
+                    "user32.dll",
+                    "uxtheme.dll",
+                    "winhttp.dll"
+                ],
+    "license_files_verified":  328,
+    "data_license":  "ODbL-1.0 / © OpenStreetMap contributors; procedência e demais fontes em data/sources/curitiba-paranagua/README.md",
+    "network":  "Compilação e ensaios offline; nenhum envio externo nesta rodada",
+    "not_validated":  [
+                          "cliques/arrastes/compositor deste executável",
+                          "Windows 10",
+                          "outro computador/conta nova",
+                          "DPI misto/segundo monitor",
+                          "autohide/reinício do Explorer",
+                          "SmartScreen real",
+                          "clima online",
+                          "soak/desempenho",
+                          "workflow remoto",
+                          "assinatura digital"
+                      ],
+    "visual_acceptance":  "Aceite anterior do Pedro no Windows 11 dele; não é nova evidência visual do binário rc.3."
 }

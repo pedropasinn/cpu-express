@@ -1,8 +1,10 @@
-# CPU Express 0.3.0-rc.7 — checklist de aceitação no Windows
+# CPU Express 0.4.0-rc.3 — checklist de aceitação no Windows
 
 Atualizado em 2026-11-14. Este documento separa **evidência já registrada da rc7** de **aceitação manual ainda pendente**. Não significa que todos os testes abaixo foram executados no hardware de Pedro. Para a expansão, consultar [PLANO_EXECUCAO.md](PLANO_EXECUCAO.md).
 
-## 1. O que a evidência atual permite afirmar
+## 1. Histórico rc7 (não certifica a rc.3)
+
+Resultados da distribuição atual: [VALIDACAO_RC3.md](VALIDACAO_RC3.md), BUILD-INFO e `evidence/rc3/`. As referências `evidence/current` da tabela histórica abaixo não certificam a rc.3.
 
 | Fonte | Resultado registrado | Limite |
 | --- | --- | --- |
@@ -25,7 +27,7 @@ Use o pacote completo, uma instância por perfil e arquivos isolados. Para testa
 | Campo | Valor a preencher |
 | --- | --- |
 | Responsável/data/hora | PENDENTE |
-| Versão, caminho do pacote e SHA-256 | PENDENTE — referência rc7 acima |
+| Versão, caminho do pacote e SHA-256 | PENDENTE — registrar rc.3 e seu BUILD-INFO |
 | Windows: edição/build (`winver`), GPU/driver | PENDENTE |
 | CPU/RAM; energia AC/bateria; plano de energia | PENDENTE |
 | Monitores: resolução, escala, posição e principal | PENDENTE |
@@ -100,7 +102,7 @@ Fixtures meteorológicas provam apresentação, não ocorrência real de neve/te
 | ID | Procedimento | Critério de aceite | Resultado |
 | --- | --- | --- | --- |
 | T01 | Localizar bandeja e abrir menu | Ações acessíveis; falha detectada não deixa Ocultar como caminho sem volta | PENDENTE |
-| T02 | Minimizar/restaurar pela barra | Mesma sessão, sem progresso minimizado | PENDENTE |
+| T02 | Minimizar no flutuante e restaurar por **Mostrar trem** na bandeja (não existe botão do jogo na barra) | Mesma sessão, sem progresso minimizado | PENDENTE |
 | T03 | Ocultar/mostrar dez vezes | Janela recuperável, sem duplicação de janelas/ícones ativos | PENDENTE |
 | T04 | Minimizar e escolher Mostrar trem na bandeja | Restaura sem salto temporal | PENDENTE |
 | T05 | Oculto, alternar topo e mostrar | Preferência coerente, sessão acessível | PENDENTE |
@@ -149,7 +151,7 @@ Os casos abaixo usam **cópias isoladas** e execução normal. Registre hash ant
 | C05 | Duas instâncias no mesmo perfil | Um escritor; segunda não corrompe nem rouba lock | PENDENTE |
 | C06 | Simular falha de escrita em diretório de teste e recuperar permissão | Erro visível, retry limitado, dados anteriores preservados | PENDENTE |
 | C07 | Encerrar abruptamente instância isolada e reabrir | Recupera último checkpoint válido; perda limitada ao intervalo não salvo, sem inventar progresso | PENDENTE |
-| C08 | Testar migração nova com fixture rc7, quando implementada | Preserva seed/rota/progresso/serviço/desbloqueios; migração repetida não duplica dados | PENDENTE — expansão |
+| C08 | Testar cópia de perfil v3 → v4, conferindo `.v3.backup.json` byte a byte | Preserva seed/rota/progresso/serviço/desbloqueios; migração repetida não duplica dados | PENDENTE — expansão |
 | C09 | Executar smoke curto com diagnóstico em arquivo novo | Encerramento normal e logs associados ao hash; não é teste de retomada de jornada | PENDENTE |
 
 ```powershell

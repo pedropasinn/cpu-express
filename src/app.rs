@@ -502,8 +502,9 @@ impl CpuExpressApp {
             }
         }
         let mut local_weather = LocalWeather::new(
-            (!demo_mode && options.exit_after.is_none())
-                || std::env::var("CPU_EXPRESS_LIVE_WEATHER").is_ok_and(|v| v == "1"),
+            !std::env::var("CPU_EXPRESS_OFFLINE").is_ok_and(|v| v == "1")
+                && ((!demo_mode && options.exit_after.is_none())
+                    || std::env::var("CPU_EXPRESS_LIVE_WEATHER").is_ok_and(|v| v == "1")),
         );
         let weather_draft = config.weather_location.clone();
         if let Err(error) = local_weather.set_location(weather_draft.clone()) {
