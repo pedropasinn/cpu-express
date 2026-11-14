@@ -34,12 +34,14 @@ impl StationService {
 // Shared scale and dock position make arrival/departure meet on the same pixel.
 // Bounds include all authored decorations and platform passengers. Cull only
 // when the entire station has left the framebuffer, never at a timer boundary.
-fn station_x(distance: f64, arriving: bool) -> Option<i32> {
+fn station_x(distance: f64, arriving: bool, width: i32) -> Option<i32> {
     if !distance.is_finite() || distance < 0.0 {
         return None;
     }
     let x = 246.0 + distance * if arriving { 0.4 } else { -0.4 };
-    (-80.0..352.0).contains(&x).then(|| x.round() as i32)
+    (-80.0..f64::from(width + 32))
+        .contains(&x)
+        .then(|| x.round() as i32)
 }
 
 pub(super) fn draw(
@@ -55,7 +57,7 @@ pub(super) fn draw(
     let journey = world.journey_snapshot();
     let traveled = journey.segment_progress * journey.route_segment.length_units;
     let waiting = world.station_wait() > 0.0;
-    if let Some(x) = station_x(if waiting { 0.0 } else { traveled }, false) {
+    if let Some(x) = station_x(if waiting { 0.0 } else { traveled }, false, canvas.width()) {
         let service = service
             .unwrap_or(StationService {
                 progress: if waiting {
@@ -77,7 +79,9 @@ pub(super) fn draw(
             !waiting && traveled < 100.0,
         );
     }
-    if !waiting && let Some(x) = station_x(journey.distance_to_next_station_units, true) {
+    if !waiting
+        && let Some(x) = station_x(journey.distance_to_next_station_units, true, canvas.width())
+    {
         // Actual service counts describe the last arrival, never a future one.
         let approaching = if service.is_some() {
             StationService::default()
@@ -124,7 +128,7 @@ fn draw_excursion(
     let empty = StationService::default();
     match branch.phase {
         BranchPhase::Outbound => {
-            if let Some(x) = station_x(traveled, false) {
+            if let Some(x) = station_x(traveled, false, canvas.width()) {
                 draw_station(
                     canvas,
                     x,
@@ -135,16 +139,16 @@ fn draw_excursion(
                     traveled < 100.0,
                 );
             }
-            if let Some(x) = station_x(remaining, true) {
+            if let Some(x) = station_x(remaining, true, canvas.width()) {
                 draw_station(canvas, x, destination, empty, biome, view, false);
             }
         }
         BranchPhase::Service => draw_station(canvas, 246, destination, empty, biome, view, false),
         BranchPhase::Return => {
-            if let Some(x) = station_x(traveled, false) {
+            if let Some(x) = station_x(traveled, false, canvas.width()) {
                 draw_station(canvas, x, destination, empty, biome, view, traveled < 100.0);
             }
-            if let Some(x) = station_x(remaining, true) {
+            if let Some(x) = station_x(remaining, true, canvas.width()) {
                 draw_station(canvas, x, 0, empty, Biome::GreenValley, view, false);
             }
         }
@@ -527,10 +531,10 @@ mod tests {
                 assert!(pixels.iter().all(|p| *p == Color32::TRANSPARENT));
             }
         }
-        assert_eq!(station_x(0.0, true), station_x(0.0, false));
-        assert_eq!(station_x(100.0, false), Some(206));
-        assert_eq!(station_x(1000.0, false), None);
-        assert_eq!(station_x(f64::NAN, true), None);
+        assert_eq!(station_x(0.0, true, 320), station_x(0.0, false, 320));
+        assert_eq!(station_x(100.0, false, 320), Some(206));
+        assert_eq!(station_x(1000.0, false, 320), None);
+        assert_eq!(station_x(f64::NAN, true, 320), None);
     }
 
     #[test]

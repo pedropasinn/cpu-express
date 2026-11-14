@@ -1,6 +1,6 @@
-# Agente 04 — coleta, idade e custo das métricas
+# Coleta, idade e custo das métricas
 
-Data: 13/11/2026. Esta nota descreve a implementação entregue; resultados de execução estão em `TESTES.md` e `benchmarks/evidence/`. Windows 10/11 x64 continua sendo o alvo do produto. O ambiente de verificação desta rodada é Linux.
+Nota técnica da coleta. Resultados e limites da versão atual estão em [VALIDACAO_04.md](VALIDACAO_04.md).
 
 ## 1. O defeito e a correção
 

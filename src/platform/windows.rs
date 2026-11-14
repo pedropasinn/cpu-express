@@ -60,9 +60,27 @@ pub fn embed_taskbar(
     requested_width: i32,
     requested_height: i32,
 ) -> Result<(), String> {
+    place_strip(
+        frame,
+        offset,
+        requested_width,
+        requested_height,
+        true,
+        false,
+    )
+}
+
+pub(super) fn place_strip(
+    frame: &eframe::Frame,
+    offset: i32,
+    requested_width: i32,
+    requested_height: i32,
+    fit_height: bool,
+    rounded: bool,
+) -> Result<(), String> {
     use windows_sys::Win32::UI::WindowsAndMessaging::{
-        FindWindowW, GWL_STYLE, GetParent, GetWindowLongPtrW, HWND_TOPMOST, SWP_FRAMECHANGED,
-        SetParent, SetWindowLongPtrW, WS_CHILD, WS_POPUP,
+        FindWindowW, GWL_STYLE, GetParent, GetWindowLongPtrW, SWP_FRAMECHANGED, SetParent,
+        SetWindowLongPtrW, WS_CHILD, WS_POPUP,
     };
     with_hwnd(frame, |hwnd| {
         require_physical_coordinates(hwnd)?;
@@ -74,12 +92,16 @@ pub fn embed_taskbar(
             if taskbar.is_null() || GetWindowRect(taskbar, &mut area) == 0 {
                 return Err(os_error("Taskbar geometry"));
             }
-            let placement =
-                super::taskbar_placement(rect(area), offset, requested_width, requested_height)
-                    .ok_or_else(|| {
-                        "Taskbar geometry is unavailable or unsupported; use floating mode."
-                            .to_owned()
-                    })?;
+            let placement = super::strip_placement(
+                rect(area),
+                offset,
+                requested_width,
+                requested_height,
+                fit_height,
+            )
+            .ok_or_else(|| {
+                "Taskbar geometry is unavailable or unsupported; use floating mode.".to_owned()
+            })?;
             if GetWindowLongPtrW(hwnd, GWL_STYLE) & WS_CHILD as isize != 0 {
                 windows_sys::Win32::Foundation::SetLastError(0);
                 SetParent(hwnd, ptr::null_mut());
@@ -100,18 +122,82 @@ pub fn embed_taskbar(
             }
             if SetWindowPos(
                 hwnd,
-                HWND_TOPMOST,
+                ptr::null_mut(),
                 placement.x,
                 placement.y,
                 placement.width,
                 placement.height,
-                SWP_NOACTIVATE | SWP_FRAMECHANGED,
+                SWP_NOACTIVATE | SWP_NOZORDER | SWP_FRAMECHANGED,
             ) == 0
             {
                 return Err(os_error("Taskbar surface placement"));
             }
+            strip_corners(hwnd, placement.width, placement.height, Some(rounded))?;
+            if outer_placement(hwnd)? != placement {
+                return Err("Windows não confirmou a posição e o tamanho da faixa.".to_owned());
+            }
         }
         Ok(())
+    })
+}
+
+/// Confirmação nativa posterior à primeira pintura; não é certificação visual do compositor.
+pub fn confirm_strip_surface(frame: &eframe::Frame) -> Result<(), String> {
+    use windows_sys::Win32::Graphics::Dwm::{DWMWA_CLOAKED, DwmGetWindowAttribute};
+    with_hwnd(frame, |hwnd| {
+        let mut client = RECT::default();
+        let mut cloaked = 0u32;
+        // SAFETY: consultas somente leitura do HWND próprio com saídas inicializadas e tamanhos corretos.
+        unsafe {
+            if IsWindowVisible(hwnd) == 0
+                || IsIconic(hwnd) != 0
+                || windows_sys::Win32::UI::WindowsAndMessaging::GetClientRect(hwnd, &mut client)
+                    == 0
+                || client.right <= client.left
+                || client.bottom <= client.top
+                || DwmGetWindowAttribute(
+                    hwnd,
+                    DWMWA_CLOAKED as u32,
+                    (&mut cloaked as *mut u32).cast(),
+                    mem::size_of::<u32>() as u32,
+                ) < 0
+                || cloaked != 0
+            {
+                return Err(
+                    "A superfície da faixa não pôde ser confirmada pelo Windows.".to_owned(),
+                );
+            }
+        }
+        Ok(())
+    })
+}
+
+/// Leitura física evita realimentar o deslocamento local quando a própria janela se move.
+pub fn strip_environment(
+    frame: &eframe::Frame,
+) -> Result<(PhysicalRect, WindowPlacement, [i32; 2]), String> {
+    use windows_sys::Win32::{
+        Foundation::POINT,
+        UI::WindowsAndMessaging::{FindWindowW, GetCursorPos},
+    };
+    with_hwnd(frame, |hwnd| {
+        require_physical_coordinates(hwnd)?;
+        let class = [
+            83u16, 104, 101, 108, 108, 95, 84, 114, 97, 121, 87, 110, 100, 0,
+        ];
+        let mut area = RECT::default();
+        let mut pointer = POINT::default();
+        // SAFETY: consultas somente leitura com buffers inicializados; nenhum handle é retido.
+        unsafe {
+            let bar = FindWindowW(class.as_ptr(), ptr::null());
+            if bar.is_null()
+                || GetWindowRect(bar, &mut area) == 0
+                || GetCursorPos(&mut pointer) == 0
+            {
+                return Err(os_error("Não foi possível consultar a faixa"));
+            }
+        }
+        Ok((rect(area), outer_placement(hwnd)?, [pointer.x, pointer.y]))
     })
 }
 
@@ -231,6 +317,7 @@ pub fn detach_taskbar(frame: &eframe::Frame) -> Result<(), String> {
 pub fn place_floating(frame: &eframe::Frame, saved: [i32; 4]) -> Result<(), String> {
     with_hwnd(frame, |hwnd| {
         require_physical_coordinates(hwnd)?;
+        strip_corners(hwnd, 0, 0, None)?;
         let [x, y, width, height] = saved;
         let requested = WindowPlacement {
             x,
@@ -265,6 +352,48 @@ pub fn place_floating(frame: &eframe::Frame, saved: [i32; 4]) -> Result<(), Stri
             .ok_or_else(|| "Invalid floating rectangle".to_owned())?;
         apply_placement(hwnd, outer_placement(hwnd)?, placement)
     })
+}
+
+/// O atributo 33 é suportado no Windows 11. Em sistemas anteriores, usa retângulo.
+/// A região explícita também cobre janelas sem moldura que o DWM não arredonda sozinho.
+fn strip_corners(hwnd: HWND, width: i32, height: i32, rounded: Option<bool>) -> Result<(), String> {
+    use windows_sys::Win32::Graphics::{
+        Dwm::{
+            DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_DEFAULT, DWMWCP_DONOTROUND, DWMWCP_ROUND,
+            DwmSetWindowAttribute,
+        },
+        Gdi::{CreateRoundRectRgn, DeleteObject, SetWindowRgn},
+    };
+    let preference = match rounded {
+        Some(true) => DWMWCP_ROUND,
+        Some(false) => DWMWCP_DONOTROUND,
+        None => DWMWCP_DEFAULT,
+    };
+    // SAFETY: HWND próprio, preferência inicializada e tamanho correto; a região passa ao Windows somente no sucesso.
+    unsafe {
+        let supported = DwmSetWindowAttribute(
+            hwnd,
+            DWMWA_WINDOW_CORNER_PREFERENCE as u32,
+            (&preference as *const i32).cast(),
+            mem::size_of::<i32>() as u32,
+        ) >= 0;
+        let region = if supported && rounded == Some(true) {
+            let region = CreateRoundRectRgn(0, 0, width + 1, height + 1, 12, 12);
+            if region.is_null() {
+                return Err(os_error("Cantos da faixa"));
+            }
+            region
+        } else {
+            ptr::null_mut()
+        };
+        if SetWindowRgn(hwnd, region, 1) == 0 {
+            if !region.is_null() {
+                DeleteObject(region);
+            }
+            return Err(os_error("Região da faixa"));
+        }
+    }
+    Ok(())
 }
 
 /// Borrow, validate and use the handle in one synchronous operation. No caller

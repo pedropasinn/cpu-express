@@ -21,6 +21,9 @@ use crate::simulation::{Train, World};
 /// Native art resolution; the existing app uploads this exact 320 x 70 texture.
 pub const WIDTH: usize = 320;
 pub const HEIGHT: usize = 70;
+/// Limites físicos suportados pela faixa: 160 a 32768 colunas, sempre 70 linhas.
+pub const MIN_WIDTH: usize = 160;
+pub const MAX_WIDTH: usize = 32768;
 pub const DISPLAY_WIDTH: usize = WIDTH * 2;
 pub const DISPLAY_HEIGHT: usize = HEIGHT * 2;
 pub const FRAMEBUFFER_BYTES: usize = WIDTH * HEIGHT * size_of::<Color32>();
@@ -71,6 +74,21 @@ impl SceneRenderer {
                 CoachStyle::Freight,
             ],
         }
+    }
+
+    /// Realoca somente quando a largura muda; render() não aloca.
+    pub fn set_width(&mut self, width: usize) -> bool {
+        let width = width.clamp(MIN_WIDTH, MAX_WIDTH);
+        if width == self.width() {
+            return false;
+        }
+        self.pixels.resize(width * HEIGHT, Color32::BLACK);
+        self.transition.resize(width * HEIGHT, Color32::BLACK);
+        true
+    }
+
+    pub fn width(&self) -> usize {
+        self.pixels.len() / HEIGHT
     }
 
     /// Journey works immediately with the existing app. Legacy keeps the original
@@ -219,9 +237,12 @@ impl SceneRenderer {
             }
         }
 
+        let width = self.width();
         let mut canvas = Canvas::new(&mut self.pixels);
         stations::draw(&mut canvas, world, self.station_service, view);
         scenery::weather(&mut canvas, view);
+        let origin = canvas.train_origin();
+        canvas.origin = origin;
         if self.engine == EngineStyle::Steam {
             draw_smoke(&mut canvas, world, self.quality == RenderQuality::Full);
         }
@@ -248,7 +269,11 @@ impl SceneRenderer {
             };
             for y in top..51 {
                 for x in left..right {
-                    let pixel = &mut self.pixels[y * WIDTH + x];
+                    let x = x + origin;
+                    if !(0..width as i32).contains(&x) {
+                        continue;
+                    }
+                    let pixel = &mut self.pixels[y * width + x as usize];
                     for (from, to) in [
                         ([42, 105, 88], body),
                         ([83, 143, 106], light),
@@ -303,5 +328,119 @@ fn draw_smoke(canvas: &mut Canvas<'_>, world: &World, detailed: bool) {
             canvas.smoke_circle(x - radius / 3, y - radius / 3, lobe, (life * 92.0) as u8);
             canvas.smoke_circle(x + radius / 3, y, lobe, (life * 45.0) as u8);
         }
+    }
+}
+
+#[cfg(test)]
+mod width_tests {
+    use super::*;
+    #[test]
+    fn largura_variavel_cobre_superficie_e_reutiliza_buffers() {
+        let train = Train::new(&crate::config::Config::default());
+        let world = World::default();
+        let mut renderer = SceneRenderer::new();
+        for width in [160, 241, 320, 641, 1920, MAX_WIDTH] {
+            renderer.set_width(width);
+            for theme in [SceneTheme::Journey, SceneTheme::Legacy] {
+                renderer.set_theme(theme);
+                renderer.pixels.fill(Color32::TRANSPARENT);
+                let expected = renderer.render(&train, &world).to_vec();
+                assert_eq!(expected.len(), width * HEIGHT);
+                assert!(expected.iter().all(|p| p.a() == 255));
+                let pointer = renderer.pixels.as_ptr();
+                assert!(!renderer.set_width(width));
+                assert_eq!(expected, renderer.render(&train, &world));
+                assert_eq!(pointer, renderer.pixels.as_ptr());
+                // Trilho e rodas continuam na mesma linha, inclusive na última coluna.
+                assert_eq!(expected[58 * width], expected[58 * width + width - 1]);
+            }
+        }
+        renderer.set_width(usize::MAX);
+        assert_eq!(renderer.width(), MAX_WIDTH);
+        renderer.set_width(0);
+        assert_eq!(renderer.width(), MIN_WIDTH);
+    }
+
+    #[test]
+    fn largura_nao_muda_periodo_do_parallax() {
+        let train = Train::new(&crate::config::Config::default());
+        let mut before = World::default();
+        let mut remaining = crate::simulation::SCROLL_PERIOD_PX - 0.001;
+        while remaining > 0.0 {
+            let step = remaining.min(200.0);
+            before.update(1.0, step, 0.0);
+            remaining -= step;
+        }
+        let mut after = before.clone();
+        after.update(0.01, 0.002, 0.0);
+        let mut renderer = SceneRenderer::new();
+        renderer.set_options(SceneOptions {
+            day_cycle: false,
+            clouds: false,
+            ..Default::default()
+        });
+        for width in [160, 320, 641, 1920] {
+            renderer.set_width(width);
+            let old = renderer.render(&train, &before).to_vec();
+            let new = renderer.render(&train, &after);
+            let changed = old.iter().zip(new).filter(|(a, b)| a != b).count();
+            assert!((changed as f64 / old.len() as f64) < 0.12);
+        }
+    }
+    #[test]
+    fn framebuffer_320_regression() {
+        let config = crate::config::Config::default();
+        let mut train = Train::new(&config);
+        let mut world = World::default();
+        for _ in 0..150 {
+            let distance = train.update(50.0, 1.0 / 30.0, &config);
+            world.update(1.0 / 30.0, distance, train.speed_kmh());
+        }
+        let mut renderer = SceneRenderer::new();
+        let mut hashes = Vec::new();
+        for biome in [
+            super::super::Biome::GreenValley,
+            super::super::Biome::Forest,
+            super::super::Biome::Coast,
+            super::super::Biome::HighDesert,
+        ] {
+            renderer.set_scene_context(Some(SceneContext {
+                biome,
+                next_biome: super::super::Biome::Coast,
+                blend: 0.35,
+            }));
+            for weather in [Weather::Clear, Weather::Rain, Weather::Snow] {
+                renderer.set_options(SceneOptions {
+                    weather,
+                    ..Default::default()
+                });
+                let hash = renderer
+                    .render(&train, &world)
+                    .iter()
+                    .flat_map(|p| p.to_array())
+                    .fold(0xcbf29ce484222325u64, |hash, b| {
+                        (hash ^ u64::from(b)).wrapping_mul(0x100000001b3)
+                    });
+                hashes.push(hash);
+            }
+        }
+        // Capturado nesta fonte antes da ampliação, em 14/11/2026: RGBA, quatro biomas e três climas.
+        assert_eq!(
+            hashes,
+            [
+                14127660415368685819,
+                7698616192085357368,
+                10139218686624518365,
+                11229319816990774796,
+                4245386398267801574,
+                15520713772166973552,
+                1398162178872592279,
+                16194461996338019282,
+                16327081667931027787,
+                2116709937521495873,
+                3848016047260177537,
+                13027917757725326014
+            ]
+        );
     }
 }

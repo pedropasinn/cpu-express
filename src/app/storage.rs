@@ -71,6 +71,8 @@ impl CpuExpressApp {
                         self.travel_notice = None;
                         self.progress_notice = None;
                         self.preferences_changed();
+                        // Refresh the recovery copy so it no longer describes the replaced trip.
+                        self.persist_progress(true);
                         self.notification =
                             Some("Viagem importada. A anterior foi preservada em backup.".into());
                     }

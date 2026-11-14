@@ -1,0 +1,39 @@
+{
+  "always_on_top": true,
+  "auto_hide_controls": true,
+  "floating_rect": [
+    40,
+    600,
+    640,
+    180
+  ],
+  "fps": 30,
+  "hud_mode": "detailed",
+  "max_speed_kmh": 100.0,
+  "metrics_interval_ms": 1000,
+  "min_speed_kmh": 12.0,
+  "pause_when_unfocused": false,
+  "show_metrics": true,
+  "smoothing_k": 1.8,
+  "start_paused": false,
+  "taskbar_height": 0,
+  "taskbar_mode": false,
+  "taskbar_offset": 0,
+  "taskbar_width": 0,
+  "visual": {
+    "coaches": [
+      "passenger",
+      "tank",
+      "freight"
+    ],
+    "livery": "midnight",
+    "quality": "full",
+    "scene": {
+      "clouds": true,
+      "day_cycle": true,
+      "details": true,
+      "weather": "clear"
+    },
+    "theme": "journey"
+  }
+}

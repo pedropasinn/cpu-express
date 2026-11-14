@@ -158,3 +158,30 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
     COUNTING.with(|active| active.set(false));
     assert_eq!(ALLOCATIONS.with(Cell::get), 0);
 }
+
+#[test]
+fn largura_estavel_nao_aloca_inclusive_transicoes_e_clima() {
+    let train = Train::new(&Config::default());
+    let world = World::default();
+    let mut renderer = SceneRenderer::new();
+    for width in [160, 320, 641, 1920, 7680] {
+        renderer.set_width(width);
+        ALLOCATIONS.with(|count| count.set(0));
+        COUNTING.with(|active| active.set(true));
+        for theme in [SceneTheme::Journey, SceneTheme::Legacy] {
+            renderer.set_theme(theme);
+            renderer.set_scene_context(Some(SceneContext {
+                biome: Biome::Forest,
+                next_biome: Biome::Coast,
+                blend: 0.5,
+            }));
+            renderer.set_local_atmosphere(Some((Weather::Rain, false)));
+            for _ in 0..3 {
+                renderer.set_width(width);
+                std::hint::black_box(renderer.render(&train, &world));
+            }
+        }
+        COUNTING.with(|active| active.set(false));
+        assert_eq!(ALLOCATIONS.with(Cell::get), 0, "largura {width}");
+    }
+}

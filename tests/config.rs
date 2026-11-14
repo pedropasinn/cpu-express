@@ -217,7 +217,7 @@ fn window_layout_defaults_roundtrips_and_clamps_untrusted_geometry() {
             invalid.taskbar_width,
             invalid.taskbar_height
         ),
-        (0, 2400, 24)
+        (0, 32768, 24)
     );
     assert_eq!(invalid.floating_rect, Some([-32768, 32768, 320, 1200]));
 }

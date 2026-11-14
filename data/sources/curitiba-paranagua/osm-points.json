@@ -1,0 +1,1096 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-14T13:26:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 879980402,
+  "lat": -25.4334471,
+  "lon": -48.9148103,
+  "tags": {
+    "name": "Estacao Engenheiro Lange",
+    "tourism": "viewpoint"
+  }
+},
+{
+  "type": "node",
+  "id": 4071710619,
+  "lat": -25.4482729,
+  "lon": -48.8921217,
+  "tags": {
+    "alt_name": "Estação Porto de Cima",
+    "historic:railway": "halt",
+    "name": "Porto de Cima",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LPC",
+    "ref": "LPC",
+    "start_date": "1885"
+  }
+},
+{
+  "type": "node",
+  "id": 6247172545,
+  "lat": -25.4458274,
+  "lon": -49.1914451,
+  "tags": {
+    "ele": "886",
+    "historic:railway": "station",
+    "name": "Pinhais",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "site",
+    "railway:ref": "LNH",
+    "ref": "LNH",
+    "start_date": "1885-02-05"
+  }
+},
+{
+  "type": "node",
+  "id": 6354522329,
+  "lat": -25.4393894,
+  "lon": -48.9189126,
+  "tags": {
+    "alt_name": "Estação Marumbi",
+    "name": "Marumbi",
+    "old_name": "Marumby",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "halt",
+    "railway:ref": "LMY",
+    "ref": "LMY",
+    "start_date": "1885",
+    "wikidata": "Q62222235"
+  }
+},
+{
+  "type": "node",
+  "id": 7780919736,
+  "lat": -25.4481550,
+  "lon": -49.2139944,
+  "tags": {
+    "addr:housenumber": "100",
+    "addr:street": "Rua Emílio Bertolini",
+    "name": "Vila Oficinas",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LNC",
+    "ref": "LNC"
+  }
+},
+{
+  "type": "node",
+  "id": 7782327184,
+  "lat": -25.4374349,
+  "lon": -49.2562661,
+  "tags": {
+    "addr:housenumber": "330",
+    "addr:street": "Avenida Presidente Affonso Camargo",
+    "alt_name": "Curitiba-Nova",
+    "email": "contato@serraverdeexpress.com.br",
+    "name": "Curitiba",
+    "official_name": "Estação Rodoferroviária de Curitiba",
+    "operator": "Serra Verde Express",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "phone": "+55 41 3888-3488",
+    "public_transport": "station",
+    "railway": "station",
+    "railway:ref": "LCO",
+    "ref": "LCO",
+    "start_date": "1972",
+    "tourism": "attraction",
+    "website": "https://www.serraverdeexpress.com.br/"
+  }
+},
+{
+  "type": "node",
+  "id": 7785745188,
+  "lat": -25.4304618,
+  "lon": -48.7160913,
+  "tags": {
+    "addr:street": "Praça Carlos Cavalcanti",
+    "name": "Ferroviária de Antonina",
+    "operator": "Associação Brasileira de Preservação Ferroviária",
+    "operator:type": "ngo",
+    "owner": "União Federal",
+    "ownership": "national",
+    "public_transport": "station",
+    "railway": "station",
+    "railway:ref": "LAT",
+    "ref": "LAT",
+    "tourism": "attraction",
+    "website": "https://www.tremcaicara.com.br/",
+    "wikidata": "Q65969559"
+  }
+},
+{
+  "type": "node",
+  "id": 7785745224,
+  "lat": -25.4796596,
+  "lon": -48.8337638,
+  "tags": {
+    "name": "Morretes",
+    "operator": "Rumo S/A;Serra Verde Express;Associação Brasileira de Preservação Ferroviária",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "station",
+    "railway:ref": "LMR",
+    "ref": "LMR",
+    "start_date": "1883",
+    "tourism": "attraction",
+    "usage": "tourism",
+    "wikidata": "Q116817759"
+  }
+},
+{
+  "type": "node",
+  "id": 7788388567,
+  "lat": -25.5546519,
+  "lon": -48.6270735,
+  "tags": {
+    "name": "Alexandra",
+    "operator": "Rumo S/A",
+    "owner": "União Federal",
+    "railway": "site",
+    "railway:ref": "LAX",
+    "ref": "LAX"
+  }
+},
+{
+  "type": "node",
+  "id": 7788415004,
+  "lat": -25.5423180,
+  "lon": -48.5429648,
+  "tags": {
+    "alt_name": "Quilômetro Cinco",
+    "branch": "Malha Sul",
+    "name": "Quilômetro 5",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "yard",
+    "railway:ref": "LID",
+    "ref": "LID",
+    "short_name": "Km 5"
+  }
+},
+{
+  "type": "node",
+  "id": 7788425399,
+  "lat": -25.5212071,
+  "lon": -48.6864267,
+  "tags": {
+    "ele": "5",
+    "name": "Saquarema",
+    "old_name": "Carijós;Jacarehy",
+    "operator": "Rumo S/A",
+    "railway": "site",
+    "railway:ref": "LSQ",
+    "ref": "LSQ"
+  }
+},
+{
+  "type": "node",
+  "id": 7788512108,
+  "lat": -25.5087518,
+  "lon": -48.5225102,
+  "tags": {
+    "alt_name": "Porto Dom Pedro Segundo",
+    "name": "Dom Pedro II",
+    "old_name": "Porto D'Água",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "yard",
+    "railway:ref": "LDP",
+    "ref": "LDP",
+    "short_name": "Pedro II",
+    "start_date": "1883"
+  }
+},
+{
+  "type": "node",
+  "id": 7788512109,
+  "lat": -25.5165409,
+  "lon": -48.5065290,
+  "tags": {
+    "addr:street": "Avenida Arthur de Abreu",
+    "historic:railway": "station",
+    "name": "Paranaguá",
+    "owner": "União Federal",
+    "railway": "site",
+    "start_date": "1883"
+  }
+},
+{
+  "type": "node",
+  "id": 7801552973,
+  "lat": -25.4722596,
+  "lon": -49.0140364,
+  "tags": {
+    "alt_name": "Roca Nova",
+    "historic:railway": "station",
+    "name": "Roça Nova",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LRN",
+    "ref": "LRN"
+  }
+},
+{
+  "type": "node",
+  "id": 7801571288,
+  "lat": -25.4224222,
+  "lon": -48.9662740,
+  "tags": {
+    "alt_name": "Quilômetro Setenta",
+    "name": "Quilômetro 70",
+    "nat_ref": "LKS",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LKS",
+    "short_name": "Km 70"
+  }
+},
+{
+  "type": "node",
+  "id": 7801571293,
+  "lat": -25.4269100,
+  "lon": -48.9442823,
+  "tags": {
+    "alt_name": "Véu da Noiva",
+    "name": "Véu de Noiva",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LVN",
+    "ref": "LVN"
+  }
+},
+{
+  "type": "node",
+  "id": 7801571295,
+  "lat": -25.4333870,
+  "lon": -48.9144762,
+  "tags": {
+    "name": "Engenheiro Lange",
+    "old_name": "Volta Grande",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LEL",
+    "ref": "LEL",
+    "short_name": "Eng. Lange",
+    "wikidata": "Q116861194"
+  }
+},
+{
+  "type": "node",
+  "id": 7801607158,
+  "lat": -25.4408886,
+  "lon": -49.0587110,
+  "tags": {
+    "historic:railway": "station",
+    "name": "Piraquara",
+    "railway": "site",
+    "railway:ref": "LPQ",
+    "ref": "LPQ"
+  }
+},
+{
+  "type": "node",
+  "id": 8702422165,
+  "lat": -25.5345227,
+  "lon": -49.2330381,
+  "tags": {
+    "addr:street": "Rua Jaboti",
+    "branch": "Malha Sul",
+    "name": "Iguaçu",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "railway": "yard",
+    "railway:ref": "LIC"
+  }
+},
+{
+  "type": "node",
+  "id": 9987346437,
+  "lat": -25.4666589,
+  "lon": -49.2543960,
+  "tags": {
+    "bus": "yes",
+    "name": "Estação Tubo Ferrovila",
+    "network": "Rede Integrada de Transportes",
+    "network:wikidata": "Q168744",
+    "operator": "URBS",
+    "public_transport": "stop_position",
+    "ref": "108082"
+  }
+},
+{
+  "type": "node",
+  "id": 9987346438,
+  "lat": -25.4666699,
+  "lon": -49.2544769,
+  "tags": {
+    "bus": "yes",
+    "name": "Estação Tubo Ferrovila",
+    "network": "Rede Integrada de Transportes",
+    "network:wikidata": "Q168744",
+    "operator": "URBS",
+    "public_transport": "stop_position",
+    "ref": "108081"
+  }
+},
+{
+  "type": "node",
+  "id": 10874965058,
+  "lat": -25.4595631,
+  "lon": -48.9897243,
+  "tags": {
+    "railway": "milestone",
+    "railway:position": "77"
+  }
+},
+{
+  "type": "node",
+  "id": 10874965340,
+  "lat": -25.4389318,
+  "lon": -48.9786306,
+  "tags": {
+    "disused:railway": "station",
+    "name": "Banhado",
+    "operator": "Rumo S/A",
+    "operator:type": "private",
+    "ownership": "national",
+    "railway": "service_station",
+    "railway:ref": "LBH",
+    "ref": "LBH",
+    "wikidata": "Q116879131"
+  }
+},
+{
+  "type": "node",
+  "id": 10874965351,
+  "lat": -25.4735781,
+  "lon": -49.0187611,
+  "tags": {
+    "railway": "milestone",
+    "railway:position": "81"
+  }
+},
+{
+  "type": "node",
+  "id": 10910173809,
+  "lat": -25.4320545,
+  "lon": -48.9730677,
+  "tags": {
+    "railway": "milestone",
+    "railway:position": "73"
+  }
+},
+{
+  "type": "node",
+  "id": 10913373440,
+  "lat": -25.4308645,
+  "lon": -48.9549943,
+  "tags": {
+    "railway": "milestone",
+    "railway:position": "68"
+  }
+},
+{
+  "type": "node",
+  "id": 11047909819,
+  "lat": -25.4359575,
+  "lon": -49.2571873,
+  "tags": {
+    "amenity": "bicycle_rental",
+    "bicycle_rental": "docking_station",
+    "brand": "Bike Salvador",
+    "brand:wikidata": "Q20052802",
+    "capacity": "15",
+    "fee": "yes",
+    "name": "Estação Rodoferroviária",
+    "network": "Bike Salvador",
+    "operator": "Tembici",
+    "operator:type": "private",
+    "ref": "41"
+  }
+},
+{
+  "type": "node",
+  "id": 12444173186,
+  "lat": -25.4589120,
+  "lon": -48.8068061,
+  "tags": {
+    "natural": "Chácara Bonita - Trem de Natal",
+    "public_transport": "station",
+    "railway": "station",
+    "train": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 13507721608,
+  "lat": -25.4371938,
+  "lon": -49.2563742,
+  "tags": {
+    "addr:city": "Curitiba",
+    "addr:housenumber": "330",
+    "addr:postcode": "80060-070",
+    "addr:street": "Avenida Presidente Affonso Camargo",
+    "addr:suburb": "Jardim Botânico",
+    "name": "Trem Curitiba / Morretes",
+    "phone": "+55 41 98811-7014",
+    "public_transport": "station",
+    "railway": "station",
+    "train": "yes",
+    "website": "https://tremmorretes.com.br"
+  }
+},
+{
+  "type": "way",
+  "id": 129306907,
+  "center": {
+    "lat": -25.4375760,
+    "lon": -49.2567473
+  },
+  "nodes": [
+    1426891598,
+    1426891591,
+    6573436687,
+    7782329429,
+    5113491158,
+    5113491152,
+    1426891593,
+    1426997651,
+    1426891598
+  ],
+  "tags": {
+    "addr:housenumber": "330",
+    "addr:street": "Avenida Presidente Affonso Camargo",
+    "building": "train_station",
+    "layer": "1",
+    "name": "Terminal Ferroviário",
+    "name:de": "Curitiba Bahnhof",
+    "name:en": "Railway Terminal",
+    "operator": "URBS",
+    "start_date": "1972"
+  }
+},
+{
+  "type": "way",
+  "id": 146366650,
+  "center": {
+    "lat": -25.4392965,
+    "lon": -48.9188509
+  },
+  "nodes": [
+    1596332232,
+    6126446150,
+    10866527569,
+    10866527567,
+    10866527568,
+    10866527570,
+    1596332482,
+    1596332398,
+    1596332232
+  ],
+  "tags": {
+    "alt_name": "Marumby",
+    "building": "train_station",
+    "name": "Marumbi"
+  }
+},
+{
+  "type": "way",
+  "id": 180765141,
+  "center": {
+    "lat": -25.4377401,
+    "lon": -49.1660117
+  },
+  "nodes": [
+    1912309955,
+    3510437819,
+    1912309934,
+    1912309977,
+    12698058781,
+    1912309939,
+    12698058789,
+    1912309955
+  ],
+  "tags": {
+    "location": "outdoor",
+    "name": "Subestação Pinhais",
+    "operator": "Copel",
+    "power": "substation",
+    "substation": "distribution"
+  }
+},
+{
+  "type": "way",
+  "id": 181088385,
+  "center": {
+    "lat": -25.4353931,
+    "lon": -49.2608586
+  },
+  "nodes": [
+    1915356043,
+    1915356039,
+    7130279757,
+    1915356036,
+    1915356038,
+    1915356033,
+    1915356032,
+    1915356031,
+    1915356030,
+    1915356034,
+    7130279758,
+    1915356037,
+    1915356035,
+    1915356040,
+    1915356041,
+    1915356042,
+    1915356043
+  ],
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "building": "yes",
+    "covered": "yes",
+    "name": "Estação Tubo Rodoferroviária",
+    "network": "Rede Integrada de Transportes",
+    "network:wikidata": "Q168744",
+    "passenger_information_display": "yes",
+    "public_transport": "platform",
+    "ref": "109060",
+    "shelter": "yes",
+    "source": "Bing",
+    "source:name": "survey",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 238981247,
+  "center": {
+    "lat": -25.5285210,
+    "lon": -48.5293932
+  },
+  "nodes": [
+    2467885902,
+    2467885815,
+    2467885859,
+    2467885744,
+    2467885902
+  ],
+  "tags": {
+    "location": "outdoor",
+    "name": "Subestação Paranaguá",
+    "operator": "Copel",
+    "power": "substation",
+    "substation": "distribution",
+    "voltage": "138000"
+  }
+},
+{
+  "type": "way",
+  "id": 254768341,
+  "center": {
+    "lat": -25.4305979,
+    "lon": -48.7160463
+  },
+  "nodes": [
+    2605908799,
+    12163346639,
+    2605908798,
+    2605908800,
+    10923982648,
+    2605908802,
+    2605908799
+  ],
+  "tags": {
+    "building": "train_station",
+    "heritage": "2",
+    "heritage:operator": "IPHAN",
+    "historic": "building",
+    "name": "Estação Ferroviária de Antonina",
+    "operator": "Associação Brasileira de Preservação Ferroviária",
+    "operator:type": "ngo",
+    "owner": "União Federal",
+    "ownership": "national",
+    "start_date": "1916",
+    "wikidata": "Q65969559"
+  }
+},
+{
+  "type": "way",
+  "id": 328228473,
+  "center": {
+    "lat": -25.4795941,
+    "lon": -48.8336762
+  },
+  "nodes": [
+    3350398842,
+    7788283251,
+    7788193172,
+    3350398844,
+    7788193171,
+    3350398845,
+    3350398843,
+    3350398842
+  ],
+  "tags": {
+    "addr:street": "Rua Padre Saviniano",
+    "brand": "RVPSC",
+    "building": "train_station",
+    "historic": "building",
+    "name": "Estação Ferroviária de Morretes",
+    "operator": "Rumo;Serra Verde Express;Associação Brasileira de Preservação Ferroviária",
+    "operator:type": "private",
+    "owner": "União Federal",
+    "ownership": "national",
+    "wikidata": "Q116817759"
+  }
+},
+{
+  "type": "way",
+  "id": 404921030,
+  "center": {
+    "lat": -25.4333126,
+    "lon": -48.9144850
+  },
+  "nodes": [
+    4071710620,
+    6126446151,
+    4071710622,
+    10866527572,
+    10866527573,
+    4071710623,
+    4071710620
+  ],
+  "tags": {
+    "building": "train_station",
+    "name": "Estação Engenheiro Lange",
+    "wikidata": "Q116861194"
+  }
+},
+{
+  "type": "way",
+  "id": 412548649,
+  "center": {
+    "lat": -25.4376704,
+    "lon": -49.2662046
+  },
+  "nodes": [
+    7716103388,
+    564390687,
+    4139510605,
+    4139510607,
+    4139509198,
+    4139509196,
+    4139510606,
+    7784431301,
+    4139510604,
+    4139509190,
+    7716103387,
+    7716103386,
+    7716103385,
+    4139509189,
+    7716103388
+  ],
+  "tags": {
+    "brand": "RVPSC",
+    "building": "train_station",
+    "height": "6",
+    "heritage": "2",
+    "heritage:operator": "IPHAN",
+    "historic": "building",
+    "historic:name": "Estação Ferroviária de Curitiba",
+    "iphan:inscription_date": "1976",
+    "name": "Estação Curitiba",
+    "old_name": "Rede de Viação Paraná-Santa Catarina",
+    "operator": "BRMalls",
+    "ref:iphan": "PR4106902BIED00008",
+    "roof:colour": "#C37F65"
+  }
+},
+{
+  "type": "way",
+  "id": 488573907,
+  "center": {
+    "lat": -25.4723611,
+    "lon": -49.0139895
+  },
+  "nodes": [
+    4808659696,
+    4808659697,
+    4808659698,
+    10874965476,
+    10874965474,
+    10874965475,
+    10874965477,
+    4808659699,
+    4808659696
+  ],
+  "tags": {
+    "amenity": "restaurant",
+    "building": "train_station",
+    "name": "Cave Colinas de Pedra"
+  }
+},
+{
+  "type": "way",
+  "id": 514570011,
+  "center": {
+    "lat": -25.4442042,
+    "lon": -49.0637007
+  },
+  "nodes": [
+    5026881452,
+    5026881453,
+    5026881454,
+    5026881455,
+    5026881456,
+    5026881457,
+    5026881458,
+    5026881459,
+    5026881460,
+    5026881461,
+    5026881462,
+    5026881463,
+    5026881464,
+    5026881465,
+    5026881466,
+    5026881467,
+    5026881468,
+    5026881469,
+    5026881452
+  ],
+  "tags": {
+    "location": "outdoor",
+    "name": "Subestação Piraquara",
+    "operator": "Copel",
+    "power": "substation",
+    "substation": "distribution"
+  }
+},
+{
+  "type": "way",
+  "id": 625779932,
+  "center": {
+    "lat": -25.5167379,
+    "lon": -48.5064519
+  },
+  "nodes": [
+    5908233242,
+    5908233243,
+    5908233244,
+    5908233245,
+    5908233246,
+    5908233247,
+    5908233248,
+    5908233249,
+    5908233250,
+    5908233251,
+    5908233252,
+    5908233253,
+    5908233242
+  ],
+  "tags": {
+    "addr:city": "Paranaguá",
+    "addr:street": "Avenida Maximiliano de Fonseca",
+    "addr:suburb": "Costeira",
+    "building": "train_station",
+    "historic": "building",
+    "name": "Estação Ferroviária de Paranaguá",
+    "nohousenumber": "yes",
+    "owner": "União Federal",
+    "start_date": "1922"
+  }
+},
+{
+  "type": "way",
+  "id": 653728087,
+  "center": {
+    "lat": -25.4268327,
+    "lon": -48.9443251
+  },
+  "nodes": [
+    6126397255,
+    6126397252,
+    6126397253,
+    6126397254,
+    6126397255
+  ],
+  "tags": {
+    "building": "train_station"
+  }
+},
+{
+  "type": "way",
+  "id": 667225544,
+  "center": {
+    "lat": -25.4456917,
+    "lon": -49.1913908
+  },
+  "nodes": [
+    6247172549,
+    6247172548,
+    6247172547,
+    6247172546,
+    6247172549
+  ],
+  "tags": {
+    "access": "private",
+    "addr:street": "Avenida Ayrton Senna da Silva",
+    "building": "train_station",
+    "historic:railway": "station",
+    "name": "Pinhais",
+    "owner": "União Federal"
+  }
+},
+{
+  "type": "way",
+  "id": 685150729,
+  "center": {
+    "lat": -25.4666447,
+    "lon": -49.2543268
+  },
+  "nodes": [
+    6419898066,
+    6419898065,
+    6419898064,
+    6419898063,
+    6419898066
+  ],
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "building": "roof",
+    "highway": "bus_stop",
+    "name": "Estação Tubo Ferrovila",
+    "network": "Rede Integrada de Transportes",
+    "network:wikidata": "Q168744",
+    "operator": "URBS",
+    "public_transport": "platform",
+    "ref": "108082",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 685150730,
+  "center": {
+    "lat": -25.4666943,
+    "lon": -49.2545299
+  },
+  "nodes": [
+    6419898070,
+    6419898069,
+    6419898068,
+    6419898067,
+    6419898070
+  ],
+  "tags": {
+    "bench": "no",
+    "bin": "yes",
+    "building": "roof",
+    "highway": "bus_stop",
+    "name": "Estação Tubo Ferrovila",
+    "network": "Rede Integrada de Transportes",
+    "network:wikidata": "Q168744",
+    "operator": "URBS",
+    "public_transport": "platform",
+    "ref": "108081",
+    "shelter": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 834339714,
+  "center": {
+    "lat": -25.5546491,
+    "lon": -48.6269688
+  },
+  "nodes": [
+    7788388571,
+    7788388570,
+    7788388569,
+    7788388568,
+    7788388571
+  ],
+  "tags": {
+    "building": "train_station",
+    "building:levels": "2",
+    "historic": "building",
+    "name": "Estação Ferroviária de Alexandra",
+    "owner": "União Federal"
+  }
+},
+{
+  "type": "way",
+  "id": 835831136,
+  "center": {
+    "lat": -25.4223779,
+    "lon": -48.9662134
+  },
+  "nodes": [
+    7801571292,
+    7801571289,
+    7801571290,
+    7801571291,
+    7801571292
+  ],
+  "tags": {
+    "building": "train_station"
+  }
+},
+{
+  "type": "way",
+  "id": 939458680,
+  "center": {
+    "lat": -25.5343339,
+    "lon": -49.2333177
+  },
+  "nodes": [
+    8702422163,
+    8702422162,
+    8702422161,
+    8702422160,
+    8702422163
+  ],
+  "tags": {
+    "building": "train_station"
+  }
+},
+{
+  "type": "way",
+  "id": 1148987191,
+  "center": {
+    "lat": -25.4388598,
+    "lon": -48.9788218
+  },
+  "nodes": [
+    10689437942,
+    10689437941,
+    10689437940,
+    10689437939,
+    10689437942
+  ],
+  "tags": {
+    "building": "train_station"
+  }
+},
+{
+  "type": "way",
+  "id": 1188496117,
+  "center": {
+    "lat": -25.5420756,
+    "lon": -49.2387911
+  },
+  "nodes": [
+    11036036962,
+    11036036963,
+    11036036964,
+    11036036965,
+    11036036966,
+    11036036967,
+    11036036968,
+    11036036969,
+    11036036962
+  ],
+  "tags": {
+    "building": "train_station",
+    "layer": "1"
+  }
+},
+{
+  "type": "way",
+  "id": 1563347750,
+  "center": {
+    "lat": -25.4356164,
+    "lon": -49.2565410
+  },
+  "nodes": [
+    14229638204,
+    14229638203,
+    14229638202,
+    14229638201,
+    14229638204
+  ],
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "building": "transportation",
+    "covered": "yes",
+    "highway": "platform",
+    "name": "Estação Tubo Rodoferroviária",
+    "passenger_information_display": "yes",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1563347751,
+  "center": {
+    "lat": -25.4357284,
+    "lon": -49.2576320
+  },
+  "nodes": [
+    14229638208,
+    14229638207,
+    14229638206,
+    14229638205,
+    14229638208
+  ],
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "building": "transportation",
+    "covered": "yes",
+    "highway": "platform",
+    "name": "Estação Tubo Rodoferroviária",
+    "passenger_information_display": "yes",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+}
+
+  ]
+}

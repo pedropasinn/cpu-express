@@ -14,6 +14,8 @@ mod tray;
 mod windows;
 
 mod geometry;
+mod strip;
+pub use strip::{StripGesture, StripHandle, resize_strip, strip_handle, strip_placement};
 mod lifecycle;
 
 pub use geometry::{
@@ -28,6 +30,8 @@ pub use desktop::{DesktopController, DesktopUpdate};
 #[cfg(windows)]
 pub use tray::{SystemTray, TrayEvent};
 
+#[cfg(windows)]
+pub use windows::{confirm_strip_surface, strip_environment};
 #[cfg(windows)]
 pub use windows::{detach_taskbar, embed_taskbar, place_floating, taskbar_status};
 #[cfg(windows)]

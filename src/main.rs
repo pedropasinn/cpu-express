@@ -4,7 +4,7 @@ use std::{
     error::Error,
     ffi::OsString,
     io::{self, ErrorKind},
-    path::{Component, Path, PathBuf},
+    path::{Path, PathBuf},
     time::Duration,
 };
 
@@ -129,23 +129,38 @@ fn path_argument(args: &mut impl Iterator<Item = OsString>, flag: &str) -> Resul
 /// final file does not exist yet. This guard prevents accidental aliasing; it
 /// does not claim to defend against concurrent filesystem changes or hard links.
 fn resolved_destination(path: &Path) -> io::Result<PathBuf> {
-    let absolute = std::path::absolute(path)?;
-    let mut resolved = PathBuf::new();
-    for component in absolute.components() {
-        match component {
-            Component::CurDir => {}
-            Component::ParentDir => {
-                resolved.pop();
+    // Começar no destino evita exigir handles para ancestrais sem acesso de
+    // listagem (sandbox/ACL), quando o arquivo ou sua pasta são acessíveis.
+    let mut resolved = std::path::absolute(path)?;
+    let mut suffix = Vec::new();
+    loop {
+        match std::fs::canonicalize(&resolved) {
+            Ok(canonical) => {
+                resolved = canonical;
+                break;
             }
-            Component::Normal(_) => {
-                resolved.push(component.as_os_str());
-                match std::fs::canonicalize(&resolved) {
-                    Ok(canonical) => resolved = canonical,
-                    Err(error) if error.kind() == ErrorKind::NotFound => {}
-                    Err(error) => return Err(error),
+            Err(error) if error.kind() == ErrorKind::NotFound => {
+                let Some(component) = resolved.components().next_back() else {
+                    return Err(error);
+                };
+                suffix.push(component.as_os_str().to_owned());
+                if !resolved.pop() {
+                    return Err(error);
                 }
             }
-            Component::Prefix(_) | Component::RootDir => resolved.push(component.as_os_str()),
+            Err(error) => return Err(error),
+        }
+    }
+    for component in suffix.into_iter().rev() {
+        if component == ".." {
+            resolved.pop();
+        } else if component != "." {
+            resolved.push(component);
+        }
+        match std::fs::canonicalize(&resolved) {
+            Ok(canonical) => resolved = canonical,
+            Err(error) if error.kind() == ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
         }
     }
     Ok(resolved)

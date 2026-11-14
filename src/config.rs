@@ -80,6 +80,10 @@ pub struct Config {
     /// Physical pixels; zero follows the taskbar automatically.
     pub taskbar_width: i32,
     pub taskbar_height: i32,
+    /// A altura acompanha a barra; desligada, cresce para cima até 240 px físicos.
+    pub taskbar_fit_height: bool,
+    /// Solicita arredondamento ao compositor (Windows 11); sem suporte, cantos retos.
+    pub taskbar_rounded: bool,
     /// Physical outer rectangle [x, y, width, height] in floating mode.
     pub floating_rect: Option<[i32; 4]>,
     /// Independent menu geometry, in logical points.
@@ -112,6 +116,8 @@ impl Default for Config {
             taskbar_offset: 0,
             taskbar_width: 0,
             taskbar_height: 0,
+            taskbar_fit_height: true,
+            taskbar_rounded: false,
             floating_rect: None,
             panel_rect: None,
             reduce_menu_motion: false,
@@ -181,7 +187,7 @@ impl Config {
         self.taskbar_width = if self.taskbar_width == 0 {
             0
         } else {
-            self.taskbar_width.clamp(160, 2400)
+            self.taskbar_width.clamp(160, 32768)
         };
         self.taskbar_height = if self.taskbar_height == 0 {
             0
@@ -240,6 +246,12 @@ pub fn default_path() -> Option<PathBuf> {
     {
         None
     }
+}
+
+/// Arquivo ausente inicia a acolhida; erro de acesso ou configuração inválida não é perfil novo.
+#[must_use]
+pub fn first_launch(path: Option<&Path>) -> bool {
+    path.is_some_and(|p| fs::metadata(p).is_err_and(|e| e.kind() == ErrorKind::NotFound))
 }
 
 /// Load preferences without ever modifying the source file.
@@ -425,4 +437,28 @@ fn create_temporary(parent: &Path) -> Result<(TemporaryPath, File), String> {
         }
     }
     Err("Não foi possível reservar um arquivo temporário para a configuração.".to_owned())
+}
+
+#[cfg(test)]
+mod strip_tests {
+    use super::*;
+    #[test]
+    fn preferencias_antigas_recebem_defaults_da_faixa() {
+        let config: Config =
+            serde_json::from_str(r#"{"taskbar_width":640,"taskbar_height":40}"#).unwrap();
+        let config = config.normalized();
+        assert!(config.taskbar_fit_height);
+        assert!(!config.taskbar_rounded);
+        assert_eq!(config.taskbar_width, 640);
+        assert_eq!(config.taskbar_height, 40);
+        let changed = Config {
+            taskbar_fit_height: false,
+            taskbar_rounded: true,
+            taskbar_width: 7680,
+            ..config
+        };
+        let restored: Config =
+            serde_json::from_str(&serde_json::to_string(&changed).unwrap()).unwrap();
+        assert_eq!(restored.normalized(), changed);
+    }
 }

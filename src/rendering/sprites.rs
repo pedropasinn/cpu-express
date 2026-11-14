@@ -5,9 +5,7 @@
 
 use eframe::egui::Color32;
 
-pub(super) const LOGICAL_WIDTH: i32 = 320;
 pub(super) const LOGICAL_HEIGHT: i32 = 70;
-const STRIDE: usize = LOGICAL_WIDTH as usize;
 
 pub(super) const fn rgb(r: u8, g: u8, b: u8) -> Color32 {
     Color32::from_rgb(r, g, b)
@@ -18,23 +16,44 @@ pub(super) const fn rgb(r: u8, g: u8, b: u8) -> Color32 {
 /// Clipping keeps partially visible scenery and wraparound drawing simple.
 pub(super) struct Canvas<'a> {
     pixels: &'a mut [Color32],
+    width: i32,
+    pub(super) origin: i32,
 }
 
 impl<'a> Canvas<'a> {
     pub(super) fn new(pixels: &'a mut [Color32]) -> Self {
-        Self { pixels }
+        let width = (pixels.len() / LOGICAL_HEIGHT as usize) as i32;
+        Self {
+            pixels,
+            width,
+            origin: 0,
+        }
+    }
+
+    pub(super) fn width(&self) -> i32 {
+        self.width
+    }
+
+    pub(super) fn tiles(&self, period: i32) -> std::iter::StepBy<std::ops::RangeInclusive<i32>> {
+        (-period..=((self.width + period - 1) / period) * period).step_by(period as usize)
+    }
+
+    pub(super) fn train_origin(&self) -> i32 {
+        ((self.width - 320) / 2).min(0)
     }
 
     pub(super) fn rect(&mut self, x: i32, y: i32, width: i32, height: i32, color: Color32) {
-        let left = x.clamp(0, LOGICAL_WIDTH) as usize;
-        let right = (x + width).clamp(0, LOGICAL_WIDTH) as usize;
+        let x = x + self.origin;
+        let left = x.clamp(0, self.width) as usize;
+        let right = (x + width).clamp(0, self.width) as usize;
         let top = y.clamp(0, LOGICAL_HEIGHT) as usize;
         let bottom = (y + height).clamp(0, LOGICAL_HEIGHT) as usize;
         if left >= right || top >= bottom {
             return;
         }
         for row in top..bottom {
-            self.pixels[row * STRIDE + left..row * STRIDE + right].fill(color);
+            self.pixels[row * self.width as usize + left..row * self.width as usize + right]
+                .fill(color);
         }
     }
 
@@ -81,22 +100,22 @@ impl<'a> Canvas<'a> {
         let source = rgb(255, 245, 216);
         for dy in -radius..=radius {
             for dx in -radius..=radius {
-                let px = x + dx;
+                let px = x + dx + self.origin;
                 let py = y + dy;
                 if dx * dx + dy * dy > radius * radius
-                    || !(0..LOGICAL_WIDTH).contains(&px)
+                    || !(0..self.width).contains(&px)
                     || !(0..LOGICAL_HEIGHT).contains(&py)
                 {
                     continue;
                 }
-                let base = self.pixels[py as usize * STRIDE + px as usize];
+                let base = self.pixels[py as usize * self.width as usize + px as usize];
                 let blend = |from: u8, to: u8| {
                     ((u32::from(from) * (255 - u32::from(alpha))
                         + u32::from(to) * u32::from(alpha))
                         / 255) as u8
                 };
                 self.pixel(
-                    px,
+                    px - self.origin,
                     py,
                     rgb(
                         blend(base.r(), source.r()),

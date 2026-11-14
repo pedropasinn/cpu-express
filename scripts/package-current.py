@@ -75,19 +75,20 @@ def ppm_to_png(path):
 
 for ppm in evidence.rglob("*.ppm"):
     ppm_to_png(ppm)
-shutil.copy2(binary, release / binary.name)
+if not (release / binary.name).exists() or digest(binary) != digest(release / binary.name):
+    shutil.copy2(binary, release / binary.name)
 for name in ["README.md", "LICENSE", "THIRD_PARTY_NOTICES.md"]:
     shutil.copy2(project / name, release / name)
 shutil.copytree(project / "licenses", release / "licenses", dirs_exist_ok=True)
 (release / "docs").mkdir(exist_ok=True)
-shutil.copy2(project / "docs/VERSAO_03.md", release / "docs/VERSAO_03.md")
-shutil.copy2(project / "docs/VALIDACAO_03.md", release / "docs/VALIDACAO_03.md")
 objdump = root / ".tools/mingw64/bin/objdump.exe"
 imports = subprocess.check_output([str(objdump), "-p", str(binary)], text=True, errors="replace")
 dlls = re.findall(r"DLL Name:\s*(\S+)", imports)
 for dll in dlls:
     if dll.lower().startswith(("libgcc", "libstdc", "libwinpthread")):
-        shutil.copy2(root / ".tools/mingw64/bin" / dll, release / dll)
+        dependency = root / ".tools/mingw64/bin" / dll
+        if not (release / dll).exists() or digest(dependency) != digest(release / dll):
+            shutil.copy2(dependency, release / dll)
 (evidence / "imports.json").write_text(json.dumps(dlls, indent=2), encoding="utf-8")
 counts = re.findall(r"test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored", decode_log(evidence / "tests.log"))
 assert counts, "No successful test suites in log"
@@ -104,11 +105,6 @@ info = {
     "not_validated": ["Windows 10", "mixed-DPI monitors", "Explorer restart", "autohide", "long-duration stability", "taskbar left-widget conflicts"],
     "capture_scope": "Native app framebuffers only; not a desktop compositor screenshot",
 }
-for name in ["BUILD-INFO.json", "SOURCE-MANIFEST.json"]:
-    existing = project / name
-    archive = project / "docs/historico" / (name.removesuffix('.json') + "_RC1.json")
-    if existing.exists() and not archive.exists():
-        shutil.copy2(existing, archive)
 text = json.dumps(info, ensure_ascii=False, indent=2)
 (project / "BUILD-INFO.json").write_text(text, encoding="utf-8")
 (release / "BUILD-INFO.json").write_text(text, encoding="utf-8")

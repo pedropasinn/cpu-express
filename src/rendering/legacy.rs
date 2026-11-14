@@ -16,6 +16,7 @@ pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World, engine:
     draw_trees_and_fence(&mut canvas, world.scroll_px() * 0.5);
     draw_track(&mut canvas, world.scroll_px());
 
+    canvas.origin = canvas.train_origin();
     for puff in world
         .smoke()
         .iter()
@@ -38,19 +39,20 @@ pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World, engine:
     } else {
         engines::draw_modern(&mut canvas, phase, engine, false);
     }
+    canvas.origin = 0;
     draw_foreground(&mut canvas, world.scroll_px());
 }
 
 fn draw_sky(canvas: &mut Canvas<'_>, seconds: f64) {
-    canvas.rect(0, 0, 320, 70, rgb(239, 208, 169));
-    canvas.rect(0, 10, 320, 11, rgb(244, 218, 179));
-    canvas.rect(0, 21, 320, 17, rgb(247, 226, 187));
-    canvas.rect(0, 38, 320, 15, rgb(241, 226, 186));
+    canvas.rect(0, 0, canvas.width(), 70, rgb(239, 208, 169));
+    canvas.rect(0, 10, canvas.width(), 11, rgb(244, 218, 179));
+    canvas.rect(0, 21, canvas.width(), 17, rgb(247, 226, 187));
+    canvas.rect(0, 38, canvas.width(), 15, rgb(241, 226, 186));
     canvas.circle(266, 17, 10, rgb(243, 219, 165));
     canvas.circle(266, 17, 8, rgb(255, 238, 187));
     canvas.rect(257, 17, 18, 1, rgb(252, 232, 177));
     let shift = (seconds * 0.8).rem_euclid(320.0).floor() as i32;
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         cloud(canvas, tile + 24 - shift, 16, false);
         cloud(canvas, tile + 146 - shift, 9, true);
         cloud(canvas, tile + 282 - shift, 30, true);
@@ -59,7 +61,7 @@ fn draw_sky(canvas: &mut Canvas<'_>, seconds: f64) {
 
 fn draw_far_mountains(canvas: &mut Canvas<'_>, scroll: f64) {
     let shift = (scroll * 0.5).rem_euclid(320.0).floor() as i32;
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - shift;
         canvas.polygon(
             &[
@@ -105,7 +107,7 @@ fn draw_far_mountains(canvas: &mut Canvas<'_>, scroll: f64) {
 
 fn draw_mountains(canvas: &mut Canvas<'_>, scroll: f64) {
     let shift = (scroll * 0.5).rem_euclid(320.0).floor() as i32;
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - shift;
         canvas.polygon(
             &[
@@ -141,7 +143,7 @@ fn draw_mountains(canvas: &mut Canvas<'_>, scroll: f64) {
 
 fn draw_hills(canvas: &mut Canvas<'_>, scroll: f64) {
     let shift = (scroll * 0.5).rem_euclid(320.0).floor() as i32;
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - shift;
         canvas.polygon(
             &[
@@ -173,13 +175,13 @@ fn draw_hills(canvas: &mut Canvas<'_>, scroll: f64) {
         canvas.rect(x + 266, 45, 2, 4, rgb(95, 120, 94));
         canvas.rect(x + 271, 45, 2, 2, rgb(247, 224, 163));
     }
-    canvas.rect(0, 50, 320, 5, rgb(160, 177, 111));
-    canvas.rect(0, 53, 320, 3, rgb(187, 182, 119));
+    canvas.rect(0, 50, canvas.width(), 5, rgb(160, 177, 111));
+    canvas.rect(0, 53, canvas.width(), 3, rgb(187, 182, 119));
 }
 
 fn draw_trees_and_fence(canvas: &mut Canvas<'_>, scroll: f64) {
     let shift = (scroll * 0.5).rem_euclid(320.0).floor() as i32;
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         for (x, height) in [
             (12, 14),
             (26, 11),
@@ -193,9 +195,9 @@ fn draw_trees_and_fence(canvas: &mut Canvas<'_>, scroll: f64) {
         }
     }
     let fence_shift = (scroll * 0.5).rem_euclid(24.0).floor() as i32;
-    canvas.rect(0, 49, 320, 1, rgb(181, 158, 105));
-    canvas.rect(0, 52, 320, 1, rgb(142, 138, 87));
-    for index in -1..15 {
+    canvas.rect(0, 49, canvas.width(), 1, rgb(181, 158, 105));
+    canvas.rect(0, 52, canvas.width(), 1, rgb(142, 138, 87));
+    for index in -1..(canvas.width() / 24 + 2) {
         let x = index * 24 - fence_shift;
         canvas.rect(x, 47, 2, 7, rgb(142, 126, 83));
         canvas.rect(x, 47, 1, 6, rgb(221, 199, 138));
@@ -203,25 +205,25 @@ fn draw_trees_and_fence(canvas: &mut Canvas<'_>, scroll: f64) {
 }
 
 fn draw_track(canvas: &mut Canvas<'_>, scroll: f64) {
-    canvas.rect(0, 55, 320, 8, rgb(107, 116, 84));
-    canvas.rect(0, 56, 320, 5, rgb(144, 134, 100));
+    canvas.rect(0, 55, canvas.width(), 8, rgb(107, 116, 84));
+    canvas.rect(0, 56, canvas.width(), 5, rgb(144, 134, 100));
     let shift = (scroll * 0.5).rem_euclid(10.0).floor() as i32;
-    for index in -1..34 {
+    for index in -1..(canvas.width() / 10 + 2) {
         let x = index * 10 - shift;
         canvas.rect(x, 56, 5, 5, rgb(89, 92, 69));
         canvas.rect(x, 58, 5, 1, rgb(178, 146, 96));
         canvas.pixel(x + 7, 61, rgb(178, 167, 125));
     }
-    canvas.rect(0, 57, 320, 1, rgb(226, 215, 165));
-    canvas.rect(0, 58, 320, 1, rgb(76, 95, 77));
-    canvas.rect(0, 60, 320, 1, rgb(189, 184, 135));
+    canvas.rect(0, 57, canvas.width(), 1, rgb(226, 215, 165));
+    canvas.rect(0, 58, canvas.width(), 1, rgb(76, 95, 77));
+    canvas.rect(0, 60, canvas.width(), 1, rgb(189, 184, 135));
 }
 
 fn draw_foreground(canvas: &mut Canvas<'_>, scroll: f64) {
-    canvas.rect(0, 63, 320, 7, rgb(103, 133, 78));
-    canvas.rect(0, 65, 320, 5, rgb(78, 116, 74));
+    canvas.rect(0, 63, canvas.width(), 7, rgb(103, 133, 78));
+    canvas.rect(0, 65, canvas.width(), 5, rgb(78, 116, 74));
     let shift = (scroll * 0.5).rem_euclid(160.0).floor() as i32;
-    for tile in [-160, 0, 160, 320] {
+    for tile in canvas.tiles(160) {
         let x = tile - shift;
         for offset in [7, 27, 58, 83, 119, 142] {
             canvas.line((x + offset, 65), (x + offset - 2, 61), rgb(88, 125, 76));

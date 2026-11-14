@@ -182,3 +182,20 @@ Entrega do relatório: tabela preenchida por ambiente, logs, capturas com escopo
 Smoke, painel independente, quatro alternâncias e dois cenários de 120 s passaram no Windows local. Migração de cópia do perfil e clima online também passaram. Detalhes e hash em [VALIDACAO_04.md](VALIDACAO_04.md). Isso não preenche automaticamente a matriz de DPI, outros monitores, reinício do Explorer ou dia completo.
 
 Na rc.2, os mesmos cenários nativos foram repetidos e passaram. Migração agora cobre v2 → v3. O conector de interação nativa estava indisponível; cliques e compositor da central não foram certificados. Detalhes atuais em VALIDACAO_04.md.
+
+## Rodada FAIXA — fonte posterior à rc.2 (2026-11-14)
+
+Resultados históricos acima não validam este código. Executar com perfil isolado e anotar Windows, DPI e hash do executável usado.
+
+| ID | Procedimento e aceite | Resultado nesta rodada |
+| --- | --- | --- |
+| F1 | Clique abre a central; movimento abaixo de 4 px físicos continua clique; arraste move sem saltos; botão direito pausa. Levar às duas extremidades sem sair horizontalmente da barra. | NÃO EXECUTADO no aplicativo |
+| F2 | Pegar os 6 px físicos das laterais; conferir cursor, largura mínima 160 px e máxima da barra. Na esquerda, a direita não se move. Soltar fora da faixa também encerra o gesto. | NÃO EXECUTADO no aplicativo |
+| F3 | Comparar 160, 320, 640 e largura total: mais paisagem, sem esticar pixels ou deixar margens laterais. Locomotiva, rodas, engates e trilho permanecem legíveis; no mínimo, parte do vagão traseiro fica recortada. | NÃO EXECUTADO no aplicativo |
+| F4 | Alternar cantos retos/arredondados; conferir desenho e hit-test após redimensionar. Windows 10 usa cantos retos quando o atributo DWM não é suportado. Voltar ao flutuante remove a região da faixa. | NÃO EXECUTADO no aplicativo |
+| F5 | Desligar encaixe de altura e arrastar a borda superior: 24–240 px, base fixa; altura excedente cobre a área acima da barra. Religar encaixe e restaurar geometria. | NÃO EXECUTADO no aplicativo |
+| F6 | Ler config antes, durante gesto prolongado (>5 s) e após soltar; geometria só muda no último caso. Repetir nos sliders, reiniciar e conferir posição/tamanho; restaurar os padrões. | NÃO EXECUTADO no aplicativo |
+| F7 | Repetir quatro alternâncias barra/flutuante, também com altura livre/cantos; repetir em 100/125/150/200%, barra menor que largura salva e coordenadas negativas. Confirmar que central não altera área da faixa. | NÃO EXECUTADO no aplicativo |
+
+
+Resultado da rodada Codex em 2026-11-14: 329 testes aprovados, zero falhas, dois exportadores ignorados; fmt e Clippy passaram. O binário de debug foi executado por 12 s (primeira abertura) e 20 s (quatro solicitações de alternância), com saída 0. A barra não estava disponível para essas instâncias; Win32 confirmou cliente flutuante e central visível. Isso valida fallback e encerramento, não preenche F1–F7 como aceite visual. Hash, logs e limites estão na seção Codex de PLANO_EXECUCAO.md.

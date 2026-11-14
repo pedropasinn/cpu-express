@@ -17,7 +17,10 @@ mod theme;
 pub use engines::EngineStyle;
 pub use palette::Palette;
 pub use rolling_stock::CoachStyle;
-pub use scene::{DISPLAY_HEIGHT, DISPLAY_WIDTH, FRAMEBUFFER_BYTES, HEIGHT, SceneRenderer, WIDTH};
+pub use scene::{
+    DISPLAY_HEIGHT, DISPLAY_WIDTH, FRAMEBUFFER_BYTES, HEIGHT, MAX_WIDTH, MIN_WIDTH, SceneRenderer,
+    WIDTH,
+};
 pub use stations::StationService;
 pub use theme::{
     BIOME_LENGTH_PX, Biome, DAY_CYCLE_SECONDS, ROUTE_PERIOD_PX, RenderQuality, SceneContext,

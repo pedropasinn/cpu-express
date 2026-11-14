@@ -6,7 +6,7 @@ import sys
 from PIL import Image
 
 project = Path(__file__).resolve().parents[1]
-run = Path(sys.argv[1])
+run = Path(sys.argv[1]).resolve()
 evidence = project / "evidence/current"
 binary = project / "target/release/cpu-express.exe"
 sha = hashlib.sha256(binary.read_bytes()).hexdigest()
@@ -16,8 +16,8 @@ def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2), encoding="utf-8")
 
-comparison = {"scope": "Short local runs; same 60 FPS limit, DEMO, 640x180 floating window, closed panel. Rendered frames, not compositor frames or CPU cost."}
-for tag, path, executable in [("before", evidence / "visual-refresh/baseline.jsonl", project / "../../release/CPU-Express-0.3.0-rc.4/cpu-express.exe"), ("after", run / "after.jsonl", binary)]:
+comparison = {"scope": "Current local run; 60 FPS limit, DEMO, 640x180 floating window, closed panel. Rendered frames, not compositor frames or CPU cost."}
+for tag, path, executable in [("after", run / "after.jsonl", binary)]:
     records = rows(path)
     stable = [r for r in records if r["elapsed_seconds"] >= 2]
     first, last = stable[0], stable[-1]

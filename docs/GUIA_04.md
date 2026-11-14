@@ -48,11 +48,23 @@ A última condição válida fica em cache entre aberturas, com idade e erro vis
 
 Preferências: `%LOCALAPPDATA%\CPU Express\config.json`. Jornada: `config.journey.json`. O formato v3 preserva itinerário, serviços, propriedade, coleção e excursões, acrescentando despacho e devolução. Ao migrar v1 ou v2, o arquivo anterior recebe backup exato (`.v1.backup.json` ou `.v2.backup.json`) antes da substituição. A rc.1 não lê o formato v3: para voltar àquela versão, encerre o jogo novo e restaure uma cópia do backup v2; o progresso feito depois desse backup não existe na versão antiga. Versões futuras ou arquivos inválidos não são sobrescritos pelo salvamento comum.
 
+Nas versões posteriores à rc.2, cada salvamento guarda o checkpoint anterior em `config.journey.previous.json`. Se o arquivo principal estiver danificado na abertura, ele é renomeado para `config.journey.damaged-….json`, sem alteração de conteúdo, e a viagem retoma do checkpoint anterior com um aviso; perde-se no máximo o intervalo desde o save anterior. Um save gravado por versão mais nova nunca é movido nem rebaixado.
+
 Em **Viagem → Diário**, use salvar, exportar e importar. A importação valida a origem e guarda cópia do destino antes de substituí-lo, inclusive quando o destino está inválido. A ação substitui a viagem atual; não combina perfis. O app salva periodicamente e na saída normal. Fechamento forçado pode perder o intervalo desde o último save.
 
 ## Instalação opcional
 
 A versão portátil funciona sem instalação. Os scripts `install-local.ps1` e `uninstall-local.ps1` oferecem instalação por usuário, sem administrador, quando incluídos no pacote. A inicialização com o Windows é opcional e só é configurada com o parâmetro explícito. A desinstalação preserva o perfil e as viagens. Consulte a ajuda/comentários dos scripts para os parâmetros desta distribuição.
+
+## Ajustes da faixa na fonte posterior à rc.2
+
+Segure e arraste a faixa para movê-la horizontalmente. As laterais ajustam a largura; a lateral esquerda mantém a direita fixa. Um movimento menor que 4 pixels físicos continua sendo clique para abrir a central; o botão direito pausa. Os sliders em **Janela** e **Restaurar posição e tamanho** continuam disponíveis. Geometria de arrastes e sliders só é gravada ao soltar.
+
+**Encaixar na altura da barra** vem ligado. Desligue para ajustar de 24 a 240 pixels físicos, inclusive pela borda superior: a base permanece alinhada à base da barra e a parte maior cobre a área de trabalho acima dela. Não há reserva de espaço para outros aplicativos. **Cantos arredondados** usa suporte do Windows 11; sem suporte (incluindo Windows 10), permanece retangular. Voltar à janela flutuante restaura sua moldura e remove o recorte da faixa.
+
+A paisagem tem 70 linhas e largura interna entre 160 e 32768 colunas. Quando a barra inteira é menor que 160 px, a janela usa a largura disponível e recorta a cena. A largura acompanha o viewport dividido pela escala inteira; a última coluna pode ser recortada para preencher uma largura física não divisível pela escala. Filtros permanecem nearest, sem alongar o trem. Abaixo de 320 colunas o trem é recentrado; na largura mínima parte da traseira fica fora da vista, preservando o tamanho dos pixels e da locomotiva. Os períodos de parallax não dependem da largura. Os buffers do renderer só realocam ao mudar a largura; o upload de textura egui mantém seu staging habitual. O contrato de compatibilidade continua sendo 320 × 70.
+
+Preferências acrescentadas: `taskbar_fit_height: true` e `taskbar_rounded: false`; JSON antigo recebe esses defaults. A largura persistida admite até 32768 px para comportar barras acima de 2400 px e é limitada pela barra atual na aplicação. Jornada e formato de checkpoint não são alterados por estes ajustes. Estas mudanças ainda não estão nos pacotes rc.2 existentes.
 
 ## Limites de validação
 

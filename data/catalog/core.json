@@ -1,0 +1,30 @@
+{
+  "catalog_version": 1,
+  "wagons": [
+    { "id": "passenger", "name": "Passageiros", "seats": 24, "cargo_units": 0 },
+    { "id": "sleeper", "name": "Dormitório", "seats": 12, "cargo_units": 0 },
+    { "id": "observation", "name": "Panorâmico", "seats": 16, "cargo_units": 0 },
+    { "id": "freight", "name": "Carga", "seats": 0, "cargo_units": 20 },
+    { "id": "tank", "name": "Tanque", "seats": 0, "cargo_units": 12 }
+  ],
+  "cargo": [
+    { "id": "parcels", "name": "Encomendas", "wagon": "freight" },
+    { "id": "supplies", "name": "Suprimentos", "wagon": "freight" },
+    { "id": "liquid", "name": "Líquidos", "wagon": "tank" }
+  ],
+  "liveries": [
+    { "id": "aurora", "name": "Verde Aurora", "required_stops": 0 },
+    { "id": "ocean", "name": "Azul do Porto", "required_stops": 1 },
+    { "id": "sunset", "name": "Cobre do Poente", "required_stops": 4 },
+    { "id": "midnight", "name": "Expresso Noturno", "required_stops": 12 }
+  ],
+  "service_rewards": [
+    { "id": "passenger_postcard", "name": "Companhia de viagem", "counter": "passengers_delivered", "goal": 20 },
+    { "id": "cargo_postcard", "name": "Correio sobre trilhos", "counter": "cargo_delivered", "goal": 20 }
+  ],
+  "locomotives": [
+    { "id": "steam", "name": "Vapor Aurora", "traction": "steam", "kind": "fictional" },
+    { "id": "diesel", "name": "Diesel do Porto", "traction": "diesel", "kind": "fictional", "unlocked_by": "cargo_postcard" },
+    { "id": "electric", "name": "Elétrica da Serra", "traction": "electric", "kind": "fictional", "unlocked_by": "passenger_postcard" }
+  ]
+}

@@ -18,6 +18,7 @@ enum Command {
     Visibility(DesktopAction),
     Dock(DockEdge),
     Topmost(bool),
+    SurfaceTopmost(bool),
     ToggleTopmost,
     RecoverPlacement,
     DisableTray,
@@ -135,8 +136,26 @@ impl DesktopController {
         self.enqueue(Command::Dock(edge))
     }
 
+    /// A faixa usa a mesma autoridade de topo das demais ações nativas.
+    pub fn place_strip(
+        &mut self,
+        frame: &eframe::Frame,
+        offset: i32,
+        width: i32,
+        height: i32,
+        fit_height: bool,
+        rounded: bool,
+    ) -> Result<(), String> {
+        windows::place_strip(frame, offset, width, height, fit_height, rounded)
+    }
+
     pub fn set_topmost(&mut self, topmost: bool) -> Result<(), String> {
         self.enqueue(Command::Topmost(topmost))
+    }
+
+    /// Política temporária da superfície; não altera a preferência do modo flutuante.
+    pub fn set_surface_topmost(&mut self, topmost: bool) -> Result<(), String> {
+        self.enqueue(Command::SurfaceTopmost(topmost))
     }
 
     /// Call after a known viewport DPI/monitor event. It only moves a window
@@ -249,6 +268,11 @@ impl DesktopController {
                     self.topmost = topmost;
                     self.topmost_dirty = true;
                     output.topmost_changed = Some(topmost);
+                    Ok(())
+                }
+                Command::SurfaceTopmost(topmost) => {
+                    self.topmost = topmost;
+                    self.topmost_dirty = true;
                     Ok(())
                 }
                 Command::ToggleTopmost => {

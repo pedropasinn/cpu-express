@@ -257,6 +257,8 @@ pub struct CpuExpressApp {
     notification: Option<String>,
     preferences_notice: Option<String>,
     show_controls: bool,
+    welcome: bool,
+    welcome_taskbar: bool,
     show_help: bool,
     panel_tab: PanelTab,
     appearance_page: u8,
@@ -274,6 +276,8 @@ pub struct CpuExpressApp {
     next_taskbar_check: Instant,
     next_panel_save: Instant,
     taskbar_failures: u8,
+    strip_gesture: Option<platform::StripGesture>,
+    slider_geometry: Option<[i32; 3]>,
     native_status: serde_json::Value,
     validation_captures: [bool; 2],
     #[cfg(windows)]
@@ -413,6 +417,8 @@ impl CpuExpressApp {
         style.spacing.scroll = egui::style::ScrollStyle::solid();
         ctx.set_global_style(style);
         let mut config = options.config.normalized();
+        let welcome = !demo_mode && config::first_launch(options.config_path.as_deref());
+        let welcome_taskbar = config.taskbar_mode;
         let manual_value = options.cpu_override.unwrap_or(50.0);
         let manual_value = if manual_value.is_finite() {
             manual_value.clamp(0.0, 100.0)
@@ -461,12 +467,15 @@ impl CpuExpressApp {
                 .map(crate::progress::path_for)
         };
         let mut progress_notice = None;
+        let mut recovery_notice = None;
         if let Some(path) = &progress_path {
-            match crate::progress::load_world(path) {
-                Ok(Some(saved_world)) => {
-                    world = saved_world;
+            match crate::progress::load_profile(path) {
+                Ok((saved_world, notice)) => {
+                    if let Some(saved_world) = saved_world {
+                        world = saved_world;
+                    }
+                    recovery_notice = notice;
                 }
-                Ok(None) => {}
                 Err(error) => progress_notice = Some(error),
             }
         }
@@ -520,9 +529,14 @@ impl CpuExpressApp {
             progress_notice,
             travel_log: std::collections::VecDeque::with_capacity(32),
             save_after: opened,
-            notification: options.warning,
+            notification: match (options.warning, recovery_notice) {
+                (Some(warning), Some(recovery)) => Some(format!("{warning}\n{recovery}")),
+                (warning, recovery) => warning.or(recovery),
+            },
             preferences_notice: None,
-            show_controls: std::env::var_os("CPU_EXPRESS_OPEN_PANEL").is_some(),
+            show_controls: welcome || std::env::var_os("CPU_EXPRESS_OPEN_PANEL").is_some(),
+            welcome,
+            welcome_taskbar,
             show_help: false,
             panel_tab: PanelTab::default(),
             appearance_page: 0,
@@ -542,6 +556,8 @@ impl CpuExpressApp {
             next_taskbar_check: opened,
             next_panel_save: opened + Duration::from_secs(2),
             taskbar_failures: 0,
+            strip_gesture: None,
+            slider_geometry: None,
             native_status: serde_json::Value::Null,
             validation_captures: [false; 2],
             #[cfg(windows)]
@@ -901,7 +917,7 @@ impl CpuExpressApp {
                     alighting: arrival.map_or(0, |a| a.alighted),
                 }));
             let image = egui::ColorImage::new(
-                [WIDTH, HEIGHT],
+                [self.renderer.width(), HEIGHT],
                 self.renderer.render(&self.train, &self.world).to_vec(),
             );
             if let Some(texture) = &mut self.texture {
@@ -1017,6 +1033,9 @@ impl CpuExpressApp {
     }
 
     fn persist_preferences(&mut self, force: bool) {
+        if self.welcome {
+            return;
+        }
         if !self.preferences_dirty || (!force && Instant::now() < self.save_after) {
             return;
         }
@@ -1042,7 +1061,11 @@ impl CpuExpressApp {
         }
         self.progress_after = Instant::now() + Duration::from_secs(30);
         if let Some(path) = &self.progress_path {
-            self.progress_notice = crate::progress::save(path, &self.world).err();
+            // The notice carries either a failed save or a stale recovery copy.
+            self.progress_notice = match crate::progress::save_checkpoint(path, &self.world) {
+                Ok(warning) => warning,
+                Err(error) => Some(error),
+            };
         }
     }
 
@@ -1431,7 +1454,8 @@ impl CpuExpressApp {
         let scale = (ui.available_width() * ppp / WIDTH as f32)
             .floor()
             .clamp(1.0, if compact { 1.0 } else { 3.0 });
-        let size = egui::vec2(WIDTH as f32, HEIGHT as f32) * scale / ppp;
+        let preview_width = self.renderer.width().min(WIDTH) as f32;
+        let size = egui::vec2(preview_width, HEIGHT as f32) * scale / ppp;
         let (rect, _) = ui.allocate_exact_size(
             egui::vec2(ui.available_width(), size.y + 16.0),
             egui::Sense::hover(),
@@ -1453,7 +1477,10 @@ impl CpuExpressApp {
             painter.image(
                 texture.id(),
                 image,
-                egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
+                egui::Rect::from_min_max(
+                    egui::Pos2::ZERO,
+                    egui::pos2(preview_width / self.renderer.width() as f32, 1.0),
+                ),
                 egui::Color32::WHITE,
             );
         }
@@ -1703,57 +1730,264 @@ impl CpuExpressApp {
             });
     }
 
+    fn desktop_absent(&self) -> bool {
+        #[cfg(windows)]
+        {
+            self.desktop.is_none()
+        }
+        #[cfg(not(windows))]
+        {
+            true
+        }
+    }
+
+    fn welcome_controls(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Bem-vindo ao CPU Express");
+        ui.label("Uma pequena ferrovia para acompanhar seu dia. Escolha onde ela aparece e o local do clima.");
+        ui.add_space(12.0);
+        ui.strong("Clima da sua cidade");
+        ui.text_edit_singleline(&mut self.weather_draft.city);
+        ui.horizontal_wrapped(|ui| {
+            ui.label("Latitude");
+            ui.add(
+                egui::DragValue::new(&mut self.weather_draft.latitude)
+                    .range(-90.0..=90.0)
+                    .speed(0.001)
+                    .max_decimals(4),
+            );
+            ui.label("Longitude");
+            ui.add(
+                egui::DragValue::new(&mut self.weather_draft.longitude)
+                    .range(-180.0..=180.0)
+                    .speed(0.001)
+                    .max_decimals(4),
+            );
+        });
+        ui.small("O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.");
+        if ui.button("Manter São Paulo, SP").clicked() {
+            self.weather_draft = Default::default();
+        }
+        ui.add_space(12.0);
+        ui.strong("Onde mostrar o trem");
+        ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
+        ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
+        ui.small("Você pode mudar essas escolhas depois na central.");
+        if let Some(notice) = self.notification_message() {
+            ui.colored_label(ACCENT, notice);
+        }
+        if ui.button("Começar viagem").clicked() {
+            match self.local_weather.set_location(self.weather_draft.clone()) {
+                Ok(()) => {
+                    self.config.weather_location = self.weather_draft.clone();
+                    self.config.taskbar_mode = self.welcome_taskbar;
+                    self.welcome = false;
+                    self.pending_dock = true;
+                    self.next_taskbar_check = Instant::now();
+                    self.preferences_changed();
+                    self.persist_preferences(true);
+                    self.local_weather.refresh(ui.ctx());
+                    ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
+                }
+                Err(error) => self.add_notice(error),
+            }
+        }
+    }
+
+    fn taskbar_failure(&mut self) {
+        self.taskbar_failures = self.taskbar_failures.saturating_add(1);
+        if self.taskbar_failures >= 3 {
+            self.config.taskbar_mode = false;
+            self.welcome_taskbar = false;
+            self.strip_gesture = None;
+            self.slider_geometry = None;
+            self.pending_dock = true;
+            self.next_taskbar_check = Instant::now();
+            self.show_controls = true;
+            self.add_notice("Não foi possível confirmar a faixa na barra. O trem foi transferido para uma janela flutuante; você pode tentar a barra novamente em Janela.".to_owned());
+            #[cfg(windows)]
+            if let Some(desktop) = &mut self.desktop {
+                let result = desktop.show();
+                self.note_result(result);
+            }
+        }
+    }
+
+    fn commit_strip_geometry(&mut self, [offset, width, height]: [i32; 3]) {
+        self.config.taskbar_offset = offset;
+        self.config.taskbar_width = width;
+        self.config.taskbar_height = height;
+        self.preferences_changed();
+    }
+
+    #[cfg(windows)]
+    fn manipulate_strip(&mut self, ui: &mut egui::Ui, frame: &eframe::Frame, bounds: egui::Rect) {
+        use platform::{StripGesture, StripHandle, strip_handle};
+        let response = ui.interact(
+            bounds,
+            egui::Id::unique("strip-manipulation"),
+            egui::Sense::click_and_drag(),
+        );
+        let handle = ui.input(|i| i.pointer.hover_pos()).map(|p| {
+            strip_handle(
+                [p.x - bounds.left(), p.y - bounds.top()],
+                [bounds.width(), bounds.height()],
+                ui.ctx().pixels_per_point(),
+                self.config.taskbar_fit_height,
+            )
+        });
+        if response.hovered() || self.strip_gesture.is_some() {
+            ui.ctx().set_cursor_icon(
+                match self.strip_gesture.as_ref().map(|g| g.handle).or(handle) {
+                    Some(StripHandle::Left | StripHandle::Right) => {
+                        egui::CursorIcon::ResizeHorizontal
+                    }
+                    Some(StripHandle::Top) => egui::CursorIcon::ResizeVertical,
+                    _ if self.strip_gesture.is_some() => egui::CursorIcon::Grabbing,
+                    _ => egui::CursorIcon::Grab,
+                },
+            );
+        }
+        let pressed = ui.input(|i| i.pointer.primary_pressed());
+        if (self.strip_gesture.is_some() || (pressed && response.is_pointer_button_down_on()))
+            && let Ok((area, placement, pointer)) = platform::strip_environment(frame)
+        {
+            if self.strip_gesture.is_none() {
+                self.strip_gesture = Some(StripGesture::new(
+                    placement,
+                    area,
+                    handle.unwrap_or(StripHandle::Move),
+                    pointer,
+                ));
+            }
+            let gesture = self.strip_gesture.as_mut().expect("gesto iniciado");
+            gesture.update(pointer, self.config.taskbar_fit_height);
+            let p = gesture.current;
+            if gesture.moved && p != placement {
+                let result = self
+                    .desktop
+                    .as_mut()
+                    .expect("desktop disponível")
+                    .place_strip(
+                        frame,
+                        p.x - area.left,
+                        p.width,
+                        p.height,
+                        self.config.taskbar_fit_height,
+                        self.config.taskbar_rounded,
+                    );
+                self.note_result(result);
+            }
+        }
+        let had_gesture = self.strip_gesture.is_some();
+        if !ui.input(|i| i.pointer.primary_down())
+            && let Some(gesture) = self.strip_gesture.take()
+        {
+            if gesture.moved {
+                self.commit_strip_geometry([
+                    gesture.current.x - gesture.area.left,
+                    gesture.current.width,
+                    gesture.current.height,
+                ]);
+                self.persist_preferences(true);
+            } else if response.hovered() {
+                self.dispatch(AppAction::ToggleControls, ui.ctx());
+            }
+        }
+        if !had_gesture && response.clicked() {
+            // Pressão e soltura podem chegar no mesmo frame, sem estado intermediário.
+            self.dispatch(AppAction::ToggleControls, ui.ctx());
+        }
+        if response.secondary_clicked() {
+            self.dispatch(AppAction::TogglePause, ui.ctx());
+        }
+    }
+
     fn behavior_controls(&mut self, ui: &mut egui::Ui) {
         let mut placement_changed = ui
             .checkbox(&mut self.config.taskbar_mode, "Na área da barra de tarefas")
             .changed();
         if self.config.taskbar_mode {
-            let bar_width = self.native_status["taskbar_width"].as_i64().unwrap_or(1920) as i32;
-            let bar_height = self.native_status["taskbar_height"].as_i64().unwrap_or(60) as i32;
-            placement_changed |= ui
+            let bar_width = self.native_status["taskbar_width"]
+                .as_i64()
+                .filter(|v| *v > 0)
+                .unwrap_or(1920) as i32;
+            let bar_height = self.native_status["taskbar_height"]
+                .as_i64()
+                .filter(|v| (24..=240).contains(v))
+                .unwrap_or(60) as i32;
+            let mut geometry = self.slider_geometry.unwrap_or([
+                self.config.taskbar_offset,
+                self.config.taskbar_width,
+                self.config.taskbar_height,
+            ]);
+            let effective_width = if geometry[1] == 0 {
+                (bar_height * 32 / 7).min(bar_width / 3)
+            } else {
+                geometry[1].min(bar_width)
+            };
+            let mut changed = ui
                 .add(
-                    egui::Slider::new(&mut self.config.taskbar_offset, 0..=bar_width.max(160))
+                    egui::Slider::new(&mut geometry[0], 0..=(bar_width - effective_width).max(0))
                         .text("Posição horizontal (px)"),
                 )
                 .changed();
-            let mut automatic = self.config.taskbar_width == 0 && self.config.taskbar_height == 0;
-            if ui
-                .checkbox(&mut automatic, "Tamanho automático da barra")
-                .changed()
-            {
-                self.config.taskbar_width = if automatic {
+            let mut automatic = geometry[1] == 0;
+            if ui.checkbox(&mut automatic, "Largura automática").changed() {
+                geometry[1] = if automatic {
                     0
                 } else {
-                    (bar_height * 32 / 7).max(160)
+                    effective_width.max(160)
                 };
-                self.config.taskbar_height = if automatic {
-                    0
-                } else {
-                    bar_height.clamp(24, 240)
-                };
-                placement_changed = true;
+                changed = true;
             }
             if !automatic {
-                placement_changed |= ui
+                changed |= ui
                     .add(
-                        egui::Slider::new(
-                            &mut self.config.taskbar_width,
-                            160..=bar_width.clamp(160, 2400),
-                        )
-                        .text("Largura (px)"),
-                    )
-                    .changed();
-                placement_changed |= ui
-                    .add(
-                        egui::Slider::new(
-                            &mut self.config.taskbar_height,
-                            24..=bar_height.clamp(24, 240),
-                        )
-                        .text("Altura (px)"),
+                        egui::Slider::new(&mut geometry[1], 160.min(bar_width)..=bar_width)
+                            .text("Largura (px)"),
                     )
                     .changed();
             }
-            ui.small("A faixa fica dentro da barra. Para aumentar além dessa altura ou mover livremente, desmarque o modo da barra.");
+            placement_changed |= ui
+                .checkbox(
+                    &mut self.config.taskbar_fit_height,
+                    "Encaixar na altura da barra",
+                )
+                .changed();
+            if !self.config.taskbar_fit_height {
+                if geometry[2] == 0 {
+                    geometry[2] = bar_height.clamp(24, 240);
+                }
+                changed |= ui
+                    .add(egui::Slider::new(&mut geometry[2], 24..=240).text("Altura (px)"))
+                    .changed();
+            }
+            placement_changed |= ui
+                .checkbox(&mut self.config.taskbar_rounded, "Cantos arredondados")
+                .changed();
+            if changed || self.slider_geometry.is_some() {
+                let actual_width = if geometry[1] == 0 {
+                    (bar_height * 32 / 7)
+                        .min(bar_width / 3)
+                        .max(160.min(bar_width))
+                } else {
+                    geometry[1].clamp(160.min(bar_width), bar_width)
+                };
+                geometry[0] = geometry[0].clamp(0, bar_width - actual_width);
+                if ui.input(|i| i.pointer.primary_down()) {
+                    self.slider_geometry = Some(geometry);
+                    if changed {
+                        self.pending_dock = true;
+                        self.next_taskbar_check = Instant::now();
+                    }
+                } else {
+                    self.slider_geometry = None;
+                    self.commit_strip_geometry(geometry);
+                    placement_changed = true;
+                }
+                ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
+            }
+            ui.small("Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.");
         } else {
             let rect = self.config.floating_rect.get_or_insert([40, 40, 640, 180]);
             ui.horizontal(|ui| {
@@ -1774,6 +2008,8 @@ impl CpuExpressApp {
             ui.small("Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.");
         }
         if ui.button("Restaurar posição e tamanho").clicked() {
+            self.slider_geometry = None;
+            self.config.taskbar_fit_height = true;
             self.config.taskbar_offset = 0;
             self.config.taskbar_width = 0;
             self.config.taskbar_height = 0;
@@ -1864,6 +2100,10 @@ impl CpuExpressApp {
     }
 
     fn overlay(&mut self, ctx: &egui::Context, bounds: egui::Rect) {
+        if self.welcome && self.show_controls {
+            egui::Window::new("Sua primeira viagem").show(ctx, |ui| self.welcome_controls(ui));
+            return;
+        }
         if !self.show_controls && !self.show_help {
             return;
         }
@@ -1997,6 +2237,10 @@ impl CpuExpressApp {
                 {
                     self.show_controls = false;
                     self.show_help = false;
+                    if self.slider_geometry.take().is_some() {
+                        self.pending_dock = true;
+                        self.next_taskbar_check = Instant::now();
+                    }
                 }
                 if Instant::now() >= self.next_panel_save {
                     self.next_panel_save = Instant::now() + Duration::from_secs(1);
@@ -2025,6 +2269,10 @@ impl CpuExpressApp {
                     .show(root_ui, |ui| {
                         game::panel_frame().show(ui, |ui| {
                             ui.set_min_size(ui.available_size());
+                            if self.welcome {
+                                self.welcome_controls(ui);
+                                return;
+                            }
                             ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
                             let compact =
                                 ui.available_height() < 610.0 || ui.available_width() < 560.0;
@@ -2317,6 +2565,12 @@ impl eframe::App for CpuExpressApp {
         {
             // Viewport commands run after this frame. Apply geometry only on
             // the next frame, after winit has updated decorations and client area.
+            self.strip_gesture = None;
+            if let Some(desktop) = &mut self.desktop {
+                let result = desktop
+                    .set_surface_topmost(self.config.taskbar_mode || self.config.always_on_top);
+                self.note_result(result);
+            }
             self.applied_window_mode = Some(self.config.taskbar_mode);
             ctx.send_viewport_cmd_to(
                 egui::ViewportId::ROOT,
@@ -2329,15 +2583,25 @@ impl eframe::App for CpuExpressApp {
             ctx.request_repaint();
             return;
         }
-        if self.pending_dock && Instant::now() >= self.next_taskbar_check {
+        if self.pending_dock
+            && self.strip_gesture.is_none()
+            && Instant::now() >= self.next_taskbar_check
+        {
             self.pending_dock = false;
             #[cfg(windows)]
-            let result = if self.config.taskbar_mode && self.desktop.is_some() {
-                platform::embed_taskbar(
+            let result = if self.config.taskbar_mode
+                && let Some(desktop) = &mut self.desktop
+            {
+                desktop.place_strip(
                     frame,
-                    self.config.taskbar_offset,
-                    self.config.taskbar_width,
-                    self.config.taskbar_height,
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_offset, |g| g[0]),
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_width, |g| g[1]),
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_height, |g| g[2]),
+                    self.config.taskbar_fit_height,
+                    self.config.taskbar_rounded,
                 )
             } else if self.desktop.is_some() {
                 platform::place_floating(
@@ -2356,10 +2620,7 @@ impl eframe::App for CpuExpressApp {
                 self.pending_dock = true;
                 self.next_taskbar_check = Instant::now() + Duration::from_secs(2);
                 if self.config.taskbar_mode {
-                    self.taskbar_failures = self.taskbar_failures.saturating_add(1);
-                    if self.taskbar_failures >= 3 {
-                        self.config.taskbar_mode = false;
-                    }
+                    self.taskbar_failure();
                 }
             } else {
                 self.taskbar_failures = 0;
@@ -2398,24 +2659,35 @@ impl eframe::App for CpuExpressApp {
         }
         #[cfg(windows)]
         if self.config.taskbar_mode
+            && self.strip_gesture.is_none()
+            && !self
+                .desktop
+                .as_ref()
+                .is_some_and(platform::DesktopController::animation_suspended)
             && !self.pending_dock
             && self.desktop.is_some()
             && Instant::now() >= self.next_taskbar_check
         {
             self.next_taskbar_check = Instant::now() + Duration::from_secs(2);
-            if let Err(error) = platform::embed_taskbar(
-                frame,
-                self.config.taskbar_offset,
-                self.config.taskbar_width,
-                self.config.taskbar_height,
-            ) {
-                self.taskbar_failures = self.taskbar_failures.saturating_add(1);
-                if self.taskbar_failures >= 3 {
-                    self.config.taskbar_mode = false;
-                    self.pending_dock = true;
-                    self.next_taskbar_check = Instant::now();
-                    self.add_notice(error);
-                }
+            if let Err(error) = self
+                .desktop
+                .as_mut()
+                .expect("desktop disponível")
+                .place_strip(
+                    frame,
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_offset, |g| g[0]),
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_width, |g| g[1]),
+                    self.slider_geometry
+                        .map_or(self.config.taskbar_height, |g| g[2]),
+                    self.config.taskbar_fit_height,
+                    self.config.taskbar_rounded,
+                )
+                .and_then(|()| platform::confirm_strip_surface(frame))
+            {
+                self.taskbar_failure();
+                self.add_notice(error);
             } else {
                 self.taskbar_failures = 0;
             }
@@ -2520,6 +2792,20 @@ impl eframe::App for CpuExpressApp {
         if self.closing {
             return;
         }
+        let bounds = ui.max_rect().intersect(ui.ctx().content_rect());
+        let strip_ui =
+            (self.config.taskbar_mode && !self.desktop_absent()) || bounds.height() < 85.0;
+        let ppp = ui.ctx().pixels_per_point();
+        let physical_scale = ((bounds.height() * ppp / HEIGHT as f32)
+            .min(bounds.width() * ppp / if strip_ui { 240.0 } else { WIDTH as f32 }))
+        .floor()
+        .max(1.0);
+        let width = if strip_ui {
+            (bounds.width() * ppp / physical_scale).ceil() as usize
+        } else {
+            WIDTH
+        };
+        self.scene_dirty |= self.renderer.set_width(width);
         self.step_frame(ui.ctx());
         ui.ctx().request_repaint_after(
             self.next_frame
@@ -2536,12 +2822,8 @@ impl eframe::App for CpuExpressApp {
         ];
         if let Some(texture) = &self.texture {
             let pixels_per_point = ui.ctx().pixels_per_point();
-            let physical_scale = ((bounds.height() * pixels_per_point / HEIGHT as f32)
-                .min(bounds.width() * pixels_per_point / WIDTH as f32))
-            .floor()
-            .max(1.0);
             let scale = physical_scale / pixels_per_point;
-            let size = egui::vec2(WIDTH as f32 * scale, HEIGHT as f32 * scale);
+            let size = egui::vec2(self.renderer.width() as f32 * scale, HEIGHT as f32 * scale);
             let scene_top = if bounds.height() < 85.0 {
                 bounds.bottom() - size.y
             } else {
@@ -2565,13 +2847,21 @@ impl eframe::App for CpuExpressApp {
                 egui::Color32::WHITE,
             );
         }
-        if bounds.height() < 85.0 {
+        if strip_ui {
+            #[cfg(windows)]
+            if self.config.taskbar_mode && self.desktop.is_some() {
+                self.manipulate_strip(ui, _frame, bounds);
+            }
             let response = ui.interact(
                 bounds,
                 egui::Id::unique("taskbar-train"),
-                egui::Sense::CLICK,
+                if self.config.taskbar_mode && !self.desktop_absent() {
+                    egui::Sense::hover()
+                } else {
+                    egui::Sense::CLICK
+                },
             );
-            if response.clicked() {
+            if response.clicked() && (!self.config.taskbar_mode || self.desktop_absent()) {
                 self.dispatch(AppAction::ToggleControls, ui.ctx());
             }
             if response.secondary_clicked() {
@@ -2688,6 +2978,226 @@ mod tests {
     }
     use super::*;
 
+    #[test]
+    fn gesto_e_slider_so_gravam_geometria_confirmada() {
+        let mut app = app_with_sample(MetricsSample::unavailable("teste"));
+        let path = std::env::temp_dir().join(format!(
+            "ce-faixa-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        app.config_path = Some(path.clone());
+        let original = app.config.clone();
+        let area = platform::PhysicalRect {
+            left: 0,
+            top: 1000,
+            right: 1920,
+            bottom: 1060,
+        };
+        let p = platform::strip_placement(area, 0, 400, 0, true).unwrap();
+        let mut gesture =
+            platform::StripGesture::new(p, area, platform::StripHandle::Right, [400, 1030]);
+        gesture.update([700, 1030], true);
+        app.strip_gesture = Some(gesture);
+        app.slider_geometry = Some([120, 800, 160]);
+        app.preferences_changed();
+        app.persist_preferences(true);
+        assert_eq!(config::load(Some(&path)).0, original);
+        app.commit_strip_geometry([120, 800, 160]);
+        app.persist_preferences(true);
+        let saved = config::load(Some(&path)).0;
+        assert_eq!(
+            (
+                saved.taskbar_offset,
+                saved.taskbar_width,
+                saved.taskbar_height
+            ),
+            (120, 800, 160)
+        );
+    }
+
+    #[test]
+    fn acolhida_e_recuperacao_nao_dependem_de_config_valida() {
+        let path = std::env::temp_dir().join(format!(
+            "ce-acolhida-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        assert!(config::first_launch(Some(&path)));
+        let mut app = CpuExpressApp::new(
+            &egui::Context::default(),
+            LaunchOptions {
+                config: Config::default(),
+                config_path: Some(path.clone()),
+                warning: None,
+                cpu_override: None,
+                exit_after: Some(Duration::from_secs(1)),
+                diagnostics: None,
+            },
+        );
+        assert!(app.welcome && app.show_controls);
+        app.preferences_changed();
+        app.persist_preferences(true);
+        assert!(!path.exists());
+        app.taskbar_failure();
+        app.taskbar_failure();
+        assert!(app.config.taskbar_mode);
+        app.taskbar_failure();
+        assert!(!app.config.taskbar_mode);
+        assert!(!app.welcome_taskbar);
+        assert!(app.pending_dock && app.show_controls);
+        assert!(
+            app.notification_message()
+                .unwrap()
+                .contains("janela flutuante")
+        );
+        std::fs::write(&path, b"{").unwrap();
+        assert!(!config::first_launch(Some(&path)));
+        assert!(!config::first_launch(None));
+    }
+
+    #[test]
+    fn acolhida_confirma_escolhas_e_nao_reaparece_no_perfil_salvo() {
+        let mut app = app_with_sample(MetricsSample::unavailable("teste"));
+        app.welcome = true;
+        app.welcome_taskbar = false;
+        app.weather_draft = crate::local_weather::WeatherLocation {
+            city: "Cidade de teste".to_owned(),
+            latitude: -25.0,
+            longitude: -49.0,
+        };
+        let path = std::env::temp_dir().join(format!(
+            "ce-acolhida-ui-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        app.config_path = Some(path.clone());
+        let ctx = egui::Context::default();
+        let mut pos = None;
+        for events in [vec![], vec![], vec![]] {
+            let output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(760.0, 720.0),
+                    )),
+                    events,
+                    ..Default::default()
+                },
+                |ui| app.welcome_controls(ui),
+            );
+            pos = output
+                .shapes
+                .iter()
+                .find_map(|shape| match &shape.shape {
+                    egui::Shape::Text(text) if text.galley.job.text == "Começar viagem" => {
+                        Some(text.visual_bounding_rect().center())
+                    }
+                    _ => None,
+                })
+                .or(pos);
+            output.drop_without_applying_deltas();
+        }
+        let pos = pos.expect("botão de confirmação visível");
+        for pressed in [true, false] {
+            ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(760.0, 720.0),
+                    )),
+                    events: vec![
+                        egui::Event::PointerMoved(pos),
+                        egui::Event::PointerButton {
+                            pos,
+                            button: egui::PointerButton::Primary,
+                            pressed,
+                            modifiers: egui::Modifiers::NONE,
+                        },
+                    ],
+                    ..Default::default()
+                },
+                |ui| app.welcome_controls(ui),
+            )
+            .drop_without_applying_deltas();
+        }
+        assert!(!app.welcome);
+        let (saved, warning) = config::load(Some(&path));
+        assert!(warning.is_none());
+        assert!(!saved.taskbar_mode);
+        assert_eq!(saved.weather_location, app.weather_draft);
+        assert!(!config::first_launch(Some(&path)));
+    }
+
+    #[test]
+    fn failed_checkpoint_is_reported_once_and_retried_only_on_the_next_interval() {
+        let directory = std::env::temp_dir().join(format!("ce-progress-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let blocked = directory.join("blocked");
+        std::fs::write(&blocked, b"obstruction").unwrap();
+        let path = blocked.join("config.journey.json");
+        let mut app = app_with_sample(MetricsSample::unavailable("test"));
+        app.progress_path = Some(path.clone());
+        app.persist_progress(true);
+        assert!(app.progress_notice.is_some());
+        assert!(app.progress_after > Instant::now() + Duration::from_secs(20));
+        // The obstacle is gone, but an ordinary frame does not retry before the interval.
+        std::fs::remove_file(&blocked).unwrap();
+        for _ in 0..100 {
+            app.persist_progress(false);
+        }
+        assert!(app.progress_notice.is_some());
+        assert!(!path.exists());
+        // The interval, the explicit button and a normal exit all use this forced path.
+        app.persist_progress(true);
+        assert_eq!(app.progress_notice, None);
+        assert!(crate::progress::load_world(&path).unwrap().is_some());
+        std::fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn diagnostic_record_identifies_version_mode_freshness_pause_and_journey() {
+        let directory = std::env::temp_dir().join(format!("ce-diag-{}", std::process::id()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("samples.jsonl");
+        let mut app = app_with_sample(MetricsSample::unavailable("test"));
+        app.diagnostics = Some(Diagnostics::open(&path).unwrap());
+        app.paused = true;
+        app.record_diagnostics(true);
+        app.diagnostics.take();
+        let text = std::fs::read_to_string(&path).unwrap();
+        let record: serde_json::Value = serde_json::from_str(text.trim()).unwrap();
+        assert_eq!(record["diagnostics_schema_version"], 3);
+        assert_eq!(record["app_version"], env!("CARGO_PKG_VERSION"));
+        assert_eq!(record["event"], "shutdown");
+        assert_eq!(record["mode"], "real");
+        assert_eq!(record["metric_status"], "unavailable");
+        assert!(record["metric_freshness"].is_string());
+        assert!(record["cpu_percent"].is_null());
+        assert_eq!(record["paused"], true);
+        assert_eq!(record["stations_visited"], 0);
+        assert!(record["journey_active_seconds"].is_number());
+        assert!(record["services"]["composition"].is_array());
+        // Local-only file: nothing that names the machine, account or profile location.
+        for forbidden in ["USERNAME", "COMPUTERNAME", "USERPROFILE", "LOCALAPPDATA"] {
+            if let Ok(value) = std::env::var(forbidden)
+                && value.len() > 3
+            {
+                assert!(!text.contains(&value), "{forbidden}");
+            }
+        }
+        std::fs::remove_dir_all(directory).unwrap();
+    }
+
     fn app_with_sample(sample: MetricsSample) -> CpuExpressApp {
         let mut app = CpuExpressApp::new_demo(
             &egui::Context::default(),
@@ -2714,6 +3224,7 @@ mod tests {
         let mut app = app_with_sample(MetricsSample::unavailable("test"));
         let mut frame = eframe::Frame::_new_kittest();
         for [width, height] in [[800.0, 240.0], [274.0, 60.0], [800.0, 240.0], [274.0, 60.0]] {
+            app.config.taskbar_mode = height < 85.0;
             let input = egui::RawInput {
                 screen_rect: Some(egui::Rect::from_min_size(
                     egui::Pos2::ZERO,
@@ -2730,6 +3241,10 @@ mod tests {
             assert!(app.render_surface_size[0] <= width);
             assert!(app.render_surface_size[1] <= height);
             assert!(app.render_surface_size[1] > 0.0);
+            assert_eq!(
+                app.renderer.width(),
+                if app.config.taskbar_mode { 274 } else { WIDTH }
+            );
         }
     }
 

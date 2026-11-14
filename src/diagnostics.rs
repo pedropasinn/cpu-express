@@ -1,7 +1,12 @@
 //! Explicit, optional local diagnostics for reproducible smoke tests.
 //! Normal gameplay does not write a history or send telemetry anywhere.
 //!
-//! Metric records use schema v2 with new metadata and nullable byte fields.
+//! Metric records use schema v3. v2 introduced freshness metadata and nullable
+//! byte fields; v3 marks the 0.4 record, which added `services`,
+//! `station_wait_seconds`, `local_weather` and `frame_work`, and stamps every
+//! metric record with `app_version` so a line can be tied to the binary that
+//! wrote it. Readers of v2 keep working: no v2 field changed meaning.
+//! The file is opt-in and local; it holds no account, path or hardware identity.
 //! Missing RAM is represented by JSON
 //! null, not the legacy in-memory 0/0 byte sentinels. Stale real observations
 //! are also null; `effective_cpu_percent` remains the simulation's input,
@@ -17,7 +22,7 @@ use std::{
 use serde_json::Value;
 
 const MAX_RECORDS: u64 = 86_402;
-const METRICS_SCHEMA_VERSION: u64 = 2;
+const METRICS_SCHEMA_VERSION: u64 = 3;
 
 pub struct Diagnostics {
     output: BufWriter<File>,
@@ -78,6 +83,10 @@ fn normalize_record(value: &Value) -> Cow<'_, Value> {
     object.insert(
         "diagnostics_schema_version".to_owned(),
         Value::from(METRICS_SCHEMA_VERSION),
+    );
+    object.insert(
+        "app_version".to_owned(),
+        Value::from(env!("CARGO_PKG_VERSION")),
     );
     object.insert(
         "metric_freshness".to_owned(),
@@ -147,7 +156,8 @@ mod tests {
         for (key, value) in input.as_object().expect("object") {
             assert_eq!(normalized[key], *value, "field changed: {key}");
         }
-        assert_eq!(normalized["diagnostics_schema_version"], 2);
+        assert_eq!(normalized["diagnostics_schema_version"], 3);
+        assert_eq!(normalized["app_version"], env!("CARGO_PKG_VERSION"));
         assert_eq!(normalized["metric_freshness"], "current");
         assert!(input.get("diagnostics_schema_version").is_none());
     }
@@ -312,7 +322,7 @@ mod tests {
             .map(|line| serde_json::from_str(line).expect("JSONL line"))
             .collect();
         assert_eq!(records.len(), 3);
-        assert_eq!(records[0]["diagnostics_schema_version"], 2);
+        assert_eq!(records[0]["diagnostics_schema_version"], 3);
         assert_eq!(records[0]["total_memory_bytes"], 1024);
         assert!(records[1]["cpu_percent"].is_null());
         assert!(records[1]["total_memory_bytes"].is_null());

@@ -1,0 +1,6 @@
+SELECT ?s ?sLabel ?coord ?ele ?opened ?instLabel WHERE {
+  SERVICE wikibase:box { ?s wdt:P625 ?coord . bd:serviceParam wikibase:cornerSouthWest "Point(-49.35 -25.65)"^^geo:wktLiteral . bd:serviceParam wikibase:cornerNorthEast "Point(-48.45 -25.30)"^^geo:wktLiteral . }
+  ?s wdt:P31 ?inst . ?inst wdt:P279* wd:Q55488 .
+  OPTIONAL { ?s wdt:P2044 ?ele } OPTIONAL { ?s wdt:P1619 ?opened }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "pt,en". }
+}

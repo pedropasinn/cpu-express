@@ -1,6 +1,6 @@
 # Validação CPU Express 0.4.0-rc.2
 
-Executado em 2026-11-14 no Windows local. Executável Windows GNU sem assinatura, SHA-256 `f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985`. Relatório anterior preservado em `historico/VALIDACAO_04_RC1.md`.
+Executado em 2026-11-14 no Windows local. Executável Windows GNU sem assinatura, SHA-256 `f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985`. As evidências mantidas nesta árvore correspondem à versão atual.
 
 ## Código e jogabilidade
 

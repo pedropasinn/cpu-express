@@ -102,6 +102,10 @@ fn automatic_default() -> bool {
     true
 }
 
+/// Deliveries that earn each service postcard; mirrored by the content catalogue.
+pub const PASSENGER_POSTCARD_GOAL: u64 = 20;
+pub const CARGO_POSTCARD_GOAL: u64 = 20;
+
 const STATIONS: [StationId; 4] = [
     StationId::Aurora,
     StationId::Pines,
@@ -295,9 +299,9 @@ impl ServiceState {
                 .enumerate()
                 .any(|(i, r)| self.collection[..i].contains(r))
             || self.collection.contains(&ServiceReward::PassengerPostcard)
-                != (self.passengers_delivered >= 20)
+                != (self.passengers_delivered >= PASSENGER_POSTCARD_GOAL)
             || self.collection.contains(&ServiceReward::CargoPostcard)
-                != (self.cargo_delivered >= 20)
+                != (self.cargo_delivered >= CARGO_POSTCARD_GOAL)
         {
             return Err(invalid());
         }
@@ -498,9 +502,12 @@ impl ServiceState {
         for (reward, unlocked) in [
             (
                 ServiceReward::PassengerPostcard,
-                self.passengers_delivered >= 20,
+                self.passengers_delivered >= PASSENGER_POSTCARD_GOAL,
             ),
-            (ServiceReward::CargoPostcard, self.cargo_delivered >= 20),
+            (
+                ServiceReward::CargoPostcard,
+                self.cargo_delivered >= CARGO_POSTCARD_GOAL,
+            ),
         ] {
             if unlocked && !self.collection.contains(&reward) {
                 self.collection.push(reward);

@@ -30,6 +30,6 @@ RC2: a faixa usa uma janela independente no retangulo da barra, na mesma altura 
 
 - ServiceState pertence ao World e aplica transações na chegada, antes das notificações. Não conceder recompensas na UI.
 - Preservar aurora-v1. Excursões são estado separado; não reinterpretar distância acumulada.
-- Checkpoint v3 inclui jornada, serviço, despacho e devolução (migra v1/v2 com backup); o aplicativo restaura com load_world. O load legado não restaura serviços.
+- Checkpoint v3 inclui jornada, serviço, despacho e devolução (migra v1/v2 com backup); o aplicativo restaura com load_profile e grava com save_checkpoint, que mantêm a cópia de recuperação `.previous.json`; `save` fica para exportação. O load legado não restaura serviços.
 - Não clonar Config por frame: preferências incluem strings da localização.
 - Os módulos src/app/ dividem jornada, oficina, serviços, excursões e recuperação; manter cada responsabilidade localizada.

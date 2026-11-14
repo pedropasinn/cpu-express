@@ -2,6 +2,7 @@
 
 pub mod branch;
 pub use branch::{BranchExpedition, BranchKind, BranchPhase, BranchState, BranchStop};
+pub mod catalog;
 pub mod journey;
 pub mod objectives;
 pub mod route;

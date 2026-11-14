@@ -54,7 +54,8 @@ pub(super) fn background(pixels: &mut [Color32], biome: Biome, view: View) {
             rgb(45, 57, 78),
             dusk_amount(view.light_seconds, view.options.day_cycle),
         );
-        for pixel in pixels.iter_mut().take(320 * 54) {
+        let width = pixels.len() / 70;
+        for pixel in pixels.iter_mut().take(width * 54) {
             *pixel = mix(*pixel, tint, strength);
         }
     }
@@ -76,10 +77,10 @@ fn translated_polygon<const N: usize>(
 }
 
 fn sky(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
-    canvas.rect(0, 0, 320, 70, p.sky[0]);
-    canvas.rect(0, 12, 320, 12, p.sky[1]);
-    canvas.rect(0, 24, 320, 14, p.sky[2]);
-    canvas.rect(0, 38, 320, 32, p.sky[3]);
+    canvas.rect(0, 0, canvas.width(), 70, p.sky[0]);
+    canvas.rect(0, 12, canvas.width(), 12, p.sky[1]);
+    canvas.rect(0, 24, canvas.width(), 14, p.sky[2]);
+    canvas.rect(0, 38, canvas.width(), 32, p.sky[3]);
 
     let dusk = dusk_amount(view.light_seconds, view.options.day_cycle);
     let sun_color = mix(p.sun, rgb(223, 226, 208), dusk);
@@ -105,7 +106,7 @@ fn sky(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
 
     if view.options.clouds && view.quality == RenderQuality::Full {
         let drift = shift(view.seconds, 0.8, 320.0);
-        for tile in [-320, 0, 320] {
+        for tile in canvas.tiles(320) {
             cloud(canvas, tile + 28 - drift, 12, false, p);
             cloud(canvas, tile + 158 - drift, 7, true, p);
             if view.options.details {
@@ -128,7 +129,7 @@ fn cloud(canvas: &mut Canvas<'_>, x: i32, y: i32, small: bool, p: &Palette) {
 
 fn valley(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
     let far = shift(view.distance, 0.03125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - far;
         translated_polygon(
             canvas,
@@ -167,7 +168,7 @@ fn valley(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
 
     if view.quality == RenderQuality::Full {
         let near = shift(view.distance, 0.0625, 320.0);
-        for tile in [-320, 0, 320] {
+        for tile in canvas.tiles(320) {
             let x = tile - near;
             translated_polygon(
                 canvas,
@@ -196,7 +197,7 @@ fn valley(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
     }
 
     let hill = shift(view.distance, 0.125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - hill;
         translated_polygon(
             canvas,
@@ -230,10 +231,10 @@ fn valley(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             cottage(canvas, x + 265, 45, p);
         }
     }
-    canvas.rect(0, 52, 320, 5, p.ground);
+    canvas.rect(0, 52, canvas.width(), 5, p.ground);
 
     let trees = shift(view.distance, 0.25, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - trees;
         for (offset, height) in [
             (15, 15),
@@ -265,7 +266,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
         ink: p.far_shadow,
         ..*p
     };
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - far;
         for (offset, height) in [
             (8, 22),
@@ -283,7 +284,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             fir(canvas, x + offset, 48, height, &distant_palette);
         }
     }
-    canvas.rect(0, 45, 320, 12, p.ground);
+    canvas.rect(0, 45, canvas.width(), 12, p.ground);
     if view.quality == RenderQuality::Full {
         let middle = shift(view.distance, 0.0625, 320.0);
         let middle_palette = Palette {
@@ -292,7 +293,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             ink: p.ridge_shadow,
             ..*p
         };
-        for tile in [-320, 0, 320] {
+        for tile in canvas.tiles(320) {
             let x = tile - middle;
             for (offset, height) in [
                 (17, 25),
@@ -311,7 +312,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
         }
     }
     let ground = shift(view.distance, 0.125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - ground;
         translated_polygon(
             canvas,
@@ -334,7 +335,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
         }
     }
     let close = shift(view.distance, 0.25, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - close;
         for (offset, height) in [
             (12, 25),
@@ -360,7 +361,7 @@ fn forest(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
 
 fn coast(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
     let far = shift(view.distance, 0.03125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - far;
         translated_polygon(
             canvas,
@@ -397,13 +398,13 @@ fn coast(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             );
         }
     }
-    canvas.rect(0, 36, 320, 17, p.water);
-    canvas.rect(0, 36, 320, 1, p.water_light);
-    canvas.rect(0, 40, 320, 1, mix(p.water, p.water_light, 0.30));
+    canvas.rect(0, 36, canvas.width(), 17, p.water);
+    canvas.rect(0, 36, canvas.width(), 1, p.water_light);
+    canvas.rect(0, 40, canvas.width(), 1, mix(p.water, p.water_light, 0.30));
     if view.detailed() {
         let ripples = shift(view.distance, 0.125, 160.0);
         let shimmer = shift(view.seconds, 2.0, 160.0);
-        for tile in [-160, 0, 160, 320] {
+        for tile in canvas.tiles(160) {
             let x = tile - ripples;
             for (dx, y, width) in [(9, 38, 19), (35, 43, 12), (88, 40, 25), (136, 45, 13)] {
                 canvas.rect(x + dx, y, width, 1, mix(p.water, p.water_light, 0.62));
@@ -412,13 +413,13 @@ fn coast(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             canvas.rect(tile + 120 - shimmer, 44, 11, 1, p.water_light);
         }
         let boats = shift(view.distance, 0.0625, 320.0);
-        for tile in [-320, 0, 320] {
+        for tile in canvas.tiles(320) {
             sailboat(canvas, tile + 47 - boats, 39, p);
             sailboat(canvas, tile + 220 - boats, 43, p);
         }
     }
     let dunes = shift(view.distance, 0.125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - dunes;
         translated_polygon(
             canvas,
@@ -447,10 +448,10 @@ fn coast(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             p.ground,
         );
     }
-    canvas.rect(0, 53, 320, 4, p.ground);
+    canvas.rect(0, 53, canvas.width(), 4, p.ground);
 
     let objects = shift(view.distance, 0.25, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - objects;
         lighthouse(canvas, x + 273, 51, p, view);
         for (offset, height) in [(23, 7), (41, 5), (113, 4), (302, 6)] {
@@ -470,7 +471,7 @@ fn coast(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
 
 fn desert(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
     let far = shift(view.distance, 0.03125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - far;
         translated_polygon(
             canvas,
@@ -521,7 +522,7 @@ fn desert(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
     }
     if view.quality == RenderQuality::Full {
         let near = shift(view.distance, 0.0625, 320.0);
-        for tile in [-320, 0, 320] {
+        for tile in canvas.tiles(320) {
             let x = tile - near;
             translated_polygon(
                 canvas,
@@ -558,7 +559,7 @@ fn desert(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
         }
     }
     let sand = shift(view.distance, 0.125, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - sand;
         translated_polygon(
             canvas,
@@ -585,9 +586,9 @@ fn desert(canvas: &mut Canvas<'_>, p: &Palette, view: View) {
             canvas.line((x + 209, 51), (x + 242, 49), p.ground_light);
         }
     }
-    canvas.rect(0, 53, 320, 4, p.ground);
+    canvas.rect(0, 53, canvas.width(), 4, p.ground);
     let objects = shift(view.distance, 0.25, 320.0);
-    for tile in [-320, 0, 320] {
+    for tile in canvas.tiles(320) {
         let x = tile - objects;
         cactus(canvas, x + 17, 54, 16, p);
         cactus(canvas, x + 103, 54, 9, p);
@@ -673,9 +674,9 @@ fn signal(canvas: &mut Canvas<'_>, x: i32, base: i32, p: &Palette) {
 
 fn fence(canvas: &mut Canvas<'_>, p: &Palette, distance: f64, wire: bool) {
     let offset = shift(distance, 0.25, 24.0);
-    canvas.rect(0, 50, 320, 1, p.trim);
+    canvas.rect(0, 50, canvas.width(), 1, p.trim);
     if !wire {
-        canvas.rect(0, 53, 320, 1, p.ink);
+        canvas.rect(0, 53, canvas.width(), 1, p.ink);
     }
     for index in -1..15 {
         let x = index * 24 - offset;
@@ -771,13 +772,13 @@ fn telegraph(canvas: &mut Canvas<'_>, x: i32, base: i32, p: &Palette) {
 }
 
 fn foreground(canvas: &mut Canvas<'_>, p: &Palette, biome: Biome, view: View) {
-    canvas.rect(0, 61, 320, 9, p.foreground);
-    canvas.rect(0, 66, 320, 4, p.foreground_shadow);
+    canvas.rect(0, 61, canvas.width(), 9, p.foreground);
+    canvas.rect(0, 66, canvas.width(), 4, p.foreground_shadow);
     if !view.detailed() {
         return;
     }
     let offset = shift(view.distance, 0.5, 160.0);
-    for tile in [-160, 0, 160, 320] {
+    for tile in canvas.tiles(160) {
         let x = tile - offset;
         for dx in [9, 35, 65, 119, 143] {
             if biome == Biome::HighDesert {
@@ -801,10 +802,10 @@ fn foreground(canvas: &mut Canvas<'_>, p: &Palette, biome: Biome, view: View) {
 }
 
 fn track(canvas: &mut Canvas<'_>, distance: f64, details: bool) {
-    canvas.rect(0, 55, 320, 8, rgb(104, 109, 88));
-    canvas.rect(0, 56, 320, 5, rgb(140, 129, 103));
+    canvas.rect(0, 55, canvas.width(), 8, rgb(104, 109, 88));
+    canvas.rect(0, 56, canvas.width(), 5, rgb(140, 129, 103));
     let offset = shift(distance, 0.5, 10.0);
-    for index in -1..34 {
+    for index in -1..(canvas.width() / 10 + 2) {
         let x = index * 10 - offset;
         canvas.rect(x, 56, 5, 5, rgb(83, 87, 73));
         if details {
@@ -813,9 +814,9 @@ fn track(canvas: &mut Canvas<'_>, distance: f64, details: bool) {
         }
     }
     // Wheel centers (54 + radius 3, and 55 + radius 2) contact this exact row.
-    canvas.rect(0, 57, 320, 1, rgb(226, 215, 165));
-    canvas.rect(0, 58, 320, 1, rgb(76, 95, 77));
-    canvas.rect(0, 60, 320, 1, rgb(189, 184, 135));
+    canvas.rect(0, 57, canvas.width(), 1, rgb(226, 215, 165));
+    canvas.rect(0, 58, canvas.width(), 1, rgb(76, 95, 77));
+    canvas.rect(0, 60, canvas.width(), 1, rgb(189, 184, 135));
 }
 
 pub(super) fn weather(canvas: &mut Canvas<'_>, view: View) {
@@ -849,18 +850,20 @@ pub(super) fn weather(canvas: &mut Canvas<'_>, view: View) {
     let slant = view
         .wind_speed_kmh
         .map_or(1, |wind| (wind * (4.0 / 250.0)).round() as i32);
-    for index in 0..count {
-        let x = (f64::from(index * 47) - drift).rem_euclid(320.0).floor() as i32;
-        let y = (f64::from(index * 23) + t * if snow { 7.0 } else { 35.0 })
-            .rem_euclid(70.0)
-            .floor() as i32;
-        if snow {
-            canvas.pixel(x, y, rgb(225, 235, 235));
-            if index % 3 == 0 {
-                canvas.pixel(x + 1, y, rgb(196, 215, 222));
+    for tile in (0..canvas.width()).step_by(320) {
+        for index in 0..count {
+            let x = tile + (f64::from(index * 47) - drift).rem_euclid(320.0).floor() as i32;
+            let y = (f64::from(index * 23) + t * if snow { 7.0 } else { 35.0 })
+                .rem_euclid(70.0)
+                .floor() as i32;
+            if snow {
+                canvas.pixel(x, y, rgb(225, 235, 235));
+                if index % 3 == 0 {
+                    canvas.pixel(x + 1, y, rgb(196, 215, 222));
+                }
+            } else {
+                canvas.line((x, y), (x - slant, y + 3), rgb(176, 202, 201));
             }
-        } else {
-            canvas.line((x, y), (x - slant, y + 3), rgb(176, 202, 201));
         }
     }
 }

@@ -1,0 +1,474 @@
+{
+  "line_format": 1,
+  "id": "curitiba-paranagua",
+  "name": "Estrada de Ferro Paranaguá–Curitiba",
+  "status": "draft",
+  "kind": "real",
+  "layout": "shuttle",
+  "era": {
+    "label": "Atual: traçado e pontos em operação conforme o OpenStreetMap em 2026-11-14",
+    "from_year": 2026,
+    "to_year": 2026
+  },
+  "gauge_mm": 1000,
+  "country": "BR",
+  "data_license": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "sources": [
+    {
+      "id": "osm",
+      "title": "OpenStreetMap, extrato Overpass de 2026-11-14 (base 2026-11-14T13:24:21Z): trilhos, pontos operacionais, marcos quilométricos, túneis e pontes. Cópia em data/sources/curitiba-paranagua/",
+      "url": "https://www.openstreetmap.org/copyright",
+      "accessed": "2026-11-14",
+      "license": "ODbL-1.0"
+    },
+    {
+      "id": "open-meteo-dem",
+      "title": "Open-Meteo Elevation API (Copernicus DEM GLO-90): altitude nas coordenadas de cada ponto",
+      "url": "https://open-meteo.com/en/docs/elevation-api",
+      "accessed": "2026-11-14"
+    },
+    {
+      "id": "wikidata",
+      "title": "Wikidata: estações ferroviárias na região (Marumbi, Morretes, Engenheiro Lange, Banhado, Rodoferroviária de Curitiba), usadas para conferir nomes e posições",
+      "url": "https://www.wikidata.org/",
+      "accessed": "2026-11-14"
+    },
+    {
+      "id": "ims-ferrez",
+      "title": "Instituto Moreira Salles, acervo: Estrada de Ferro Paranaguá-Curitiba (linha de 110 km; ponte sobre o Rio São João no km 62,21; As Três Pontes no km 61,72)",
+      "url": "https://acervos.ims.com.br/index.php/Detail/objects/191295?lang=pt_BR",
+      "accessed": "2026-11-14"
+    },
+    {
+      "id": "aen-pr",
+      "title": "Agência Estadual de Notícias do Paraná: 13 túneis, 30 pontes e viadutos, 10 estações intermediárias; construção de 1880 a 1885",
+      "url": "https://www.parana.pr.gov.br/aen/Noticia/Viagem-de-trem-mais-bonita-do-mundo-e-Maria-Fumaca-Caicara-sao-opcoes-turisticas-do",
+      "accessed": "2026-11-14"
+    },
+    {
+      "id": "uepg-estacoes",
+      "title": "Repositório UEPG: estudo sobre as catorze estações da ferrovia em seis municípios",
+      "url": "https://ri.uepg.br/bitstreams/c6fb937c-a9c9-45de-8aba-607c6b67b743/download",
+      "accessed": "2026-11-14"
+    }
+  ],
+  "stations": [
+    {
+      "id": "paranagua",
+      "name": "Paranaguá",
+      "km": 0.0,
+      "elevation_m": 8,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7788512109 (local ferroviário, abertura 1883). Origem da quilometragem; hoje os trilhos mapeados terminam cerca de 0,8 km antes do prédio da estação."
+    },
+    {
+      "id": "alexandra",
+      "name": "Alexandra",
+      "km": 16.0,
+      "elevation_m": 10,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7788388567 (local ferroviário, sigla LAX, operador Rumo S/A)."
+    },
+    {
+      "id": "saquarema",
+      "name": "Saquarema",
+      "km": 23.8,
+      "elevation_m": 7,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7788425399 (local ferroviário, sigla LSQ, operador Rumo S/A)."
+    },
+    {
+      "id": "morretes",
+      "name": "Morretes",
+      "km": 40.7,
+      "elevation_m": 10,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7785745224 (estação, sigla LMR, operador Rumo S/A;Serra Verde Express;Associação Brasileira de Preservação Ferroviária, abertura 1883)."
+    },
+    {
+      "id": "porto-de-cima",
+      "name": "Porto de Cima",
+      "km": 50.6,
+      "elevation_m": 231,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 4071710619 (posto de serviço, sigla LPC, operador Rumo S/A, abertura 1885)."
+    },
+    {
+      "id": "engenheiro-lange",
+      "name": "Engenheiro Lange",
+      "km": 55.9,
+      "elevation_m": 377,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7801571295 (posto de serviço, sigla LEL, operador Rumo S/A)."
+    },
+    {
+      "id": "marumbi",
+      "name": "Marumbi",
+      "km": 59.8,
+      "elevation_m": 489,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 6354522329 (parada, sigla LMY, operador Rumo S/A, abertura 1885)."
+    },
+    {
+      "id": "cadeado",
+      "name": "Cadeado",
+      "km": 63.9,
+      "elevation_m": 632,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 1116998738 (parada, operador Rumo S/A;Serra Verde Express)."
+    },
+    {
+      "id": "veu-de-noiva",
+      "name": "Véu de Noiva",
+      "km": 66.8,
+      "elevation_m": 705,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7801571293 (posto de serviço, sigla LVN, operador Rumo S/A)."
+    },
+    {
+      "id": "banhado",
+      "name": "Banhado",
+      "km": 74.4,
+      "elevation_m": 859,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 10874965340 (posto de serviço, sigla LBH, operador Rumo S/A)."
+    },
+    {
+      "id": "roca-nova",
+      "name": "Roça Nova",
+      "km": 80.5,
+      "elevation_m": 952,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7801552973 (posto de serviço, sigla LRN, operador Rumo S/A)."
+    },
+    {
+      "id": "piraquara",
+      "name": "Piraquara",
+      "km": 87.3,
+      "elevation_m": 898,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7801607158 (local ferroviário, sigla LPQ)."
+    },
+    {
+      "id": "pinhais",
+      "name": "Pinhais",
+      "km": 102.1,
+      "elevation_m": 889,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 6247172545 (local ferroviário, sigla LNH, operador Rumo S/A, abertura 1885-02-05)."
+    },
+    {
+      "id": "curitiba",
+      "name": "Curitiba",
+      "km": 109.3,
+      "elevation_m": 891,
+      "verified": true,
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM nó 7782327184 (estação, sigla LCO, operador Serra Verde Express, abertura 1972). Estação Rodoferroviária, ponto de partida atual do trem de passageiros; a estação original de 1885 é hoje o Museu Ferroviário."
+    }
+  ],
+  "segments": [
+    {
+      "id": "paranagua-alexandra",
+      "from": "paranagua",
+      "to": "alexandra",
+      "distance_km": 16.0,
+      "biome": "coast",
+      "scenery": [
+        "port",
+        "coast",
+        "plain",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 3 ponte(s)/viaduto(s) somando 95 m; altitude de 8 m a 10 m."
+    },
+    {
+      "id": "alexandra-saquarema",
+      "from": "alexandra",
+      "to": "saquarema",
+      "distance_km": 7.8,
+      "biome": "coast",
+      "scenery": [
+        "plain",
+        "forest",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 4 ponte(s)/viaduto(s) somando 44 m; altitude de 10 m a 7 m."
+    },
+    {
+      "id": "saquarema-morretes",
+      "from": "saquarema",
+      "to": "morretes",
+      "distance_km": 16.9,
+      "biome": "forest",
+      "scenery": [
+        "plain",
+        "forest",
+        "river",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 7 ponte(s)/viaduto(s) somando 191 m; altitude de 7 m a 10 m."
+    },
+    {
+      "id": "morretes-porto-de-cima",
+      "from": "morretes",
+      "to": "porto-de-cima",
+      "distance_km": 9.9,
+      "biome": "forest",
+      "scenery": [
+        "forest",
+        "river",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 4 ponte(s)/viaduto(s) somando 112 m; altitude de 10 m a 231 m."
+    },
+    {
+      "id": "porto-de-cima-engenheiro-lange",
+      "from": "porto-de-cima",
+      "to": "engenheiro-lange",
+      "distance_km": 5.3,
+      "biome": "highland",
+      "scenery": [
+        "forest",
+        "mountain",
+        "tunnel",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 2 túnel(is) somando 285 m e 3 ponte(s)/viaduto(s) somando 51 m; altitude de 231 m a 377 m."
+    },
+    {
+      "id": "engenheiro-lange-marumbi",
+      "from": "engenheiro-lange",
+      "to": "marumbi",
+      "distance_km": 3.9,
+      "biome": "highland",
+      "scenery": [
+        "mountain",
+        "forest",
+        "tunnel"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 1 túnel(is) somando 285 m e 0 ponte(s)/viaduto(s) somando 0 m; altitude de 377 m a 489 m."
+    },
+    {
+      "id": "marumbi-cadeado",
+      "from": "marumbi",
+      "to": "cadeado",
+      "distance_km": 4.1,
+      "biome": "highland",
+      "scenery": [
+        "mountain",
+        "forest",
+        "tunnel",
+        "bridge",
+        "viaduct"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 4 túnel(is) somando 362 m e 8 ponte(s)/viaduto(s) somando 453 m; altitude de 489 m a 632 m. Inclui o viaduto de 125 m no km 62,3 do traçado, que coincide com a ponte sobre o Rio São João (km 62,21) do acervo IMS."
+    },
+    {
+      "id": "cadeado-veu-de-noiva",
+      "from": "cadeado",
+      "to": "veu-de-noiva",
+      "distance_km": 2.9,
+      "biome": "highland",
+      "scenery": [
+        "mountain",
+        "forest",
+        "tunnel",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 4 túnel(is) somando 560 m e 2 ponte(s)/viaduto(s) somando 132 m; altitude de 632 m a 705 m."
+    },
+    {
+      "id": "veu-de-noiva-banhado",
+      "from": "veu-de-noiva",
+      "to": "banhado",
+      "distance_km": 7.6,
+      "biome": "highland",
+      "scenery": [
+        "mountain",
+        "forest",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 2 ponte(s)/viaduto(s) somando 75 m; altitude de 705 m a 859 m."
+    },
+    {
+      "id": "banhado-roca-nova",
+      "from": "banhado",
+      "to": "roca-nova",
+      "distance_km": 6.1,
+      "biome": "highland",
+      "scenery": [
+        "mountain",
+        "forest",
+        "tunnel",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 1 túnel(is) somando 448 m e 1 ponte(s)/viaduto(s) somando 21 m; altitude de 859 m a 952 m. Inclui o túnel de Roça Nova, o mais longo do traçado (448 m)."
+    },
+    {
+      "id": "roca-nova-piraquara",
+      "from": "roca-nova",
+      "to": "piraquara",
+      "distance_km": 6.8,
+      "biome": "meadow",
+      "scenery": [
+        "plateau",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 0 ponte(s)/viaduto(s) somando 0 m; altitude de 952 m a 898 m."
+    },
+    {
+      "id": "piraquara-pinhais",
+      "from": "piraquara",
+      "to": "pinhais",
+      "distance_km": 14.8,
+      "biome": "meadow",
+      "scenery": [
+        "plateau",
+        "farmland",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 3 ponte(s)/viaduto(s) somando 70 m; altitude de 898 m a 889 m."
+    },
+    {
+      "id": "pinhais-curitiba",
+      "from": "pinhais",
+      "to": "curitiba",
+      "distance_km": 7.2,
+      "biome": "meadow",
+      "scenery": [
+        "plateau",
+        "urban",
+        "bridge"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm",
+        "open-meteo-dem"
+      ],
+      "note": "OSM: 0 túnel(is) somando 0 m e 2 ponte(s)/viaduto(s) somando 33 m; altitude de 889 m a 891 m."
+    }
+  ],
+  "open_questions": [
+    "O motor de viagem ainda não percorre linhas de ponta a ponta (shuttle) nem mais de quatro estações; a linha fica como rascunho até o checkpoint v4.",
+    "Serviço de passageiros atual: confirmar em fonte do operador quais pontos têm embarque hoje (o trem turístico parte de Curitiba e vai a Morretes); os demais são pontos operacionais de carga.",
+    "Demanda de passageiros e tipos de carga por estação ainda não definidos (porto em Paranaguá, turismo em Morretes e Marumbi).",
+    "Cenário por trecho: biomas e etiquetas são leitura editorial dos dados; os marcos visuais de cada trecho ainda não foram desenhados."
+  ]
+}

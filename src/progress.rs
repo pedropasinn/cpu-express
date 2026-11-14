@@ -132,6 +132,89 @@ pub fn load_world(path: &Path) -> Result<Option<World>, String> {
         Err(e) => Err(format!("Não foi possível ler a jornada: {e}")),
     }
 }
+const CURRENT_VERSION: u64 = 3;
+
+/// The checkpoint that was valid immediately before the latest replacement.
+pub fn previous_path(path: &Path) -> PathBuf {
+    path.with_extension("previous.json")
+}
+
+/// Product start-up load. A damaged checkpoint is set aside byte for byte and the
+/// journey resumes from the previous valid checkpoint, with a notice for the player.
+/// Saves written by a newer version, unreadable files and oversized files are never
+/// moved: they keep blocking normal saves exactly as [`load_world`] reports them.
+/// The caller must hold the profile lock.
+pub fn load_profile(path: &Path) -> Result<(Option<World>, Option<String>), String> {
+    let error = match load_world(path) {
+        Ok(world) => return Ok((world, None)),
+        Err(error) => error,
+    };
+    if fs::metadata(path).is_ok_and(|m| m.len() > 1_048_576) {
+        return Err(error);
+    }
+    let Ok(damaged) = fs::read(path) else {
+        return Err(error);
+    };
+    let newer = serde_json::from_slice::<serde_json::Value>(&damaged)
+        .ok()
+        .and_then(|value| value.get("version").and_then(|v| v.as_u64()))
+        .is_some_and(|version| version > CURRENT_VERSION);
+    if newer {
+        return Err(error);
+    }
+    let previous = previous_path(path);
+    let Ok(previous_bytes) = fs::read(&previous) else {
+        return Err(error);
+    };
+    let Ok(world) = decode_world(&previous_bytes) else {
+        return Err(error);
+    };
+    let nonce = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    // Renaming replaces an existing file on Windows, so only an unused name is accepted.
+    let quarantine = (0..128)
+        .map(|attempt| path.with_extension(format!("damaged-{nonce}-{attempt}.json")))
+        .find(|candidate| !candidate.exists())
+        .ok_or_else(|| format!("{error} Recuperação automática indisponível."))?;
+    fs::rename(path, &quarantine)
+        .map_err(|e| format!("{error} Recuperação automática indisponível: {e}"))?;
+    let name = quarantine
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .into_owned();
+    let mut notice = format!(
+        "O arquivo da jornada estava danificado e foi preservado como {name}. A viagem foi retomada do checkpoint anterior."
+    );
+    // Restore the exact previous document so the profile is consistent before the next save.
+    if let Err(e) = replace_file(path, &previous_bytes) {
+        notice.push_str(&format!(
+            " O arquivo principal ainda não foi regravado: {e}"
+        ));
+    }
+    Ok((Some(world), Some(notice)))
+}
+
+/// Periodic profile save. Keeps the checkpoint being replaced as the recovery copy,
+/// so one damaged write never leaves the profile without a valid journey.
+/// `Ok(Some(_))` means the journey was saved but the recovery copy was not refreshed.
+pub fn save_checkpoint(path: &Path, world: &World) -> Result<Option<String>, String> {
+    // Validate the new document before touching the recovery copy.
+    encode_world(world)?;
+    let warning = match fs::read(path) {
+        Ok(current) if current.len() <= 1_048_576 && decode_world(&current).is_ok() => {
+            replace_file(&previous_path(path), &current).err().map(|e| {
+                format!("Jornada salva, mas a cópia de recuperação não foi atualizada: {e}")
+            })
+        }
+        _ => None,
+    };
+    save(path, world)?;
+    Ok(warning)
+}
+
 /// Compatibility view for old tools; product callers must use load_world.
 pub fn load(path: &Path) -> Result<Option<(Journey, f64)>, String> {
     load_world(path).map(|world| world.map(|w| (w.journey().clone(), w.station_wait())))
@@ -179,7 +262,7 @@ fn encode_world(world: &World) -> Result<Vec<u8>, String> {
         .service_snapshot()
         .validate(world.journey_snapshot())?;
     let saved = WorldCheckpoint {
-        version: 3,
+        version: CURRENT_VERSION as u32,
         journey: checkpoint,
         service: world.service_snapshot().clone(),
     };
@@ -243,8 +326,14 @@ pub fn import_world(destination: &Path, source: &Path) -> Result<World, String> 
 }
 
 fn write_atomic(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    replace_file(path, bytes).map_err(|e| format!("Jornada não salva: {e}"))
+}
+
+/// Complete temporary file, then one rename: a failure at any step leaves the
+/// destination untouched and removes the temporary file.
+fn replace_file(path: &Path, bytes: &[u8]) -> std::io::Result<()> {
     if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
-        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        fs::create_dir_all(parent)?;
     }
     let (temporary, mut file) = (0..128)
         .find_map(|attempt| {
@@ -264,8 +353,7 @@ fn write_atomic(path: &Path, bytes: &[u8]) -> Result<(), String> {
                 std::io::ErrorKind::AlreadyExists,
                 "Temporary filenames occupied",
             ))
-        })
-        .map_err(|error| error.to_string())?;
+        })?;
     let result = (|| {
         file.write_all(bytes)?;
         file.sync_all()?;
@@ -275,5 +363,5 @@ fn write_atomic(path: &Path, bytes: &[u8]) -> Result<(), String> {
     if result.is_err() {
         let _ = fs::remove_file(&temporary);
     }
-    result.map_err(|e| format!("Jornada não salva: {e}"))
+    result
 }

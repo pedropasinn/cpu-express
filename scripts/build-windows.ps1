@@ -145,7 +145,7 @@ try {
         Copy-Item -LiteralPath $measurementScript -Destination (Join-Path $releaseDirectory 'scripts\measure-windows.ps1')
     }
     [void][IO.Directory]::CreateDirectory((Join-Path $releaseDirectory 'docs'))
-    foreach ($document in @('windows_checklist.md', 'performance_windows.md', 'ux_guia.md')) {
+    foreach ($document in @('windows_checklist.md', 'performance_windows.md', 'GUIA_04.md', 'VALIDACAO_04.md')) {
         $source = Join-Path $projectRoot ('docs/' + $document)
         if (Test-Path -LiteralPath $source -PathType Leaf) { Copy-Item -LiteralPath $source -Destination (Join-Path $releaseDirectory ('docs/' + $document)) }
     }

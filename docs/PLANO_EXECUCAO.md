@@ -12,13 +12,9 @@ Atualizado em 2026-11-14. Base de referência: **0.3.0-rc.7**. **Plano aprovado;
 
 Cada entrega deve atualizar: ID, responsável, estado, arquivos, dependências, teste executado e resultado, artefato/hash quando aplicável, riscos e aceite. Não preencher nomes ou resultados por inferência. Novos schemas e decisões de balanceamento precisam de registro explícito antes de integrar consumidores.
 
-## 2. Referência verificada, sem herança automática
+## 2. Referência atual
 
-[BUILD-INFO rc7](historico/BUILD-INFO_RC7.json) identifica release Windows GNU, sem assinatura, SHA-256 `a1febb5706989ab5578496261df37cd8e817e8f133fb1aeac8772706b1e842f6`. Registra 203 testes aprovados, zero falhas e dois ignorados; format e Clippy com saída zero. Isso é evidência existente, não execução feita ao redigir este plano.
-
-Há [smoke nativo](../evidence/current/native-smoke-result.json), [transições](../evidence/current/transitions-rc7/result.json), [métricas reais](../evidence/current/real-metrics-result.json), [clima online](../evidence/current/weather/result.json) e [painéis egui](../evidence/current/game-ui-result.json). Painéis são exportações headless. O smoke não capturou o painel (`panel_capture=false`). A comparação curta de cadência mede frames renderizados, não compositor nem energia. A matriz de hardware e longa duração continuam abertas.
-
-A rc7 já tem save local protegido, circuito de quatro estações, paradas, visitas, objetivos e pinturas, cinco aparências de vagão, clima local e oficina. Os passageiros visuais não são ainda um inventário de pessoas; não há economia de carga/contratos inferida dessas animações. Não reimplementar esses fundamentos como se fossem ausentes.
+A base atual é 0.4.0-rc.2. Consulte [BUILD-INFO](../BUILD-INFO.json), [guia](GUIA_04.md) e [validação](VALIDACAO_04.md). Referências a rc7 nos requisitos abaixo indicam a origem histórica de um comportamento, não uma segunda base de desenvolvimento. As cópias antigas de entrega foram removidas da árvore por solicitação do usuário.
 
 ## 3. Contratos permanentes
 
@@ -79,10 +75,10 @@ Base: já existe checkpoint versionado, escritor exclusivo e proteção de arqui
 
 - [x] SAV-01 Inventariar campos rc7 e invariantes: rota, seed, distância, tempo ativo, serviço, preferências e desbloqueios derivados.
 - [ ] SAV-02 Definir schema novo e versão de catálogo com o integrador antes de persistir passageiros/cargas/contratos.
-- [ ] SAV-03 Criar fixtures rc7: perfil novo, trecho intermediário, parada, recompensas liberadas e preferências antigas.
+- [x] SAV-03 Criar fixtures rc7: perfil novo, trecho intermediário, parada, recompensas liberadas e preferências antigas.
 - [x] SAV-04 Implementar migração explícita; definir defaults de novos campos sem inventar serviço já realizado.
 - [x] SAV-05 Validar limites, referências e relações entre campos; rejeitar NaN, valores impossíveis, IDs ausentes e versões futuras.
-- [ ] SAV-06 Definir backup/recuperação e falha entre gravação temporária e substituição; nunca destruir o único progresso válido.
+- [x] SAV-06 Definir backup/recuperação e falha entre gravação temporária e substituição; nunca destruir o único progresso válido.
 - [ ] SAV-07 Testar writer concorrente, falha de permissão/espaço, arquivo truncado, reinício abrupto e retry limitado.
 - [x] SAV-08 Definir rollback de versão: preservar arquivo novo incompatível; não fazer downgrade silencioso.
 
@@ -92,10 +88,10 @@ Base: já existe checkpoint versionado, escritor exclusivo e proteção de arqui
 
 - [ ] DATA-01 Definir IDs estáveis para estações, trechos, tipos de vagão, cargas, contratos e recompensas.
 - [ ] DATA-02 Separar definição de conteúdo de estado da partida e texto de interface.
-- [ ] DATA-03 Validar unicidade, referências, capacidade, conectividade e caminhos de retorno.
+- [x] DATA-03 Validar unicidade, referências, capacidade, conectividade e caminhos de retorno.
 - [ ] DATA-04 Versionar catálogo; definir tratamento de item removido, renomeado ou desativado em save existente.
-- [ ] DATA-05 Tornar erros legíveis, indicando campo/ID; manter conteúdo inválido fora da sessão ativa.
-- [ ] DATA-06 Começar com conjunto pequeno autoral; não adicionar editor/modding público antes de estabilizar contrato.
+- [x] DATA-05 Tornar erros legíveis, indicando campo/ID; manter conteúdo inválido fora da sessão ativa.
+- [x] DATA-06 Começar com conjunto pequeno autoral; não adicionar editor/modding público antes de estabilizar contrato.
 
 **Aceite:** adicionar um serviço/estação pelo catálogo sem reescrever o algoritmo de viagem; fixtures inválidas falham de modo explicável; seed e conteúdo iguais preservam determinismo.
 
@@ -249,7 +245,7 @@ Base: Open-Meteo para São Paulo, worker, refresh periódico e estados de dispon
 
 ## 22. MAI — manutenção e observabilidade
 
-- [ ] MAI-01 Versionar diagnóstico quando mudar formato; registrar modo, frescor, pausa, jornada e versão sem dados sensíveis desnecessários.
+- [x] MAI-01 Versionar diagnóstico quando mudar formato; registrar modo, frescor, pausa, jornada e versão sem dados sensíveis desnecessários.
 - [x] MAI-02 Manter fixtures de migração e catálogo, testes de determinismo/conservação/idempotência e falhas reais.
 - [x] MAI-03 Distinguir teste unitário, integração headless, execução nativa e aceite humano nos relatórios.
 - [ ] MAI-04 Registrar bugs por reprodução/impacto/versão, sem converter hipótese em falha confirmada.
@@ -297,21 +293,7 @@ Modelo de atualização por item:
 
 Não marcar a expansão concluída porque o plano foi escrito, um módulo compila ou uma galeria foi exportada. Conclusão exige comportamento integrado, critérios de aceite atendidos e limitações honestamente registradas.
 
-## Integração 0.4.0-rc.1 em 2026-11-14 (histórico)
-
-Integrador: Codex; seis frentes paralelas com ownership separado. Itens marcados acima correspondem ao código integrado e à suíte atual, não a certificação de outros computadores. Foram executados 272 testes Rust (zero falhas, dois exportadores ignorados na suíte normal), formatação e Clippy sem warnings. Os exportadores foram executados separadamente com 16 cenários, incluindo serviços preenchidos, diário e excursão. Resultado nativo final: consultar [VALIDACAO_04.md](VALIDACAO_04.md) e [BUILD-INFO atual](../BUILD-INFO.json).
-
-A ramificação foi implementada como excursão limitada, persistida e com retorno a Aurora, preservando aurora-v1. Não há grafo arbitrário de rotas nem transporte com destino aos novos ramais nesta edição. Contratos de carga são automáticos, um por vez, com três categorias; oferta manual, cancelamento e contratos especiais de passageiros permanecem abertos. Os pontos são um registro de serviço, não moeda. Dormitório e Panorâmico diferem em capacidade e desenho; sistemas de conforto/turismo não são simulados.
-
-A revisão cruzada encontrou e corrigiu: recriação indevida da chave Run no instalador opcional, perda potencial da sessão ainda não salva durante importação, erros escondidos após o histórico, miniaturas pequenas, inspeção silenciosa de itens bloqueados e texto que prometia histórico ilimitado. A importação preserva agora tanto a sessão atual quanto o arquivo anterior; há teste de regressão com destino corrompido. O instalador não foi aplicado ao perfil do usuário; seu bloco de autostart foi testado em fixture isolada.
-
-Hardware adicional, leitor de tela real, reprodução audível/dispositivo, reinício real do Explorer e sessão de um dia completo continuam sem aceite. Nuvem, outros sistemas, assinatura e atualização automática não estão implementados. Nenhum desses itens deve ser marcado como concluído por inferência.
-
-Validação nativa final: quatro alternâncias passaram, clima online com 25 amostras prontas, migração de cópia do perfil v1 preservou quatro pinturas e backup, dois cenários de 120 s encerraram normalmente. Métricas e limites em VALIDACAO_04. A remoção recursiva de caches foi bloqueada pela revisão automática; os caches foram preservados e continuam excluídos dos pacotes.
-
-Distribuição final: portátil extraído e executado em pasta com espaços, saída zero e CRC dos três arquivos ZIP verificado. DIST-03 permanece parcialmente aberto porque não foi criada uma conta Windows separada.
-
-## Continuação 0.4.0-rc.2
+## Entrega atual 0.4.0-rc.2
 
 Integrador: Codex. Halley: mapa de excursão; Aristotle: prévia da oficina e revisão; Schrodinger: regressões de despacho e migração. Código novo: oferta manual opcional, aceite com capacidade compatível, recusa, cancelamento e devolução física à origem sem recompensa. Checkpoint v3 preserva v1/v2 com backup exato, mantendo o modo automático nos perfis antigos. Oficina compara capacidade por opção/favorito; mapa de excursão apresenta fases e ETA próprios. Não há contrato especial de passageiros, mercado de múltiplas ofertas ou simulação de conforto/turismo nesta entrega.
 
@@ -320,3 +302,72 @@ Validação da continuação: 288 testes aprovados, exportador executado separad
 Aceite de domínio rc.2: CON-01 e CON-03 exercitados por testes de oferta/aceite/incapacidade/recusa/retorno e reinício. CON-07 tem cancelamento seguro implementado, mas continua aberto para mudanças futuras de catálogo. BRN-05 apresenta mapa e ETA por fase; cenário já usa o ramal. WAG-05 tem prévia de capacidade e feedback de bloqueio, com a interação nativa ainda pendente. Registros detalhados e limites em VALIDACAO_04.md. A indisponibilidade do conector nativo não foi transformada em aprovação da matriz Windows.
 
 Pacote rc.2: CRC dos três ZIPs verificado; portátil extraído em pasta com espaços e executado com perfil isolado e PATH somente do Windows, saída zero. Script reproduzível: scripts/validate-portable.py. O teste não equivale a uma conta Windows nova.
+
+## Continuação pós-rc.2 em 2026-11-14 (fonte; ainda sem binário distribuído)
+
+Responsável: Claude Code, a pedido do Pedro. Escopo: `src/progress.rs`, `src/diagnostics.rs`, chamadas em `src/app.rs` e `src/app/storage.rs`, testes e fixtures. Nenhum formato persistido mudou: o checkpoint continua v3. O executável e os pacotes rc.2 em `release/` **não** contêm estas alterações; BUILD-INFO, SOURCE-MANIFEST e VALIDACAO_04 continuam descrevendo o binário rc.2.
+
+| ID | Entregue | Verificação executada |
+| --- | --- | --- |
+| SAV-03 | `tests/fixtures/rc7/`: quatro checkpoints v1 sintéticos (perfil novo, trecho intermediário, parada com 5,25 s, 49 chegadas) e preferências rc7. | `tests/save_fixtures.rs`, 5 testes: carga sem serviço inventado e sem tocar o arquivo; migração e duas reaberturas com o mesmo domínio; backup v1 byte a byte; parada migrada não repete a chegada; determinismo com save no meio; preferências antigas recebem defaults e mantêm as chaves. |
+| SAV-06 | `progress::save_checkpoint` guarda o documento substituído em `config.journey.previous.json`; `progress::load_profile` isola um checkpoint danificado como `config.journey.damaged-*.json` (bytes intactos) e retoma do anterior, com aviso ao jogador. Saves de versão mais nova, ilegíveis ou maiores que 1 MiB não são movidos. Após importar, a cópia de recuperação é renovada. | `tests/save_recovery.rs`: sete formas de dano (vazio, truncado em três pontos, zeros, `{}`, estado inválido) recuperam o checkpoint anterior; versão futura permanece bloqueando; dano sem cópia válida fica intocado; checkpoint ausente continua sendo perfil novo. |
+| SAV-07 (parcial) | Sem código novo além do acima. | Substituição bloqueada por outro processo (compartilhamento somente leitura) e arquivo somente leitura mantêm o checkpoint e não deixam temporário; nova tentativa funciona. Temporário órfão de escritor interrompido é inerte. Quatro escritores em corrida sem o lock nunca deixam documento inválido. `app::tests::failed_checkpoint_is_reported_once_and_retried_only_on_the_next_interval` cobre o retry limitado a 30 s. |
+| MAI-01 | Diagnóstico em schema v3 com `app_version`; v3 registra o formato que a 0.4 já gravava (serviços, parada, clima, tempos de frame) sem alterar campos v2. | Testes de `diagnostics.rs` atualizados e `app::tests::diagnostic_record_identifies_version_mode_freshness_pause_and_journey`. |
+| PERF-05 (parcial) | Sem código novo. | Teste de 24 h de tempo ativo simulado sem consumir eventos: fila ≤ 64, diário ≤ 32, grupos ≤ 12, fumaça ≤ 48, checkpoint < 16 KiB e apenas dois arquivos no perfil. |
+
+Resultado nesta fonte: formatação e Clippy (`-D warnings`) com saída zero; **306 testes aprovados**, zero falhas, dois exportadores ignorados (288 da rc.2 mais 18 novos). Execução em Windows 11 local com a toolchain de `.tools`.
+
+Não executado, por isso SAV-07 e PERF-05 seguem abertos: disco cheio real, encerramento forçado do processo real durante a gravação, e auditoria nativa de workers (o canal de eventos da bandeja é ilimitado). A recuperação foi exercitada pela API de domínio e pelo teste de app, não por uma execução nativa com perfil danificado. O diagnóstico opt-in continua registrando a cidade e as coordenadas informadas em **Visual → Clima**; não registra conta, caminhos ou identificação da máquina.
+
+Gate G1: os critérios de aceite da frente SAV estão cobertos por testes, exceto SAV-02 (versão de catálogo, depende de DATA) e o restante de SAV-07. INT-06 permanece aberto. Próximo passo sugerido: gerar um binário com estas mudanças, repetir `validate-profile-migration.ps1` e ensaiar um perfil danificado no aplicativo real antes de declarar G1.
+
+## Catálogo de conteúdo em 2026-11-14 (fonte; sem binário distribuído)
+
+Responsável: Claude Code. Arquivos: `src/simulation/catalog.rs`, `data/catalog/core.json`, `data/lines/*.json`, `tests/catalog.rs`, `docs/LINHAS.md`; em `src/simulation/service.rs` as metas dos postais viraram constantes públicas, sem mudar valores. Divisão de trabalho com o Codex em `docs/COORDENACAO.md`.
+
+| ID | Estado | Entregue e verificado |
+| --- | --- | --- |
+| DATA-03 | aceito | Unicidade, referências, capacidade, conectividade e caminho de retorno (circuito fechado ou linha de ponta a ponta), com casos inválidos testados. |
+| DATA-05 | aceito | Erros indicam linha, estação, trecho ou item; núcleo inválido não carrega e linha inválida fica fora da sessão sem derrubar as demais. |
+| DATA-06 | aceito | Conjunto pequeno: o Circuito Aurora e um rascunho; nenhum editor ou modding público. |
+| DATA-01 | parcial | IDs estáveis para linha, estações, trechos, vagões, cargas, pinturas, recompensas e locomotivas. Faltam tipos de contrato, que ainda não existem como conteúdo. |
+| DATA-02 | parcial | Conteúdo em `data/`, separado do estado. O motor de viagem ainda usa as definições fixas do código; testes de paridade garantem que os dois coincidem. |
+| DATA-04 | parcial | Versão de catálogo e política para item renomeado, desativado ou desconhecido implementadas e testadas no catálogo; ainda não aplicadas ao checkpoint. |
+| SAV-02 | definido, não implementado | Proposta do checkpoint v4 em `docs/LINHAS.md`. |
+
+Verificação: `tests/catalog.rs`, 10 testes aprovados, junto com as suítes de save e serviço que tocam os mesmos módulos. A suíte completa e o Clippy da árvore inteira ficam para depois da rodada do Codex, que está alterando `app.rs`, `config.rs`, plataforma e renderer em paralelo.
+
+Linha Curitiba–Paranaguá (época atual): dados reais coletados uma vez em 2026-11-14 do OpenStreetMap, Open-Meteo e Wikidata — 14 pontos com quilômetro e altitude, 13 trechos com túneis e pontes contados, conferidos contra marcos quilométricos; cópias e método em `data/sources/curitiba-paranagua/`. Continua rascunho e não aparece no jogo; `tests/catalog.rs` passou a 11 testes. Critério de aceite da frente DATA ("adicionar um serviço/estação pelo catálogo sem reescrever o algoritmo de viagem") continua aberto até o motor ler a linha do catálogo.
+
+
+## Codex — FAIXA e PRIMEIRA, 2026-11-14 (fonte posterior à rc.2)
+
+Responsável pela integração destas frentes: Codex. Execução na ordem FAIXA F1–F7, depois PRIMEIRA P1–P3. O território do Claude foi preservado: nenhuma edição em simulação, progress.rs, data, testes de catálogo/save ou fixtures. Não houve commit, empacotamento, release, exclusão ou movimentação de arquivos do projeto. BUILD-INFO e manifestos da distribuição rc.2 continuam descrevendo aquela distribuição.
+
+| Itens | Implementação e escopo |
+| --- | --- |
+| F1–F2 | Arraste horizontal, limiar de 4 px físicos, clique/direito preservados, pegas laterais de 6 px e cursor apropriado. Geometria pura em src/platform/strip.rs; a esquerda mantém a direita fixa. Barra menor que o mínimo usa sua largura disponível. |
+| F3 | Canvas e renderer com 160–32768 colunas e 70 linhas; escala inteira/nearest, paisagem ampliada sem margens laterais, períodos de parallax fixos, buffers redimensionados somente ao mudar largura. Em 160 px parte da traseira fica recortada, sem diminuir a locomotiva. Estações usam o limite real de culling. |
+| F4–F5 | Cantos retos por padrão; arredondamento com suporte DWM do Windows 11 e região de desenho/hit-test, removida ao voltar ao flutuante. Encaixe de altura ligado por padrão; altura livre 24–240 px cresce para cima, sobre a área de trabalho, com base fixa na barra. |
+| F6–F7 | Gesto e sliders mantêm geometria provisória fora de Config; confirmar/soltar grava valores finais. Restaurar geometria religa encaixe de altura. Defaults novos compatíveis com JSON antigo; largura persistida admite barras maiores que 2400 px. Roteiro manual acrescentado a docs/windows_checklist.md. |
+| P1 | Acolhida somente em perfil normal com configuração ausente; cidade/coordenadas ou São Paulo e escolha barra/flutuante. Confirmação salva; fechar antes não grava. Sem GPS/IP/geocodificação. Config inválida não vira perfil novo. |
+| P2 | Mantidas três tentativas de taskbar_failures. Acrescentadas confirmação do retângulo, cliente não vazio, visibilidade e estado DWM após a primeira pintura. Falha abre flutuante e central com aviso; ocultação/minimização intencional não é falha. |
+| P3 | Texto curto para futuro pacote em docs/windows_primeira_abertura.md, com fonte oficial Microsoft; não promete que assinatura elimina SmartScreen. |
+
+A suíte revelou e orientou duas correções adicionais no território Codex: o guardião de caminhos em main.rs agora resolve primeiro o destino/ancestral acessível (sem exigir acesso a todos os ancestrais), mantendo proteção contra aliases; exports headless grandes conservam toolbar, indicador DEMO e arraste flutuante. Os 12 testes de ux_app passaram após essa correção.
+
+Verificações automatizadas específicas: referência RGBA de 12 frames capturada nesta fonte antes da ampliação e preservada em 320 × 70; transparência/limites/determinismo/endereço de buffers e continuidade no wrap; contador de alocações com largura estável; geometria, DPI e barra menor que faixa salva; Config antiga; geometria provisória não gravada; acolhida confirmada por clique headless; fallback após três falhas; quatro alternâncias de modo e tamanho no harness egui. Isso não equivale a cliques/compositor Windows.
+
+Validação final nesta fonte: **329 testes aprovados, zero falhas e dois exportadores opcionais ignorados**; formatação e Clippy sem warnings, todos com saída zero. Nenhuma falha final em tests/catalog.rs ou tests/save_*.rs. A suíte inclui os 11 testes atuais de catálogo do Claude. Comandos via scripts/dev.ps1 (PowerShell com ExecutionPolicy Bypass somente no processo):
+
+- cargo fmt --all -- --check
+- cargo clippy --locked --all-targets -j 2 -- -D warnings
+- cargo test --locked --all-targets -j 2
+
+Os arquivos alterados foram formatados com rustfmt da mesma toolchain, usando skip_children=true para não escrever nos módulos de outro agente. A checagem global cargo fmt passou depois. Logs desta rodada: target/codex-faixa-primeira-20261114-102506/{fmt-final.log,clippy-approved.log,tests-approved.log}. Tentativas anteriores que falharam estão separadas; não são apresentadas como gates aprovados.
+
+**Aplicativo Windows real, sem certificação visual:** scripts/validate-faixa-primeira.ps1 executou uma primeira abertura de 12 s e o driver de quatro alternâncias de 20 s. Ambos retornaram 0 e registraram shutdown. Consultas Win32 observaram cliente flutuante válido e central visível; o perfil da primeira abertura continuou sem config.json, pois não houve confirmação da acolhida. As quatro mudanças solicitadas ocorreram aproximadamente em 4,8/8,9/12,2/16,3 s. A barra retornou largura/altura zero neste ambiente: foi exercitado o fallback, não um encaixe bem-sucedido. Não foram executados cliques/arrastes no aplicativo real. O teste headless de confirmação da acolhida é separado destes processos nativos.
+
+Binário de debug destas execuções: SHA-256 6A9137E070FE6F9CB26DCE13F74A63E3DE992FDF1CC4BE9402C1DD079128299F. Registros em target/codex-native-20261114-114630/result.json e nas subpastas primeira/alternancias. A descrição textual desse JSON sofreu a leitura ANSI do PowerShell 5; os campos numéricos, booleanos e o hash permanecem legíveis. O script passou a usar UTF-8 com BOM para preservar o português nas próximas execuções. Nenhum resultado anterior foi sobrescrito ou reatribuído a outro binário.
+
+O script scripts/validate-faixa-primeira.ps1 copia o executável para uma pasta nova em target, usa perfis isolados e registra hash/diagnósticos sem alterar evidence/current. A primeira tentativa longa foi executada antes dos últimos ajustes e não é evidência do binário final. O inventário de uso do computador não exibiu a instância de teste; a instância rc.2 do usuário não foi tocada. Permanecem sem aceite visual: arraste, pegas, cantos, altura e alternâncias com uma barra real; matriz Windows 10/11, DPI misto, monitores, autohide e SmartScreen em outro computador.

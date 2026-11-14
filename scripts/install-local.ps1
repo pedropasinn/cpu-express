@@ -1,5 +1,5 @@
 ﻿# Optional per-user installation; never touches LOCALAPPDATA\CPU Express saves.
-# Example: .\install-local.ps1 -SourcePath C:\Packages\CPU-Express-0.3.0-rc.7 -StartMenu -Desktop
+# Example: .\install-local.ps1 -SourcePath C:\Packages\CPU-Express-0.4.0-rc.2 -StartMenu -Desktop
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)][string]$SourcePath,

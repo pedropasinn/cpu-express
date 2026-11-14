@@ -1,0 +1,248 @@
+{
+  "head" : {
+    "vars" : [ "s", "sLabel", "coord", "ele", "opened", "instLabel" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q56694450"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-49.265575 -25.437396)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Museu Ferroviário de Curitiba"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q56694450"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-49.265834596 -25.437457092)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Museu Ferroviário de Curitiba"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q65969559"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.716025 -25.430528)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Ferroviária de Antonina"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q116879131"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.97881 -25.43919)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Banhado"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q10363685"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-49.25722222 -25.43666667)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Rodoferroviária de Curitiba"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q56694450"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-49.265575 -25.437396)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Museu Ferroviário de Curitiba"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q56694450"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-49.265834596 -25.437457092)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Museu Ferroviário de Curitiba"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q62222235"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.91901 -25.43932)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Marumbi"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q65969559"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.716025 -25.430528)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Ferroviária de Antonina"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q116817759"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.83381 -25.4797)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Morretes"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q116861194"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.91454 -25.43341)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Engenheiro Lange"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "estação ferroviária"
+      }
+    }, {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q116879131"
+      },
+      "coord" : {
+        "datatype" : "http://www.opengis.net/ont/geosparql#wktLiteral",
+        "type" : "literal",
+        "value" : "Point(-48.97881 -25.43919)"
+      },
+      "sLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "Estação Banhado"
+      },
+      "instLabel" : {
+        "xml:lang" : "pt",
+        "type" : "literal",
+        "value" : "antiga estação ferroviária"
+      }
+    } ]
+  }
+}
