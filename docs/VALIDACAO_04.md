@@ -1,38 +1,33 @@
-# Validação CPU Express 0.4.0-rc.1
+# Validação CPU Express 0.4.0-rc.2
 
-Executado em 2026-11-14, no Windows local. SHA-256 do executável: `439ba4d50404d7f16c5038a70e48576660167b7f0a578d28bbdfd58ed8d4622a`.
+Executado em 2026-11-14 no Windows local. Executável Windows GNU sem assinatura, SHA-256 `f5766ad574431eb0d6e61e24ef4039cb409f10283dd3e9efaed381364465f985`. Relatório anterior preservado em `historico/VALIDACAO_04_RC1.md`.
 
-## Gates executados
+## Código e jogabilidade
 
-- `scripts/verify-current.ps1 -Jobs 4`: formatação, Clippy com warnings negados e 272 testes aprovados; zero falhas, dois exportadores ignorados na suíte normal.
-- Release Windows GNU compilada com Cargo.lock, usando a toolchain local.
-- 16 cenários de UI exportados do egui, rasterizados e inspecionados: cabine, mapa, objetivos, diário vazio/preenchido, serviços vazios/preenchidos, excursão, vagões, oficina pequena, pinturas, locomotivas, coleção, clima, fluidez e janela. Manifesto: `evidence/current/game-ui-result.json`. A lista tem 16 imagens; cabine e jornada compartilham cenários de estado. São imagens headless, não capturas do compositor.
-- Smoke Windows: faixa alinhada à barra e painel nativo independente encontrados; framebuffer da faixa capturado. `panel_capture=false`: o painel foi verificado por geometria e pelos exports egui, não por screenshot nativo.
-- Quatro mudanças barra/flutuante passaram, com cinco estágios e framebuffer limitado à área visível. Dados: `evidence/current/transitions-expansion/result.json`.
-- Quatro amostras válidas de CPU/RAM reais. Cadência curta aquecida: aproximadamente 59,80 FPS produzidos, com limite 60 FPS. Isso não mede apresentação do compositor nem consumo de energia.
-- Open-Meteo respondeu em São Paulo: 25 amostras prontas, sem erro; temperatura, vento, precipitação e horários solares presentes. Dados: `evidence/current/weather/result.json`.
-- Uma cópia isolada do perfil v1 existente foi aberta e encerrada normalmente. Distância 123625.00 → 123836.82; formato v2, quatro pinturas preservadas, backup v1 verificado. Perfil original permaneceu intocado durante esse teste. Dados: `evidence/current/profile-migration-result.json`.
+- Formatação e Clippy sem warnings; **288 testes Rust aprovados**, zero falhas e dois exportadores ignorados na suíte normal. O exportador de painéis foi executado separadamente.
+- Doze testes novos de despacho: oferta sem expiração, recusa, capacidade, aceite na origem/em trânsito, cancelamento, devolução com ocupação preservada, entrega única, restart, migração v2, backup exato e proteção de saves futuros/incompletos.
+- Três testes de apresentação das fases do ramal e uma regressão para os rótulos dos botões de 46 pontos.
+- Revisão cruzada encontrou dois casos inválidos de save: defaults antigos reparando silenciosamente campos ausentes do v3 e carga devolvida que voltava a aparecer embarcada. Ambos foram corrigidos com regressões executadas.
+- A conferência visual encontrou texto cortado na navegação mínima e setas ausentes na fonte. Layout compacto e textos foram corrigidos antes deste binário.
 
-- Pacote portátil extraído para uma pasta com espaços e executado independentemente da toolchain: saída zero, binário com o mesmo SHA-256. Integridade CRC dos três ZIPs verificada. Dados: `evidence/current/portable-result.json`. Isso não é um teste em uma conta Windows nova.
+## Interface
 
-## Cobertura de domínio
+26 cenários egui exportados, incluindo oferta, falta de capacidade, devolução e central de 480 × 480 antes/depois da rolagem. Inspeção visual concentrada nas telas alteradas: contratos, ramal e oficina em tamanhos normal/compacto/mínimo. Manifesto de fonte, meshes e PNGs em `evidence/current/game-ui-result.json`.
 
-Testes exercitam capacidade, conservação de passageiros, categorias de carga, entrega única, pausa, diferenças de passo temporal, reinício nas fases de serviço/excursão, descarte de notificações, saves inválidos/futuros, migração e importação. A importação tem regressão específica para preservar a sessão ainda não salva quando o arquivo do disco está corrompido.
+São exports headless da aplicação real. O conector de interação nativa retornou `Native pipe unavailable (Windows os error 2)`; nenhum fluxo de cliques no desktop foi certificado. Uma instância isolada foi aberta; fechar sua central manteve o trem, e fechar a janela principal encerrou a instância. Essa observação de ciclo de vida não substitui validação visual pelo compositor.
 
-Renderer e atualização de movimento sem clonagem de Config têm testes de alocação. Locomotivas preservam rodas/engates; versões diesel/elétrica não desenham fumaça de vapor. As excursões têm parada e retorno, sem reinterpretar distância do circuito principal.
+## Execução nativa
 
-Áudio: sete testes de PCM, duração/volume, fila, descarte e encerramento; não foi feita aceitação audível do dispositivo. O produto começa mudo. O bloco de autostart do instalador foi ensaiado numa chave isolada, sem instalar nem alterar a chave Run real. Os scripts de instalação/desinstalação não foram executados contra uma instalação do usuário.
+- Smoke encontrou faixa alinhada à barra e painel nativo independente, com captura do framebuffer da faixa. `panel_capture=false`: nenhum screenshot nativo da central foi obtido.
+- Quatro alternâncias barra/flutuante passaram, em cinco estágios; `transitions-expansion/result.json` identifica este executável.
+- Quatro amostras válidas de CPU/RAM reais. Ensaio curto com limite 60 FPS produziu aproximadamente **59,80 FPS** após aquecimento; mede frames produzidos, não apresentação do compositor ou energia.
+- Clima São Paulo: 25 amostras prontas, sem erro, com vento, precipitação e horários solares. A consulta foi refeita para este executável.
+- Cópia isolada do perfil v2: distância 154854,91 → 155189,07; v3 gravado, quatro pinturas mantidas, totais de serviço preservados e backup v2 byte a byte. A origem isolada permaneceu intocada. O perfil real não foi usado como destino desse teste.
 
-## Execução estendida curta
+## Execução estendida e pacote
 
-Duas execuções nativas de 120 segundos concluíram normalmente, ambas com embarque real (sete passageiros): painel fechado e aberto. Respectivamente, 7.197 e 7.168 frames produzidos. Na janela final de 256 frames, o p95 de trabalho da aplicação foi 0,597 ms e 0,463 ms. Working set final: aproximadamente 88,8 MiB e 105,3 MiB.
-
-Após dez segundos de aquecimento, CPU média equivalente a um núcleo: 15,2% com painel fechado e 33,1% com painel aberto. Essa métrica não é o percentual normalizado de todos os processadores do Gerenciador de Tarefas. Variação de memória privada nesse intervalo: +2,08 MiB / −3,13 MiB. São observações curtas, não prova de ausência de vazamentos ou consumo de bateria. Dados completos: `evidence/current/soak/result.json`. Não equivale a um dia de uso.
+Duas execuções de 120 segundos encerraram normalmente, com painel fechado e aberto. Working set final: 88,42 MiB e 105,46 MiB. Na janela final de 256 frames, p95 do trabalho da aplicação: 0,286 ms e 0,351 ms. Esses números não medem compositor, energia nem estabilidade de um dia inteiro. Logs completos em `evidence/current/soak/result.json`. O script `scripts/validate-portable.py` passou: CRC dos três ZIPs, extração para pasta com espaços e execução com perfil isolado e PATH apenas do Windows. Saída zero e encerramento normal confirmados, com o mesmo SHA-256 do binário validado.
 
 ## Limites
 
-Não certificados: Windows 10, DPI misto real, matriz completa de escalas, autohide, reinício real do Explorer, desconexão de monitor, leitores de tela e sessão de um dia inteiro. Os testes geométricos cobrem casos sintéticos dessas áreas, sem substituir aceitação no hardware. Pacote sem assinatura digital. Sem alegação de consumo de bateria, ausência de vazamento em longa duração ou certificação 1.0.
-
-## Revisão e correções
-
-Seis frentes de implementação/revisão contribuíram. Corrigidos antes da entrega: autostart que poderia recriar a chave Run, importação sem preservar a sessão em memória, erro de importação escondido no histórico, miniaturas em escala insuficiente, informações de itens bloqueados e descrição incorreta de histórico ilimitado.
+Não certificados: fluxo nativo de cliques, leitores de tela, áudio audível, Windows 10, DPI misto real, matriz completa de escalas, autohide, reinício real do Explorer, desconexão de monitor ou uso por um dia inteiro. Os testes geométricos e headless não substituem hardware/aceite humano. Instalador opcional não foi aplicado ao perfil real. Sem assinatura digital, nuvem, atualização automática ou certificação 1.0.

@@ -417,3 +417,34 @@ fn service_dashboard_only_returns_enabled_actions() {
         assert_eq!(action, if blocked { None } else { Some(0) });
     }
 }
+
+#[test]
+fn compact_navigation_label_stays_inside_46_point_button() {
+    let ctx = egui::Context::default();
+    let mut bounds = egui::Rect::NOTHING;
+    let output = frame(&ctx, 0.0, vec![], |ui| {
+        bounds = cpu_express::ui_game::button(
+            ui,
+            "compact",
+            cpu_express::ui_game::Icon::Star,
+            "Objetivos",
+            false,
+            egui::vec2(76.0, 46.0),
+        )
+        .rect;
+    });
+    fn find(shapes: &[egui::epaint::ClippedShape], label: &str) -> Option<egui::Rect> {
+        shapes.iter().find_map(|s| match &s.shape {
+            egui::Shape::Text(text) if text.galley.job.text == label => {
+                Some(text.visual_bounding_rect())
+            }
+            _ => None,
+        })
+    }
+    let text = find(&output.shapes, "Objetivos").expect("painted label");
+    assert!(bounds.contains_rect(text), "{text:?} outside {bounds:?}");
+    assert!(
+        text.center().y > bounds.center().y,
+        "label must sit below the icon"
+    );
+}

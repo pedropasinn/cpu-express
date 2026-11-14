@@ -1,5 +1,86 @@
 use super::*;
 
+// Capacity is descriptive; only the domain decides whether a change is allowed.
+// Clone the service only for the option being inspected, never for every card/frame.
+fn composition_preview(
+    ui: &mut egui::Ui,
+    response: &egui::Response,
+    service: &crate::simulation::ServiceState,
+    coaches: [CoachStyle; 3],
+    equipment_notice: &mut Option<(String, Instant)>,
+) -> bool {
+    use crate::simulation::CargoKind;
+
+    let composition = coaches.map(service_wagon);
+    let before = service.capacity();
+    let after = composition.iter().fold((0, 0), |(seats, cargo), wagon| {
+        let capacity = wagon.capacity();
+        (seats + capacity.0, cargo + capacity.1)
+    });
+    ui.small(format!(
+        "Trem: {} > {} lugares · {} > {} carga",
+        before.0, after.0, before.1, after.1
+    ));
+    if !response.hovered() && !response.has_focus() && !response.clicked() {
+        return false;
+    }
+
+    let mut preview = service.clone();
+    let validation = preview.set_composition(composition);
+    if response.clicked()
+        && let Err(error) = &validation
+    {
+        *equipment_notice = Some((
+            format!("{error} Aguarde desembarque, entrega ou devolução em Viagem > Serviços."),
+            Instant::now() + Duration::from_secs(6),
+        ));
+    }
+    // A rejected transaction rolls back. Set only the disposable preview's stock
+    // to query the proposed capacities, including the domain's cargo categories.
+    preview.composition = composition;
+    // Keep the grid stable while inspecting options with the mouse or keyboard.
+    egui::Tooltip::for_widget(response).show(|ui| {
+        ui.strong("Prévia da composição");
+        ui.small(format!("Lugares: {} > {}", before.0, after.0));
+        ui.small(format!(
+            "A bordo: {} passageiros · {} carga",
+            service.passenger_count(),
+            service.cargo_count()
+        ));
+        for (label, kind) in [
+            ("Encomendas/suprimentos", CargoKind::Parcels),
+            ("Líquidos", CargoKind::Liquid),
+        ] {
+            ui.small(format!(
+                "{label}: {} > {} un.",
+                service.cargo_capacity(kind),
+                preview.cargo_capacity(kind)
+            ));
+        }
+        if let Err(error) = &validation {
+            ui.colored_label(game::BLUE, format!("Bloqueado: {error}"));
+            if let Some(contract) = &service.contract
+                && service.cargo_count() > 0
+            {
+                let category = match contract.kind {
+                    CargoKind::Parcels => "encomendas",
+                    CargoKind::Supplies => "suprimentos",
+                    CargoKind::Liquid => "líquidos",
+                };
+                ui.small(format!(
+                    "{category}: {} a bordo / {} un. compatíveis após a troca.",
+                    service.cargo_count(),
+                    preview.cargo_capacity(contract.kind)
+                ));
+            }
+            ui.small("Aguarde desembarque, entrega ou devolução em Viagem > Serviços.");
+        } else {
+            ui.small("Cabe o serviço a bordo · pode equipar.");
+        }
+    });
+    validation.is_ok()
+}
+
 impl CpuExpressApp {
     pub(super) fn appearance_controls(&mut self, ui: &mut egui::Ui) {
         game::apply_style(ui);
@@ -65,6 +146,10 @@ impl CpuExpressApp {
                     "{} lugares · {} unidades de carga · cauda à esquerda",
                     seats, hold
                 ));
+                ui.small(format!(
+                    "Trocar vagão {} · passe o mouse ou foque para conferir ocupação e categoria.",
+                    self.coach_slot + 1
+                ));
                 egui::CollapsingHeader::new("Composições favoritas").show(ui, |ui| {
                     if ui
                         .add_enabled(
@@ -93,27 +178,38 @@ impl CpuExpressApp {
                         .into_iter()
                         .enumerate()
                     {
-                        ui.horizontal_wrapped(|ui| {
-                            let label = coaches.map(coach_name).join(" / ");
-                            if ui.button(label).clicked() {
-                                match self
-                                    .world
-                                    .set_service_composition(coaches.map(service_wagon))
-                                {
-                                    Ok(()) => {
-                                        self.config.visual.coaches = coaches;
-                                        changed = true;
-                                    }
-                                    Err(error) => {
-                                        self.equipment_notice =
-                                            Some((error, Instant::now() + Duration::from_secs(5)))
-                                    }
+                        let response = ui
+                            .horizontal_wrapped(|ui| {
+                                let label = coaches.map(coach_name).join(" / ");
+                                let response = ui.button(label);
+                                if ui.small_button("Remover").clicked() {
+                                    remove = Some(index);
+                                }
+                                response
+                            })
+                            .inner;
+                        let allowed = composition_preview(
+                            ui,
+                            &response,
+                            self.world.service_snapshot(),
+                            coaches,
+                            &mut self.equipment_notice,
+                        );
+                        if response.clicked() && allowed {
+                            match self
+                                .world
+                                .set_service_composition(coaches.map(service_wagon))
+                            {
+                                Ok(()) => {
+                                    self.config.visual.coaches = coaches;
+                                    changed = true;
+                                }
+                                Err(error) => {
+                                    self.equipment_notice =
+                                        Some((error, Instant::now() + Duration::from_secs(5)))
                                 }
                             }
-                            if ui.small_button("Remover").clicked() {
-                                remove = Some(index);
-                            }
-                        });
+                        }
                     }
                     if let Some(index) = remove {
                         self.config.visual.favorite_consists.remove(index);
@@ -132,6 +228,8 @@ impl CpuExpressApp {
                     ui.columns(count, |columns| {
                         for (column, &style) in columns.iter_mut().zip(pair) {
                             let selected = self.config.visual.coaches[self.coach_slot] == style;
+                            let mut coaches = self.config.visual.coaches;
+                            coaches[self.coach_slot] = style;
                             let texture = self.stock_gallery.as_ref().unwrap().coach(style);
                             let response = stock_card(
                                 column,
@@ -140,16 +238,21 @@ impl CpuExpressApp {
                                 if selected {
                                     "EQUIPADO"
                                 } else {
-                                    "Equipar neste vagão"
+                                    "Conferir / equipar neste vagão"
                                 },
                                 selected,
                                 true,
                             );
                             let (seats, hold) = service_wagon(style).capacity();
                             column.small(format!("{seats} lugares · {hold} carga"));
-                            if response.clicked() {
-                                let mut coaches = self.config.visual.coaches;
-                                coaches[self.coach_slot] = style;
+                            let allowed = composition_preview(
+                                column,
+                                &response,
+                                self.world.service_snapshot(),
+                                coaches,
+                                &mut self.equipment_notice,
+                            );
+                            if response.clicked() && allowed && !selected {
                                 if let Err(error) = self
                                     .world
                                     .set_service_composition(coaches.map(service_wagon))
@@ -173,7 +276,7 @@ impl CpuExpressApp {
                     });
                     ui.add_space(10.0);
                 }
-                ui.small("Modelos visuais: personalize o trem sem alterar o ritmo dos objetivos.");
+                ui.small("Carga: encomendas e suprimentos · Tanque: líquidos. Sem bônus de conforto ou turismo.");
             }
             1 => {
                 ui.label(

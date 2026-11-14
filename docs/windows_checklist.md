@@ -180,3 +180,5 @@ Entrega do relatório: tabela preenchida por ambiente, logs, capturas com escopo
 ## Evidência 0.4 em 2026-11-14
 
 Smoke, painel independente, quatro alternâncias e dois cenários de 120 s passaram no Windows local. Migração de cópia do perfil e clima online também passaram. Detalhes e hash em [VALIDACAO_04.md](VALIDACAO_04.md). Isso não preenche automaticamente a matriz de DPI, outros monitores, reinício do Explorer ou dia completo.
+
+Na rc.2, os mesmos cenários nativos foram repetidos e passaram. Migração agora cobre v2 → v3. O conector de interação nativa estava indisponível; cliques e compositor da central não foram certificados. Detalhes atuais em VALIDACAO_04.md.

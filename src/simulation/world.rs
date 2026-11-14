@@ -71,6 +71,22 @@ impl World {
     pub fn service_snapshot(&self) -> &super::ServiceState {
         &self.service
     }
+    fn service_platform(&self) -> Option<super::StationId> {
+        if self.station_wait > 0.0 && self.service.branch.current.is_none() {
+            self.journey.snapshot().at_station
+        } else {
+            None
+        }
+    }
+    pub fn set_automatic_contracts(&mut self, automatic: bool) {
+        self.service.automatic_contracts = automatic;
+    }
+    pub fn accept_cargo_contract(&mut self) -> Result<(), String> {
+        self.service.accept_contract(self.service_platform())
+    }
+    pub fn cancel_cargo_contract(&mut self) -> Result<(), String> {
+        self.service.cancel_contract(self.service_platform())
+    }
     pub fn set_service_composition(
         &mut self,
         composition: [super::ServiceWagon; 3],

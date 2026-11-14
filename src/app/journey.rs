@@ -105,16 +105,18 @@ impl CpuExpressApp {
                         game::INK,
                     );
                 }
-                let a = positions[journey.route_segment.index];
-                let b = positions[(journey.route_segment.index + 1) % 4];
-                let train_pos = a + (b - a) * journey.segment_progress as f32;
-                painter.circle_filled(train_pos, 12.0, game::GOLD);
-                game::icon(
-                    &painter,
-                    egui::Rect::from_center_size(train_pos, egui::vec2(20.0, 20.0)),
-                    Icon::Train,
-                    game::INK,
-                );
+                if self.world.excursion_snapshot().current.is_none() {
+                    let a = positions[journey.route_segment.index];
+                    let b = positions[(journey.route_segment.index + 1) % 4];
+                    let train_pos = a + (b - a) * journey.segment_progress as f32;
+                    painter.circle_filled(train_pos, 12.0, game::GOLD);
+                    game::icon(
+                        &painter,
+                        egui::Rect::from_center_size(train_pos, egui::vec2(20.0, 20.0)),
+                        Icon::Train,
+                        game::INK,
+                    );
+                }
                 ui.add_space(5.0);
                 ui.label(
                     egui::RichText::new(format!(
@@ -125,7 +127,9 @@ impl CpuExpressApp {
                     .size(17.0)
                     .strong(),
                 );
-                let status = if self.world.station_wait() > 0.0 {
+                let status = if self.world.excursion_snapshot().current.is_some() {
+                    "Circuito aguardando o retorno da excursão".to_owned()
+                } else if self.world.station_wait() > 0.0 {
                     format!(
                         "Embarque · partida em {:.0} s",
                         self.world.station_wait().ceil()

@@ -357,6 +357,39 @@ impl CpuExpressApp {
         self.scene_dirty = true;
     }
 
+    /// Deterministic dispatch states for headless review; never touches a real profile.
+    #[doc(hidden)]
+    pub fn prepare_demo_contract_review(&mut self, returning: bool, incompatible: bool) {
+        if !self.demo_mode || self.world.service_state().contract.is_some() {
+            return;
+        }
+        self.world.set_automatic_contracts(false);
+        if incompatible {
+            let _ = self
+                .world
+                .set_service_composition([crate::simulation::ServiceWagon::Passenger; 3]);
+        }
+        self.world.set_paused(false);
+        for _ in 0..600 {
+            self.world
+                .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+            if self.world.service_state().contract.is_some() {
+                break;
+            }
+        }
+        if returning && self.world.accept_cargo_contract().is_ok() {
+            for _ in 0..10 {
+                self.world
+                    .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+            }
+            let _ = self.world.cancel_cargo_contract();
+        }
+        self.consume_travel_events();
+        self.travel_notice = None;
+        self.world.set_paused(self.suspended());
+        self.scene_dirty = true;
+    }
+
     fn create(ctx: &egui::Context, options: LaunchOptions, demo_mode: bool) -> Self {
         ctx.set_theme(egui::Theme::Dark);
         let mut style = (*ctx.global_style()).clone();

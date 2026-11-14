@@ -44,9 +44,11 @@ soak = json.loads((evidence / "soak/result.json").read_text(encoding="utf-8-sig"
 assert soak["binary_sha256"] == digest(binary) and len(soak["runs"]) == 2
 assert all(r["exit_code"] == 0 for r in soak["runs"])
 migration = json.loads((evidence / "profile-migration-result.json").read_text(encoding="utf-8-sig"))
-assert migration["binary_sha256"] == digest(binary) and migration["exit_code"] == 0 and migration["v1_backup_verified"]
+assert migration["binary_sha256"] == digest(binary) and migration["exit_code"] == 0 and migration["migration_backup_verified"]
 portable_path = evidence / "portable-result.json"
 portable = json.loads(portable_path.read_text(encoding="utf-8-sig")) if portable_path.exists() else None
+if portable is not None and portable["binary_sha256"] != digest(binary):
+    portable = None  # A previous release test does not certify this executable.
 if portable is not None:
     assert portable["binary_sha256"] == digest(binary) and portable["exit_code"] == 0 and portable["zip_crc_verified"]
 ui_review = json.loads((evidence / "game-ui-result.json").read_text(encoding="utf-8"))

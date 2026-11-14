@@ -481,13 +481,17 @@ pub fn button(
         }
         let font = egui::TextStyle::Button.resolve(ui.style());
         let galley = painter.layout_no_wrap(label.to_owned(), font.clone(), foreground);
-        let icon_size = 24.0_f32.min(face.height() - 8.0);
+        let stacked = face.width() < 100.0 && rect.height() >= 46.0;
+        let icon_size = if stacked {
+            18.0
+        } else {
+            24.0_f32.min(face.height() - 8.0)
+        };
         let gap = if label.is_empty() { 0.0 } else { 7.0 };
-        let stacked = face.width() < 100.0 && face.height() >= 46.0;
         let width = icon_size + gap + galley.size().x;
         let start = (face.center().x - width * 0.5).max(face.left() + 7.0);
         let icon_center = if stacked {
-            egui::pos2(face.center().x, face.top() + 16.0)
+            egui::pos2(face.center().x, face.top() + 13.0)
         } else {
             egui::pos2(start + icon_size * 0.5, face.center().y)
         };

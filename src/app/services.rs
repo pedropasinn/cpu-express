@@ -4,7 +4,22 @@ use crate::ui_services::{self as widgets, ArrivalItem, ArrivalSummary, CapacityV
 
 impl CpuExpressApp {
     pub(super) fn services_controls(&mut self, ui: &mut egui::Ui) {
-        let state = self.world.service_snapshot();
+        let mut automatic = self.world.service_state().automatic_contracts;
+        if ui
+            .checkbox(&mut automatic, "Despacho automático de encomendas")
+            .changed()
+        {
+            self.world.set_automatic_contracts(automatic);
+            self.persist_progress(true);
+        }
+        ui.small(if automatic {
+            "Novas ofertas são aceitas nas paradas. Desative para escolher cada serviço; o contrato atual é mantido."
+        } else {
+            "Analise a oferta e aceite quando quiser. Sem prazo; passageiros continuam embarcando automaticamente."
+        });
+        let state = self.world.service_snapshot().clone();
+        let mut accept = false;
+        let mut cancel = false;
         let (seats, _) = state.capacity();
         widgets::capacity_meter(
             ui,
@@ -22,6 +37,85 @@ impl CpuExpressApp {
         if state.passengers.is_empty() {
             ui.label("Os próximos passageiros embarcarão na próxima parada com lugares livres.");
         }
+        ui.add_space(8.0);
+        if let Some(c) = &state.contract {
+            let title = match c.kind {
+                CargoKind::Parcels => "Correio ferroviário",
+                CargoKind::Supplies => "Suprimentos da ferrovia",
+                CargoKind::Liquid => "Abastecimento em tanque",
+            };
+            let status = match c.status {
+                ContractStatus::Offered => "Oferta disponível · aguardando sua escolha",
+                ContractStatus::Returning => {
+                    "Devolução solicitada · carga retorna à origem sem pontos"
+                }
+                ContractStatus::Cancelled => "Cancelado · nenhuma carga pendente",
+                ContractStatus::Accepted => "Aceito · aguardando origem e capacidade compatível",
+                ContractStatus::Loaded => "Carregado · entrega automática no destino",
+                ContractStatus::Delivered => "Entregue · pontos registrados",
+            };
+            let blocked = state.acceptance_error();
+            accept = widgets::service_card(
+                ui,
+                &ServiceView {
+                    id: "cargo-contract",
+                    icon: Icon::Cargo,
+                    title,
+                    detail: &format!(
+                        "{} unidades · {} até {} · {} pontos na entrega",
+                        c.units,
+                        c.origin.name(),
+                        c.destination.name(),
+                        c.reward
+                    ),
+                    status,
+                    progress: None,
+                    action_label: (c.status == ContractStatus::Offered)
+                        .then_some("Aceitar encomenda"),
+                    unavailable_reason: if c.status == ContractStatus::Offered {
+                        blocked.as_deref()
+                    } else {
+                        None
+                    },
+                },
+            )
+            .inner;
+            if matches!(
+                c.status,
+                ContractStatus::Offered | ContractStatus::Accepted | ContractStatus::Loaded
+            ) {
+                let label = match c.status {
+                    ContractStatus::Offered => "Recusar oferta",
+                    ContractStatus::Loaded => "Devolver carga à origem",
+                    _ => "Cancelar encomenda",
+                };
+                cancel = game::button(
+                    ui,
+                    "cancel-cargo",
+                    Icon::Cargo,
+                    label,
+                    false,
+                    egui::vec2(ui.available_width(), 34.0),
+                )
+                .clicked();
+                if c.status == ContractStatus::Loaded {
+                    ui.small("A devolução mantém a carga a bordo até a origem. O espaço só é liberado ao descarregar; não há prêmio nem penalidade.");
+                }
+            }
+            widgets::capacity_meter(
+                ui,
+                "cargo-capacity",
+                &CapacityView {
+                    label: "Compartimento compatível",
+                    icon: Icon::Cargo,
+                    used: state.cargo_count(),
+                    total: state.cargo_capacity(c.kind),
+                },
+            );
+        } else {
+            ui.label("Uma encomenda será oferecida na próxima chegada.");
+        }
+        ui.add_space(8.0);
         for (index, group) in state.passengers.iter().enumerate() {
             ui.push_id(index, |ui| {
                 widgets::service_card(
@@ -43,54 +137,30 @@ impl CpuExpressApp {
                 );
             });
         }
-        ui.add_space(8.0);
-        if let Some(c) = &state.contract {
-            let title = match c.kind {
-                CargoKind::Parcels => "Correio ferroviário",
-                CargoKind::Supplies => "Suprimentos da ferrovia",
-                CargoKind::Liquid => "Abastecimento em tanque",
-            };
-            let status = match c.status {
-                ContractStatus::Accepted => "Aceito · aguardando origem e capacidade compatível",
-                ContractStatus::Loaded => "Carregado · entrega automática no destino",
-                ContractStatus::Delivered => "Entregue · pontos registrados",
-            };
-            widgets::service_card(
-                ui,
-                &ServiceView {
-                    id: "cargo-contract",
-                    icon: Icon::Cargo,
-                    title,
-                    detail: &format!(
-                        "{} unidades · {} até {}",
-                        c.units,
-                        c.origin.name(),
-                        c.destination.name()
-                    ),
-                    status,
-                    progress: None,
-                    action_label: None,
-                    unavailable_reason: None,
-                },
-            );
-            widgets::capacity_meter(
-                ui,
-                "cargo-capacity",
-                &CapacityView {
-                    label: "Compartimento compatível",
-                    icon: Icon::Cargo,
-                    used: state.cargo_count(),
-                    total: state.cargo_capacity(c.kind),
-                },
-            );
-        } else {
-            ui.label("Uma encomenda será oferecida na próxima chegada.");
-        }
         ui.label(format!(
             "{} passageiros entregues · {} contratos concluídos · {} pontos de serviço",
             state.passengers_delivered, state.contracts_completed, state.credits
         ));
         ui.small("Pontos registram o serviço realizado; não são uma moeda de compra.");
+        if accept || cancel {
+            let result = if accept {
+                self.world.accept_cargo_contract()
+            } else {
+                self.world.cancel_cargo_contract()
+            };
+            match result {
+                Ok(()) => {
+                    self.notification = Some(if accept {
+                        "Encomenda aceita. Carregamento na origem com espaço compatível.".into()
+                    } else {
+                        "Solicitação registrada. Consulte o estado da encomenda acima.".into()
+                    });
+                    self.persist_progress(true);
+                    self.scene_dirty = true;
+                }
+                Err(error) => self.notification = Some(error),
+            }
+        }
     }
 
     pub(super) fn arrival_ticket(&self, ui: &mut egui::Ui, last_only: bool) {
@@ -109,8 +179,8 @@ impl CpuExpressApp {
                 arrival.boarded, arrival.alighted
             );
             let cargo = format!(
-                "{} carregadas · {} entregues",
-                arrival.cargo_loaded, arrival.cargo_delivered
+                "{} carregadas · {} entregues · {} devolvidas",
+                arrival.cargo_loaded, arrival.cargo_delivered, arrival.cargo_returned
             );
             let points = format!("+{} pontos de serviço", arrival.earned);
             widgets::arrival_summary(

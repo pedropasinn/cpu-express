@@ -32,9 +32,12 @@ pub struct PassengerGroup {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ContractStatus {
+    Offered,
     Accepted,
     Loaded,
     Delivered,
+    Returning,
+    Cancelled,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -69,6 +72,8 @@ pub struct ArrivalSummary {
     pub alighted: u32,
     pub cargo_loaded: u32,
     pub cargo_delivered: u32,
+    #[serde(default)]
+    pub cargo_returned: u32,
     pub earned: u64,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -78,7 +83,9 @@ pub struct ServiceState {
     pub branch: super::BranchState,
     pub composition: [ServiceWagon; 3],
     pub passengers: Vec<PassengerGroup>,
-    /// At most one automatic contract; a delivered contract remains visible until next arrival.
+    #[serde(default = "automatic_default")]
+    pub automatic_contracts: bool,
+    /// At most one contract; a delivered contract remains visible until next arrival.
     pub contract: Option<CargoContract>,
     pub last_processed_visit: u64,
     pub passengers_boarded: u64,
@@ -91,6 +98,10 @@ pub struct ServiceState {
     pub collection: Vec<ServiceReward>,
     pub arrivals: Vec<ArrivalSummary>,
 }
+fn automatic_default() -> bool {
+    true
+}
+
 const STATIONS: [StationId; 4] = [
     StationId::Aurora,
     StationId::Pines,
@@ -108,6 +119,7 @@ impl ServiceState {
             ],
             passengers: Vec::new(),
             contract: None,
+            automatic_contracts: true,
             last_processed_visit: snapshot.stations_visited,
             passengers_boarded: 0,
             passengers_delivered: 0,
@@ -140,7 +152,8 @@ impl ServiceState {
     }
     fn cargo_fits(&self) -> bool {
         self.contract.as_ref().is_none_or(|c| {
-            c.status != ContractStatus::Loaded || c.units <= self.cargo_capacity(c.kind)
+            !matches!(c.status, ContractStatus::Loaded | ContractStatus::Returning)
+                || c.units <= self.cargo_capacity(c.kind)
         })
     }
     pub fn passenger_count(&self) -> u32 {
@@ -149,7 +162,7 @@ impl ServiceState {
     pub fn cargo_count(&self) -> u32 {
         self.contract
             .as_ref()
-            .filter(|c| c.status == ContractStatus::Loaded)
+            .filter(|c| matches!(c.status, ContractStatus::Loaded | ContractStatus::Returning))
             .map_or(0, |c| c.units)
     }
     /// Reject downsizing occupied stock; never silently discard passengers or cargo.
@@ -162,6 +175,70 @@ impl ServiceState {
             return Err("Capacidade insuficiente para o serviço a bordo.".into());
         }
         Ok(())
+    }
+    pub fn acceptance_error(&self) -> Option<String> {
+        let c = self.contract.as_ref()?;
+        if c.status != ContractStatus::Offered {
+            return Some("Esta oferta já foi resolvida.".into());
+        }
+        if c.units > self.cargo_capacity(c.kind) {
+            return Some(format!(
+                "São necessárias {} unidades de capacidade compatível. Ajuste os vagões na oficina.",
+                c.units
+            ));
+        }
+        None
+    }
+    pub(crate) fn accept_contract(&mut self, platform: Option<StationId>) -> Result<(), String> {
+        if self.contract.is_none() {
+            return Err("Não há oferta disponível.".into());
+        }
+        if let Some(error) = self.acceptance_error() {
+            return Err(error);
+        }
+        self.contract.as_mut().unwrap().status = ContractStatus::Accepted;
+        self.load_at_platform(platform);
+        Ok(())
+    }
+    pub(crate) fn cancel_contract(&mut self, platform: Option<StationId>) -> Result<(), String> {
+        let c = self
+            .contract
+            .as_mut()
+            .ok_or("Não há contrato para cancelar.")?;
+        c.status = match c.status {
+            ContractStatus::Offered | ContractStatus::Accepted => ContractStatus::Cancelled,
+            ContractStatus::Loaded => ContractStatus::Returning,
+            _ => return Err("Este contrato já está resolvido ou em devolução.".into()),
+        };
+        self.return_at_platform(platform);
+        Ok(())
+    }
+    fn load_at_platform(&mut self, platform: Option<StationId>) {
+        let hold = self
+            .contract
+            .as_ref()
+            .map_or(0, |c| self.cargo_capacity(c.kind));
+        if let Some(c) = &mut self.contract
+            && c.status == ContractStatus::Accepted
+            && platform == Some(c.origin)
+            && c.units <= hold
+        {
+            c.status = ContractStatus::Loaded;
+            if let Some(a) = self.arrivals.last_mut() {
+                a.cargo_loaded += c.units;
+            }
+        }
+    }
+    fn return_at_platform(&mut self, platform: Option<StationId>) {
+        if let Some(c) = &mut self.contract
+            && c.status == ContractStatus::Returning
+            && platform == Some(c.origin)
+        {
+            c.status = ContractStatus::Cancelled;
+            if let Some(a) = self.arrivals.last_mut() {
+                a.cargo_returned += c.units;
+            }
+        }
     }
     pub fn owns(&self, reward: Livery) -> bool {
         self.owned_rewards.contains(&reward)
@@ -234,6 +311,31 @@ impl ServiceState {
         {
             return Err(invalid());
         }
+        if let Some(c) = &self.contract {
+            let mut loaded = 0_u64;
+            let mut delivered = 0_u64;
+            let mut returned = 0_u64;
+            for a in self.arrivals.iter().filter(|a| a.visit >= c.id) {
+                loaded += u64::from(a.cargo_loaded);
+                delivered += u64::from(a.cargo_delivered);
+                returned += u64::from(a.cargo_returned);
+            }
+            if loaded > u64::from(c.units)
+                || delivered > u64::from(c.units)
+                || returned > u64::from(c.units)
+                || (returned > 0 && c.status != ContractStatus::Cancelled)
+                || (delivered > 0 && c.status != ContractStatus::Delivered)
+                || returned + delivered > u64::from(c.units)
+            {
+                return Err(invalid());
+            }
+            // When the bounded log includes creation, it contains the entire lot's history.
+            if self.arrivals.first().is_some_and(|a| a.visit <= c.id)
+                && loaded.checked_sub(delivered + returned) != Some(u64::from(self.cargo_count()))
+            {
+                return Err(invalid());
+            }
+        }
         if self.credits
             != self
                 .passengers_delivered
@@ -253,6 +355,7 @@ impl ServiceState {
                 || a.alighted > 72
                 || a.cargo_loaded > 12
                 || a.cargo_delivered > 12
+                || a.cargo_returned > 12
                 || a.earned != u64::from(a.alighted) * 2 + u64::from(a.cargo_delivered) * 10
                 || (i > 0 && self.arrivals[i - 1].visit + 1 != a.visit)
             {
@@ -282,6 +385,7 @@ impl ServiceState {
             alighted: 0,
             cargo_loaded: 0,
             cargo_delivered: 0,
+            cargo_returned: 0,
             earned: 0,
         };
         self.passengers.retain(|p| {
@@ -294,12 +398,20 @@ impl ServiceState {
         });
         self.passengers_delivered += u64::from(summary.alighted);
         // Replace only an already-settled contract, never replay its reward.
-        if self
-            .contract
-            .as_ref()
-            .is_some_and(|c| c.status == ContractStatus::Delivered)
-        {
+        if self.contract.as_ref().is_some_and(|c| {
+            matches!(
+                c.status,
+                ContractStatus::Delivered | ContractStatus::Cancelled
+            )
+        }) {
             self.contract = None;
+        }
+        if let Some(c) = &mut self.contract
+            && c.status == ContractStatus::Returning
+            && c.origin == station
+        {
+            c.status = ContractStatus::Cancelled;
+            summary.cargo_returned = c.units;
         }
         if let Some(c) = &mut self.contract
             && c.status == ContractStatus::Loaded
@@ -351,8 +463,18 @@ impl ServiceState {
                 destination,
                 units,
                 reward: u64::from(units) * 10,
-                status: ContractStatus::Accepted,
+                status: if self.automatic_contracts {
+                    ContractStatus::Accepted
+                } else {
+                    ContractStatus::Offered
+                },
             });
+        }
+        if self.automatic_contracts
+            && let Some(c) = &mut self.contract
+            && c.status == ContractStatus::Offered
+        {
+            c.status = ContractStatus::Accepted;
         }
         let hold = self
             .contract

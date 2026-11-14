@@ -134,9 +134,9 @@ Base: já existe checkpoint versionado, escritor exclusivo e proteção de arqui
 
 ## 12. CON — contratos de serviço
 
-- [ ] CON-01 Definir oferta, aceito, em execução, concluído e cancelado, com transições válidas e ID estável.
+- [x] CON-01 Definir oferta, aceito, em execução, concluído e cancelado, com transições válidas e ID estável.
 - [ ] CON-02 Começar com um contrato de passageiros e um de carga; condições devem corresponder a ações existentes.
-- [ ] CON-03 Validar rota, capacidade e pré-requisitos antes de aceitar, com motivo de bloqueio legível.
+- [x] CON-03 Validar rota, capacidade e pré-requisitos antes de aceitar, com motivo de bloqueio legível.
 - [x] CON-04 Limitar contratos simultâneos e definir reserva de capacidade/conflito entre contratos.
 - [x] CON-05 Adotar acompanhamento tranquilo; se houver prazo futuro, usar tempo ativo e decisão explícita, nunca relógio offline punitivo.
 - [x] CON-06 Tornar entrega idempotente e ligar recompensa ao fato concluído, não à abertura de painel.
@@ -172,7 +172,7 @@ Base: já existe checkpoint versionado, escritor exclusivo e proteção de arqui
 - [x] BRN-02 Definir momento de escolha, alternativa padrão e efeito sobre passageiros/contratos já aceitos.
 - [x] BRN-03 Persistir trecho/nó/decisão com versão da rota; migrar posição rc7 sem reiniciar partida silenciosamente.
 - [x] BRN-04 Validar conectividade, destinos alcançáveis e ausência de ciclos sem saída.
-- [ ] BRN-05 Adaptar mapa, ETA, estação seguinte e transição de bioma a partir da rota real.
+- [x] BRN-05 Adaptar mapa, ETA, estação seguinte e transição de bioma a partir da rota real.
 - [x] BRN-06 Testar escolha, pausa, save/restart e percurso de retorno em cada ramo.
 
 **Aceite:** jogador entende a escolha antes de confirmá-la; contratos permanecem possíveis ou recebem resolução explícita; determinismo e continuidade do cenário preservados. Não anunciar mapa aberto antes de G3.
@@ -297,7 +297,7 @@ Modelo de atualização por item:
 
 Não marcar a expansão concluída porque o plano foi escrito, um módulo compila ou uma galeria foi exportada. Conclusão exige comportamento integrado, critérios de aceite atendidos e limitações honestamente registradas.
 
-## Integração 0.4 em 2026-11-14
+## Integração 0.4.0-rc.1 em 2026-11-14 (histórico)
 
 Integrador: Codex; seis frentes paralelas com ownership separado. Itens marcados acima correspondem ao código integrado e à suíte atual, não a certificação de outros computadores. Foram executados 272 testes Rust (zero falhas, dois exportadores ignorados na suíte normal), formatação e Clippy sem warnings. Os exportadores foram executados separadamente com 16 cenários, incluindo serviços preenchidos, diário e excursão. Resultado nativo final: consultar [VALIDACAO_04.md](VALIDACAO_04.md) e [BUILD-INFO atual](../BUILD-INFO.json).
 
@@ -310,3 +310,13 @@ Hardware adicional, leitor de tela real, reprodução audível/dispositivo, rein
 Validação nativa final: quatro alternâncias passaram, clima online com 25 amostras prontas, migração de cópia do perfil v1 preservou quatro pinturas e backup, dois cenários de 120 s encerraram normalmente. Métricas e limites em VALIDACAO_04. A remoção recursiva de caches foi bloqueada pela revisão automática; os caches foram preservados e continuam excluídos dos pacotes.
 
 Distribuição final: portátil extraído e executado em pasta com espaços, saída zero e CRC dos três arquivos ZIP verificado. DIST-03 permanece parcialmente aberto porque não foi criada uma conta Windows separada.
+
+## Continuação 0.4.0-rc.2
+
+Integrador: Codex. Halley: mapa de excursão; Aristotle: prévia da oficina e revisão; Schrodinger: regressões de despacho e migração. Código novo: oferta manual opcional, aceite com capacidade compatível, recusa, cancelamento e devolução física à origem sem recompensa. Checkpoint v3 preserva v1/v2 com backup exato, mantendo o modo automático nos perfis antigos. Oficina compara capacidade por opção/favorito; mapa de excursão apresenta fases e ETA próprios. Não há contrato especial de passageiros, mercado de múltiplas ofertas ou simulação de conforto/turismo nesta entrega.
+
+Validação da continuação: 288 testes aprovados, exportador executado separadamente, smoke e quatro alternâncias passaram, migração v2 → v3 preservou backup e propriedade, clima respondeu e duas execuções de 120 s encerraram normalmente. As evidências rc.1 permanecem no pacote anterior; os resultados atuais identificam o SHA-256 da rc.2. Fluxo nativo de cliques continua sem aceite por indisponibilidade do conector.
+
+Aceite de domínio rc.2: CON-01 e CON-03 exercitados por testes de oferta/aceite/incapacidade/recusa/retorno e reinício. CON-07 tem cancelamento seguro implementado, mas continua aberto para mudanças futuras de catálogo. BRN-05 apresenta mapa e ETA por fase; cenário já usa o ramal. WAG-05 tem prévia de capacidade e feedback de bloqueio, com a interação nativa ainda pendente. Registros detalhados e limites em VALIDACAO_04.md. A indisponibilidade do conector nativo não foi transformada em aprovação da matriz Windows.
+
+Pacote rc.2: CRC dos três ZIPs verificado; portátil extraído em pasta com espaços e executado com perfil isolado e PATH somente do Windows, saída zero. Script reproduzível: scripts/validate-portable.py. O teste não equivale a uma conta Windows nova.

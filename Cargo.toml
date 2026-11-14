@@ -1,6 +1,6 @@
 [package]
 name = "cpu-express"
-version = "0.4.0-rc.1"
+version = "0.4.0-rc.2"
 edition = "2024"
 rust-version = "1.95"
 description = "An original pixel-art steam train powered by your computer's CPU activity"

@@ -68,7 +68,7 @@ pub fn lock_profile(config: &Path) -> Result<fs::File, String> {
         .map_err(|e| format!("Este perfil já está em uso ou não pode ser aberto: {e}"))
 }
 
-/// v2 keeps the immutable Aurora v1 route definition and adds explicit service state.
+/// v3 adds dispatch choice and safe returns; v1/v2 migrate with exact backups.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorldCheckpoint {
@@ -79,12 +79,25 @@ pub struct WorldCheckpoint {
 fn decode_world(bytes: &[u8]) -> Result<World, String> {
     let value: serde_json::Value =
         serde_json::from_slice(bytes).map_err(|e| format!("Jornada inválida, preservada: {e}"))?;
+    // Defaults are only a migration convenience, never silent repair of a current save.
+    if value.get("version").and_then(|v| v.as_u64()) == Some(3) {
+        let service = &value["service"];
+        if service.get("automatic_contracts").is_none()
+            || service.get("branch").is_none()
+            || service
+                .get("arrivals")
+                .and_then(|a| a.as_array())
+                .is_some_and(|arrivals| arrivals.iter().any(|a| a.get("cargo_returned").is_none()))
+        {
+            return Err("Jornada v3 incompleta; arquivo preservado.".into());
+        }
+    }
     let (checkpoint, service) = match value.get("version").and_then(|v| v.as_u64()) {
         Some(1) => (
             serde_json::from_value::<Checkpoint>(value).map_err(|e| e.to_string())?,
             None,
         ),
-        Some(2) => {
+        Some(2 | 3) => {
             let saved: WorldCheckpoint =
                 serde_json::from_value(value).map_err(|e| e.to_string())?;
             (saved.journey, Some(saved.service))
@@ -132,8 +145,8 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
     if let Ok(original) = fs::read(path) {
         let value: serde_json::Value =
             serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-        if value.get("version").and_then(|v| v.as_u64()) == Some(1) {
-            let backup = path.with_extension("v1.backup.json");
+        if let Some(version @ (1 | 2)) = value.get("version").and_then(|v| v.as_u64()) {
+            let backup = path.with_extension(format!("v{version}.backup.json"));
             match fs::OpenOptions::new()
                 .write(true)
                 .create_new(true)
@@ -146,9 +159,9 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
                     if fs::read(&backup).map_err(|e| e.to_string())? != original {
-                        return Err(
-                            "Backup v1 existente difere do original; migração cancelada.".into(),
-                        );
+                        return Err(format!(
+                            "Backup v{version} existente difere do original; migração cancelada."
+                        ));
                     }
                 }
                 Err(e) => return Err(e.to_string()),
@@ -166,7 +179,7 @@ fn encode_world(world: &World) -> Result<Vec<u8>, String> {
         .service_snapshot()
         .validate(world.journey_snapshot())?;
     let saved = WorldCheckpoint {
-        version: 2,
+        version: 3,
         journey: checkpoint,
         service: world.service_snapshot().clone(),
     };

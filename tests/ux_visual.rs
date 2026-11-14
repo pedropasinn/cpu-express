@@ -79,8 +79,16 @@ fn export_floating_panels() {
         ("floating_diario", "Viagem/Diário"),
         ("floating_servicos", "Viagem/Serviços"),
         ("floating_servicos_active", "Viagem/Serviços"),
+        ("floating_contract_offer", "Viagem/Serviços"),
+        ("floating_contract_blocked", "Viagem/Serviços"),
+        ("floating_contract_return", "Viagem/Serviços"),
+        ("floating_contract_small", "Viagem/Serviços"),
+        ("floating_contract_minimum", "Viagem/Serviços"),
+        ("floating_contract_minimum_scrolled", "Viagem/Serviços"),
         ("floating_diario_active", "Viagem/Diário"),
         ("floating_branch", "Viagem"),
+        ("floating_branch_minimum", "Viagem"),
+        ("floating_branch_minimum_scrolled", "Viagem"),
         ("floating_colecao", "Viagem/Coleção"),
         ("floating_visual", "Visual"),
         ("floating_janela", "Janela"),
@@ -89,6 +97,8 @@ fn export_floating_panels() {
         ("floating_clima", "Visual/Clima"),
         ("floating_fluidez", "Visual/Fluidez"),
         ("floating_visual_small", "Visual"),
+        ("floating_visual_minimum", "Visual"),
+        ("floating_visual_minimum_scrolled", "Visual"),
     ] {
         export_scenario(
             directory,
@@ -98,13 +108,19 @@ fn export_floating_panels() {
                 paused: true,
                 action: Some(AppAction::ToggleControls),
                 idle: false,
-                size: if name.ends_with("small") {
+                size: if name.contains("minimum") {
+                    [480, 480]
+                } else if name.ends_with("small") {
                     [560, 600]
                 } else {
                     [1000, 900]
                 },
                 tab: Some(tab),
-                scroll: 0.0,
+                scroll: if name.ends_with("scrolled") {
+                    220.0
+                } else {
+                    0.0
+                },
             },
         );
     }
@@ -142,10 +158,13 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
             diagnostics: None,
         },
     );
-    if name.ends_with("active") || name.ends_with("branch") {
+    if name.starts_with("floating_contract") {
+        app.prepare_demo_contract_review(name.ends_with("return"), name.ends_with("blocked"));
+    }
+    if name.ends_with("active") || name.contains("_branch") {
         app.prepare_demo_review(
             900,
-            name.ends_with("branch")
+            name.contains("_branch")
                 .then_some(cpu_express::simulation::BranchKind::Serra),
         );
     }
@@ -220,10 +239,18 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
                 modifiers: egui::Modifiers::NONE,
             });
         }
-        if scroll != 0.0 && pass == 8 {
+        if scroll != 0.0 && pass == 12 {
             input.events.push(egui::Event::PointerMoved(egui::pos2(
-                size[0] as f32 - 40.0,
-                100.0,
+                if name.starts_with("floating_") {
+                    (size[0] as f32 * 0.5).min(700.0)
+                } else {
+                    size[0] as f32 - 40.0
+                },
+                if name.starts_with("floating_") {
+                    (size[1] as f32 * 0.65).min(500.0)
+                } else {
+                    100.0
+                },
             )));
             input.events.push(egui::Event::MouseWheel {
                 unit: egui::MouseWheelUnit::Point,
