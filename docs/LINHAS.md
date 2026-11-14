@@ -90,6 +90,17 @@ A linha continua como **rascunho** e não aparece no jogo. Os dados estão compl
 - Demanda de passageiros e cargas por estação ainda não foram definidas.
 - Os marcos visuais de cada trecho ainda não foram desenhados.
 
+## Linha Vitória a Minas (rascunho inicial)
+
+Arquivo: `data/lines/vitoria-minas.json`; fontes e método em `data/sources/vitoria-minas/README.md`. Coletada do OpenStreetMap em 2026-11-14, na época atual.
+
+- 29 paradas do trem de passageiros, de Pedro Nolasco (Grande Vitória) a Belo Horizonte, em bitola de 1000 mm.
+- Quilômetro medido para as 21 primeiras, até Ipaba (444,3 km). Entre as principais: Colatina 138,4; Aimorés 208,0; Governador Valadares 353,1.
+- Os trilhos mapeados estão interrompidos entre Ipaba e Intendente Câmara e entre Rio Piracicaba e Dois Irmãos. As oito paradas seguintes ficam sem quilômetro; nada foi estimado.
+- Faltam: conferência com a tabela do operador, altitude e cenário por trecho.
+
+Está bem menos madura que a Curitiba–Paranaguá e não pode virar itinerário enquanto houver trecho sem medida; um teste garante isso.
+
 ## Locomotivas reais
 
 O catálogo já aceita `kind: real` em locomotivas e exige fabricante, ano, arranjo de rodas e ao menos uma fonte. As três locomotivas atuais são fictícias. As reais entram quando houver os livros de referência; a arte é sempre original.

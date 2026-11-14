@@ -16,6 +16,7 @@ use serde_json::{Value, json};
 const CORE: &str = include_str!("../data/catalog/core.json");
 const AURORA: &str = include_str!("../data/lines/aurora-v1.json");
 const PARANAGUA: &str = include_str!("../data/lines/curitiba-paranagua.json");
+const VITORIA_MINAS: &str = include_str!("../data/lines/vitoria-minas.json");
 
 fn builtin() -> &'static Catalog {
     Catalog::builtin().as_ref().expect("built-in catalogue")
@@ -54,8 +55,8 @@ fn builtin_catalogue_is_valid_and_loads_identically_every_time() {
     let catalog = builtin();
     assert_eq!(catalog.catalog_version, CATALOG_VERSION);
     assert_eq!(catalog.rejected, Vec::new());
-    assert_eq!(catalog.lines.len(), 2);
-    let again = Catalog::from_documents(CORE, &[AURORA, PARANAGUA]).unwrap();
+    assert_eq!(catalog.lines.len(), 3);
+    let again = Catalog::from_documents(CORE, &[AURORA, PARANAGUA, VITORIA_MINAS]).unwrap();
     assert_eq!(&again, catalog);
 }
 
@@ -554,4 +555,29 @@ fn every_identifier_already_stored_in_a_save_resolves_in_the_catalogue() {
             Resolution::Current(_)
         ));
     }
+}
+
+#[test]
+fn vitoria_minas_draft_keeps_unmeasured_stretches_open() {
+    let line = builtin().line("vitoria-minas").unwrap();
+    assert_eq!(line.status, LineStatus::Draft);
+    assert_eq!(line.stations.len(), 29);
+    assert_eq!(line.stations.first().unwrap().id, "pedro-nolasco");
+    assert_eq!(line.stations.last().unwrap().id, "belo-horizonte");
+    // Distances are recorded only up to the first gap in the mapped tracks.
+    let measured = line.stations.iter().take_while(|s| s.km.is_some()).count();
+    assert_eq!(line.stations[measured - 1].id, "ipaba");
+    assert!(line.stations[measured..].iter().all(|s| s.km.is_none()));
+    assert!(line.stations.iter().all(|s| !s.verified));
+    assert!(
+        line.open_questions
+            .iter()
+            .any(|q| q.contains("interrompidos"))
+    );
+    // A line with open distances can never be offered or turned into an itinerary.
+    assert!(
+        cpu_express::simulation::itinerary::Itinerary::from_line(line, 480.0)
+            .unwrap_err()
+            .contains("sem comprimento definido")
+    );
 }

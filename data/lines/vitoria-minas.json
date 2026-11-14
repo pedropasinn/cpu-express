@@ -1,0 +1,745 @@
+{
+  "line_format": 1,
+  "id": "vitoria-minas",
+  "name": "Estrada de Ferro Vitória a Minas",
+  "status": "draft",
+  "kind": "real",
+  "layout": "shuttle",
+  "era": {
+    "label": "Atual: paradas do trem de passageiros conforme o OpenStreetMap em 2026-11-14",
+    "from_year": 2026,
+    "to_year": 2026
+  },
+  "gauge_mm": 1000,
+  "country": "BR",
+  "data_license": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "sources": [
+    {
+      "id": "osm",
+      "title": "OpenStreetMap, extratos Overpass de 2026-11-14: relação 3331630 (trem de passageiros da EFVM, Pedro Nolasco a Belo Horizonte, operador Vale), relações 7831016 e 7754552 e trilhos do corredor. Cópia em data/sources/vitoria-minas/",
+      "url": "https://www.openstreetmap.org/relation/3331630",
+      "accessed": "2026-11-14",
+      "license": "ODbL-1.0"
+    }
+  ],
+  "stations": [
+    {
+      "id": "pedro-nolasco",
+      "name": "Pedro Nolasco",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 602886959 (station).",
+      "km": 0.0
+    },
+    {
+      "id": "flexal",
+      "name": "Flexal",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3236051909 (station).",
+      "km": 6.0
+    },
+    {
+      "id": "fundao",
+      "name": "Fundão",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2634026520 (station).",
+      "km": 50.9
+    },
+    {
+      "id": "aricanga",
+      "name": "Aricanga",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 279422118 (station).",
+      "km": 65.8
+    },
+    {
+      "id": "piraqueacu",
+      "name": "Piraqueaçu",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2634024025 (station).",
+      "km": 74.7
+    },
+    {
+      "id": "colatina",
+      "name": "Colatina",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719625 (station).",
+      "km": 138.4
+    },
+    {
+      "id": "itapina",
+      "name": "Itapina",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719629 (station).",
+      "km": 158.9
+    },
+    {
+      "id": "mascarenhas",
+      "name": "Mascarenhas",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2634023097 (station).",
+      "km": 170.5
+    },
+    {
+      "id": "baixo-guandu",
+      "name": "Baixo Guandu",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719624 (station).",
+      "km": 202.4
+    },
+    {
+      "id": "aimores",
+      "name": "Aimorés",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2634023077 (station).",
+      "km": 208.0
+    },
+    {
+      "id": "resplendor",
+      "name": "Resplendor",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719633 (station).",
+      "km": 243.7
+    },
+    {
+      "id": "krenak",
+      "name": "Krenak",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719630 (station).",
+      "km": 259.8
+    },
+    {
+      "id": "conselheiro-pena",
+      "name": "Conselheiro Pena",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2273435125 (station).",
+      "km": 276.6
+    },
+    {
+      "id": "barra-de-cuiete",
+      "name": "Barra de Cuieté",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2633962865 (station).",
+      "km": 289.9
+    },
+    {
+      "id": "sao-tome-do-rio-doce",
+      "name": "São Tomé do Rio Doce",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2633914902 (station).",
+      "km": 297.8
+    },
+    {
+      "id": "tumiritinga",
+      "name": "Tumiritinga",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2633914948 (station).",
+      "km": 309.8
+    },
+    {
+      "id": "governador-valadares",
+      "name": "Governador Valadares",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 1405761156 (station).",
+      "km": 353.1
+    },
+    {
+      "id": "pedra-corrida",
+      "name": "Pedra Corrida",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2632683182 (station).",
+      "km": 389.3
+    },
+    {
+      "id": "periquito",
+      "name": "Periquito",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2495244406 (station).",
+      "km": 401.7
+    },
+    {
+      "id": "frederico-sellow",
+      "name": "Frederico Sellow",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 1512010609 (station).",
+      "km": 426.9
+    },
+    {
+      "id": "ipaba",
+      "name": "Ipaba",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3485719628 (station).",
+      "km": 444.3
+    },
+    {
+      "id": "intendente-camara",
+      "name": "Intendente Câmara",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 6216448341 (station). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "mario-carvalho",
+      "name": "Mario Carvalho",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 6215396541 (stop). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "antonio-dias",
+      "name": "Antônio Dias",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 6215396583 (stop). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "desembargador-drumond",
+      "name": "Desembargador Drumond",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 3486715216 (stop). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "joao-monlevade",
+      "name": "João Monlevade",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2632547067 (station). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "rio-piracicaba",
+      "name": "Rio Piracicaba",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2632500405 (station). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "dois-irmaos",
+      "name": "Dois Irmãos",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 2495062415 (station). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    },
+    {
+      "id": "belo-horizonte",
+      "name": "Belo Horizonte",
+      "verified": false,
+      "source_refs": [
+        "osm"
+      ],
+      "note": "OSM nó 12486937155 (station). Quilômetro em aberto: há interrupção nos trilhos mapeados antes deste ponto."
+    }
+  ],
+  "segments": [
+    {
+      "id": "pedro-nolasco--flexal",
+      "from": "pedro-nolasco",
+      "to": "flexal",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 6.0
+    },
+    {
+      "id": "flexal--fundao",
+      "from": "flexal",
+      "to": "fundao",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 44.9
+    },
+    {
+      "id": "fundao--aricanga",
+      "from": "fundao",
+      "to": "aricanga",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 14.9
+    },
+    {
+      "id": "aricanga--piraqueacu",
+      "from": "aricanga",
+      "to": "piraqueacu",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 8.9
+    },
+    {
+      "id": "piraqueacu--colatina",
+      "from": "piraqueacu",
+      "to": "colatina",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 63.7
+    },
+    {
+      "id": "colatina--itapina",
+      "from": "colatina",
+      "to": "itapina",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 20.5
+    },
+    {
+      "id": "itapina--mascarenhas",
+      "from": "itapina",
+      "to": "mascarenhas",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 11.6
+    },
+    {
+      "id": "mascarenhas--baixo-guandu",
+      "from": "mascarenhas",
+      "to": "baixo-guandu",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 31.9
+    },
+    {
+      "id": "baixo-guandu--aimores",
+      "from": "baixo-guandu",
+      "to": "aimores",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 5.6
+    },
+    {
+      "id": "aimores--resplendor",
+      "from": "aimores",
+      "to": "resplendor",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 35.7
+    },
+    {
+      "id": "resplendor--krenak",
+      "from": "resplendor",
+      "to": "krenak",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 16.1
+    },
+    {
+      "id": "krenak--conselheiro-pena",
+      "from": "krenak",
+      "to": "conselheiro-pena",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 16.8
+    },
+    {
+      "id": "conselheiro-pena--barra-de-cuiete",
+      "from": "conselheiro-pena",
+      "to": "barra-de-cuiete",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 13.3
+    },
+    {
+      "id": "barra-de-cuiete--sao-tome-do-rio-doce",
+      "from": "barra-de-cuiete",
+      "to": "sao-tome-do-rio-doce",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 7.9
+    },
+    {
+      "id": "sao-tome-do-rio-doce--tumiritinga",
+      "from": "sao-tome-do-rio-doce",
+      "to": "tumiritinga",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 12.0
+    },
+    {
+      "id": "tumiritinga--governador-valadares",
+      "from": "tumiritinga",
+      "to": "governador-valadares",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 43.3
+    },
+    {
+      "id": "governador-valadares--pedra-corrida",
+      "from": "governador-valadares",
+      "to": "pedra-corrida",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 36.2
+    },
+    {
+      "id": "pedra-corrida--periquito",
+      "from": "pedra-corrida",
+      "to": "periquito",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 12.4
+    },
+    {
+      "id": "periquito--frederico-sellow",
+      "from": "periquito",
+      "to": "frederico-sellow",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 25.2
+    },
+    {
+      "id": "frederico-sellow--ipaba",
+      "from": "frederico-sellow",
+      "to": "ipaba",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 17.4
+    },
+    {
+      "id": "ipaba--intendente-camara",
+      "from": "ipaba",
+      "to": "intendente-camara",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "note": "Sem medida: os trilhos mapeados no OpenStreetMap estão interrompidos neste trecho."
+    },
+    {
+      "id": "intendente-camara--mario-carvalho",
+      "from": "intendente-camara",
+      "to": "mario-carvalho",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 13.8,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    },
+    {
+      "id": "mario-carvalho--antonio-dias",
+      "from": "mario-carvalho",
+      "to": "antonio-dias",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 32.8,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    },
+    {
+      "id": "antonio-dias--desembargador-drumond",
+      "from": "antonio-dias",
+      "to": "desembargador-drumond",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 25.2,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    },
+    {
+      "id": "desembargador-drumond--joao-monlevade",
+      "from": "desembargador-drumond",
+      "to": "joao-monlevade",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 21.6,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    },
+    {
+      "id": "joao-monlevade--rio-piracicaba",
+      "from": "joao-monlevade",
+      "to": "rio-piracicaba",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 13.7,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    },
+    {
+      "id": "rio-piracicaba--dois-irmaos",
+      "from": "rio-piracicaba",
+      "to": "dois-irmaos",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "note": "Sem medida: os trilhos mapeados no OpenStreetMap estão interrompidos neste trecho."
+    },
+    {
+      "id": "dois-irmaos--belo-horizonte",
+      "from": "dois-irmaos",
+      "to": "belo-horizonte",
+      "biome": "forest",
+      "scenery": [
+        "river",
+        "forest"
+      ],
+      "adaptation": "simplified",
+      "source_refs": [
+        "osm"
+      ],
+      "distance_km": 95.8,
+      "note": "Distância medida neste trecho; a posição acumulada depende das interrupções anteriores."
+    }
+  ],
+  "open_questions": [
+    "Trilhos mapeados interrompidos entre Ipaba e Intendente Câmara e entre Rio Piracicaba e Dois Irmãos: o quilômetro das paradas depois de Ipaba fica em aberto até haver fonte.",
+    "Extensão: 647 km medidos nos trechos mapeados, sem contar as duas interrupções; conferir com a extensão publicada pelo operador.",
+    "Conferir a lista e a ordem das paradas com a tabela do operador; a relação do OpenStreetMap traz um aviso de que está incompleta.",
+    "Altitude, bioma e cenário por trecho ainda não levantados: os valores do arquivo são provisórios.",
+    "O motor de viagem ainda não percorre linhas de ponta a ponta."
+  ]
+}

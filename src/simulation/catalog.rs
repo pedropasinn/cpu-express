@@ -14,9 +14,10 @@ use std::{collections::BTreeSet, fmt, sync::OnceLock};
 pub const CATALOG_VERSION: u32 = 1;
 
 const CORE: &str = include_str!("../../data/catalog/core.json");
-const LINES: [&str; 2] = [
+const LINES: [&str; 3] = [
     include_str!("../../data/lines/aurora-v1.json"),
     include_str!("../../data/lines/curitiba-paranagua.json"),
+    include_str!("../../data/lines/vitoria-minas.json"),
 ];
 
 /// One problem, located by document path so the author can find it.
