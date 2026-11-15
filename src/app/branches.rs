@@ -22,11 +22,17 @@ impl CpuExpressApp {
         if let Some(excursion) = branch.current {
             section(ui, "Excursão em andamento", |ui| {
                 ui.scope(|ui| branch_map(ui, excursion, self.suspended()));
-                ui.small("Circuito Aurora aguardando o retorno. Passageiros e cargas permanecem a bordo.");
+                game::hint(
+                    ui,
+                    "Circuito Aurora aguardando o retorno. Passageiros e cargas permanecem a bordo.",
+                );
             });
         } else if let Some(kind) = branch.pending {
             ui.strong(format!("Excursão agendada: {}", kind.stop().name()));
-            ui.small("Partida automática de Vila Aurora após o serviço de plataforma.");
+            game::hint(
+                ui,
+                "Partida automática de Vila Aurora após o serviço de plataforma.",
+            );
         } else {
             egui::CollapsingHeader::new("Explorar ramais").default_open(BranchState::unlocked(self.world.journey_snapshot())).show(ui,|ui| {
                 let unlocked=BranchState::unlocked(self.world.journey_snapshot());

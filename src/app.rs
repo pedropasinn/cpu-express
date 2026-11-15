@@ -37,16 +37,8 @@ const CARD: egui::Color32 = egui::Color32::from_rgb(27, 43, 46);
 const ACCENT: egui::Color32 = egui::Color32::from_rgb(242, 197, 112);
 
 fn section(ui: &mut egui::Ui, title: &str, content: impl FnOnce(&mut egui::Ui)) {
-    game::panel_frame().show(ui, |ui| {
+    game::section_frame(ui, title, |ui| {
         game::apply_style(ui);
-        ui.set_width(ui.available_width());
-        ui.label(
-            egui::RichText::new(title)
-                .size(16.0)
-                .strong()
-                .color(game::INK),
-        );
-        ui.separator();
         content(ui);
     });
     ui.add_space(8.0);
@@ -1575,52 +1567,89 @@ impl CpuExpressApp {
         if self.world.excursion_snapshot().current.is_some() {
             self.branch_controls(ui);
         }
-        section(ui, "Próxima parada", |ui| {
-            ui.label(
-                egui::RichText::new(self.destination_name())
-                    .size(19.0)
-                    .color(game::BLUE),
-            );
-            game::progress(
-                ui,
-                "next-stop",
-                self.travel_progress(),
-                &format!("Trecho · {:.0}%", f64::from(self.travel_progress()) * 100.0),
-                game::GREEN,
-            );
-            ui.label(format!(
-                "{} visitas  ·  {} circuitos",
-                journey.stations_visited, journey.completed_laps
-            ));
-            ui.small(
-                "A CPU muda o ritmo visual. A viagem progride igualmente em qualquer computador.",
-            );
-        });
-        if game::button(
-            ui,
-            "drive-toggle",
-            if self.paused { Icon::Play } else { Icon::Pause },
-            if self.paused {
-                "Retomar viagem"
-            } else {
-                "Pausar viagem"
-            },
-            true,
-            egui::vec2(ui.available_width(), 44.0),
-        )
-        .clicked()
-        {
+        // The train first, then where it is going and the one action of this screen.
+        self.scene_preview(ui, false);
+        ui.add_space(6.0);
+        let art = |ui: &mut egui::Ui, sprite: game::Sprite, size: f32| {
+            let (rect, _) = ui.allocate_exact_size(egui::Vec2::splat(size), egui::Sense::hover());
+            game::sprite(ui.painter(), rect, sprite);
+        };
+        let waiting = self.world.station_wait();
+        let seconds = if waiting > 0.0 {
+            waiting.ceil()
+        } else {
+            (journey.distance_to_next_station_units / 24.0).ceil()
+        };
+        // Active seconds only: the clock stands still while paused.
+        let situation = if self.world.excursion_snapshot().current.is_some() {
+            "Em excursão pelo ramal".to_owned()
+        } else if self.paused {
+            format!("Pausado · faltam {seconds:.0} s")
+        } else if waiting > 0.0 {
+            format!("Na plataforma · partida em {seconds:.0} s")
+        } else {
+            format!("Chegada em {seconds:.0} s")
+        };
+        let mut toggle = false;
+        egui::Frame::new()
+            .fill(game::CARD)
+            .stroke(egui::Stroke::new(2.0, game::WOOD_DARK))
+            .corner_radius(4)
+            .inner_margin(10)
+            .show(ui, |ui| {
+                ui.set_width(ui.available_width());
+                ui.horizontal(|ui| {
+                    let (tile, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(56.0), egui::Sense::hover());
+                    ui.painter().rect_filled(tile, 4, game::PAPER);
+                    ui.painter().rect_stroke(
+                        tile,
+                        4,
+                        egui::Stroke::new(2.0, game::WOOD),
+                        egui::StrokeKind::Inside,
+                    );
+                    game::sprite(ui.painter(), tile.shrink(4.0), game::Sprite::Estacao);
+                    ui.vertical(|ui| {
+                        ui.spacing_mut().item_spacing.y = 2.0;
+                        ui.label(
+                            egui::RichText::new("Próxima parada")
+                                .size(12.0)
+                                .color(game::MUTED),
+                        );
+                        ui.label(
+                            egui::RichText::new(self.destination_name())
+                                .size(20.0)
+                                .strong()
+                                .color(game::INK),
+                        );
+                    });
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        toggle = game::button(
+                            ui,
+                            "drive-toggle",
+                            if self.paused { Icon::Play } else { Icon::Pause },
+                            if self.paused { "Retomar" } else { "Pausar" },
+                            true,
+                            egui::vec2(170.0, 48.0),
+                        )
+                        .on_hover_text("Espaço também pausa e retoma. O progresso fica preservado.")
+                        .clicked();
+                    });
+                });
+                ui.add_space(4.0);
+                game::progress(
+                    ui,
+                    "next-stop",
+                    self.travel_progress(),
+                    &situation,
+                    game::GREEN,
+                );
+            });
+        if toggle {
             self.dispatch(AppAction::TogglePause, ui.ctx());
         }
-        ui.label(
-            egui::RichText::new("Espaço também pausa e retoma. Seu progresso fica preservado.")
-                .size(11.0)
-                .color(game::MUTED),
-        );
-        ui.add_space(8.0);
-        self.scene_preview(ui, false);
         let speed = if self.suspended() {
-            "Parado".to_owned()
+            "0 km/h".to_owned()
         } else {
             format!("{:.0} km/h", self.train.speed_kmh())
         };
@@ -1630,62 +1659,63 @@ impl CpuExpressApp {
         {
             format!("{:.0}%", self.cpu_percent())
         } else {
-            "—".to_owned()
+            "-".to_owned()
         };
-        if self.demo_mode {
-            ui.small("DEMO · CPU simulada · memória não consultada");
-        }
         let ram = self
             .ram_percent()
-            .map_or_else(|| "—".to_owned(), |value| format!("{value:.0}%"));
-        ui.columns(3, |columns| {
-            for (column, (label, value)) in columns.iter_mut().zip([
-                ("Velocidade", speed),
-                ("Processador", cpu),
-                ("Memória", ram),
-            ]) {
-                egui::Frame::new()
-                    .fill(game::CARD)
-                    .corner_radius(6)
-                    .inner_margin(10)
-                    .show(column, |ui| {
-                        ui.set_width(ui.available_width());
-                        let (glyph, _) =
-                            ui.allocate_exact_size(egui::vec2(24.0, 24.0), egui::Sense::hover());
-                        game::icon(
-                            ui.painter(),
-                            glyph,
-                            match label {
-                                "Processador" => Icon::Cpu,
-                                "Memória" => Icon::Memory,
-                                _ => Icon::Train,
-                            },
-                            game::BLUE,
-                        );
-                        ui.label(egui::RichText::new(label).size(11.0).color(game::MUTED));
-                        ui.label(
-                            egui::RichText::new(value)
-                                .size(18.0)
-                                .strong()
-                                .color(game::INK),
-                        );
-                    });
+            .map_or_else(|| "-".to_owned(), |value| format!("{value:.0}%"));
+        // One line of gauges instead of three cards.
+        ui.add_space(4.0);
+        ui.horizontal_wrapped(|ui| {
+            for (sprite, value, name) in [
+                (game::Sprite::Locomotiva, speed, "Velocidade do trem"),
+                (
+                    game::Sprite::Cpu,
+                    cpu,
+                    if self.demo_mode {
+                        "Processador (simulado na demonstração)"
+                    } else {
+                        "Uso do processador: muda o ritmo visual, não a viagem"
+                    },
+                ),
+                (game::Sprite::Memoria, ram, "Uso de memória"),
+            ] {
+                art(ui, sprite, 32.0);
+                game::pixel_label(ui, &value, 2.0, game::INK).on_hover_text(name);
+                ui.add_space(14.0);
             }
         });
-        ui.add_space(12.0);
-        if game::button(
-            ui,
-            "open-services",
-            Icon::Passenger,
-            "Passageiros e encomendas",
-            false,
-            egui::vec2(ui.available_width(), 36.0),
-        )
-        .clicked()
-        {
+        ui.add_space(6.0);
+        // Shortcut to services carrying the real occupancy.
+        let service = self.world.service_snapshot();
+        let (seats, hold) = service.capacity();
+        let (aboard, cargo) = (service.passenger_count(), service.cargo_count());
+        let mut open_services = false;
+        ui.horizontal(|ui| {
+            art(ui, game::Sprite::Passageiro, 32.0);
+            game::pixel_label(ui, &format!("{aboard}/{seats}"), 2.0, game::INK)
+                .on_hover_text("Passageiros a bordo / lugares");
+            ui.add_space(10.0);
+            art(ui, game::Sprite::Caixote, 32.0);
+            game::pixel_label(ui, &format!("{cargo}/{hold}"), 2.0, game::INK)
+                .on_hover_text("Carga a bordo / espaço de carga");
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                open_services = game::button(
+                    ui,
+                    "open-services",
+                    Icon::Ticket,
+                    "Serviços",
+                    false,
+                    egui::vec2(170.0, 36.0),
+                )
+                .clicked();
+            });
+        });
+        if open_services {
             self.panel_tab = PanelTab::Journey;
             self.journey_page = 3;
         }
+        ui.add_space(6.0);
         self.arrival_ticket(ui, true);
         if let Some(notice) = self.telemetry_notice() {
             ui.colored_label(game::BLUE, notice);
@@ -1769,7 +1799,10 @@ impl CpuExpressApp {
                     .max_decimals(4),
             );
         });
-        ui.small("O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.");
+        game::hint(
+            ui,
+            "O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.",
+        );
         if ui.button("Manter São Paulo, SP").clicked() {
             self.weather_draft = Default::default();
         }
@@ -1777,7 +1810,7 @@ impl CpuExpressApp {
         ui.strong("Onde mostrar o trem");
         ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
         ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
-        ui.small("Você pode mudar essas escolhas depois na central.");
+        game::hint(ui, "Você pode mudar essas escolhas depois na central.");
         if let Some(notice) = self.notification_message() {
             ui.colored_label(ACCENT, notice);
         }
@@ -1993,7 +2026,10 @@ impl CpuExpressApp {
                 }
                 ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
             }
-            ui.small("Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.");
+            game::hint(
+                ui,
+                "Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.",
+            );
         } else {
             let rect = self.config.floating_rect.get_or_insert([40, 40, 640, 180]);
             ui.horizontal(|ui| {
@@ -2011,7 +2047,10 @@ impl CpuExpressApp {
             placement_changed |= ui
                 .add(egui::Slider::new(&mut rect[3], 140..=1200).text("Altura (px)"))
                 .changed();
-            ui.small("Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.");
+            game::hint(
+                ui,
+                "Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.",
+            );
         }
         if ui.button("Restaurar posição e tamanho").clicked() {
             self.slider_geometry = None;
@@ -2028,7 +2067,10 @@ impl CpuExpressApp {
             self.preferences_changed();
             ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
         }
-        ui.small("Clique na faixa para abrir o painel; botão direito pausa.");
+        game::hint(
+            ui,
+            "Clique na faixa para abrir o painel; botão direito pausa.",
+        );
         let mut pinned = self.config.always_on_top;
         if ui.checkbox(&mut pinned, "Sempre no topo (P)").changed() {
             self.dispatch(AppAction::TogglePin, ui.ctx());
@@ -2241,6 +2283,8 @@ impl CpuExpressApp {
             .with_position(egui::pos2(panel_rect[0], panel_rect[1]))
             .with_resizable(true)
             .with_taskbar(false)
+            // The wooden frame is the window: no system title bar or buttons.
+            .with_decorations(false)
             .with_visible(revealed)
             .with_window_level(egui::WindowLevel::AlwaysOnTop);
         ctx.show_viewport_immediate(
@@ -2279,11 +2323,64 @@ impl CpuExpressApp {
                     }
                 }
                 game::apply_style(root_ui);
+                game::wood_frame(root_ui.painter(), root_ui.max_rect());
+                // Resize by the right and bottom edges and by the lower-right corner.
+                if !ctx.embed_viewports() {
+                    let frame = root_ui.max_rect();
+                    let edge = game::FRAME;
+                    for (name, area, direction, cursor) in [
+                        (
+                            "panel-resize-corner",
+                            egui::Rect::from_min_max(
+                                frame.max - egui::Vec2::splat(edge * 2.0),
+                                frame.max,
+                            ),
+                            egui::ResizeDirection::SouthEast,
+                            egui::CursorIcon::ResizeNwSe,
+                        ),
+                        (
+                            "panel-resize-east",
+                            egui::Rect::from_min_max(
+                                egui::pos2(frame.right() - edge, frame.top() + edge * 2.0),
+                                egui::pos2(frame.right(), frame.bottom() - edge * 2.0),
+                            ),
+                            egui::ResizeDirection::East,
+                            egui::CursorIcon::ResizeHorizontal,
+                        ),
+                        (
+                            "panel-resize-south",
+                            egui::Rect::from_min_max(
+                                egui::pos2(frame.left() + edge * 2.0, frame.bottom() - edge),
+                                egui::pos2(frame.right() - edge * 2.0, frame.bottom()),
+                            ),
+                            egui::ResizeDirection::South,
+                            egui::CursorIcon::ResizeVertical,
+                        ),
+                    ] {
+                        let grip = root_ui
+                            .interact(area, root_ui.scope_id().with(name), egui::Sense::drag())
+                            .on_hover_cursor(cursor);
+                        if grip.drag_started_by(egui::PointerButton::Primary) {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::BeginResize(direction));
+                        }
+                    }
+                    // Three notches mark the corner that resizes.
+                    let corner = frame.max - egui::Vec2::splat(4.0);
+                    for step in 0..3 {
+                        let offset = 4.0 + step as f32 * 4.0;
+                        root_ui.painter().line_segment(
+                            [
+                                corner - egui::vec2(offset, 0.0),
+                                corner - egui::vec2(0.0, offset),
+                            ],
+                            egui::Stroke::new(1.5, game::WOOD_LIGHT),
+                        );
+                    }
+                }
                 egui::Frame::new()
-                    .fill(game::EDGE)
-                    .inner_margin(6)
+                    .inner_margin(game::FRAME as i8 + 2)
                     .show(root_ui, |ui| {
-                        game::panel_frame().show(ui, |ui| {
+                        egui::Frame::new().inner_margin(6).show(ui, |ui| {
                             ui.set_min_size(ui.available_size());
                             if self.welcome {
                                 self.welcome_controls(ui);
@@ -2306,7 +2403,7 @@ impl CpuExpressApp {
                                         Icon::Train,
                                     ),
                                     PanelTab::Journey => (
-                                        "Diário de viagem",
+                                        "Viagem",
                                         "Estações, objetivos e novas descobertas",
                                         Icon::Book,
                                     ),
@@ -2322,76 +2419,22 @@ impl CpuExpressApp {
                                     ),
                                 }
                             };
-                            ui.horizontal(|ui| {
-                                let (crest, _) = ui.allocate_exact_size(
-                                    egui::vec2(
-                                        if compact { 30.0 } else { 44.0 },
-                                        if compact { 32.0 } else { 52.0 },
-                                    ),
-                                    egui::Sense::hover(),
-                                );
-                                ui.painter().rect_filled(crest, 2.0, game::GOLD);
-                                game::icon(ui.painter(), crest.shrink(7.0), emblem, game::INK);
-                                ui.vertical(|ui| {
-                                    ui.label(
-                                        egui::RichText::new("CPU EXPRESS  /  CIRCUITO AURORA")
-                                            .monospace()
-                                            .size(10.0)
-                                            .color(game::MUTED),
-                                    );
-                                    ui.label(
-                                        egui::RichText::new(title)
-                                            .size(if compact { 18.0 } else { 24.0 })
-                                            .strong()
-                                            .color(game::INK),
-                                    );
-                                    if !compact {
-                                        ui.label(
-                                            egui::RichText::new(subtitle)
-                                                .size(12.0)
-                                                .color(game::MUTED),
-                                        );
-                                    }
-                                });
-                            });
-                            ui.add_space(3.0);
-                            let tab_width = ((ui.available_width() - 64.0) / 5.0).floor().max(64.0);
-                            ui.horizontal_wrapped(|ui| {
-                                for (tab, label, icon) in [
-                                    (PanelTab::Drive, "Trem", Icon::Train),
-                                    (PanelTab::Journey, "Viagem", Icon::Map),
-                                    (PanelTab::Appearance, "Visual", Icon::Paint),
-                                    (PanelTab::Behavior, "Janela", Icon::Settings),
-                                ] {
-                                    if game::button(
-                                        ui,
-                                        ("nav", tab as u8),
-                                        icon,
-                                        label,
-                                        self.panel_tab == tab && !self.show_help,
-                                        egui::vec2(tab_width, if compact { 46.0 } else { 56.0 }),
-                                    )
-                                    .clicked()
-                                    {
-                                        self.panel_tab = tab;
-                                        self.show_help = false;
-                                    }
-                                }
-                                if game::button(
-                                    ui,
-                                    "help-nav",
-                                    Icon::Help,
-                                    "Ajuda",
-                                    self.show_help,
-                                    egui::vec2(tab_width, if compact { 46.0 } else { 56.0 }),
+                            // Without a title bar, the ribbon is the handle that moves the window.
+                            let ribbon = game::ribbon(ui, title, emblem, compact).rect;
+                            let handle = ui
+                                .interact(
+                                    ribbon,
+                                    ui.scope_id().with("panel-move"),
+                                    egui::Sense::click_and_drag(),
                                 )
-                                .clicked()
-                                {
-                                    self.show_help = !self.show_help;
-                                }
-                            });
-                            ui.add_space(4.0);
-                            let content_height = (ui.available_height() - 76.0).max(90.0);
+                                .on_hover_cursor(egui::CursorIcon::Grab);
+                            if handle.drag_started_by(egui::PointerButton::Primary) {
+                                ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
+                            }
+                            let _ = subtitle;
+                            let dock_height = if compact { 48.0 } else { 76.0 };
+                            let content_height =
+                                (ui.available_height() - 34.0 - dock_height).max(90.0);
                             egui::ScrollArea::vertical()
                                 .id_salt((
                                     "game-panel-content",
@@ -2415,6 +2458,21 @@ impl CpuExpressApp {
                                                 section(ui, "Posição e tamanho", |ui| {
                                                     self.behavior_controls(ui)
                                                 });
+                                                section(ui, "Sessão", |ui| {
+                                                    game::hint(ui, "O progresso é salvo ao sair. O jogo também fecha pelo ícone da bandeja.");
+                                                    if game::button(
+                                                        ui,
+                                                        "quit-game",
+                                                        Icon::Save,
+                                                        "Salvar e sair",
+                                                        false,
+                                                        egui::vec2(180.0, 34.0),
+                                                    )
+                                                    .clicked()
+                                                    {
+                                                        self.dispatch(AppAction::Quit, ctx);
+                                                    }
+                                                });
                                             }
                                         }
                                     }
@@ -2429,7 +2487,7 @@ impl CpuExpressApp {
                                         response.scroll_to_me(Some(egui::Align::Center));
                                     }
                                 });
-                            ui.separator();
+                            ui.add_space(2.0);
                             let toast = self
                                 .equipment_notice
                                 .as_ref()
@@ -2459,40 +2517,60 @@ impl CpuExpressApp {
                                     .strong()
                                     .color(game::GREEN),
                             );
+                            // Bottom dock: the places of the game, then help and close.
+                            let tile = egui::vec2(
+                                ((ui.available_width() - 5.0 * 6.0) / 6.0)
+                                    .floor()
+                                    .clamp(44.0, 132.0),
+                                dock_height,
+                            );
                             ui.horizontal(|ui| {
-                                let journey = self.world.journey_snapshot();
-                                ui.label(
-                                    egui::RichText::new(format!(
-                                        "{} chegadas · {} voltas",
-                                        journey.stations_visited, journey.completed_laps
-                                    ))
-                                    .size(11.0)
-                                    .color(game::MUTED),
-                                );
-                                ui.with_layout(
-                                    egui::Layout::right_to_left(egui::Align::Center),
-                                    |ui| {
-                                        if game::button(
-                                            ui,
-                                            "close-book",
-                                            Icon::Close,
-                                            "Fechar painel",
-                                            false,
-                                            egui::vec2(144.0, 30.0),
-                                        )
-                                        .clicked()
-                                        {
-                                            self.dispatch(AppAction::ClosePanel, ctx);
-                                        }
-                                        if ui
-                                            .small_button("Sair")
-                                            .on_hover_text("Salvar e encerrar CPU Express")
-                                            .clicked()
-                                        {
-                                            self.dispatch(AppAction::Quit, ctx);
-                                        }
-                                    },
-                                );
+                                ui.spacing_mut().item_spacing.x = 6.0;
+                                for (tab, label, icon) in [
+                                    (PanelTab::Drive, "Trem", Icon::Train),
+                                    (PanelTab::Journey, "Viagem", Icon::Map),
+                                    (PanelTab::Appearance, "Visual", Icon::Paint),
+                                    (PanelTab::Behavior, "Janela", Icon::Settings),
+                                ] {
+                                    if game::dock_button(
+                                        ui,
+                                        ("nav", tab as u8),
+                                        icon,
+                                        label,
+                                        self.panel_tab == tab && !self.show_help,
+                                        tile,
+                                    )
+                                    .clicked()
+                                    {
+                                        self.panel_tab = tab;
+                                        self.show_help = false;
+                                    }
+                                }
+                                if game::dock_button(
+                                    ui,
+                                    "help-nav",
+                                    Icon::Help,
+                                    "Ajuda",
+                                    self.show_help,
+                                    tile,
+                                )
+                                .clicked()
+                                {
+                                    self.show_help = !self.show_help;
+                                }
+                                if game::dock_button(
+                                    ui,
+                                    "close-book",
+                                    Icon::Close,
+                                    "Fechar",
+                                    false,
+                                    tile,
+                                )
+                                .on_hover_text("Fechar painel (Esc). Sair do jogo: ícone da bandeja.")
+                                .clicked()
+                                {
+                                    self.dispatch(AppAction::ClosePanel, ctx);
+                                }
                             });
                         });
                     });

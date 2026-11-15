@@ -17,10 +17,22 @@ fn composition_preview(
         let capacity = wagon.capacity();
         (seats + capacity.0, cargo + capacity.1)
     });
-    ui.small(format!(
-        "Trem: {} > {} lugares · {} > {} carga",
-        before.0, after.0, before.1, after.1
-    ));
+    // Only what the swap changes, next to the piece that changes it.
+    let delta = |now: u32, then: u32, unit: &str| match now.cmp(&then) {
+        std::cmp::Ordering::Greater => Some(format!("+{} {unit}", now - then)),
+        std::cmp::Ordering::Less => Some(format!("-{} {unit}", then - now)),
+        std::cmp::Ordering::Equal => None,
+    };
+    let changes: Vec<String> = [
+        delta(after.0, before.0, "lugares"),
+        delta(after.1, before.1, "carga"),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
+    if !changes.is_empty() {
+        ui.small(format!("Após trocar: {}", changes.join(" · ")));
+    }
     if !response.hovered() && !response.has_focus() && !response.clicked() {
         return false;
     }
@@ -73,9 +85,12 @@ fn composition_preview(
                     preview.cargo_capacity(contract.kind)
                 ));
             }
-            ui.small("Aguarde desembarque, entrega ou devolução em Viagem > Serviços.");
+            game::hint(
+                ui,
+                "Aguarde desembarque, entrega ou devolução em Viagem > Serviços.",
+            );
         } else {
-            ui.small("Cabe o serviço a bordo · pode equipar.");
+            game::hint(ui, "Cabe o serviço a bordo · pode equipar.");
         }
     });
     validation.is_ok()
@@ -142,14 +157,28 @@ impl CpuExpressApp {
                     self.coach_slot = slot;
                 }
                 let (seats, hold) = self.world.service_snapshot().capacity();
-                ui.small(format!(
-                    "{} lugares · {} unidades de carga · cauda à esquerda",
-                    seats, hold
-                ));
-                ui.small(format!(
-                    "Trocar vagão {} · passe o mouse ou foque para conferir ocupação e categoria.",
-                    self.coach_slot + 1
-                ));
+                // Totals of the train as numbers beside their objects.
+                ui.horizontal(|ui| {
+                    for (sprite, value, name) in [
+                        (game::Sprite::Passageiro, seats, "Lugares do trem"),
+                        (game::Sprite::Caixote, hold, "Espaço de carga do trem"),
+                    ] {
+                        let (rect, _) =
+                            ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
+                        game::sprite(ui.painter(), rect, sprite);
+                        game::pixel_label(ui, &value.to_string(), 2.0, game::INK)
+                            .on_hover_text(name);
+                        ui.add_space(12.0);
+                    }
+                    ui.label(
+                        egui::RichText::new(format!(
+                            "Trocando o vagão {} · {}",
+                            self.coach_slot + 1,
+                            coach_name(self.config.visual.coaches[self.coach_slot])
+                        ))
+                        .color(game::MUTED),
+                    );
+                });
                 egui::CollapsingHeader::new("Composições favoritas").show(ui, |ui| {
                     if ui
                         .add_enabled(
@@ -235,16 +264,20 @@ impl CpuExpressApp {
                                 column,
                                 texture,
                                 coach_name(style),
-                                if selected {
-                                    "EQUIPADO"
-                                } else {
-                                    "Conferir / equipar neste vagão"
-                                },
+                                if selected { "EQUIPADO" } else { "Equipar" },
                                 selected,
                                 true,
                             );
                             let (seats, hold) = service_wagon(style).capacity();
-                            column.small(format!("{seats} lugares · {hold} carga"));
+                            // The one capacity this wagon has, never a zero of the other kind.
+                            column.label(
+                                egui::RichText::new(match style {
+                                    CoachStyle::Tank => format!("{hold} un. líquidas"),
+                                    _ if seats > 0 => format!("{seats} lugares"),
+                                    _ => format!("{hold} un. de carga"),
+                                })
+                                .strong(),
+                            );
                             let allowed = composition_preview(
                                 column,
                                 &response,
@@ -276,7 +309,10 @@ impl CpuExpressApp {
                     });
                     ui.add_space(10.0);
                 }
-                ui.small("Carga: encomendas e suprimentos · Tanque: líquidos. Sem bônus de conforto ou turismo.");
+                game::hint(
+                    ui,
+                    "Carga: encomendas e suprimentos · Tanque: líquidos. Sem bônus de conforto ou turismo.",
+                );
             }
             1 => {
                 ui.label(
@@ -284,7 +320,7 @@ impl CpuExpressApp {
                         .size(18.0)
                         .strong(),
                 );
-                ui.small("Cada chegada aproxima você de uma nova pintura.");
+                game::hint(ui, "Cada chegada aproxima você de uma nova pintura.");
                 for pair in crate::simulation::objectives::Livery::ALL.chunks(2) {
                     ui.columns(2, |columns| {
                         for (column, &livery) in columns.iter_mut().zip(pair) {
@@ -343,7 +379,7 @@ impl CpuExpressApp {
             2 => {
                 section(ui, "Paisagem e atmosfera", |ui| {
                     ui.strong(&self.config.weather_location.city);
-                    ui.small("Paisagem completa · clima e iluminação locais");
+                    game::hint(ui, "Paisagem completa · clima e iluminação locais");
                     if let Some(snapshot) = &self.local_weather.last_good {
                         ui.label(format!(
                             "{} · {:.1} °C · {}",
@@ -368,7 +404,10 @@ impl CpuExpressApp {
                             ui.small(format!("Precipitação no intervalo do modelo: {rain:.1} mm"));
                         }
                         if snapshot.sunrise_unix.is_some() && snapshot.sunset_unix.is_some() {
-                            ui.small("Iluminação gradual entre amanhecer, dia, entardecer e noite locais.");
+                            game::hint(
+                                ui,
+                                "Iluminação gradual entre amanhecer, dia, entardecer e noite locais.",
+                            );
                         }
                         if snapshot.stale() {
                             ui.colored_label(game::BLUE, "Dados antigos; aguardando atualização. O cenário conserva a última condição.");
@@ -394,7 +433,10 @@ impl CpuExpressApp {
                         if ui.add_enabled(self.local_weather.can_refresh(), egui::Button::new("Atualizar clima"))
                     .on_hover_text("Atualização automática a cada 15 minutos. Atualização manual: intervalo mínimo de 1 minuto.")
                     .clicked() { self.local_weather.refresh(ui.ctx()); }
-                        ui.small("Condições estimadas para a cidade; podem variar no seu bairro.");
+                        game::hint(
+                            ui,
+                            "Condições estimadas para a cidade; podem variar no seu bairro.",
+                        );
                     }
                     if let Some(error) = &self.local_weather.cache_error {
                         ui.small(error);
@@ -406,7 +448,7 @@ impl CpuExpressApp {
                             ui.label("Latitude"); ui.add(egui::DragValue::new(&mut self.weather_draft.latitude).range(-90.0..=90.0).speed(0.001).max_decimals(4));
                             ui.label("Longitude"); ui.add(egui::DragValue::new(&mut self.weather_draft.longitude).range(-180.0..=180.0).speed(0.001).max_decimals(4));
                         });
-                        ui.small("Use as coordenadas da sua cidade. O nome é uma identificação; não há localização automática do computador.");
+                        game::hint(ui, "Use as coordenadas da sua cidade. O nome é uma identificação; não há localização automática do computador.");
                         if ui.button("Usar São Paulo, SP").clicked() { self.weather_draft = Default::default(); }
                         if ui.button("Aplicar local").clicked() {
                             match self.local_weather.set_location(self.weather_draft.clone()) {
@@ -420,7 +462,10 @@ impl CpuExpressApp {
             }
             4 => {
                 ui.heading("Locomotivas da coleção");
-                ui.small("Novas silhuetas para os serviços que sua ferrovia realiza.");
+                game::hint(
+                    ui,
+                    "Novas silhuetas para os serviços que sua ferrovia realiza.",
+                );
                 for engine in crate::rendering::EngineStyle::ALL {
                     use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
                     let requirement = match engine {
@@ -476,7 +521,8 @@ impl CpuExpressApp {
                             .selectable_value(&mut self.config.fps, 30, "Econômico · 30 FPS")
                             .changed();
                     });
-                    ui.small(
+                    game::hint(
+                        ui,
                         "Apenas a animação muda: objetivos e recompensas mantêm o mesmo ritmo.",
                     );
                     egui::CollapsingHeader::new("Ajuste fino").show(ui, |ui| {
@@ -508,7 +554,10 @@ impl CpuExpressApp {
                             "Trabalho tranquilo: ocultar avisos sobre a paisagem",
                         )
                         .changed();
-                    ui.small("A arte completa e o progresso da viagem são preservados. Consulte as chegadas no diário a qualquer momento.");
+                    game::hint(
+                        ui,
+                        "A arte completa e o progresso da viagem são preservados. Consulte as chegadas no diário a qualquer momento.",
+                    );
                 });
                 section(ui, "Sons da ferrovia", |ui| {
                     changed |= ui
@@ -517,7 +566,10 @@ impl CpuExpressApp {
                                 .text("Volume dos eventos"),
                         )
                         .changed();
-                    ui.small("Sons curtos de chegada, conquista e equipamento. Zero desliga; modo tranquilo mantém silêncio.");
+                    game::hint(
+                        ui,
+                        "Sons curtos de chegada, conquista e equipamento. Zero desliga; modo tranquilo mantém silêncio.",
+                    );
                     if ui
                         .add_enabled(
                             self.config.sound_volume > 0.0 && !self.config.quiet_mode,

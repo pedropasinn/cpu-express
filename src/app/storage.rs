@@ -83,7 +83,10 @@ impl CpuExpressApp {
                 self.sync_clock();
             }
         });
-        ui.small("Importar substitui a viagem atual e preserva um backup local. Arquivos incompatíveis são recusados.");
+        game::hint(
+            ui,
+            "Importar substitui a viagem atual e preserva um backup local. Arquivos incompatíveis são recusados.",
+        );
     }
 }
 
