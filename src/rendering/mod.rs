@@ -14,6 +14,7 @@ mod scene;
 mod scenery;
 mod segment_scenery;
 mod sprites;
+mod station_architecture;
 mod stations;
 mod stock_details;
 mod theme;
@@ -26,6 +27,7 @@ pub use scene::{
     WIDTH,
 };
 pub use segment_scenery::{SceneryContext, SegmentScenery};
+pub use station_architecture::{StationStyle, StationStyles};
 pub use stations::StationService;
 pub use theme::{
     BIOME_LENGTH_PX, Biome, DAY_CYCLE_SECONDS, ROUTE_PERIOD_PX, RenderQuality, SceneContext,

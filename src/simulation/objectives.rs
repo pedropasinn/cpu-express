@@ -66,3 +66,128 @@ pub const OBJECTIVES: [Objective; 3] = [
         reward: Livery::Midnight,
     },
 ];
+
+/// Read-only milestones. Currency proposals live in docs/MISSOES.md, never in
+/// the v4 reward transaction. No claim button or ephemeral event is a counter.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MissionCounter {
+    Passengers,
+    Cargo,
+    Contracts,
+    Stations,
+    Branches,
+    ServicePostcards,
+    Liveries,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Mission {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub counter: MissionCounter,
+    pub goal: u64,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct MissionProgress {
+    pub current: u64,
+    pub goal: u64,
+    pub complete: bool,
+}
+
+impl Mission {
+    pub const KIND: super::catalog::ContentKind = super::catalog::ContentKind::Fictional;
+
+    /// Validated durable state is the only input; evaluating cannot grant items.
+    pub fn progress(
+        self,
+        journey: JourneySnapshot,
+        service: &super::ServiceState,
+    ) -> MissionProgress {
+        let value = match self.counter {
+            MissionCounter::Passengers => service.passengers_delivered,
+            MissionCounter::Cargo => service.cargo_delivered,
+            MissionCounter::Contracts => service.contracts_completed,
+            MissionCounter::Stations => {
+                journey.discovered_stations.iter().filter(|&&v| v).count() as u64
+            }
+            MissionCounter::Branches => service.branch.discoveries.len() as u64,
+            MissionCounter::ServicePostcards => service.collection.len() as u64,
+            MissionCounter::Liveries => service.owned_rewards.len() as u64,
+        };
+        MissionProgress {
+            current: value.min(self.goal),
+            goal: self.goal,
+            complete: value >= self.goal,
+        }
+    }
+}
+
+pub const MISSIONS: [Mission; 11] = [
+    Mission {
+        id: "ce.passengers-20",
+        title: "Companhia de viagem",
+        counter: MissionCounter::Passengers,
+        goal: 20,
+    },
+    Mission {
+        id: "ce.passengers-100",
+        title: "Plataformas acolhedoras",
+        counter: MissionCounter::Passengers,
+        goal: 100,
+    },
+    Mission {
+        id: "ce.passengers-300",
+        title: "Encontros sobre trilhos",
+        counter: MissionCounter::Passengers,
+        goal: 300,
+    },
+    Mission {
+        id: "ce.cargo-20",
+        title: "Correio sobre trilhos",
+        counter: MissionCounter::Cargo,
+        goal: 20,
+    },
+    Mission {
+        id: "ce.cargo-100",
+        title: "Abastecendo o circuito",
+        counter: MissionCounter::Cargo,
+        goal: 100,
+    },
+    Mission {
+        id: "ce.contracts-10",
+        title: "Dez entregas bem cuidadas",
+        counter: MissionCounter::Contracts,
+        goal: 10,
+    },
+    Mission {
+        id: "ce.stations-4",
+        title: "Quatro lugares no caderno",
+        counter: MissionCounter::Stations,
+        goal: 4,
+    },
+    Mission {
+        id: "ce.branches-1",
+        title: "Além do circuito",
+        counter: MissionCounter::Branches,
+        goal: 1,
+    },
+    Mission {
+        id: "ce.branches-2",
+        title: "Entre a serra e o mar",
+        counter: MissionCounter::Branches,
+        goal: 2,
+    },
+    Mission {
+        id: "ce.postcards-2",
+        title: "Álbum de serviços",
+        counter: MissionCounter::ServicePostcards,
+        goal: 2,
+    },
+    Mission {
+        id: "ce.liveries-4",
+        title: "Quatro cores de viagem",
+        counter: MissionCounter::Liveries,
+        goal: 4,
+    },
+];

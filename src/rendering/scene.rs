@@ -43,6 +43,7 @@ pub struct SceneRenderer {
     weather_precipitation: Option<f32>,
     coaches: [CoachStyle; 3],
     station_service: Option<StationService>,
+    station_styles: super::StationStyles,
     engine: EngineStyle,
 }
 
@@ -69,6 +70,7 @@ impl SceneRenderer {
             weather_wind: None,
             weather_precipitation: None,
             station_service: None,
+            station_styles: super::StationStyles::default(),
             engine: EngineStyle::default(),
             coaches: [
                 CoachStyle::Observation,
@@ -160,6 +162,11 @@ impl SceneRenderer {
     /// illustrative service for exports/adapters, not product passenger data.
     pub fn set_station_service(&mut self, service: Option<StationService>) {
         self.station_service = service.map(StationService::normalized);
+    }
+
+    /// Route-selected architecture; the default retains Aurora and excursions.
+    pub fn set_station_styles(&mut self, styles: super::StationStyles) {
+        self.station_styles = styles;
     }
 
     pub fn set_livery(&mut self, livery: crate::simulation::objectives::Livery) {
@@ -260,7 +267,13 @@ impl SceneRenderer {
 
         let width = self.width();
         let mut canvas = Canvas::new(&mut self.pixels);
-        stations::draw(&mut canvas, world, self.station_service, view);
+        stations::draw_styled(
+            &mut canvas,
+            world,
+            self.station_service,
+            view,
+            self.station_styles,
+        );
         scenery::weather(&mut canvas, view);
         let origin = canvas.train_origin();
         canvas.origin = origin;

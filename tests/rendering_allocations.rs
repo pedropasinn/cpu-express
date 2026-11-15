@@ -182,6 +182,17 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         }
     }
     renderer.set_scenery_context(cpu_express::rendering::SceneryContext::default());
+    for style in cpu_express::rendering::StationStyle::ALL {
+        renderer.set_station_styles(cpu_express::rendering::StationStyles {
+            departing: Some(style),
+            arriving: Some(style),
+        });
+        for quality in [RenderQuality::Full, RenderQuality::Low] {
+            renderer.set_quality(quality);
+            std::hint::black_box(renderer.render(&train, &world));
+        }
+    }
+    renderer.set_station_styles(cpu_express::rendering::StationStyles::default());
     for branch_world in &branch_worlds {
         for weather in [Weather::Rain, Weather::Snow, Weather::Thunderstorm] {
             renderer.set_local_atmosphere(Some((weather, true)));

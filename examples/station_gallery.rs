@@ -1,19 +1,68 @@
-//! Original-renderer contact sheet: rows Pines/Ridge/Harbor/Aurora/Mirante/Conchas;
-//! columns approach/service/departure. Native pixels (960 x 420), no UI or I/O
-//! inside the renderer. `cargo run --example station_gallery -- target/stations.ppm`
-use std::{error::Error, fs::OpenOptions, io::Write};
-
+use cpu_express::rendering::SceneContext;
+use eframe::egui::Color32;
+// Station contact sheet following scenery_gallery/art_review's P6 pipeline.
+// Six rows in StationStyle::ALL order; day, dusk, night and rain columns.
 use cpu_express::{
     config::Config,
-    rendering::{HEIGHT, SceneContext, SceneRenderer, StationService, WIDTH, Weather},
+    rendering::{
+        HEIGHT, SceneRenderer, StationService, StationStyle, StationStyles, WIDTH, Weather,
+    },
     simulation::{BranchKind, Journey, Train, World},
 };
-use eframe::egui::Color32;
+use std::{
+    error::Error,
+    fs::OpenOptions,
+    io::{BufWriter, Write},
+};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let path = std::env::args()
         .nth(1)
-        .ok_or("provide a new .ppm output path")?;
+        .ok_or("informe um novo caminho .ppm")?;
+    if std::env::args().nth(2).as_deref() != Some("--estilos") {
+        return legacy_gallery(&path);
+    }
+    let mut out = BufWriter::new(OpenOptions::new().write(true).create_new(true).open(path)?);
+    write!(out, "P6\n{} {}\n255\n", WIDTH * 4, HEIGHT * 6)?;
+    let train = Train::new(&Config::default());
+    let mut world = World::default();
+    world.set_station_wait(4.0);
+    let mut renderer = SceneRenderer::new();
+    renderer.set_station_service(Some(StationService {
+        progress: 0.5,
+        boarding: 2,
+        alighting: 1,
+    }));
+    for style in StationStyle::ALL {
+        renderer.set_station_styles(StationStyles {
+            departing: Some(style),
+            arriving: Some(style),
+        });
+        let frames = [
+            (180.0, Weather::Clear),
+            (348.0, Weather::Clear),
+            (480.0, Weather::Clear),
+            (180.0, Weather::Rain),
+        ]
+        .map(|(light, weather)| {
+            renderer.set_local_lighting(Some(light));
+            renderer.set_local_atmosphere(Some((weather, light < 400.0)));
+            renderer.render(&train, &world).to_vec()
+        });
+        for y in 0..HEIGHT {
+            for frame in &frames {
+                for p in &frame[y * WIDTH..(y + 1) * WIDTH] {
+                    out.write_all(&[p.r(), p.g(), p.b()])?;
+                }
+            }
+        }
+    }
+    out.flush()?;
+    println!("Seis arquiteturas fictícias × quatro condições, renderer real.");
+    Ok(())
+}
+
+fn legacy_gallery(path: &str) -> Result<(), Box<dyn Error>> {
     let journey = Journey::default();
     let seed = journey.snapshot().seed;
     let train = Train::new(&Config::default());
