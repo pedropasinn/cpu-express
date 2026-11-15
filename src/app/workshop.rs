@@ -17,10 +17,22 @@ fn composition_preview(
         let capacity = wagon.capacity();
         (seats + capacity.0, cargo + capacity.1)
     });
-    ui.small(format!(
-        "Trem: {} > {} lugares · {} > {} carga",
-        before.0, after.0, before.1, after.1
-    ));
+    // Only what the swap changes, next to the piece that changes it.
+    let delta = |now: u32, then: u32, unit: &str| match now.cmp(&then) {
+        std::cmp::Ordering::Greater => Some(format!("+{} {unit}", now - then)),
+        std::cmp::Ordering::Less => Some(format!("-{} {unit}", then - now)),
+        std::cmp::Ordering::Equal => None,
+    };
+    let changes: Vec<String> = [
+        delta(after.0, before.0, "lugares"),
+        delta(after.1, before.1, "carga"),
+    ]
+    .into_iter()
+    .flatten()
+    .collect();
+    if !changes.is_empty() {
+        ui.small(format!("Após trocar: {}", changes.join(" · ")));
+    }
     if !response.hovered() && !response.has_focus() && !response.clicked() {
         return false;
     }
@@ -145,14 +157,28 @@ impl CpuExpressApp {
                     self.coach_slot = slot;
                 }
                 let (seats, hold) = self.world.service_snapshot().capacity();
-                ui.small(format!(
-                    "{} lugares · {} unidades de carga · cauda à esquerda",
-                    seats, hold
-                ));
-                ui.small(format!(
-                    "Trocar vagão {} · passe o mouse ou foque para conferir ocupação e categoria.",
-                    self.coach_slot + 1
-                ));
+                // Totals of the train as numbers beside their objects.
+                ui.horizontal(|ui| {
+                    for (sprite, value, name) in [
+                        (game::Sprite::Passageiro, seats, "Lugares do trem"),
+                        (game::Sprite::Caixote, hold, "Espaço de carga do trem"),
+                    ] {
+                        let (rect, _) =
+                            ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
+                        game::sprite(ui.painter(), rect, sprite);
+                        game::pixel_label(ui, &value.to_string(), 2.0, game::INK)
+                            .on_hover_text(name);
+                        ui.add_space(12.0);
+                    }
+                    ui.label(
+                        egui::RichText::new(format!(
+                            "Trocando o vagão {} · {}",
+                            self.coach_slot + 1,
+                            coach_name(self.config.visual.coaches[self.coach_slot])
+                        ))
+                        .color(game::MUTED),
+                    );
+                });
                 egui::CollapsingHeader::new("Composições favoritas").show(ui, |ui| {
                     if ui
                         .add_enabled(
@@ -238,16 +264,20 @@ impl CpuExpressApp {
                                 column,
                                 texture,
                                 coach_name(style),
-                                if selected {
-                                    "EQUIPADO"
-                                } else {
-                                    "Conferir / equipar neste vagão"
-                                },
+                                if selected { "EQUIPADO" } else { "Equipar" },
                                 selected,
                                 true,
                             );
                             let (seats, hold) = service_wagon(style).capacity();
-                            column.small(format!("{seats} lugares · {hold} carga"));
+                            // The one capacity this wagon has, never a zero of the other kind.
+                            column.label(
+                                egui::RichText::new(match style {
+                                    CoachStyle::Tank => format!("{hold} un. líquidas"),
+                                    _ if seats > 0 => format!("{seats} lugares"),
+                                    _ => format!("{hold} un. de carga"),
+                                })
+                                .strong(),
+                            );
                             let allowed = composition_preview(
                                 column,
                                 &response,
