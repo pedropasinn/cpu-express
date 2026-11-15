@@ -2282,6 +2282,8 @@ impl CpuExpressApp {
             .with_position(egui::pos2(panel_rect[0], panel_rect[1]))
             .with_resizable(true)
             .with_taskbar(false)
+            // The wooden frame is the window: no system title bar or buttons.
+            .with_decorations(false)
             .with_visible(revealed)
             .with_window_level(egui::WindowLevel::AlwaysOnTop);
         ctx.show_viewport_immediate(
@@ -2321,6 +2323,59 @@ impl CpuExpressApp {
                 }
                 game::apply_style(root_ui);
                 game::wood_frame(root_ui.painter(), root_ui.max_rect());
+                // Resize by the right and bottom edges and by the lower-right corner.
+                if !ctx.embed_viewports() {
+                    let frame = root_ui.max_rect();
+                    let edge = game::FRAME;
+                    for (name, area, direction, cursor) in [
+                        (
+                            "panel-resize-corner",
+                            egui::Rect::from_min_max(
+                                frame.max - egui::Vec2::splat(edge * 2.0),
+                                frame.max,
+                            ),
+                            egui::ResizeDirection::SouthEast,
+                            egui::CursorIcon::ResizeNwSe,
+                        ),
+                        (
+                            "panel-resize-east",
+                            egui::Rect::from_min_max(
+                                egui::pos2(frame.right() - edge, frame.top() + edge * 2.0),
+                                egui::pos2(frame.right(), frame.bottom() - edge * 2.0),
+                            ),
+                            egui::ResizeDirection::East,
+                            egui::CursorIcon::ResizeHorizontal,
+                        ),
+                        (
+                            "panel-resize-south",
+                            egui::Rect::from_min_max(
+                                egui::pos2(frame.left() + edge * 2.0, frame.bottom() - edge),
+                                egui::pos2(frame.right() - edge * 2.0, frame.bottom()),
+                            ),
+                            egui::ResizeDirection::South,
+                            egui::CursorIcon::ResizeVertical,
+                        ),
+                    ] {
+                        let grip = root_ui
+                            .interact(area, root_ui.scope_id().with(name), egui::Sense::drag())
+                            .on_hover_cursor(cursor);
+                        if grip.drag_started_by(egui::PointerButton::Primary) {
+                            ctx.send_viewport_cmd(egui::ViewportCommand::BeginResize(direction));
+                        }
+                    }
+                    // Three notches mark the corner that resizes.
+                    let corner = frame.max - egui::Vec2::splat(4.0);
+                    for step in 0..3 {
+                        let offset = 4.0 + step as f32 * 4.0;
+                        root_ui.painter().line_segment(
+                            [
+                                corner - egui::vec2(offset, 0.0),
+                                corner - egui::vec2(0.0, offset),
+                            ],
+                            egui::Stroke::new(1.5, game::WOOD_LIGHT),
+                        );
+                    }
+                }
                 egui::Frame::new()
                     .inner_margin(game::FRAME as i8 + 2)
                     .show(root_ui, |ui| {
@@ -2363,7 +2418,18 @@ impl CpuExpressApp {
                                     ),
                                 }
                             };
-                            game::ribbon(ui, title, emblem, compact);
+                            // Without a title bar, the ribbon is the handle that moves the window.
+                            let ribbon = game::ribbon(ui, title, emblem, compact).rect;
+                            let handle = ui
+                                .interact(
+                                    ribbon,
+                                    ui.scope_id().with("panel-move"),
+                                    egui::Sense::click_and_drag(),
+                                )
+                                .on_hover_cursor(egui::CursorIcon::Grab);
+                            if handle.drag_started_by(egui::PointerButton::Primary) {
+                                ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
+                            }
                             let _ = subtitle;
                             let dock_height = if compact { 48.0 } else { 76.0 };
                             let content_height =
