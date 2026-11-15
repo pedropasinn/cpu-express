@@ -1566,53 +1566,89 @@ impl CpuExpressApp {
         if self.world.excursion_snapshot().current.is_some() {
             self.branch_controls(ui);
         }
-        section(ui, "Próxima parada", |ui| {
-            ui.label(
-                egui::RichText::new(self.destination_name())
-                    .size(19.0)
-                    .color(game::BLUE),
-            );
-            game::progress(
-                ui,
-                "next-stop",
-                self.travel_progress(),
-                &format!("Trecho · {:.0}%", f64::from(self.travel_progress()) * 100.0),
-                game::GREEN,
-            );
-            ui.label(format!(
-                "{} visitas  ·  {} circuitos",
-                journey.stations_visited, journey.completed_laps
-            ));
-            game::hint(
-                ui,
-                "A CPU muda o ritmo visual. A viagem progride igualmente em qualquer computador.",
-            );
-        });
-        if game::button(
-            ui,
-            "drive-toggle",
-            if self.paused { Icon::Play } else { Icon::Pause },
-            if self.paused {
-                "Retomar viagem"
-            } else {
-                "Pausar viagem"
-            },
-            true,
-            egui::vec2(ui.available_width(), 44.0),
-        )
-        .clicked()
-        {
+        // The train first, then where it is going and the one action of this screen.
+        self.scene_preview(ui, false);
+        ui.add_space(6.0);
+        let art = |ui: &mut egui::Ui, sprite: game::Sprite, size: f32| {
+            let (rect, _) = ui.allocate_exact_size(egui::Vec2::splat(size), egui::Sense::hover());
+            game::sprite(ui.painter(), rect, sprite);
+        };
+        let waiting = self.world.station_wait();
+        let seconds = if waiting > 0.0 {
+            waiting.ceil()
+        } else {
+            (journey.distance_to_next_station_units / 24.0).ceil()
+        };
+        // Active seconds only: the clock stands still while paused.
+        let situation = if self.world.excursion_snapshot().current.is_some() {
+            "Em excursão pelo ramal".to_owned()
+        } else if self.paused {
+            format!("Pausado · faltam {seconds:.0} s")
+        } else if waiting > 0.0 {
+            format!("Na plataforma · partida em {seconds:.0} s")
+        } else {
+            format!("Chegada em {seconds:.0} s")
+        };
+        let mut toggle = false;
+        egui::Frame::new()
+            .fill(game::CARD)
+            .stroke(egui::Stroke::new(2.0, game::WOOD_DARK))
+            .corner_radius(4)
+            .inner_margin(10)
+            .show(ui, |ui| {
+                ui.set_width(ui.available_width());
+                ui.horizontal(|ui| {
+                    let (tile, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(56.0), egui::Sense::hover());
+                    ui.painter().rect_filled(tile, 4, game::PAPER);
+                    ui.painter().rect_stroke(
+                        tile,
+                        4,
+                        egui::Stroke::new(2.0, game::WOOD),
+                        egui::StrokeKind::Inside,
+                    );
+                    game::sprite(ui.painter(), tile.shrink(4.0), game::Sprite::Estacao);
+                    ui.vertical(|ui| {
+                        ui.spacing_mut().item_spacing.y = 2.0;
+                        ui.label(
+                            egui::RichText::new("Próxima parada")
+                                .size(12.0)
+                                .color(game::MUTED),
+                        );
+                        ui.label(
+                            egui::RichText::new(self.destination_name())
+                                .size(20.0)
+                                .strong()
+                                .color(game::INK),
+                        );
+                    });
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        toggle = game::button(
+                            ui,
+                            "drive-toggle",
+                            if self.paused { Icon::Play } else { Icon::Pause },
+                            if self.paused { "Retomar" } else { "Pausar" },
+                            true,
+                            egui::vec2(170.0, 48.0),
+                        )
+                        .on_hover_text("Espaço também pausa e retoma. O progresso fica preservado.")
+                        .clicked();
+                    });
+                });
+                ui.add_space(4.0);
+                game::progress(
+                    ui,
+                    "next-stop",
+                    self.travel_progress(),
+                    &situation,
+                    game::GREEN,
+                );
+            });
+        if toggle {
             self.dispatch(AppAction::TogglePause, ui.ctx());
         }
-        ui.label(
-            egui::RichText::new("Espaço também pausa e retoma. Seu progresso fica preservado.")
-                .size(11.0)
-                .color(game::MUTED),
-        );
-        ui.add_space(8.0);
-        self.scene_preview(ui, false);
         let speed = if self.suspended() {
-            "Parado".to_owned()
+            "0 km/h".to_owned()
         } else {
             format!("{:.0} km/h", self.train.speed_kmh())
         };
@@ -1622,62 +1658,63 @@ impl CpuExpressApp {
         {
             format!("{:.0}%", self.cpu_percent())
         } else {
-            "—".to_owned()
+            "-".to_owned()
         };
-        if self.demo_mode {
-            game::hint(ui, "DEMO · CPU simulada · memória não consultada");
-        }
         let ram = self
             .ram_percent()
-            .map_or_else(|| "—".to_owned(), |value| format!("{value:.0}%"));
-        ui.columns(3, |columns| {
-            for (column, (label, value)) in columns.iter_mut().zip([
-                ("Velocidade", speed),
-                ("Processador", cpu),
-                ("Memória", ram),
-            ]) {
-                egui::Frame::new()
-                    .fill(game::CARD)
-                    .corner_radius(6)
-                    .inner_margin(10)
-                    .show(column, |ui| {
-                        ui.set_width(ui.available_width());
-                        let (glyph, _) =
-                            ui.allocate_exact_size(egui::vec2(24.0, 24.0), egui::Sense::hover());
-                        game::icon(
-                            ui.painter(),
-                            glyph,
-                            match label {
-                                "Processador" => Icon::Cpu,
-                                "Memória" => Icon::Memory,
-                                _ => Icon::Train,
-                            },
-                            game::BLUE,
-                        );
-                        ui.label(egui::RichText::new(label).size(11.0).color(game::MUTED));
-                        ui.label(
-                            egui::RichText::new(value)
-                                .size(18.0)
-                                .strong()
-                                .color(game::INK),
-                        );
-                    });
+            .map_or_else(|| "-".to_owned(), |value| format!("{value:.0}%"));
+        // One line of gauges instead of three cards.
+        ui.add_space(4.0);
+        ui.horizontal_wrapped(|ui| {
+            for (sprite, value, name) in [
+                (game::Sprite::Locomotiva, speed, "Velocidade do trem"),
+                (
+                    game::Sprite::Cpu,
+                    cpu,
+                    if self.demo_mode {
+                        "Processador (simulado na demonstração)"
+                    } else {
+                        "Uso do processador: muda o ritmo visual, não a viagem"
+                    },
+                ),
+                (game::Sprite::Memoria, ram, "Uso de memória"),
+            ] {
+                art(ui, sprite, 32.0);
+                game::pixel_label(ui, &value, 2.0, game::INK).on_hover_text(name);
+                ui.add_space(14.0);
             }
         });
-        ui.add_space(12.0);
-        if game::button(
-            ui,
-            "open-services",
-            Icon::Passenger,
-            "Passageiros e encomendas",
-            false,
-            egui::vec2(ui.available_width(), 36.0),
-        )
-        .clicked()
-        {
+        ui.add_space(6.0);
+        // Shortcut to services carrying the real occupancy.
+        let service = self.world.service_snapshot();
+        let (seats, hold) = service.capacity();
+        let (aboard, cargo) = (service.passenger_count(), service.cargo_count());
+        let mut open_services = false;
+        ui.horizontal(|ui| {
+            art(ui, game::Sprite::Passageiro, 32.0);
+            game::pixel_label(ui, &format!("{aboard}/{seats}"), 2.0, game::INK)
+                .on_hover_text("Passageiros a bordo / lugares");
+            ui.add_space(10.0);
+            art(ui, game::Sprite::Caixote, 32.0);
+            game::pixel_label(ui, &format!("{cargo}/{hold}"), 2.0, game::INK)
+                .on_hover_text("Carga a bordo / espaço de carga");
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                open_services = game::button(
+                    ui,
+                    "open-services",
+                    Icon::Ticket,
+                    "Serviços",
+                    false,
+                    egui::vec2(170.0, 36.0),
+                )
+                .clicked();
+            });
+        });
+        if open_services {
             self.panel_tab = PanelTab::Journey;
             self.journey_page = 3;
         }
+        ui.add_space(6.0);
         self.arrival_ticket(ui, true);
         if let Some(notice) = self.telemetry_notice() {
             ui.colored_label(game::BLUE, notice);
