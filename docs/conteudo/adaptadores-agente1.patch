@@ -1,0 +1,152 @@
+diff --git a/src/app.rs b/src/app.rs
+index 6e8304b..5e89f4f 100644
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -75,34 +75,14 @@ fn achievement_name(achievement: Achievement) -> &'static str {
+ }
+ 
+ fn service_wagon(style: CoachStyle) -> crate::simulation::ServiceWagon {
+-    use crate::simulation::ServiceWagon as W;
+-    match style {
+-        CoachStyle::Passenger => W::Passenger,
+-        CoachStyle::Sleeper => W::Sleeper,
+-        CoachStyle::Freight => W::Freight,
+-        CoachStyle::Tank => W::Tank,
+-        CoachStyle::Observation => W::Observation,
+-    }
++    style.into()
+ }
+ fn coach_style(style: crate::simulation::ServiceWagon) -> CoachStyle {
+-    use crate::simulation::ServiceWagon as W;
+-    match style {
+-        W::Passenger => CoachStyle::Passenger,
+-        W::Sleeper => CoachStyle::Sleeper,
+-        W::Freight => CoachStyle::Freight,
+-        W::Tank => CoachStyle::Tank,
+-        W::Observation => CoachStyle::Observation,
+-    }
++    style.into()
+ }
+ 
+ fn coach_name(style: CoachStyle) -> &'static str {
+-    match style {
+-        CoachStyle::Passenger => "Passageiros",
+-        CoachStyle::Sleeper => "Dormitório",
+-        CoachStyle::Freight => "Carga",
+-        CoachStyle::Tank => "Tanque",
+-        CoachStyle::Observation => "Panorâmico",
+-    }
++    style.name()
+ }
+ 
+ /// Kept source-compatible with the baseline and its examples.
+@@ -483,12 +463,8 @@ impl CpuExpressApp {
+             config.visual.coaches = world.service_snapshot().composition.map(coach_style);
+         }
+         if !demo_mode {
+-            use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
+-            let reward = match config.visual.engine {
+-                EngineStyle::Steam => None,
+-                EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
+-                EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
+-            };
++            use crate::rendering::EngineStyle;
++            let reward = config.visual.engine.required_reward();
+             if reward.is_some_and(|r| !world.service_snapshot().collection.contains(&r)) {
+                 config.visual.engine = EngineStyle::Steam;
+             }
+diff --git a/src/app/storage.rs b/src/app/storage.rs
+index 0c124a7..8c96061 100644
+--- a/src/app/storage.rs
++++ b/src/app/storage.rs
+@@ -55,12 +55,8 @@ impl CpuExpressApp {
+                         {
+                             self.config.visual.livery = Default::default();
+                         }
+-                        use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
+-                        let requirement = match self.config.visual.engine {
+-                            EngineStyle::Steam => None,
+-                            EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
+-                            EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
+-                        };
++                        use crate::rendering::EngineStyle;
++                        let requirement = self.config.visual.engine.required_reward();
+                         if requirement
+                             .is_some_and(|r| !self.world.service_snapshot().collection.contains(&r))
+                         {
+diff --git a/src/app/workshop.rs b/src/app/workshop.rs
+index 350b2de..12ba5ea 100644
+--- a/src/app/workshop.rs
++++ b/src/app/workshop.rs
+@@ -62,11 +62,7 @@ fn composition_preview(
+             if let Some(contract) = &service.contract
+                 && service.cargo_count() > 0
+             {
+-                let category = match contract.kind {
+-                    CargoKind::Parcels => "encomendas",
+-                    CargoKind::Supplies => "suprimentos",
+-                    CargoKind::Liquid => "líquidos",
+-                };
++                let category = contract.kind.name();
+                 ui.small(format!(
+                     "{category}: {} a bordo / {} un. compatíveis após a troca.",
+                     service.cargo_count(),
+@@ -219,13 +215,7 @@ impl CpuExpressApp {
+                         changed = true;
+                     }
+                 });
+-                let choices = [
+-                    CoachStyle::Passenger,
+-                    CoachStyle::Observation,
+-                    CoachStyle::Sleeper,
+-                    CoachStyle::Freight,
+-                    CoachStyle::Tank,
+-                ];
++                let choices = CoachStyle::ALL;
+                 let count = if ui.available_width() >= 600.0 { 3 } else { 2 };
+                 for pair in choices.chunks(count) {
+                     ui.columns(count, |columns| {
+@@ -437,20 +427,11 @@ impl CpuExpressApp {
+                     "Novas silhuetas para os serviços que sua ferrovia realiza.",
+                 );
+                 for engine in crate::rendering::EngineStyle::ALL {
+-                    use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
+-                    let requirement = match engine {
+-                        EngineStyle::Steam => None,
+-                        EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
+-                        EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
+-                    };
++                    let requirement = engine.required_reward();
+                     let unlocked = self.demo_mode
+                         || requirement
+                             .is_none_or(|r| self.world.service_snapshot().collection.contains(&r));
+-                    let description = match engine {
+-                        EngineStyle::Steam => "Vapor original · disponível desde o início",
+-                        EngineStyle::Diesel => "Entregue 20 unidades de carga",
+-                        EngineStyle::Electric => "Entregue 20 passageiros",
+-                    };
++                    let description = engine.unlock_description();
+                     let selected = self.config.visual.engine == engine;
+                     let texture = self.stock_gallery.as_ref().unwrap().engine(engine);
+                     let response = stock_card(
+diff --git a/src/app/services.rs b/src/app/services.rs
+index 75d1590..b1bab7d 100644
+--- a/src/app/services.rs
++++ b/src/app/services.rs
+@@ -73,11 +73,12 @@ impl CpuExpressApp {
+                     });
+                     return;
+                 };
+-                let (cargo_art, wagon_hint) = match c.kind {
+-                    CargoKind::Parcels => (Sprite::Encomenda, "vagão de carga (20 un.)"),
+-                    CargoKind::Supplies => (Sprite::Caixote, "vagão de carga (20 un.)"),
+-                    CargoKind::Liquid => (Sprite::Tanque, "vagão-tanque (12 un.)"),
++                let cargo_art = match c.kind {
++                    CargoKind::Parcels => Sprite::Encomenda,
++                    CargoKind::Liquid => Sprite::Tanque,
++                    _ => Sprite::Caixote,
+                 };
++                let wagon_hint = c.kind.wagon_hint();
+                 let capacity = state.cargo_capacity(c.kind);
+                 let deficit = c.units.saturating_sub(capacity);
+                 let origin = c.origin.name();

@@ -73,11 +73,12 @@ impl CpuExpressApp {
                     });
                     return;
                 };
-                let (cargo_art, wagon_hint) = match c.kind {
-                    CargoKind::Parcels => (Sprite::Encomenda, "vagão de carga (20 un.)"),
-                    CargoKind::Supplies => (Sprite::Caixote, "vagão de carga (20 un.)"),
-                    CargoKind::Liquid => (Sprite::Tanque, "vagão-tanque (12 un.)"),
+                let cargo_art = match c.kind {
+                    CargoKind::Parcels => Sprite::Encomenda,
+                    CargoKind::Liquid => Sprite::Tanque,
+                    _ => Sprite::Caixote,
                 };
+                let wagon_hint = c.kind.wagon_hint();
                 let capacity = state.cargo_capacity(c.kind);
                 let deficit = c.units.saturating_sub(capacity);
                 let origin = c.origin.name();

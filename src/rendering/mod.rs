@@ -4,23 +4,37 @@
 //! sleeps, moves a native window, or changes the train's speed. The app's
 //! nearest-neighbor texture upload and the baseline interface are unchanged.
 
+mod engine_details;
 mod engines;
+mod landmarks;
+mod landscape_life;
 mod legacy;
 mod palette;
+mod passengers;
 mod rolling_stock;
 mod scene;
 mod scenery;
+mod segment_scenery;
 mod sprites;
+mod station_architecture;
 mod stations;
+mod stock_details;
+mod stock_specialists;
 mod theme;
 
 pub use engines::EngineStyle;
+pub use landscape_life::SceneryLifeOptions;
 pub use palette::Palette;
+pub use passengers::{
+    PassengerAction, PassengerKind, PassengerOptions, PassengerSprite, draw_passenger_preview,
+};
 pub use rolling_stock::CoachStyle;
 pub use scene::{
     DISPLAY_HEIGHT, DISPLAY_WIDTH, FRAMEBUFFER_BYTES, HEIGHT, MAX_WIDTH, MIN_WIDTH, SceneRenderer,
     WIDTH,
 };
+pub use segment_scenery::{SceneryContext, SegmentScenery};
+pub use station_architecture::{StationStyle, StationStyles};
 pub use stations::StationService;
 pub use theme::{
     BIOME_LENGTH_PX, Biome, DAY_CYCLE_SECONDS, ROUTE_PERIOD_PX, RenderQuality, SceneContext,

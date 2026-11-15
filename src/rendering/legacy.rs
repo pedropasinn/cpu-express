@@ -17,11 +17,7 @@ pub(super) fn draw(pixels: &mut [Color32], train: &Train, world: &World, engine:
     draw_track(&mut canvas, world.scroll_px());
 
     canvas.origin = canvas.train_origin();
-    for puff in world
-        .smoke()
-        .iter()
-        .filter(|_| engine == EngineStyle::Steam)
-    {
+    for puff in world.smoke().iter().filter(|_| engine.emits_smoke()) {
         let life = (1.0 - puff.age / puff.lifetime).clamp(0.0, 1.0);
         let x = 220 + (puff.x * 0.5).round() as i32;
         let y = 32 + (puff.y * 0.5).round() as i32;

@@ -23,7 +23,85 @@ pub enum CoachStyle {
     Tank,
     /// A green viewing car with a raised panoramic glass canopy.
     Observation,
+    Dining,
+    Mail,
+    Gondola,
+    Hopper,
+    Timber,
+    Refrigerator,
+    Livestock,
+    Container,
+    Autorack,
+    PressureTank,
+    Crane,
+    Bicycle,
+    Coil,
+    Fair,
 }
+
+impl CoachStyle {
+    pub const ALL: [Self; 19] = [
+        Self::Passenger,
+        Self::Sleeper,
+        Self::Freight,
+        Self::Tank,
+        Self::Observation,
+        Self::Dining,
+        Self::Mail,
+        Self::Gondola,
+        Self::Hopper,
+        Self::Timber,
+        Self::Refrigerator,
+        Self::Livestock,
+        Self::Container,
+        Self::Autorack,
+        Self::PressureTank,
+        Self::Crane,
+        Self::Bicycle,
+        Self::Coil,
+        Self::Fair,
+    ];
+
+    pub fn name(self) -> &'static str {
+        crate::simulation::ServiceWagon::from(self).name()
+    }
+}
+
+macro_rules! wagon_adapters {
+    ($($variant:ident),+ $(,)?) => {
+        impl From<CoachStyle> for crate::simulation::ServiceWagon {
+            fn from(style: CoachStyle) -> Self {
+                match style { $(CoachStyle::$variant => Self::$variant),+ }
+            }
+        }
+        impl From<crate::simulation::ServiceWagon> for CoachStyle {
+            fn from(wagon: crate::simulation::ServiceWagon) -> Self {
+                match wagon { $(crate::simulation::ServiceWagon::$variant => Self::$variant),+ }
+            }
+        }
+    };
+}
+wagon_adapters!(
+    Passenger,
+    Sleeper,
+    Freight,
+    Tank,
+    Observation,
+    Dining,
+    Mail,
+    Gondola,
+    Hopper,
+    Timber,
+    Refrigerator,
+    Livestock,
+    Container,
+    Autorack,
+    PressureTank,
+    Crane,
+    Bicycle,
+    Coil,
+    Fair,
+);
 
 const INK: Color32 = rgb(38, 55, 56);
 const GOLD: Color32 = rgb(230, 195, 125);
@@ -141,6 +219,20 @@ fn draw_coach(
         CoachStyle::Freight => freight(canvas, x, details),
         CoachStyle::Tank => tank(canvas, x, details),
         CoachStyle::Observation => observation(canvas, x, illuminated, details),
+        CoachStyle::Dining => super::stock_details::dining(canvas, x, illuminated),
+        CoachStyle::Mail => super::stock_details::mail(canvas, x),
+        CoachStyle::Gondola => super::stock_details::gondola(canvas, x),
+        CoachStyle::Hopper => super::stock_details::hopper(canvas, x),
+        CoachStyle::Timber => super::stock_details::timber(canvas, x),
+        CoachStyle::Refrigerator => super::stock_details::refrigerator(canvas, x),
+        CoachStyle::Livestock => super::stock_specialists::livestock(canvas, x),
+        CoachStyle::Container => super::stock_specialists::container(canvas, x),
+        CoachStyle::Autorack => super::stock_specialists::autorack(canvas, x),
+        CoachStyle::PressureTank => super::stock_specialists::pressure_tank(canvas, x),
+        CoachStyle::Crane => super::stock_specialists::crane(canvas, x),
+        CoachStyle::Bicycle => super::stock_specialists::bicycle(canvas, x),
+        CoachStyle::Coil => super::stock_specialists::coil(canvas, x),
+        CoachStyle::Fair => super::stock_specialists::fair(canvas, x),
     }
 
     if details {
@@ -156,6 +248,20 @@ fn draw_coach(
 
 fn coach_finish(canvas: &mut Canvas<'_>, x: i32, style: CoachStyle) {
     match style {
+        CoachStyle::Dining
+        | CoachStyle::Mail
+        | CoachStyle::Gondola
+        | CoachStyle::Hopper
+        | CoachStyle::Timber
+        | CoachStyle::Refrigerator
+        | CoachStyle::Livestock
+        | CoachStyle::Container
+        | CoachStyle::Autorack
+        | CoachStyle::PressureTank
+        | CoachStyle::Crane
+        | CoachStyle::Bicycle
+        | CoachStyle::Coil
+        | CoachStyle::Fair => {}
         CoachStyle::Passenger | CoachStyle::Sleeper => {
             // Rounded clerestory roof and a shaded eave, not a flat gold slab.
             canvas.rect(x + 3, 35, 32, 1, rgb(139, 158, 142));
@@ -355,13 +461,7 @@ mod tests {
     use super::*;
     use crate::rendering::{HEIGHT, WIDTH};
 
-    const STYLES: [CoachStyle; 5] = [
-        CoachStyle::Passenger,
-        CoachStyle::Sleeper,
-        CoachStyle::Freight,
-        CoachStyle::Tank,
-        CoachStyle::Observation,
-    ];
+    const STYLES: [CoachStyle; CoachStyle::ALL.len()] = CoachStyle::ALL;
 
     #[test]
     fn every_car_has_two_wheels_on_the_baseline_rail() {
@@ -402,6 +502,24 @@ mod tests {
                 assert_ne!(&frame, existing, "{style:?} must have its own silhouette");
             }
             frames.push(frame);
+        }
+    }
+
+    #[test]
+    fn new_cars_have_distinct_opaque_silhouettes_and_keep_couplers() {
+        let mut masks = Vec::new();
+        for style in CoachStyle::ALL {
+            let mut frame = vec![Color32::TRANSPARENT; WIDTH * HEIGHT];
+            draw_coach(&mut Canvas::new(&mut frame), 58, 0.7, style, 0, false, true);
+            for x in [56, 57, 96, 97] {
+                assert_ne!(frame[51 * WIDTH + x].a(), 0, "{style:?}");
+            }
+            let mask: Vec<bool> = frame.iter().map(|p| p.a() != 0).collect();
+            // Passenger and Sleeper intentionally retain their historical outline.
+            if !matches!(style, CoachStyle::Passenger | CoachStyle::Sleeper) {
+                assert!(!masks.contains(&mask), "{style:?} needs a distinct outline");
+            }
+            masks.push(mask);
         }
     }
 
@@ -449,5 +567,54 @@ mod tests {
             false,
         );
         assert_eq!(baseline, current);
+    }
+
+    #[test]
+    fn all_coaches_clip_exactly_at_both_edges_in_both_detail_modes() {
+        for style in CoachStyle::ALL {
+            for details in [false, true] {
+                for lit in [false, true] {
+                    let mut reference = vec![Color32::TRANSPARENT; WIDTH * HEIGHT];
+                    draw_coach(
+                        &mut Canvas::new(&mut reference),
+                        58,
+                        0.7,
+                        style,
+                        0,
+                        lit,
+                        details,
+                    );
+                    for width in [160, 320, 641, 1920] {
+                        for x in [-20, 58, width as i32 - 20] {
+                            let mut frame = vec![Color32::TRANSPARENT; width * HEIGHT];
+                            draw_coach(
+                                &mut Canvas::new(&mut frame),
+                                x,
+                                0.7,
+                                style,
+                                0,
+                                lit,
+                                details,
+                            );
+                            for y in 0..HEIGHT {
+                                for column in 0..width {
+                                    let source = column as i32 - x + 58;
+                                    let expected = if (0..WIDTH as i32).contains(&source) {
+                                        reference[y * WIDTH + source as usize]
+                                    } else {
+                                        Color32::TRANSPARENT
+                                    };
+                                    assert_eq!(
+                                        frame[y * width + column],
+                                        expected,
+                                        "{style:?}, width={width}, x={x}"
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

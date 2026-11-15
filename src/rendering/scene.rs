@@ -36,12 +36,16 @@ pub struct SceneRenderer {
     quality: RenderQuality,
     options: SceneOptions,
     context: Option<SceneContext>,
+    scenery: super::SceneryContext,
+    scenery_life: super::SceneryLifeOptions,
     local_atmosphere: Option<(Weather, bool)>,
     local_lighting: Option<f64>,
     weather_wind: Option<f32>,
     weather_precipitation: Option<f32>,
     coaches: [CoachStyle; 3],
     station_service: Option<StationService>,
+    station_styles: super::StationStyles,
+    passenger_options: super::PassengerOptions,
     engine: EngineStyle,
 }
 
@@ -62,11 +66,15 @@ impl SceneRenderer {
             quality: RenderQuality::Full,
             options: SceneOptions::default(),
             context: None,
+            scenery: super::SceneryContext::default(),
+            scenery_life: super::SceneryLifeOptions::default(),
             local_atmosphere: None,
             local_lighting: None,
             weather_wind: None,
             weather_precipitation: None,
             station_service: None,
+            station_styles: super::StationStyles::default(),
+            passenger_options: super::PassengerOptions::default(),
             engine: EngineStyle::default(),
             coaches: [
                 CoachStyle::Observation,
@@ -143,6 +151,18 @@ impl SceneRenderer {
         self.context = context.map(SceneContext::normalized);
     }
 
+    /// Explicit opt-in from the route adapter. Reset to Default for Aurora and
+    /// excursions without segment tags. No catalog lookup or heap allocation.
+    pub fn set_scenery_context(&mut self, scenery: super::SceneryContext) {
+        self.scenery = scenery;
+    }
+
+    /// Freezes only the tagged scenery's decorative motion. Route scrolling,
+    /// lighting and the simulation remain owned by their existing adapters.
+    pub fn set_scenery_life_options(&mut self, options: super::SceneryLifeOptions) {
+        self.scenery_life = options;
+    }
+
     pub fn set_coaches(&mut self, coaches: [CoachStyle; 3]) {
         self.coaches = coaches;
     }
@@ -152,6 +172,17 @@ impl SceneRenderer {
     /// illustrative service for exports/adapters, not product passenger data.
     pub fn set_station_service(&mut self, service: Option<StationService>) {
         self.station_service = service.map(StationService::normalized);
+    }
+
+    /// Route-selected architecture; the default retains Aurora and excursions.
+    pub fn set_station_styles(&mut self, styles: super::StationStyles) {
+        self.station_styles = styles;
+    }
+
+    /// Pure presentation controls; the application adapter owns preferences.
+    /// Static poses preserve real counts and the start/end of each service.
+    pub fn set_passenger_options(&mut self, options: super::PassengerOptions) {
+        self.passenger_options = options;
     }
 
     pub fn set_livery(&mut self, livery: crate::simulation::objectives::Livery) {
@@ -214,10 +245,12 @@ impl SceneRenderer {
             options.day_cycle = true;
             light_seconds = phase;
         }
+        let passenger_weather = options.weather;
         if self.quality == RenderQuality::Low {
             options.weather = Weather::Clear;
         }
         let view = View {
+            scenery_life: self.scenery_life,
             wind_speed_kmh: self.weather_wind,
             precipitation_mm: self.weather_precipitation,
             distance: finite_nonnegative(world.scroll_px()),
@@ -228,22 +261,42 @@ impl SceneRenderer {
         };
         let weight = (context.blend * 256.0).round() as u32;
         if weight >= 256 {
-            scenery::background(&mut self.pixels, context.next_biome, view);
+            scenery::background(
+                &mut self.pixels,
+                context.next_biome,
+                view,
+                self.scenery.next,
+            );
         } else {
-            scenery::background(&mut self.pixels, context.biome, view);
-            if weight > 0 && context.biome != context.next_biome {
-                scenery::background(&mut self.transition, context.next_biome, view);
+            scenery::background(&mut self.pixels, context.biome, view, self.scenery.current);
+            if weight > 0
+                && (context.biome != context.next_biome
+                    || self.scenery.current != self.scenery.next)
+            {
+                scenery::background(
+                    &mut self.transition,
+                    context.next_biome,
+                    view,
+                    self.scenery.next,
+                );
                 blend_backgrounds(&mut self.pixels, &self.transition, weight);
             }
         }
 
         let width = self.width();
         let mut canvas = Canvas::new(&mut self.pixels);
-        stations::draw(&mut canvas, world, self.station_service, view);
+        stations::draw_styled(
+            &mut canvas,
+            world,
+            self.station_service,
+            view,
+            self.station_styles,
+            (self.passenger_options, passenger_weather),
+        );
         scenery::weather(&mut canvas, view);
         let origin = canvas.train_origin();
         canvas.origin = origin;
-        if self.engine == EngineStyle::Steam {
+        if self.engine.emits_smoke() {
             draw_smoke(&mut canvas, world, self.quality == RenderQuality::Full);
         }
         draw_train(
@@ -334,6 +387,59 @@ fn draw_smoke(canvas: &mut Canvas<'_>, world: &World, detailed: bool) {
 #[cfg(test)]
 mod width_tests {
     use super::*;
+    #[test]
+    fn pontes_e_tuneis_preservam_todos_os_pixels_do_trem_e_trilhos() {
+        use crate::rendering::{SceneryContext, SegmentScenery};
+        use crate::simulation::catalog::SceneryTag as T;
+        let train = Train::new(&crate::config::Config::default());
+        let world = World::default();
+        let mut renderer = SceneRenderer::new();
+        renderer.set_local_lighting(Some(180.0));
+        renderer.set_scenery_context(SceneryContext::new(SegmentScenery::from_tags(&[
+            T::Bridge,
+            T::Tunnel,
+            T::Viaduct,
+            T::Mountain,
+            T::Forest,
+        ])));
+        for width in [160, 320, 641] {
+            renderer.set_width(width);
+            for engine in EngineStyle::ALL {
+                renderer.set_engine(engine);
+                let mut train_pixels = vec![Color32::TRANSPARENT; width * HEIGHT];
+                let mut c = Canvas::new(&mut train_pixels);
+                c.origin = c.train_origin();
+                draw_train(
+                    &mut c,
+                    train.wheel_phase(),
+                    &renderer.coaches,
+                    engine,
+                    false,
+                    true,
+                );
+                let frame = renderer.render(&train, &world);
+                for (expected, actual) in train_pixels.iter().zip(frame) {
+                    if expected.a() == 255 {
+                        assert_eq!(expected, actual);
+                    }
+                }
+                let rail = frame[57 * width..61 * width].to_vec();
+                renderer.set_scenery_context(SceneryContext::default());
+                assert_eq!(
+                    rail,
+                    renderer.render(&train, &world)[57 * width..61 * width]
+                );
+                renderer.set_scenery_context(SceneryContext::new(SegmentScenery::from_tags(&[
+                    T::Bridge,
+                    T::Tunnel,
+                    T::Viaduct,
+                    T::Mountain,
+                    T::Forest,
+                ])));
+            }
+        }
+    }
+
     #[test]
     fn largura_variavel_cobre_superficie_e_reutiliza_buffers() {
         let train = Train::new(&crate::config::Config::default());

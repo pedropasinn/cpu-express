@@ -5,7 +5,9 @@ pub use branch::{BranchExpedition, BranchKind, BranchPhase, BranchState, BranchS
 pub mod catalog;
 pub mod itinerary;
 pub mod journey;
+pub mod map_layout;
 pub mod objectives;
+pub mod passenger_contracts;
 pub mod route;
 pub mod service;
 pub use service::{

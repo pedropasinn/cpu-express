@@ -10,10 +10,43 @@ pub enum EngineStyle {
     Steam,
     Diesel,
     Electric,
+    FreightSteam,
+    Shunter,
+    Railcar,
 }
 
 impl EngineStyle {
-    pub const ALL: [Self; 3] = [Self::Steam, Self::Diesel, Self::Electric];
+    pub const ALL: [Self; 6] = [
+        Self::Steam,
+        Self::Diesel,
+        Self::Electric,
+        Self::FreightSteam,
+        Self::Shunter,
+        Self::Railcar,
+    ];
+
+    pub const fn emits_smoke(self) -> bool {
+        matches!(self, Self::Steam | Self::FreightSteam)
+    }
+
+    pub const fn required_reward(self) -> Option<crate::simulation::ServiceReward> {
+        use crate::simulation::ServiceReward;
+        match self {
+            Self::Steam => None,
+            Self::Diesel | Self::FreightSteam | Self::Shunter => Some(ServiceReward::CargoPostcard),
+            Self::Electric | Self::Railcar => Some(ServiceReward::PassengerPostcard),
+        }
+    }
+
+    pub const fn unlock_description(self) -> &'static str {
+        match self.required_reward() {
+            None => "Vapor original · disponível desde o início",
+            Some(crate::simulation::ServiceReward::CargoPostcard) => {
+                "Entregue 20 unidades de carga"
+            }
+            Some(crate::simulation::ServiceReward::PassengerPostcard) => "Entregue 20 passageiros",
+        }
+    }
 
     #[must_use]
     pub const fn name(self) -> &'static str {
@@ -21,6 +54,9 @@ impl EngineStyle {
             Self::Steam => "Vapor Aurora",
             Self::Diesel => "Diesel do Porto",
             Self::Electric => "Elétrica da Serra",
+            Self::FreightSteam => "Vapor das Pedreiras",
+            Self::Shunter => "Manobreira do Pátio",
+            Self::Railcar => "Automotriz dos Campos",
         }
     }
 }
@@ -41,6 +77,12 @@ pub(super) fn draw_modern(canvas: &mut Canvas<'_>, phase: f64, style: EngineStyl
         EngineStyle::Steam => return,
         EngineStyle::Diesel => diesel(canvas, lit),
         EngineStyle::Electric => electric(canvas, lit),
+        EngineStyle::FreightSteam => {
+            super::engine_details::freight_steam(canvas, phase, lit);
+            return;
+        }
+        EngineStyle::Shunter => super::engine_details::shunter(canvas, lit),
+        EngineStyle::Railcar => super::engine_details::railcar(canvas, lit),
     }
     // Same rear coupling, wheel centers, rail contact and front pilot footprint
     // as sprites::locomotive. Modern axles intentionally have no steam side rod.
@@ -206,6 +248,26 @@ mod tests {
         for (i, mask) in masks.iter().enumerate() {
             for other in &masks[..i] {
                 assert!(mask.iter().zip(other).filter(|(a, b)| a != b).count() > 80);
+            }
+        }
+    }
+
+    #[test]
+    fn freight_steam_has_four_coupled_axles_and_the_original_chimney_socket() {
+        for phase in [0.0, 0.8, 2.5, 5.9] {
+            let pixels = frame(EngineStyle::FreightSteam, phase, false);
+            for x in [189, 201, 213, 225] {
+                assert_eq!(pixels[57 * WIDTH + x], rgb(39, 55, 53));
+                let dy = (phase.sin() * 2.0).round() as i32;
+                let x = x as i32 + (phase.cos() * 2.0).round() as i32;
+                assert_eq!(pixels[(54 + dy) as usize * WIDTH + x as usize], CREAM);
+            }
+            let original = frame(EngineStyle::Steam, phase, false);
+            for y in 31..34 {
+                assert_eq!(
+                    &pixels[y * WIDTH + 216..y * WIDTH + 224],
+                    &original[y * WIDTH + 216..y * WIDTH + 224]
+                );
             }
         }
     }

@@ -13,6 +13,7 @@ use super::{
 
 #[derive(Clone, Copy)]
 pub(super) struct View {
+    pub scenery_life: super::SceneryLifeOptions,
     pub wind_speed_kmh: Option<f32>,
     pub precipitation_mm: Option<f32>,
     pub distance: f64,
@@ -28,17 +29,42 @@ impl View {
     }
 }
 
-pub(super) fn background(pixels: &mut [Color32], biome: Biome, view: View) {
-    let palette = Palette::at_time(biome, view.light_seconds, view.options.day_cycle);
+pub(super) fn background(
+    pixels: &mut [Color32],
+    biome: Biome,
+    view: View,
+    tags: super::SegmentScenery,
+) {
+    let mut palette = Palette::at_time(biome, view.light_seconds, view.options.day_cycle);
+    // A forest-tagged highland is a humid slope, not Aurora's arid ridge.
+    // Reuse existing forest terrain colors; retain the biome's sky and lighting.
+    if biome == Biome::HighDesert && tags.contains(crate::simulation::catalog::SceneryTag::Forest) {
+        let forest = Palette::at_time(Biome::Forest, view.light_seconds, view.options.day_cycle);
+        palette.far = forest.far;
+        palette.far_shadow = forest.far_shadow;
+        palette.ridge = forest.ridge;
+        palette.ridge_shadow = forest.ridge_shadow;
+        palette.ground = forest.ground;
+        palette.ground_light = forest.ground_light;
+        palette.foliage = forest.foliage;
+        palette.foliage_light = forest.foliage_light;
+        palette.foreground = forest.foreground;
+        palette.foreground_shadow = forest.foreground_shadow;
+        palette.ink = forest.ink;
+    }
     let mut canvas = Canvas::new(pixels);
     sky(&mut canvas, &palette, view);
-    match biome {
-        Biome::GreenValley => valley(&mut canvas, &palette, view),
-        Biome::Forest => forest(&mut canvas, &palette, view),
-        Biome::Coast => coast(&mut canvas, &palette, view),
-        Biome::HighDesert => desert(&mut canvas, &palette, view),
+    if tags.is_empty() {
+        match biome {
+            Biome::GreenValley => valley(&mut canvas, &palette, view),
+            Biome::Forest => forest(&mut canvas, &palette, view),
+            Biome::Coast => coast(&mut canvas, &palette, view),
+            Biome::HighDesert => desert(&mut canvas, &palette, view),
+        }
+        foreground(&mut canvas, &palette, biome, view);
+    } else {
+        super::landmarks::draw(&mut canvas, &palette, view, tags);
     }
-    foreground(&mut canvas, &palette, biome, view);
     track(&mut canvas, view.distance, view.detailed());
     // Veil distant scenery only; the train and track remain readable.
     let strength = match view.options.weather {
