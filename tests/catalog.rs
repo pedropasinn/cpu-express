@@ -145,6 +145,7 @@ fn rewards_liveries_and_locomotives_mirror_the_game() {
             .unwrap();
         assert_eq!(definition.required_stops, livery.required_stops());
         assert_eq!(definition.name, livery.name());
+        assert_eq!(definition.kind, Livery::KIND);
     }
     for (reward, counter, goal) in [
         (
@@ -192,6 +193,26 @@ fn rewards_liveries_and_locomotives_mirror_the_game() {
         (
             EngineStyle::Railcar,
             Traction::Diesel,
+            Some(ServiceReward::PassengerPostcard),
+        ),
+        (
+            EngineStyle::ExpressSteam,
+            Traction::Steam,
+            Some(ServiceReward::PassengerPostcard),
+        ),
+        (
+            EngineStyle::ArticulatedSteam,
+            Traction::Steam,
+            Some(ServiceReward::CargoPostcard),
+        ),
+        (
+            EngineStyle::TwinDiesel,
+            Traction::Diesel,
+            Some(ServiceReward::CargoPostcard),
+        ),
+        (
+            EngineStyle::RackElectric,
+            Traction::Electric,
             Some(ServiceReward::PassengerPostcard),
         ),
     ] {

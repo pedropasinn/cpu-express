@@ -72,6 +72,8 @@ pub struct LiveryDef {
     pub id: String,
     pub name: String,
     pub required_stops: u64,
+    #[serde(default = "fictional_kind")]
+    pub kind: ContentKind,
     #[serde(default)]
     pub aliases: Vec<String>,
     #[serde(default)]

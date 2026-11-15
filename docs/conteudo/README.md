@@ -62,3 +62,13 @@ Elementos, ritmos, raridades propostas, redução de movimento e ligação ao ad
 - [Os mesmos instantes com movimento reduzido](agente6-estatico-final-v2.png).
 
 As folhas vêm do renderer desta fonte. São exportações headless; a ativação das etiquetas e da preferência no aplicativo continua sendo um pedido para integração. A folha `agente6-cenarios-revisao.png` é histórica desta rodada e foi preservada.
+
+## Locomotivas e pinturas — Agente 7, 2026-11-15
+
+Quatro locomotivas e seis pinturas novas, com nomes, IDs, marcos, raridades propostas e contratos em [LOCOMOTIVAS_PINTURAS.md](LOCOMOTIVAS_PINTURAS.md). O catálogo passa a dez locomotivas e dez pinturas; os itens anteriores continuam na mesma ordem.
+
+- [Matriz completa de dez locomotivas × dez pinturas](agente7-matriz-final-v2.png), recortes 60 × 29 ampliados 4×.
+- [Quatro modelos novos em dia, entardecer, noite e chuva](agente7-clima-final-v2.png), recortes ampliados 4×.
+- [As mesmas combinações na cena completa](agente7-cenas-final-v2.png), ampliação 2×.
+
+Imagens novas exportadas e inspecionadas nesta fonte, sem validação de compositor/DPI ou da faixa física. A matriz `agente7-matriz-revisao.png` permanece como conferência anterior. As seis pinturas preservam o mecanismo de esmalte da locomotiva; não recolorem vagões. O guia contém a legenda das linhas/colunas e comandos locais que recusam sobrescrita. Resultados e limites dos testes no relato ao fim de [RODADA_CONTEUDO.md](../RODADA_CONTEUDO.md).

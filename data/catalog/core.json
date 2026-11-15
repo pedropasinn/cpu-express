@@ -42,7 +42,13 @@
     { "id": "aurora", "name": "Verde Aurora", "required_stops": 0 },
     { "id": "ocean", "name": "Azul do Porto", "required_stops": 1 },
     { "id": "sunset", "name": "Cobre do Poente", "required_stops": 4 },
-    { "id": "midnight", "name": "Expresso Noturno", "required_stops": 12 }
+    { "id": "midnight", "name": "Expresso Noturno", "required_stops": 12 },
+    { "id": "cherry", "name": "Cereja da Estação", "required_stops": 16, "kind": "fictional" },
+    { "id": "ivory", "name": "Marfim da Manhã", "required_stops": 20, "kind": "fictional" },
+    { "id": "lagoon", "name": "Turquesa da Lagoa", "required_stops": 24, "kind": "fictional" },
+    { "id": "heather", "name": "Urze dos Montes", "required_stops": 28, "kind": "fictional" },
+    { "id": "sunflower", "name": "Girassol do Campo", "required_stops": 36, "kind": "fictional" },
+    { "id": "slate", "name": "Ardósia da Chuva", "required_stops": 48, "kind": "fictional" }
   ],
   "service_rewards": [
     { "id": "passenger_postcard", "name": "Companhia de viagem", "counter": "passengers_delivered", "goal": 20 },
@@ -54,6 +60,10 @@
     { "id": "electric", "name": "Elétrica da Serra", "traction": "electric", "kind": "fictional", "unlocked_by": "passenger_postcard" },
     { "id": "freight_steam", "name": "Vapor das Pedreiras", "traction": "steam", "kind": "fictional", "unlocked_by": "cargo_postcard" },
     { "id": "shunter", "name": "Manobreira do Pátio", "traction": "diesel", "kind": "fictional", "unlocked_by": "cargo_postcard" },
-    { "id": "railcar", "name": "Automotriz dos Campos", "traction": "diesel", "kind": "fictional", "unlocked_by": "passenger_postcard" }
+    { "id": "railcar", "name": "Automotriz dos Campos", "traction": "diesel", "kind": "fictional", "unlocked_by": "passenger_postcard" },
+    { "id": "express_steam", "name": "Expresso das Andorinhas", "traction": "steam", "kind": "fictional", "unlocked_by": "passenger_postcard" },
+    { "id": "articulated_steam", "name": "Articulada dos Vales", "traction": "steam", "kind": "fictional", "unlocked_by": "cargo_postcard" },
+    { "id": "twin_diesel", "name": "Diesel Dois Horizontes", "traction": "diesel", "kind": "fictional", "unlocked_by": "cargo_postcard" },
+    { "id": "rack_electric", "name": "Cremalheira do Mirante", "traction": "electric", "kind": "fictional", "unlocked_by": "passenger_postcard" }
   ]
 }

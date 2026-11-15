@@ -5,6 +5,7 @@
 //! nearest-neighbor texture upload and the baseline interface are unchanged.
 
 mod engine_details;
+mod engine_specialists;
 mod engines;
 mod landmarks;
 mod landscape_life;

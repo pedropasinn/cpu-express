@@ -10,16 +10,42 @@ pub enum Livery {
     Ocean,
     Sunset,
     Midnight,
+    Cherry,
+    Ivory,
+    Lagoon,
+    Heather,
+    Sunflower,
+    Slate,
 }
 
 impl Livery {
-    pub const ALL: [Self; 4] = [Self::Aurora, Self::Ocean, Self::Sunset, Self::Midnight];
+    /// Mandatory ownership in checkpoints written before the content expansion.
+    pub const ORIGINAL: [Self; 4] = [Self::Aurora, Self::Ocean, Self::Sunset, Self::Midnight];
+    pub const ALL: [Self; 10] = [
+        Self::Aurora,
+        Self::Ocean,
+        Self::Sunset,
+        Self::Midnight,
+        Self::Cherry,
+        Self::Ivory,
+        Self::Lagoon,
+        Self::Heather,
+        Self::Sunflower,
+        Self::Slate,
+    ];
+    pub const KIND: super::catalog::ContentKind = super::catalog::ContentKind::Fictional;
     pub fn name(self) -> &'static str {
         match self {
             Self::Aurora => "Verde Aurora",
             Self::Ocean => "Azul do Porto",
             Self::Sunset => "Cobre do Poente",
             Self::Midnight => "Expresso Noturno",
+            Self::Cherry => "Cereja da Estação",
+            Self::Ivory => "Marfim da Manhã",
+            Self::Lagoon => "Turquesa da Lagoa",
+            Self::Heather => "Urze dos Montes",
+            Self::Sunflower => "Girassol do Campo",
+            Self::Slate => "Ardósia da Chuva",
         }
     }
     pub fn required_stops(self) -> u64 {
@@ -28,6 +54,12 @@ impl Livery {
             Self::Ocean => 1,
             Self::Sunset => 4,
             Self::Midnight => 12,
+            Self::Cherry => 16,
+            Self::Ivory => 20,
+            Self::Lagoon => 24,
+            Self::Heather => 28,
+            Self::Sunflower => 36,
+            Self::Slate => 48,
         }
     }
     pub fn available(self, journey: JourneySnapshot) -> bool {

@@ -13,28 +13,45 @@ pub enum EngineStyle {
     FreightSteam,
     Shunter,
     Railcar,
+    ExpressSteam,
+    ArticulatedSteam,
+    TwinDiesel,
+    RackElectric,
 }
 
 impl EngineStyle {
-    pub const ALL: [Self; 6] = [
+    pub const ALL: [Self; 10] = [
         Self::Steam,
         Self::Diesel,
         Self::Electric,
         Self::FreightSteam,
         Self::Shunter,
         Self::Railcar,
+        Self::ExpressSteam,
+        Self::ArticulatedSteam,
+        Self::TwinDiesel,
+        Self::RackElectric,
     ];
 
     pub const fn emits_smoke(self) -> bool {
-        matches!(self, Self::Steam | Self::FreightSteam)
+        matches!(
+            self,
+            Self::Steam | Self::FreightSteam | Self::ExpressSteam | Self::ArticulatedSteam
+        )
     }
 
     pub const fn required_reward(self) -> Option<crate::simulation::ServiceReward> {
         use crate::simulation::ServiceReward;
         match self {
             Self::Steam => None,
-            Self::Diesel | Self::FreightSteam | Self::Shunter => Some(ServiceReward::CargoPostcard),
-            Self::Electric | Self::Railcar => Some(ServiceReward::PassengerPostcard),
+            Self::Diesel
+            | Self::FreightSteam
+            | Self::Shunter
+            | Self::ArticulatedSteam
+            | Self::TwinDiesel => Some(ServiceReward::CargoPostcard),
+            Self::Electric | Self::Railcar | Self::ExpressSteam | Self::RackElectric => {
+                Some(ServiceReward::PassengerPostcard)
+            }
         }
     }
 
@@ -57,6 +74,10 @@ impl EngineStyle {
             Self::FreightSteam => "Vapor das Pedreiras",
             Self::Shunter => "Manobreira do Pátio",
             Self::Railcar => "Automotriz dos Campos",
+            Self::ExpressSteam => "Expresso das Andorinhas",
+            Self::ArticulatedSteam => "Articulada dos Vales",
+            Self::TwinDiesel => "Diesel Dois Horizontes",
+            Self::RackElectric => "Cremalheira do Mirante",
         }
     }
 }
@@ -83,6 +104,16 @@ pub(super) fn draw_modern(canvas: &mut Canvas<'_>, phase: f64, style: EngineStyl
         }
         EngineStyle::Shunter => super::engine_details::shunter(canvas, lit),
         EngineStyle::Railcar => super::engine_details::railcar(canvas, lit),
+        EngineStyle::ExpressSteam => {
+            super::engine_specialists::express(canvas, phase, lit);
+            return;
+        }
+        EngineStyle::ArticulatedSteam => {
+            super::engine_specialists::articulated(canvas, phase, lit);
+            return;
+        }
+        EngineStyle::TwinDiesel => super::engine_specialists::twin_diesel(canvas, lit),
+        EngineStyle::RackElectric => super::engine_specialists::rack_electric(canvas, lit),
     }
     // Same rear coupling, wheel centers, rail contact and front pilot footprint
     // as sprites::locomotive. Modern axles intentionally have no steam side rod.
@@ -268,6 +299,73 @@ mod tests {
                     &pixels[y * WIDTH + 216..y * WIDTH + 224],
                     &original[y * WIDTH + 216..y * WIDTH + 224]
                 );
+            }
+        }
+    }
+
+    #[test]
+    fn second_wave_steam_keeps_emitter_and_has_phase_locked_cranks() {
+        for phase in [0.0_f64, 0.8, 2.5, 5.9] {
+            let original = frame(EngineStyle::Steam, phase, false);
+            for style in [EngineStyle::ExpressSteam, EngineStyle::ArticulatedSteam] {
+                let pixels = frame(style, phase, false);
+                for y in 31..34 {
+                    assert_eq!(
+                        &pixels[y * WIDTH + 216..y * WIDTH + 224],
+                        &original[y * WIDTH + 216..y * WIDTH + 224]
+                    );
+                }
+                let (centers, cy, arm): (&[i32], i32, f64) = if style == EngineStyle::ExpressSteam {
+                    (&[201, 213, 225], 53, 3.0)
+                } else {
+                    (&[189, 201, 213, 225], 54, 2.0)
+                };
+                for &cx in centers {
+                    let angle = phase
+                        + if style == EngineStyle::ArticulatedSteam && cx >= 213 {
+                            1.2
+                        } else {
+                            0.0
+                        };
+                    let x = cx + (angle.cos() * arm).round() as i32;
+                    let y = cy + (angle.sin() * arm).round() as i32;
+                    assert_eq!(pixels[y as usize * WIDTH + x as usize], CREAM, "{style:?}");
+                }
+                assert_ne!(pixels, frame(style, phase + 0.7, false));
+            }
+        }
+    }
+
+    #[test]
+    fn second_wave_sprites_clip_exactly_at_both_edges_for_all_widths() {
+        for style in &EngineStyle::ALL[6..] {
+            for phase in [0.0, 1.2, 3.0, 5.8] {
+                for lit in [false, true] {
+                    let reference = frame(*style, phase, lit);
+                    for width in [160, 320, 641, 1920] {
+                        for origin in [-210, -180, width as i32 - 210, width as i32 - 240] {
+                            let mut pixels = vec![Color32::TRANSPARENT; width * HEIGHT];
+                            let mut c = Canvas::new(&mut pixels);
+                            c.origin = origin;
+                            draw_modern(&mut c, phase, *style, lit);
+                            for y in 0..HEIGHT {
+                                for x in 0..width {
+                                    let native = x as i32 - origin;
+                                    let expected = if (0..WIDTH as i32).contains(&native) {
+                                        reference[y * WIDTH + native as usize]
+                                    } else {
+                                        Color32::TRANSPARENT
+                                    };
+                                    assert_eq!(
+                                        pixels[y * width + x],
+                                        expected,
+                                        "{style:?} at {x},{y}"
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

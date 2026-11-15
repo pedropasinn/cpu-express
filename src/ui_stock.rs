@@ -28,7 +28,7 @@ const ENGINE_CROP: [usize; 4] = [180, 30, 60, 29];
 /// Cached textures made by the same renderer as the live train.
 pub struct StockGallery {
     coaches: [TextureHandle; CoachStyle::ALL.len()],
-    liveries: [TextureHandle; 4],
+    liveries: [TextureHandle; Livery::ALL.len()],
     engines: [TextureHandle; EngineStyle::ALL.len()],
 }
 
@@ -99,12 +99,7 @@ impl StockGallery {
     /// A 60 x 29 native-pixel engine image with the renderer's actual enamel.
     #[must_use]
     pub fn livery(&self, livery: Livery) -> &TextureHandle {
-        &self.liveries[match livery {
-            Livery::Aurora => 0,
-            Livery::Ocean => 1,
-            Livery::Sunset => 2,
-            Livery::Midnight => 3,
-        }]
+        &self.liveries[Livery::ALL.iter().position(|s| *s == livery).unwrap()]
     }
 
     /// A cached 60 x 29 engine portrait in Aurora paint. Borrowing the handle
@@ -421,6 +416,12 @@ mod tests {
             [47, 104, 148],
             [163, 78, 51],
             [79, 65, 122],
+            [149, 52, 76],
+            [213, 202, 165],
+            [36, 128, 139],
+            [128, 78, 130],
+            [196, 148, 44],
+            [79, 99, 113],
         ]) {
             renderer.set_livery(livery);
             let image = crop(renderer.render(&train, &world), ENGINE_CROP);

@@ -313,6 +313,12 @@ impl SceneRenderer {
             Livery::Ocean => Some(([47, 104, 148], [94, 165, 190], [28, 64, 105])),
             Livery::Sunset => Some(([163, 78, 51], [219, 142, 79], [111, 51, 42])),
             Livery::Midnight => Some(([79, 65, 122], [137, 112, 170], [48, 42, 78])),
+            Livery::Cherry => Some(([149, 52, 76], [208, 108, 115], [89, 37, 60])),
+            Livery::Ivory => Some(([213, 202, 165], [245, 232, 197], [143, 132, 107])),
+            Livery::Lagoon => Some(([36, 128, 139], [102, 187, 181], [27, 77, 94])),
+            Livery::Heather => Some(([128, 78, 130], [191, 139, 184], [77, 48, 88])),
+            Livery::Sunflower => Some(([196, 148, 44], [239, 203, 104], [121, 83, 37])),
+            Livery::Slate => Some(([79, 99, 113], [144, 165, 176], [43, 59, 76])),
         };
         if let Some((body, light, shadow)) = colors {
             let (left, top, right) = if self.engine == EngineStyle::Steam {

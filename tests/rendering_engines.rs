@@ -22,6 +22,10 @@ fn engine_catalog_round_trips_with_steam_as_missing_field_default() {
         "freight_steam",
         "shunter",
         "railcar",
+        "express_steam",
+        "articulated_steam",
+        "twin_diesel",
+        "rack_electric",
     ]) {
         let json = serde_json::to_string(&style).unwrap();
         assert_eq!(json, format!("\"{id}\""));
@@ -91,6 +95,54 @@ fn all_liveries_work_on_each_engine_without_changing_running_gear() {
                 assert_ne!(&pixels, other);
             }
             variants.push(pixels);
+        }
+    }
+}
+
+#[test]
+fn paints_preserve_scene_and_are_deterministic_in_each_lighting_and_quality() {
+    use cpu_express::rendering::{RenderQuality, Weather};
+    let train = Train::new(&Config::default());
+    let world = World::default();
+    let mut renderer = SceneRenderer::new();
+    for quality in [RenderQuality::Full, RenderQuality::Low] {
+        renderer.set_quality(quality);
+        for (light, weather) in [
+            (90.0, Weather::Clear),
+            (348.0, Weather::Clear),
+            (450.0, Weather::Clear),
+            (90.0, Weather::Rain),
+        ] {
+            renderer.set_local_lighting(Some(light));
+            renderer.set_local_atmosphere(Some((weather, light < 400.0)));
+            for engine in EngineStyle::ALL {
+                renderer.set_engine(engine);
+                renderer.set_livery(Livery::Aurora);
+                let original = renderer.render(&train, &world).to_vec();
+                let mut variants = Vec::new();
+                for livery in Livery::ALL {
+                    renderer.set_livery(livery);
+                    let pixels = renderer.render(&train, &world).to_vec();
+                    assert_eq!(pixels, renderer.render(&train, &world));
+                    for (i, pixel) in pixels.iter().enumerate() {
+                        if !(180..240).contains(&(i % WIDTH)) || !(34..51).contains(&(i / WIDTH)) {
+                            assert_eq!(*pixel, original[i]);
+                        }
+                    }
+                    assert!(!variants.contains(&pixels), "{engine:?} {livery:?}");
+                    variants.push(pixels);
+                }
+            }
+        }
+    }
+    renderer.set_theme(SceneTheme::Legacy);
+    for engine in EngineStyle::ALL {
+        renderer.set_engine(engine);
+        renderer.set_livery(Livery::Aurora);
+        let original = renderer.render(&train, &world).to_vec();
+        for livery in Livery::ALL {
+            renderer.set_livery(livery);
+            assert_eq!(renderer.render(&train, &world), original);
         }
     }
 }
