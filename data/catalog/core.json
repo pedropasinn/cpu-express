@@ -11,7 +11,15 @@
     { "id": "gondola", "name": "Gôndola de minério", "seats": 0, "cargo_units": 24, "kind": "fictional", "required_stops": 4 },
     { "id": "hopper", "name": "Graneleiro", "seats": 0, "cargo_units": 24, "kind": "fictional", "required_stops": 6 },
     { "id": "timber", "name": "Plataforma de toras", "seats": 0, "cargo_units": 18, "kind": "fictional", "required_stops": 8 },
-    { "id": "refrigerator", "name": "Frigorífico", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 10 }
+    { "id": "refrigerator", "name": "Frigorífico", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 10 },
+    { "id": "livestock", "name": "Vagão de gado", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 3 },
+    { "id": "container", "name": "Porta-contêineres", "seats": 0, "cargo_units": 20, "kind": "fictional", "required_stops": 5 },
+    { "id": "autorack", "name": "Cegonha de automóveis", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 7 },
+    { "id": "pressure_tank", "name": "Tanque de gás", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 9 },
+    { "id": "crane", "name": "Guindaste de socorro", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 16 },
+    { "id": "bicycle", "name": "Bagagem com bicicletas", "seats": 0, "cargo_units": 16, "kind": "fictional", "required_stops": 11 },
+    { "id": "coil", "name": "Berço de bobinas", "seats": 0, "cargo_units": 18, "kind": "fictional", "required_stops": 12 },
+    { "id": "fair", "name": "Feira itinerante", "seats": 0, "cargo_units": 16, "kind": "fictional", "required_stops": 14 }
   ],
   "cargo": [
     { "id": "parcels", "name": "Encomendas", "wagon": "freight", "compatible_wagons": ["mail"] },
@@ -20,7 +28,15 @@
     { "id": "ore", "name": "Minério", "wagon": "gondola" },
     { "id": "grain", "name": "Grãos", "wagon": "hopper" },
     { "id": "timber", "name": "Madeira", "wagon": "timber" },
-    { "id": "chilled", "name": "Refrigerados", "wagon": "refrigerator" }
+    { "id": "chilled", "name": "Refrigerados", "wagon": "refrigerator" },
+    { "id": "livestock", "name": "Gado", "wagon": "livestock" },
+    { "id": "containers", "name": "Contêineres lacrados", "wagon": "container" },
+    { "id": "vehicles", "name": "Automóveis", "wagon": "autorack" },
+    { "id": "gas", "name": "Gás pressurizado", "wagon": "pressure_tank" },
+    { "id": "machinery", "name": "Máquinas de manutenção", "wagon": "crane" },
+    { "id": "bicycles", "name": "Bicicletas", "wagon": "bicycle" },
+    { "id": "steel_coils", "name": "Bobinas de aço", "wagon": "coil" },
+    { "id": "fair_equipment", "name": "Equipamentos de feira", "wagon": "fair" }
   ],
   "liveries": [
     { "id": "aurora", "name": "Verde Aurora", "required_stops": 0 },

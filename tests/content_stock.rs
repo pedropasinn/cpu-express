@@ -6,10 +6,21 @@ use cpu_express::{
     simulation::{CargoKind, ContractStatus, Journey, ServiceState, ServiceWagon, Train, World},
 };
 
+const SPECIALISTS: [(ServiceWagon, CargoKind); 8] = [
+    (ServiceWagon::Livestock, CargoKind::Livestock),
+    (ServiceWagon::Container, CargoKind::Containers),
+    (ServiceWagon::Autorack, CargoKind::Vehicles),
+    (ServiceWagon::PressureTank, CargoKind::Gas),
+    (ServiceWagon::Crane, CargoKind::Machinery),
+    (ServiceWagon::Bicycle, CargoKind::Bicycles),
+    (ServiceWagon::Coil, CargoKind::SteelCoils),
+    (ServiceWagon::Fair, CargoKind::FairEquipment),
+];
+
 fn unlocked_world() -> World {
     let mut world = World::default();
     world.restore_journey(Journey::restore_checkpoint(42, 40_000.0, 2_000.0).unwrap());
-    assert!(world.journey_snapshot().stations_visited >= 10);
+    assert!(world.journey_snapshot().stations_visited >= 16);
     world
 }
 
@@ -80,7 +91,10 @@ fn specialized_cargo_loads_delivers_and_survives_v4_restart() {
         (ServiceWagon::Hopper, CargoKind::Grain),
         (ServiceWagon::Timber, CargoKind::Timber),
         (ServiceWagon::Refrigerator, CargoKind::Chilled),
-    ] {
+    ]
+    .into_iter()
+    .chain(SPECIALISTS)
+    {
         let mut world = unlocked_world();
         world.set_service_composition([wagon; 3]).unwrap();
         for _ in 0..1_000 {
@@ -121,6 +135,124 @@ fn specialized_cargo_loads_delivers_and_survives_v4_restart() {
         );
         assert_eq!(world.service_state().credits, contract.reward);
         assert_eq!(world.service_state(), restored.service_state());
+        world
+            .service_state()
+            .validate(world.journey_snapshot())
+            .unwrap();
+    }
+}
+
+#[test]
+fn each_second_wave_wagon_has_an_exclusive_role_without_replacing_old_stock() {
+    for (wagon, kind) in SPECIALISTS {
+        assert_eq!(wagon.capacity().0, 0);
+        assert!(
+            wagon.cargo_capacity(kind) >= 12,
+            "one wagon must fit the largest offer"
+        );
+        for other in ServiceWagon::ALL {
+            if other != wagon {
+                assert_eq!(
+                    other.cargo_capacity(kind),
+                    0,
+                    "{other:?} replaces {wagon:?}"
+                );
+            }
+        }
+        for other in CargoKind::ALL {
+            if other != kind {
+                assert_eq!(
+                    wagon.cargo_capacity(other),
+                    0,
+                    "{wagon:?} replaces an existing role"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn specialist_manual_acceptance_and_return_keep_cargo_and_do_not_award_delivery() {
+    let folder = std::env::temp_dir().join(format!(
+        "cpu-specialist-return-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    std::fs::create_dir(&folder).unwrap();
+    for (wagon, kind) in SPECIALISTS {
+        let mut world = unlocked_world();
+        world.set_automatic_contracts(false);
+        world.set_service_composition([wagon; 3]).unwrap();
+        for _ in 0..1_000 {
+            if world.service_state().contract.is_some() {
+                break;
+            }
+            tick(&mut world);
+        }
+        let offer = world.service_state().contract.as_ref().unwrap().clone();
+        assert_eq!(offer.kind, kind);
+        assert_eq!(offer.status, ContractStatus::Offered);
+        world
+            .set_service_composition([ServiceWagon::Freight; 3])
+            .unwrap();
+        let before = world.service_state().clone();
+        assert!(world.accept_cargo_contract().is_err());
+        assert_eq!(world.service_state(), &before);
+        // A single specialist must suffice, even beside incompatible empty stock.
+        world
+            .set_service_composition([wagon, ServiceWagon::Freight, ServiceWagon::Tank])
+            .unwrap();
+        world.accept_cargo_contract().unwrap();
+        assert_eq!(world.service_state().cargo_count(), offer.units);
+        for _ in 0..10 {
+            tick(&mut world);
+        }
+        world.cancel_cargo_contract().unwrap();
+        assert_eq!(
+            world.service_state().contract.as_ref().unwrap().status,
+            ContractStatus::Returning
+        );
+        assert!(
+            world
+                .set_service_composition([ServiceWagon::Freight; 3])
+                .is_err()
+        );
+        let path = folder.join(format!("{wagon:?}.json"));
+        progress::save_checkpoint(&path, &world).unwrap();
+        let (restored, warning) = progress::load_profile(&path).unwrap();
+        assert!(warning.is_none());
+        world = restored.unwrap();
+        assert_eq!(world.service_state().cargo_count(), offer.units);
+        for _ in 0..2_000 {
+            if world.service_state().contract.as_ref().unwrap().status == ContractStatus::Cancelled
+            {
+                break;
+            }
+            tick(&mut world);
+        }
+        assert_eq!(
+            world.service_state().contract.as_ref().unwrap().status,
+            ContractStatus::Cancelled
+        );
+        assert_eq!(world.service_state().cargo_count(), 0);
+        assert_eq!(world.service_state().cargo_delivered, 0);
+        assert_eq!(world.service_state().contracts_completed, 0);
+        assert_eq!(world.service_state().credits, 0);
+        assert_eq!(
+            world
+                .service_state()
+                .arrivals
+                .iter()
+                .map(|a| a.cargo_returned)
+                .sum::<u32>(),
+            offer.units
+        );
+        let before = world.service_state().clone();
+        assert!(world.cancel_cargo_contract().is_err());
+        assert_eq!(world.service_state(), &before);
         world
             .service_state()
             .validate(world.journey_snapshot())

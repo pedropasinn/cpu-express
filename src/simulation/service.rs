@@ -16,10 +16,18 @@ pub enum ServiceWagon {
     Hopper,
     Timber,
     Refrigerator,
+    Livestock,
+    Container,
+    Autorack,
+    PressureTank,
+    Crane,
+    Bicycle,
+    Coil,
+    Fair,
 }
 
 impl ServiceWagon {
-    pub const ALL: [Self; 11] = [
+    pub const ALL: [Self; 19] = [
         Self::Passenger,
         Self::Sleeper,
         Self::Freight,
@@ -31,6 +39,14 @@ impl ServiceWagon {
         Self::Hopper,
         Self::Timber,
         Self::Refrigerator,
+        Self::Livestock,
+        Self::Container,
+        Self::Autorack,
+        Self::PressureTank,
+        Self::Crane,
+        Self::Bicycle,
+        Self::Coil,
+        Self::Fair,
     ];
 
     pub const fn name(self) -> &'static str {
@@ -46,6 +62,14 @@ impl ServiceWagon {
             Self::Hopper => "Graneleiro",
             Self::Timber => "Plataforma de toras",
             Self::Refrigerator => "Frigorífico",
+            Self::Livestock => "Vagão de gado",
+            Self::Container => "Porta-contêineres",
+            Self::Autorack => "Cegonha de automóveis",
+            Self::PressureTank => "Tanque de gás",
+            Self::Crane => "Guindaste de socorro",
+            Self::Bicycle => "Bagagem com bicicletas",
+            Self::Coil => "Berço de bobinas",
+            Self::Fair => "Feira itinerante",
         }
     }
 
@@ -58,6 +82,14 @@ impl ServiceWagon {
             Self::Hopper => 6,
             Self::Timber => 8,
             Self::Refrigerator => 10,
+            Self::Livestock => 3,
+            Self::Container => 5,
+            Self::Autorack => 7,
+            Self::PressureTank => 9,
+            Self::Crane => 16,
+            Self::Bicycle => 11,
+            Self::Coil => 12,
+            Self::Fair => 14,
             _ => 0,
         }
     }
@@ -74,7 +106,15 @@ impl ServiceWagon {
             | (Self::Gondola, CargoKind::Ore)
             | (Self::Hopper, CargoKind::Grain)
             | (Self::Timber, CargoKind::Timber)
-            | (Self::Refrigerator, CargoKind::Chilled) => self.capacity().1,
+            | (Self::Refrigerator, CargoKind::Chilled)
+            | (Self::Livestock, CargoKind::Livestock)
+            | (Self::Container, CargoKind::Containers)
+            | (Self::Autorack, CargoKind::Vehicles)
+            | (Self::PressureTank, CargoKind::Gas)
+            | (Self::Crane, CargoKind::Machinery)
+            | (Self::Bicycle, CargoKind::Bicycles)
+            | (Self::Coil, CargoKind::SteelCoils)
+            | (Self::Fair, CargoKind::FairEquipment) => self.capacity().1,
             _ => 0,
         }
     }
@@ -91,6 +131,10 @@ impl ServiceWagon {
             Self::Gondola | Self::Hopper => (0, 24),
             Self::Timber => (0, 18),
             Self::Refrigerator => (0, 12),
+            Self::Livestock | Self::PressureTank | Self::Crane | Self::Autorack => (0, 12),
+            Self::Container => (0, 20),
+            Self::Bicycle | Self::Fair => (0, 16),
+            Self::Coil => (0, 18),
         }
     }
 }
@@ -121,9 +165,17 @@ pub enum CargoKind {
     Grain,
     Timber,
     Chilled,
+    Livestock,
+    Containers,
+    Vehicles,
+    Gas,
+    Machinery,
+    Bicycles,
+    SteelCoils,
+    FairEquipment,
 }
 impl CargoKind {
-    pub const ALL: [Self; 7] = [
+    pub const ALL: [Self; 15] = [
         Self::Parcels,
         Self::Supplies,
         Self::Liquid,
@@ -131,8 +183,29 @@ impl CargoKind {
         Self::Grain,
         Self::Timber,
         Self::Chilled,
+        Self::Livestock,
+        Self::Containers,
+        Self::Vehicles,
+        Self::Gas,
+        Self::Machinery,
+        Self::Bicycles,
+        Self::SteelCoils,
+        Self::FairEquipment,
     ];
-    pub const SPECIALIZED: [Self; 4] = [Self::Ore, Self::Grain, Self::Timber, Self::Chilled];
+    pub const SPECIALIZED: [Self; 12] = [
+        Self::Ore,
+        Self::Grain,
+        Self::Timber,
+        Self::Chilled,
+        Self::Livestock,
+        Self::Containers,
+        Self::Vehicles,
+        Self::Gas,
+        Self::Machinery,
+        Self::Bicycles,
+        Self::SteelCoils,
+        Self::FairEquipment,
+    ];
 
     pub const fn name(self) -> &'static str {
         match self {
@@ -143,6 +216,14 @@ impl CargoKind {
             Self::Grain => "Grãos",
             Self::Timber => "Madeira",
             Self::Chilled => "Refrigerados",
+            Self::Livestock => "Gado",
+            Self::Containers => "Contêineres lacrados",
+            Self::Vehicles => "Automóveis",
+            Self::Gas => "Gás pressurizado",
+            Self::Machinery => "Máquinas de manutenção",
+            Self::Bicycles => "Bicicletas",
+            Self::SteelCoils => "Bobinas de aço",
+            Self::FairEquipment => "Equipamentos de feira",
         }
     }
     pub const fn wagon_hint(self) -> &'static str {
@@ -154,6 +235,14 @@ impl CargoKind {
             Self::Grain => "graneleiro (24 un.)",
             Self::Timber => "plataforma de toras (18 un.)",
             Self::Chilled => "frigorífico (12 un.)",
+            Self::Livestock => "vagão de gado (12 un.)",
+            Self::Containers => "porta-contêineres (20 un.)",
+            Self::Vehicles => "cegonha de automóveis (12 un.)",
+            Self::Gas => "tanque de gás (12 un.)",
+            Self::Machinery => "guindaste de socorro (12 un.)",
+            Self::Bicycles => "bagagem com bicicletas (16 un.)",
+            Self::SteelCoils => "berço de bobinas (18 un.)",
+            Self::FairEquipment => "feira itinerante (16 un.)",
         }
     }
 }

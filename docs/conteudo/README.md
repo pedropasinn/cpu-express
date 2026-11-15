@@ -43,3 +43,12 @@ A documentação de cenário, legenda das linhas e instruções de integração 
 - [Circuito Aurora pelo exportador art_review](agente2-aurora-final.png).
 
 As imagens sem o sufixo `-final` são prévias preservadas para histórico. O relato completo do Agente 2 está no fim de [RODADA_CONTEUDO.md](../RODADA_CONTEUDO.md).
+
+## Segunda leva de vagões — Agente 5, 2026-11-15
+
+O catálogo agora contém 19 vagões. Os oito novos modelos, cargas exclusivas, capacidades, marcos, raridades propostas e pedidos de integração estão em [VAGOES_SEGUNDA_LEVA.md](VAGOES_SEGUNDA_LEVA.md).
+
+- [Cenas dos oito modelos em dia, entardecer, noite e chuva](agente5-vagoes-final.png).
+- [Recortes das miniaturas, com rodas e engates](agente5-miniaturas-final.png).
+
+O modo padrão de `stock_gallery` percorre os 19 modelos, conservando as onze primeiras linhas. As opções `--segunda` e `--recortes` exportam somente esta leva. A legenda e os comandos de reprodução estão no guia; resultados executados constam no relato ao fim de [RODADA_CONTEUDO.md](../RODADA_CONTEUDO.md). As notas anteriores permanecem como histórico das respectivas rodadas.

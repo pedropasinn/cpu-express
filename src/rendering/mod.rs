@@ -18,6 +18,7 @@ mod sprites;
 mod station_architecture;
 mod stations;
 mod stock_details;
+mod stock_specialists;
 mod theme;
 
 pub use engines::EngineStyle;

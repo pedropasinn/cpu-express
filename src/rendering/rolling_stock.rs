@@ -29,10 +29,18 @@ pub enum CoachStyle {
     Hopper,
     Timber,
     Refrigerator,
+    Livestock,
+    Container,
+    Autorack,
+    PressureTank,
+    Crane,
+    Bicycle,
+    Coil,
+    Fair,
 }
 
 impl CoachStyle {
-    pub const ALL: [Self; 11] = [
+    pub const ALL: [Self; 19] = [
         Self::Passenger,
         Self::Sleeper,
         Self::Freight,
@@ -44,6 +52,14 @@ impl CoachStyle {
         Self::Hopper,
         Self::Timber,
         Self::Refrigerator,
+        Self::Livestock,
+        Self::Container,
+        Self::Autorack,
+        Self::PressureTank,
+        Self::Crane,
+        Self::Bicycle,
+        Self::Coil,
+        Self::Fair,
     ];
 
     pub fn name(self) -> &'static str {
@@ -76,7 +92,15 @@ wagon_adapters!(
     Gondola,
     Hopper,
     Timber,
-    Refrigerator
+    Refrigerator,
+    Livestock,
+    Container,
+    Autorack,
+    PressureTank,
+    Crane,
+    Bicycle,
+    Coil,
+    Fair,
 );
 
 const INK: Color32 = rgb(38, 55, 56);
@@ -201,6 +225,14 @@ fn draw_coach(
         CoachStyle::Hopper => super::stock_details::hopper(canvas, x),
         CoachStyle::Timber => super::stock_details::timber(canvas, x),
         CoachStyle::Refrigerator => super::stock_details::refrigerator(canvas, x),
+        CoachStyle::Livestock => super::stock_specialists::livestock(canvas, x),
+        CoachStyle::Container => super::stock_specialists::container(canvas, x),
+        CoachStyle::Autorack => super::stock_specialists::autorack(canvas, x),
+        CoachStyle::PressureTank => super::stock_specialists::pressure_tank(canvas, x),
+        CoachStyle::Crane => super::stock_specialists::crane(canvas, x),
+        CoachStyle::Bicycle => super::stock_specialists::bicycle(canvas, x),
+        CoachStyle::Coil => super::stock_specialists::coil(canvas, x),
+        CoachStyle::Fair => super::stock_specialists::fair(canvas, x),
     }
 
     if details {
@@ -221,7 +253,15 @@ fn coach_finish(canvas: &mut Canvas<'_>, x: i32, style: CoachStyle) {
         | CoachStyle::Gondola
         | CoachStyle::Hopper
         | CoachStyle::Timber
-        | CoachStyle::Refrigerator => {}
+        | CoachStyle::Refrigerator
+        | CoachStyle::Livestock
+        | CoachStyle::Container
+        | CoachStyle::Autorack
+        | CoachStyle::PressureTank
+        | CoachStyle::Crane
+        | CoachStyle::Bicycle
+        | CoachStyle::Coil
+        | CoachStyle::Fair => {}
         CoachStyle::Passenger | CoachStyle::Sleeper => {
             // Rounded clerestory roof and a shaded eave, not a flat gold slab.
             canvas.rect(x + 3, 35, 32, 1, rgb(139, 158, 142));
@@ -421,7 +461,7 @@ mod tests {
     use super::*;
     use crate::rendering::{HEIGHT, WIDTH};
 
-    const STYLES: [CoachStyle; 11] = CoachStyle::ALL;
+    const STYLES: [CoachStyle; CoachStyle::ALL.len()] = CoachStyle::ALL;
 
     #[test]
     fn every_car_has_two_wheels_on_the_baseline_rail() {
@@ -527,5 +567,54 @@ mod tests {
             false,
         );
         assert_eq!(baseline, current);
+    }
+
+    #[test]
+    fn all_coaches_clip_exactly_at_both_edges_in_both_detail_modes() {
+        for style in CoachStyle::ALL {
+            for details in [false, true] {
+                for lit in [false, true] {
+                    let mut reference = vec![Color32::TRANSPARENT; WIDTH * HEIGHT];
+                    draw_coach(
+                        &mut Canvas::new(&mut reference),
+                        58,
+                        0.7,
+                        style,
+                        0,
+                        lit,
+                        details,
+                    );
+                    for width in [160, 320, 641, 1920] {
+                        for x in [-20, 58, width as i32 - 20] {
+                            let mut frame = vec![Color32::TRANSPARENT; width * HEIGHT];
+                            draw_coach(
+                                &mut Canvas::new(&mut frame),
+                                x,
+                                0.7,
+                                style,
+                                0,
+                                lit,
+                                details,
+                            );
+                            for y in 0..HEIGHT {
+                                for column in 0..width {
+                                    let source = column as i32 - x + 58;
+                                    let expected = if (0..WIDTH as i32).contains(&source) {
+                                        reference[y * WIDTH + source as usize]
+                                    } else {
+                                        Color32::TRANSPARENT
+                                    };
+                                    assert_eq!(
+                                        frame[y * width + column],
+                                        expected,
+                                        "{style:?}, width={width}, x={x}"
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

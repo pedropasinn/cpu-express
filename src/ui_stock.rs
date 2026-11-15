@@ -15,7 +15,7 @@ use crate::{
     simulation::{Train, World, objectives::Livery},
 };
 
-const COACH_STYLES: [CoachStyle; 11] = CoachStyle::ALL;
+const COACH_STYLES: [CoachStyle; CoachStyle::ALL.len()] = CoachStyle::ALL;
 
 // Native 320 x 70 coordinates, [left, top, width, height]. rolling_stock draws
 // the first (tail) coach at x=58: couplers span 56..=97, canopy starts at y=32,
