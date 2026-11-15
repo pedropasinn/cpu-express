@@ -2485,7 +2485,8 @@ impl CpuExpressApp {
                             } else if self.demo_mode {
                                 "Demonstração · viagem temporária"
                             } else {
-                                "Sua ferrovia, no seu ritmo"
+                                // Nothing to report: the line keeps its height and stays empty.
+                                ""
                             };
                             ui.label(
                                 egui::RichText::new(message)
