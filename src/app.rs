@@ -75,34 +75,14 @@ fn achievement_name(achievement: Achievement) -> &'static str {
 }
 
 fn service_wagon(style: CoachStyle) -> crate::simulation::ServiceWagon {
-    use crate::simulation::ServiceWagon as W;
-    match style {
-        CoachStyle::Passenger => W::Passenger,
-        CoachStyle::Sleeper => W::Sleeper,
-        CoachStyle::Freight => W::Freight,
-        CoachStyle::Tank => W::Tank,
-        CoachStyle::Observation => W::Observation,
-    }
+    style.into()
 }
 fn coach_style(style: crate::simulation::ServiceWagon) -> CoachStyle {
-    use crate::simulation::ServiceWagon as W;
-    match style {
-        W::Passenger => CoachStyle::Passenger,
-        W::Sleeper => CoachStyle::Sleeper,
-        W::Freight => CoachStyle::Freight,
-        W::Tank => CoachStyle::Tank,
-        W::Observation => CoachStyle::Observation,
-    }
+    style.into()
 }
 
 fn coach_name(style: CoachStyle) -> &'static str {
-    match style {
-        CoachStyle::Passenger => "Passageiros",
-        CoachStyle::Sleeper => "Dormitório",
-        CoachStyle::Freight => "Carga",
-        CoachStyle::Tank => "Tanque",
-        CoachStyle::Observation => "Panorâmico",
-    }
+    style.name()
 }
 
 /// Kept source-compatible with the baseline and its examples.
@@ -483,12 +463,8 @@ impl CpuExpressApp {
             config.visual.coaches = world.service_snapshot().composition.map(coach_style);
         }
         if !demo_mode {
-            use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
-            let reward = match config.visual.engine {
-                EngineStyle::Steam => None,
-                EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
-                EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
-            };
+            use crate::rendering::EngineStyle;
+            let reward = config.visual.engine.required_reward();
             if reward.is_some_and(|r| !world.service_snapshot().collection.contains(&r)) {
                 config.visual.engine = EngineStyle::Steam;
             }

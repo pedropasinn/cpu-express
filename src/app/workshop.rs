@@ -62,11 +62,7 @@ fn composition_preview(
             if let Some(contract) = &service.contract
                 && service.cargo_count() > 0
             {
-                let category = match contract.kind {
-                    CargoKind::Parcels => "encomendas",
-                    CargoKind::Supplies => "suprimentos",
-                    CargoKind::Liquid => "líquidos",
-                };
+                let category = contract.kind.name();
                 ui.small(format!(
                     "{category}: {} a bordo / {} un. compatíveis após a troca.",
                     service.cargo_count(),
@@ -219,13 +215,7 @@ impl CpuExpressApp {
                         changed = true;
                     }
                 });
-                let choices = [
-                    CoachStyle::Passenger,
-                    CoachStyle::Observation,
-                    CoachStyle::Sleeper,
-                    CoachStyle::Freight,
-                    CoachStyle::Tank,
-                ];
+                let choices = CoachStyle::ALL;
                 let count = if ui.available_width() >= 600.0 { 3 } else { 2 };
                 for pair in choices.chunks(count) {
                     ui.columns(count, |columns| {
@@ -437,20 +427,11 @@ impl CpuExpressApp {
                     "Novas silhuetas para os serviços que sua ferrovia realiza.",
                 );
                 for engine in crate::rendering::EngineStyle::ALL {
-                    use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
-                    let requirement = match engine {
-                        EngineStyle::Steam => None,
-                        EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
-                        EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
-                    };
+                    let requirement = engine.required_reward();
                     let unlocked = self.demo_mode
                         || requirement
                             .is_none_or(|r| self.world.service_snapshot().collection.contains(&r));
-                    let description = match engine {
-                        EngineStyle::Steam => "Vapor original · disponível desde o início",
-                        EngineStyle::Diesel => "Entregue 20 unidades de carga",
-                        EngineStyle::Electric => "Entregue 20 passageiros",
-                    };
+                    let description = engine.unlock_description();
                     let selected = self.config.visual.engine == engine;
                     let texture = self.stock_gallery.as_ref().unwrap().engine(engine);
                     let response = stock_card(

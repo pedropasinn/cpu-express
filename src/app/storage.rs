@@ -55,12 +55,8 @@ impl CpuExpressApp {
                         {
                             self.config.visual.livery = Default::default();
                         }
-                        use crate::{rendering::EngineStyle, simulation::service::ServiceReward};
-                        let requirement = match self.config.visual.engine {
-                            EngineStyle::Steam => None,
-                            EngineStyle::Diesel => Some(ServiceReward::CargoPostcard),
-                            EngineStyle::Electric => Some(ServiceReward::PassengerPostcard),
-                        };
+                        use crate::rendering::EngineStyle;
+                        let requirement = self.config.visual.engine.required_reward();
                         if requirement
                             .is_some_and(|r| !self.world.service_snapshot().collection.contains(&r))
                         {
