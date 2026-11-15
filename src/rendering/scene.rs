@@ -37,6 +37,7 @@ pub struct SceneRenderer {
     options: SceneOptions,
     context: Option<SceneContext>,
     scenery: super::SceneryContext,
+    scenery_life: super::SceneryLifeOptions,
     local_atmosphere: Option<(Weather, bool)>,
     local_lighting: Option<f64>,
     weather_wind: Option<f32>,
@@ -66,6 +67,7 @@ impl SceneRenderer {
             options: SceneOptions::default(),
             context: None,
             scenery: super::SceneryContext::default(),
+            scenery_life: super::SceneryLifeOptions::default(),
             local_atmosphere: None,
             local_lighting: None,
             weather_wind: None,
@@ -155,6 +157,12 @@ impl SceneRenderer {
         self.scenery = scenery;
     }
 
+    /// Freezes only the tagged scenery's decorative motion. Route scrolling,
+    /// lighting and the simulation remain owned by their existing adapters.
+    pub fn set_scenery_life_options(&mut self, options: super::SceneryLifeOptions) {
+        self.scenery_life = options;
+    }
+
     pub fn set_coaches(&mut self, coaches: [CoachStyle; 3]) {
         self.coaches = coaches;
     }
@@ -242,6 +250,7 @@ impl SceneRenderer {
             options.weather = Weather::Clear;
         }
         let view = View {
+            scenery_life: self.scenery_life,
             wind_speed_kmh: self.weather_wind,
             precipitation_mm: self.weather_precipitation,
             distance: finite_nonnegative(world.scroll_px()),

@@ -13,6 +13,7 @@ use super::{
 
 #[derive(Clone, Copy)]
 pub(super) struct View {
+    pub scenery_life: super::SceneryLifeOptions,
     pub wind_speed_kmh: Option<f32>,
     pub precipitation_mm: Option<f32>,
     pub distance: f64,

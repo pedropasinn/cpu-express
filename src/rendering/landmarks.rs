@@ -82,7 +82,10 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
         c.rect(0, 40, c.width(), 13, p.water);
         c.rect(0, 40, c.width(), 1, p.water_light);
     }
-    for tile in c.tiles(320) {
+    // Canopies can extend left of their tile. At a near-complete scroll offset,
+    // the next tile's left fringe is visible even at an exact-width boundary.
+    let last_middle_tile = ((c.width() + 319) / 320 + 1) * 320;
+    for tile in (-320..=last_middle_tile).step_by(320) {
         let x = tile - middle;
         if has(Tag::Plain) {
             // Lowland drainage channels, reeds and low, uninterrupted horizons.
@@ -162,7 +165,7 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
             }
         }
         if has(Tag::Port) {
-            ship(c, x + 100, p);
+            ship(c, x + 100 + super::landscape_life::ship_drift(v), p);
             crane(c, x + 25, p);
             crane(c, x + 242, p);
             c.rect(x + 213, 44, 103, 3, p.ink);
@@ -227,7 +230,13 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
                 if detail {
                     for y in ((46 - h)..42).step_by(5) {
                         for column in (3..w - 2).step_by(5) {
-                            c.rect(x + dx + column, y, 2, 2, p.wall);
+                            c.rect(
+                                x + dx + column,
+                                y,
+                                2,
+                                2,
+                                super::landscape_life::window_light(p, v),
+                            );
                         }
                     }
                 }
@@ -244,6 +253,7 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
         if has(Tag::Viaduct) {
             viaduct(c, x, p);
         }
+        super::landscape_life::middle(c, p, v, tags, x);
     }
     // The playing track stays horizontal. Structures suggest curves only in
     // the distance; nothing moves the train's sockets or the wheel baseline.
@@ -285,10 +295,7 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
                 c.rect(x + dx, 24, 1, 2, p.wall);
             }
             c.line((x + 17, 27), (x + 83, 29), p.far_shadow);
-            c.rect(x + 309, 39, 2, 16, p.ink);
-            c.rect(x + 307, 36, 6, 8, p.ink);
-            c.rect(x + 309, 38, 2, 2, p.trim);
-            c.rect(x + 309, 41, 2, 2, p.foliage_light);
+            super::landscape_life::near(c, p, v, tags, x);
         }
     }
 }
@@ -466,6 +473,7 @@ mod tests {
         ]);
         let p = Palette::for_biome(Biome::Forest);
         let view = View {
+            scenery_life: super::super::SceneryLifeOptions::default(),
             wind_speed_kmh: None,
             precipitation_mm: None,
             distance: 0.0,

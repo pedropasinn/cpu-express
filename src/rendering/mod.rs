@@ -7,6 +7,7 @@
 mod engine_details;
 mod engines;
 mod landmarks;
+mod landscape_life;
 mod legacy;
 mod palette;
 mod passengers;
@@ -22,6 +23,7 @@ mod stock_specialists;
 mod theme;
 
 pub use engines::EngineStyle;
+pub use landscape_life::SceneryLifeOptions;
 pub use palette::Palette;
 pub use passengers::{
     PassengerAction, PassengerKind, PassengerOptions, PassengerSprite, draw_passenger_preview,

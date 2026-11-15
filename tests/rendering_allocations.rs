@@ -187,7 +187,20 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         });
         for quality in [RenderQuality::Full, RenderQuality::Low] {
             renderer.set_quality(quality);
-            std::hint::black_box(renderer.render(&train, &world));
+            for reduce_motion in [false, true] {
+                renderer.set_scenery_life_options(cpu_express::rendering::SceneryLifeOptions {
+                    reduce_motion,
+                });
+                for (light, weather) in [
+                    (180.0, Weather::Clear),
+                    (348.0, Weather::Rain),
+                    (480.0, Weather::Fog),
+                ] {
+                    renderer.set_local_lighting(Some(light));
+                    renderer.set_local_atmosphere(Some((weather, light < 400.0)));
+                    std::hint::black_box(renderer.render(&train, &world));
+                }
+            }
         }
     }
     renderer.set_scenery_context(cpu_express::rendering::SceneryContext::default());

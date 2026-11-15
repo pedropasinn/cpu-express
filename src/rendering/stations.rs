@@ -515,6 +515,7 @@ mod tests {
 
     fn view() -> View {
         View {
+            scenery_life: super::super::SceneryLifeOptions::default(),
             wind_speed_kmh: None,
             precipitation_mm: None,
             distance: 0.0,

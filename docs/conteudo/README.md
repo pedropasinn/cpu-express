@@ -52,3 +52,13 @@ O catálogo agora contém 19 vagões. Os oito novos modelos, cargas exclusivas, 
 - [Recortes das miniaturas, com rodas e engates](agente5-miniaturas-final.png).
 
 O modo padrão de `stock_gallery` percorre os 19 modelos, conservando as onze primeiras linhas. As opções `--segunda` e `--recortes` exportam somente esta leva. A legenda e os comandos de reprodução estão no guia; resultados executados constam no relato ao fim de [RODADA_CONTEUDO.md](../RODADA_CONTEUDO.md). As notas anteriores permanecem como histórico das respectivas rodadas.
+
+## Vida na paisagem — Agente 6, 2026-11-15
+
+Elementos, ritmos, raridades propostas, redução de movimento e ligação ao adaptador estão em [VIDA_PAISAGEM.md](VIDA_PAISAGEM.md). A ambientação usa as etiquetas do Agente 2, sem alterar o Aurora de entrada vazia.
+
+- [Cenas em dia, entardecer, noite e chuva](agente6-cenarios-final.png).
+- [Quatro instantes ativos, com largura extra para conferir os detalhes](agente6-quadros-final-v2.png).
+- [Os mesmos instantes com movimento reduzido](agente6-estatico-final-v2.png).
+
+As folhas vêm do renderer desta fonte. São exportações headless; a ativação das etiquetas e da preferência no aplicativo continua sendo um pedido para integração. A folha `agente6-cenarios-revisao.png` é histórica desta rodada e foi preservada.
