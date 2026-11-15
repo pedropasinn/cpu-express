@@ -15,10 +15,14 @@ fn engine_catalog_round_trips_with_steam_as_missing_field_default() {
         serde_json::from_str::<OldPreferences>("{}").unwrap().engine,
         EngineStyle::Steam
     );
-    for (style, id) in EngineStyle::ALL
-        .into_iter()
-        .zip(["steam", "diesel", "electric"])
-    {
+    for (style, id) in EngineStyle::ALL.into_iter().zip([
+        "steam",
+        "diesel",
+        "electric",
+        "freight_steam",
+        "shunter",
+        "railcar",
+    ]) {
         let json = serde_json::to_string(&style).unwrap();
         assert_eq!(json, format!("\"{id}\""));
         assert_eq!(serde_json::from_str::<EngineStyle>(&json).unwrap(), style);
@@ -47,12 +51,14 @@ fn nonsteam_engines_ignore_existing_simulation_smoke_in_both_themes() {
     let mut renderer = SceneRenderer::new();
     for theme in [SceneTheme::Journey, SceneTheme::Legacy] {
         renderer.set_theme(theme);
-        renderer.set_engine(EngineStyle::Steam);
-        assert_ne!(
-            renderer.render(&train, &smoky).to_vec(),
-            renderer.render(&train, &clean)
-        );
-        for style in [EngineStyle::Diesel, EngineStyle::Electric] {
+        for style in EngineStyle::ALL.into_iter().filter(|e| e.emits_smoke()) {
+            renderer.set_engine(style);
+            assert_ne!(
+                renderer.render(&train, &smoky).to_vec(),
+                renderer.render(&train, &clean)
+            );
+        }
+        for style in EngineStyle::ALL.into_iter().filter(|e| !e.emits_smoke()) {
             renderer.set_engine(style);
             assert_eq!(
                 renderer.render(&train, &smoky).to_vec(),

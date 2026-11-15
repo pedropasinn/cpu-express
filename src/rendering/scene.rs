@@ -243,7 +243,7 @@ impl SceneRenderer {
         scenery::weather(&mut canvas, view);
         let origin = canvas.train_origin();
         canvas.origin = origin;
-        if self.engine == EngineStyle::Steam {
+        if self.engine.emits_smoke() {
             draw_smoke(&mut canvas, world, self.quality == RenderQuality::Full);
         }
         draw_train(

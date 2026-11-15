@@ -1,4 +1,4 @@
-//! Native renderer crops: rows Steam/Diesel/Electric, columns Aurora/Ocean/
+//! Native renderer crops: rows EngineStyle::ALL, columns Aurora/Ocean/
 //! Sunset/Midnight. `cargo run --example engine_gallery -- target/engines.ppm`
 use cpu_express::{
     config::Config,
@@ -20,7 +20,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let world = World::default();
     let mut renderer = SceneRenderer::new();
     renderer.set_local_atmosphere(Some((Weather::Clear, true)));
-    let mut sheet = vec![Color32::BLACK; 240 * 87];
+    let height = EngineStyle::ALL.len() * 29;
+    let mut sheet = vec![Color32::BLACK; 240 * height];
     for (row, engine) in EngineStyle::ALL.into_iter().enumerate() {
         renderer.set_engine(engine);
         for (column, livery) in Livery::ALL.into_iter().enumerate() {
@@ -34,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     let mut output = BufWriter::new(OpenOptions::new().write(true).create_new(true).open(path)?);
-    write!(output, "P6\n240 87\n255\n")?;
+    write!(output, "P6\n240 {height}\n255\n")?;
     for pixel in sheet {
         output.write_all(&[pixel.r(), pixel.g(), pixel.b()])?;
     }

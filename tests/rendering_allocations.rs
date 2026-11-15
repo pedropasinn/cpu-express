@@ -10,8 +10,8 @@ use std::{
 use cpu_express::{
     config::Config,
     rendering::{
-        Biome, EngineStyle, RenderQuality, SceneContext, SceneOptions, SceneRenderer, SceneTheme,
-        StationService, Weather,
+        Biome, CoachStyle, EngineStyle, RenderQuality, SceneContext, SceneOptions, SceneRenderer,
+        SceneTheme, StationService, Weather,
     },
     simulation::{Train, World},
 };
@@ -142,6 +142,13 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         renderer.set_local_lighting(Some(348.0));
         for livery in cpu_express::simulation::objectives::Livery::ALL {
             renderer.set_livery(livery);
+            std::hint::black_box(renderer.render(&train, &world));
+        }
+    }
+    for style in CoachStyle::ALL {
+        renderer.set_coaches([style; 3]);
+        for quality in [RenderQuality::Full, RenderQuality::Low] {
+            renderer.set_quality(quality);
             std::hint::black_box(renderer.render(&train, &world));
         }
     }

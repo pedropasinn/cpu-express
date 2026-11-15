@@ -5,12 +5,22 @@
     { "id": "sleeper", "name": "Dormitório", "seats": 12, "cargo_units": 0 },
     { "id": "observation", "name": "Panorâmico", "seats": 16, "cargo_units": 0 },
     { "id": "freight", "name": "Carga", "seats": 0, "cargo_units": 20 },
-    { "id": "tank", "name": "Tanque", "seats": 0, "cargo_units": 12 }
+    { "id": "tank", "name": "Tanque", "seats": 0, "cargo_units": 12 },
+    { "id": "dining", "name": "Restaurante", "seats": 8, "cargo_units": 0, "kind": "fictional", "required_stops": 2 },
+    { "id": "mail", "name": "Correio e bagagem", "seats": 0, "cargo_units": 16, "kind": "fictional", "required_stops": 1 },
+    { "id": "gondola", "name": "Gôndola de minério", "seats": 0, "cargo_units": 24, "kind": "fictional", "required_stops": 4 },
+    { "id": "hopper", "name": "Graneleiro", "seats": 0, "cargo_units": 24, "kind": "fictional", "required_stops": 6 },
+    { "id": "timber", "name": "Plataforma de toras", "seats": 0, "cargo_units": 18, "kind": "fictional", "required_stops": 8 },
+    { "id": "refrigerator", "name": "Frigorífico", "seats": 0, "cargo_units": 12, "kind": "fictional", "required_stops": 10 }
   ],
   "cargo": [
-    { "id": "parcels", "name": "Encomendas", "wagon": "freight" },
+    { "id": "parcels", "name": "Encomendas", "wagon": "freight", "compatible_wagons": ["mail"] },
     { "id": "supplies", "name": "Suprimentos", "wagon": "freight" },
-    { "id": "liquid", "name": "Líquidos", "wagon": "tank" }
+    { "id": "liquid", "name": "Líquidos", "wagon": "tank" },
+    { "id": "ore", "name": "Minério", "wagon": "gondola" },
+    { "id": "grain", "name": "Grãos", "wagon": "hopper" },
+    { "id": "timber", "name": "Madeira", "wagon": "timber" },
+    { "id": "chilled", "name": "Refrigerados", "wagon": "refrigerator" }
   ],
   "liveries": [
     { "id": "aurora", "name": "Verde Aurora", "required_stops": 0 },
@@ -25,6 +35,9 @@
   "locomotives": [
     { "id": "steam", "name": "Vapor Aurora", "traction": "steam", "kind": "fictional" },
     { "id": "diesel", "name": "Diesel do Porto", "traction": "diesel", "kind": "fictional", "unlocked_by": "cargo_postcard" },
-    { "id": "electric", "name": "Elétrica da Serra", "traction": "electric", "kind": "fictional", "unlocked_by": "passenger_postcard" }
+    { "id": "electric", "name": "Elétrica da Serra", "traction": "electric", "kind": "fictional", "unlocked_by": "passenger_postcard" },
+    { "id": "freight_steam", "name": "Vapor das Pedreiras", "traction": "steam", "kind": "fictional", "unlocked_by": "cargo_postcard" },
+    { "id": "shunter", "name": "Manobreira do Pátio", "traction": "diesel", "kind": "fictional", "unlocked_by": "cargo_postcard" },
+    { "id": "railcar", "name": "Automotriz dos Campos", "traction": "diesel", "kind": "fictional", "unlocked_by": "passenger_postcard" }
   ]
 }

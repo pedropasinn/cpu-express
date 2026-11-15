@@ -23,7 +23,61 @@ pub enum CoachStyle {
     Tank,
     /// A green viewing car with a raised panoramic glass canopy.
     Observation,
+    Dining,
+    Mail,
+    Gondola,
+    Hopper,
+    Timber,
+    Refrigerator,
 }
+
+impl CoachStyle {
+    pub const ALL: [Self; 11] = [
+        Self::Passenger,
+        Self::Sleeper,
+        Self::Freight,
+        Self::Tank,
+        Self::Observation,
+        Self::Dining,
+        Self::Mail,
+        Self::Gondola,
+        Self::Hopper,
+        Self::Timber,
+        Self::Refrigerator,
+    ];
+
+    pub fn name(self) -> &'static str {
+        crate::simulation::ServiceWagon::from(self).name()
+    }
+}
+
+macro_rules! wagon_adapters {
+    ($($variant:ident),+ $(,)?) => {
+        impl From<CoachStyle> for crate::simulation::ServiceWagon {
+            fn from(style: CoachStyle) -> Self {
+                match style { $(CoachStyle::$variant => Self::$variant),+ }
+            }
+        }
+        impl From<crate::simulation::ServiceWagon> for CoachStyle {
+            fn from(wagon: crate::simulation::ServiceWagon) -> Self {
+                match wagon { $(crate::simulation::ServiceWagon::$variant => Self::$variant),+ }
+            }
+        }
+    };
+}
+wagon_adapters!(
+    Passenger,
+    Sleeper,
+    Freight,
+    Tank,
+    Observation,
+    Dining,
+    Mail,
+    Gondola,
+    Hopper,
+    Timber,
+    Refrigerator
+);
 
 const INK: Color32 = rgb(38, 55, 56);
 const GOLD: Color32 = rgb(230, 195, 125);
@@ -141,6 +195,12 @@ fn draw_coach(
         CoachStyle::Freight => freight(canvas, x, details),
         CoachStyle::Tank => tank(canvas, x, details),
         CoachStyle::Observation => observation(canvas, x, illuminated, details),
+        CoachStyle::Dining => super::stock_details::dining(canvas, x, illuminated),
+        CoachStyle::Mail => super::stock_details::mail(canvas, x),
+        CoachStyle::Gondola => super::stock_details::gondola(canvas, x),
+        CoachStyle::Hopper => super::stock_details::hopper(canvas, x),
+        CoachStyle::Timber => super::stock_details::timber(canvas, x),
+        CoachStyle::Refrigerator => super::stock_details::refrigerator(canvas, x),
     }
 
     if details {
@@ -156,6 +216,12 @@ fn draw_coach(
 
 fn coach_finish(canvas: &mut Canvas<'_>, x: i32, style: CoachStyle) {
     match style {
+        CoachStyle::Dining
+        | CoachStyle::Mail
+        | CoachStyle::Gondola
+        | CoachStyle::Hopper
+        | CoachStyle::Timber
+        | CoachStyle::Refrigerator => {}
         CoachStyle::Passenger | CoachStyle::Sleeper => {
             // Rounded clerestory roof and a shaded eave, not a flat gold slab.
             canvas.rect(x + 3, 35, 32, 1, rgb(139, 158, 142));
@@ -355,13 +421,7 @@ mod tests {
     use super::*;
     use crate::rendering::{HEIGHT, WIDTH};
 
-    const STYLES: [CoachStyle; 5] = [
-        CoachStyle::Passenger,
-        CoachStyle::Sleeper,
-        CoachStyle::Freight,
-        CoachStyle::Tank,
-        CoachStyle::Observation,
-    ];
+    const STYLES: [CoachStyle; 11] = CoachStyle::ALL;
 
     #[test]
     fn every_car_has_two_wheels_on_the_baseline_rail() {
@@ -402,6 +462,24 @@ mod tests {
                 assert_ne!(&frame, existing, "{style:?} must have its own silhouette");
             }
             frames.push(frame);
+        }
+    }
+
+    #[test]
+    fn new_cars_have_distinct_opaque_silhouettes_and_keep_couplers() {
+        let mut masks = Vec::new();
+        for style in CoachStyle::ALL {
+            let mut frame = vec![Color32::TRANSPARENT; WIDTH * HEIGHT];
+            draw_coach(&mut Canvas::new(&mut frame), 58, 0.7, style, 0, false, true);
+            for x in [56, 57, 96, 97] {
+                assert_ne!(frame[51 * WIDTH + x].a(), 0, "{style:?}");
+            }
+            let mask: Vec<bool> = frame.iter().map(|p| p.a() != 0).collect();
+            // Passenger and Sleeper intentionally retain their historical outline.
+            if !matches!(style, CoachStyle::Passenger | CoachStyle::Sleeper) {
+                assert!(!masks.contains(&mask), "{style:?} needs a distinct outline");
+            }
+            masks.push(mask);
         }
     }
 

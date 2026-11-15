@@ -10,8 +10,75 @@ pub enum ServiceWagon {
     Freight,
     Tank,
     Observation,
+    Dining,
+    Mail,
+    Gondola,
+    Hopper,
+    Timber,
+    Refrigerator,
 }
+
 impl ServiceWagon {
+    pub const ALL: [Self; 11] = [
+        Self::Passenger,
+        Self::Sleeper,
+        Self::Freight,
+        Self::Tank,
+        Self::Observation,
+        Self::Dining,
+        Self::Mail,
+        Self::Gondola,
+        Self::Hopper,
+        Self::Timber,
+        Self::Refrigerator,
+    ];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Passenger => "Passageiros",
+            Self::Sleeper => "Dormitório",
+            Self::Freight => "Carga",
+            Self::Tank => "Tanque",
+            Self::Observation => "Panorâmico",
+            Self::Dining => "Restaurante",
+            Self::Mail => "Correio e bagagem",
+            Self::Gondola => "Gôndola de minério",
+            Self::Hopper => "Graneleiro",
+            Self::Timber => "Plataforma de toras",
+            Self::Refrigerator => "Frigorífico",
+        }
+    }
+
+    /// Provisional arrival milestones, derived from an already durable counter.
+    pub const fn required_stops(self) -> u64 {
+        match self {
+            Self::Mail => 1,
+            Self::Dining => 2,
+            Self::Gondola => 4,
+            Self::Hopper => 6,
+            Self::Timber => 8,
+            Self::Refrigerator => 10,
+            _ => 0,
+        }
+    }
+
+    pub const fn available(self, arrivals: u64) -> bool {
+        arrivals >= self.required_stops()
+    }
+
+    pub const fn cargo_capacity(self, kind: CargoKind) -> u32 {
+        match (self, kind) {
+            (Self::Freight, CargoKind::Parcels | CargoKind::Supplies)
+            | (Self::Mail, CargoKind::Parcels)
+            | (Self::Tank, CargoKind::Liquid)
+            | (Self::Gondola, CargoKind::Ore)
+            | (Self::Hopper, CargoKind::Grain)
+            | (Self::Timber, CargoKind::Timber)
+            | (Self::Refrigerator, CargoKind::Chilled) => self.capacity().1,
+            _ => 0,
+        }
+    }
+
     pub const fn capacity(self) -> (u32, u32) {
         match self {
             Self::Passenger => (24, 0),
@@ -19,6 +86,11 @@ impl ServiceWagon {
             Self::Observation => (16, 0),
             Self::Freight => (0, 20),
             Self::Tank => (0, 12),
+            Self::Dining => (8, 0),
+            Self::Mail => (0, 16),
+            Self::Gondola | Self::Hopper => (0, 24),
+            Self::Timber => (0, 18),
+            Self::Refrigerator => (0, 12),
         }
     }
 }
@@ -45,6 +117,45 @@ pub enum CargoKind {
     Parcels,
     Supplies,
     Liquid,
+    Ore,
+    Grain,
+    Timber,
+    Chilled,
+}
+impl CargoKind {
+    pub const ALL: [Self; 7] = [
+        Self::Parcels,
+        Self::Supplies,
+        Self::Liquid,
+        Self::Ore,
+        Self::Grain,
+        Self::Timber,
+        Self::Chilled,
+    ];
+    pub const SPECIALIZED: [Self; 4] = [Self::Ore, Self::Grain, Self::Timber, Self::Chilled];
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Parcels => "Encomendas",
+            Self::Supplies => "Suprimentos",
+            Self::Liquid => "Líquidos",
+            Self::Ore => "Minério",
+            Self::Grain => "Grãos",
+            Self::Timber => "Madeira",
+            Self::Chilled => "Refrigerados",
+        }
+    }
+    pub const fn wagon_hint(self) -> &'static str {
+        match self {
+            Self::Parcels => "vagão de carga (20 un.) ou correio (16 un.)",
+            Self::Supplies => "vagão de carga (20 un.)",
+            Self::Liquid => "vagão-tanque (12 un.)",
+            Self::Ore => "gôndola de minério (24 un.)",
+            Self::Grain => "graneleiro (24 un.)",
+            Self::Timber => "plataforma de toras (18 un.)",
+            Self::Chilled => "frigorífico (12 un.)",
+        }
+    }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -147,11 +258,7 @@ impl ServiceState {
     pub fn cargo_capacity(&self, kind: CargoKind) -> u32 {
         self.composition
             .iter()
-            .map(|w| match (w, kind) {
-                (ServiceWagon::Freight, CargoKind::Parcels | CargoKind::Supplies) => 20,
-                (ServiceWagon::Tank, CargoKind::Liquid) => 12,
-                _ => 0,
-            })
+            .map(|w| w.cargo_capacity(kind))
             .sum()
     }
     fn cargo_fits(&self) -> bool {
@@ -171,6 +278,16 @@ impl ServiceState {
     }
     /// Reject downsizing occupied stock; never silently discard passengers or cargo.
     pub fn set_composition(&mut self, composition: [ServiceWagon; 3]) -> Result<(), String> {
+        if let Some(wagon) = composition
+            .iter()
+            .find(|w| !w.available(self.last_processed_visit))
+        {
+            return Err(format!(
+                "{}: complete {} chegadas para liberar.",
+                wagon.name(),
+                wagon.required_stops()
+            ));
+        }
         let old = self.composition;
         self.composition = composition;
         let (p, c) = self.capacity();
@@ -251,6 +368,10 @@ impl ServiceState {
         self.branch.validate(snapshot)?;
         let invalid = || "Estado de serviços inválido; arquivo preservado.".to_owned();
         if self.last_processed_visit != snapshot.stations_visited
+            || self
+                .composition
+                .iter()
+                .any(|w| !w.available(snapshot.stations_visited))
             || self.passengers.len() > 12
             || self.arrivals.len() > 32
             || self.owned_rewards.len() > 4
@@ -460,6 +581,27 @@ impl ServiceState {
             } else {
                 CargoKind::Supplies
             };
+            // Old compositions keep the exact entropy, type and unit sequence.
+            // Specialized offers are opt-in by equipping their wagon. With mixed
+            // stock, every other offer keeps the legacy draw (when transportable).
+            let mut compatible = CargoKind::SPECIALIZED
+                .into_iter()
+                .filter(|kind| self.cargo_capacity(*kind) >= units);
+            let count = compatible.clone().count();
+            let kind = if count > 0
+                && (self.cargo_capacity(kind) < units || (entropy >> 24).is_multiple_of(2))
+            {
+                compatible
+                    .nth(((entropy >> 32) % count as u64) as usize)
+                    .unwrap()
+            } else if self.composition.contains(&ServiceWagon::Mail)
+                && self.cargo_capacity(kind) < units
+                && self.cargo_capacity(CargoKind::Parcels) >= units
+            {
+                CargoKind::Parcels
+            } else {
+                kind
+            };
             self.contract = Some(CargoContract {
                 kind,
                 id: visit,
@@ -518,5 +660,82 @@ impl ServiceState {
         }
         self.arrivals.push(summary);
         self.last_processed_visit = visit;
+    }
+}
+
+#[cfg(test)]
+mod content_tests {
+    use super::*;
+
+    #[test]
+    fn old_stock_keeps_offer_kind_units_destination_and_reward() {
+        let legacy = [
+            ServiceWagon::Passenger,
+            ServiceWagon::Sleeper,
+            ServiceWagon::Observation,
+            ServiceWagon::Freight,
+            ServiceWagon::Tank,
+        ];
+        for a in legacy {
+            for b in legacy {
+                for c in legacy {
+                    for seed in [0, 1, 42, u64::MAX] {
+                        for visit in 1_u64..=16 {
+                            let mut snapshot =
+                                super::super::World::with_seed(seed).journey_snapshot();
+                            snapshot.stations_visited = visit;
+                            let mut state = ServiceState::migrated(snapshot);
+                            state.last_processed_visit = visit - 1;
+                            state.composition = [a, b, c];
+                            let entropy = seed.wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
+                            let parcels = [a, b, c].contains(&ServiceWagon::Freight);
+                            let liquid = [a, b, c].contains(&ServiceWagon::Tank);
+                            let kind = if liquid && (!parcels || (entropy >> 16) % 3 == 2) {
+                                CargoKind::Liquid
+                            } else if (entropy >> 16).is_multiple_of(2) {
+                                CargoKind::Parcels
+                            } else {
+                                CargoKind::Supplies
+                            };
+                            state.arrive(snapshot);
+                            let contract = state.contract.unwrap();
+                            assert_eq!(contract.kind, kind);
+                            assert_eq!(contract.units, 4 + ((entropy >> 8) % 9) as u32);
+                            assert_eq!(contract.reward, u64::from(contract.units) * 10);
+                            assert_eq!(contract.origin, STATIONS[(visit % 4) as usize]);
+                            assert_eq!(
+                                contract.destination,
+                                STATIONS[((visit % 4) as usize + 1 + (entropy % 3) as usize) % 4]
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn mixed_stock_still_offers_legacy_and_each_equipped_specialty() {
+        let mut found = [false; 4];
+        for visit in 20_u64..200 {
+            let mut snapshot = super::super::World::with_seed(42).journey_snapshot();
+            snapshot.stations_visited = visit;
+            let mut state = ServiceState::migrated(snapshot);
+            state.last_processed_visit = visit - 1;
+            state.composition = [
+                ServiceWagon::Freight,
+                ServiceWagon::Gondola,
+                ServiceWagon::Hopper,
+            ];
+            state.arrive(snapshot);
+            match state.contract.unwrap().kind {
+                CargoKind::Parcels => found[0] = true,
+                CargoKind::Supplies => found[1] = true,
+                CargoKind::Ore => found[2] = true,
+                CargoKind::Grain => found[3] = true,
+                other => panic!("unexpected unequipped cargo: {other:?}"),
+            }
+        }
+        assert_eq!(found, [true; 4]);
     }
 }

@@ -62,13 +62,7 @@ fn builtin_catalogue_is_valid_and_loads_identically_every_time() {
 #[test]
 fn wagons_and_cargo_mirror_the_service_rules() {
     let catalog = builtin();
-    let wagons = [
-        ServiceWagon::Passenger,
-        ServiceWagon::Sleeper,
-        ServiceWagon::Observation,
-        ServiceWagon::Freight,
-        ServiceWagon::Tank,
-    ];
+    let wagons = ServiceWagon::ALL;
     assert_eq!(catalog.wagons.len(), wagons.len());
     for wagon in wagons {
         let definition = catalog
@@ -77,15 +71,21 @@ fn wagons_and_cargo_mirror_the_service_rules() {
             .find(|w| w.id == id(wagon))
             .unwrap_or_else(|| panic!("{wagon:?} missing"));
         assert_eq!((definition.seats, definition.cargo_units), wagon.capacity());
+        assert_eq!(definition.name, wagon.name());
+        assert_eq!(definition.required_stops, wagon.required_stops());
+        assert_eq!(definition.kind, ContentKind::Fictional);
     }
-    let kinds = [CargoKind::Parcels, CargoKind::Supplies, CargoKind::Liquid];
+    let kinds = CargoKind::ALL;
     assert_eq!(catalog.cargo.len(), kinds.len());
     for kind in kinds {
         let definition = catalog.cargo.iter().find(|c| c.id == id(kind)).unwrap();
+        assert_eq!(definition.name, kind.name());
         for wagon in wagons {
             let mut state = ServiceState::migrated(World::default().journey_snapshot());
             state.composition = [wagon; 3];
-            let expected = if definition.wagon == id(wagon) {
+            let expected = if definition.wagon == id(wagon)
+                || definition.compatible_wagons.contains(&id(wagon))
+            {
                 wagon.capacity().1 * 3
             } else {
                 0
@@ -97,6 +97,39 @@ fn wagons_and_cargo_mirror_the_service_rules() {
             );
         }
     }
+}
+
+#[test]
+fn additional_cargo_carriers_are_validated_and_old_core_defaults_stay_valid() {
+    let mut core: Value = serde_json::from_str(CORE).unwrap();
+    core["cargo"][0]["compatible_wagons"] = json!(["missing"]);
+    assert!(
+        errors_of(&core, &[])
+            .iter()
+            .any(|e| e.contains("`missing` não existe"))
+    );
+    core["cargo"][0]["compatible_wagons"] = json!(["passenger"]);
+    assert!(
+        errors_of(&core, &[])
+            .iter()
+            .any(|e| e.contains("não transporta carga"))
+    );
+    core["cargo"][0]["compatible_wagons"] = json!(["freight"]);
+    assert!(errors_of(&core, &[]).iter().any(|e| e.contains("repetido")));
+    core["cargo"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("compatible_wagons");
+    for wagon in core["wagons"].as_array_mut().unwrap() {
+        wagon.as_object_mut().unwrap().remove("required_stops");
+        wagon.as_object_mut().unwrap().remove("kind");
+    }
+    let old = Catalog::from_documents(&core.to_string(), &[]).unwrap();
+    assert!(
+        old.wagons
+            .iter()
+            .all(|w| w.required_stops == 0 && w.kind == ContentKind::Fictional)
+    );
 }
 
 #[test]
@@ -145,6 +178,21 @@ fn rewards_liveries_and_locomotives_mirror_the_game() {
             Traction::Electric,
             Some(ServiceReward::PassengerPostcard),
         ),
+        (
+            EngineStyle::FreightSteam,
+            Traction::Steam,
+            Some(ServiceReward::CargoPostcard),
+        ),
+        (
+            EngineStyle::Shunter,
+            Traction::Diesel,
+            Some(ServiceReward::CargoPostcard),
+        ),
+        (
+            EngineStyle::Railcar,
+            Traction::Diesel,
+            Some(ServiceReward::PassengerPostcard),
+        ),
     ] {
         let definition = catalog
             .locomotives
@@ -154,6 +202,7 @@ fn rewards_liveries_and_locomotives_mirror_the_game() {
         assert_eq!(definition.traction, traction);
         assert_eq!(definition.kind, ContentKind::Fictional);
         assert_eq!(definition.unlocked_by, unlock.map(id));
+        assert_eq!(engine.required_reward(), unlock);
         assert_eq!(definition.name, engine.name());
     }
 }
@@ -282,8 +331,8 @@ fn invalid_core_is_refused_with_the_offending_identifier() {
             &["vagão `passenger`", "mais de uma vez"],
         ),
         (
-            |c| c["cargo"][2]["wagon"] = json!("hopper"),
-            &["carga `liquid`", "`hopper` não existe"],
+            |c| c["cargo"][2]["wagon"] = json!("unknown_wagon"),
+            &["carga `liquid`", "`unknown_wagon` não existe"],
         ),
         (
             |c| c["cargo"][0]["wagon"] = json!("sleeper"),

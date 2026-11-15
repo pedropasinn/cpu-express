@@ -15,13 +15,7 @@ use crate::{
     simulation::{Train, World, objectives::Livery},
 };
 
-const COACH_STYLES: [CoachStyle; 5] = [
-    CoachStyle::Passenger,
-    CoachStyle::Sleeper,
-    CoachStyle::Freight,
-    CoachStyle::Tank,
-    CoachStyle::Observation,
-];
+const COACH_STYLES: [CoachStyle; 11] = CoachStyle::ALL;
 
 // Native 320 x 70 coordinates, [left, top, width, height]. rolling_stock draws
 // the first (tail) coach at x=58: couplers span 56..=97, canopy starts at y=32,
@@ -31,11 +25,11 @@ const COACH_CROP: [usize; 4] = [56, 31, 42, 28];
 // The chimney starts at y=31; all four wheels finish at y=57.
 const ENGINE_CROP: [usize; 4] = [180, 30, 60, 29];
 
-/// Twelve cached textures made by the same renderer as the live train.
+/// Cached textures made by the same renderer as the live train.
 pub struct StockGallery {
-    coaches: [TextureHandle; 5],
+    coaches: [TextureHandle; CoachStyle::ALL.len()],
     liveries: [TextureHandle; 4],
-    engines: [TextureHandle; 3],
+    engines: [TextureHandle; EngineStyle::ALL.len()],
 }
 
 impl StockGallery {
@@ -78,14 +72,9 @@ impl StockGallery {
             )
         });
         // Engine silhouettes always use Aurora, regardless of the final livery
-        // rendered above. These three uploads happen only at gallery creation.
+        // rendered above. Uploads happen only at gallery creation.
         renderer.set_livery(Livery::Aurora);
-        let engines = [
-            EngineStyle::Steam,
-            EngineStyle::Diesel,
-            EngineStyle::Electric,
-        ]
-        .map(|style| {
+        let engines = EngineStyle::ALL.map(|style| {
             renderer.set_engine(style);
             let image = crop(renderer.render(&train, &world), ENGINE_CROP);
             ctx.load_texture(
@@ -104,13 +93,7 @@ impl StockGallery {
     /// A 42 x 28 native-pixel image of the first coach, including both wheels.
     #[must_use]
     pub fn coach(&self, style: CoachStyle) -> &TextureHandle {
-        &self.coaches[match style {
-            CoachStyle::Passenger => 0,
-            CoachStyle::Sleeper => 1,
-            CoachStyle::Freight => 2,
-            CoachStyle::Tank => 3,
-            CoachStyle::Observation => 4,
-        }]
+        &self.coaches[CoachStyle::ALL.iter().position(|s| *s == style).unwrap()]
     }
 
     /// A 60 x 29 native-pixel engine image with the renderer's actual enamel.
@@ -128,11 +111,7 @@ impl StockGallery {
     /// never renders or uploads; unlock rules belong to the caller.
     #[must_use]
     pub fn engine(&self, style: EngineStyle) -> &TextureHandle {
-        &self.engines[match style {
-            EngineStyle::Steam => 0,
-            EngineStyle::Diesel => 1,
-            EngineStyle::Electric => 2,
-        }]
+        &self.engines[EngineStyle::ALL.iter().position(|s| *s == style).unwrap()]
     }
 }
 
@@ -387,7 +366,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn gallery_uploads_twelve_distinct_textures_and_reuses_handles() {
+    fn gallery_uploads_all_distinct_textures_and_reuses_handles() {
         let ctx = egui::Context::default();
         let gallery = StockGallery::new(&ctx);
         let mut ids = Vec::new();
@@ -403,11 +382,7 @@ mod tests {
             assert!(std::ptr::eq(texture, gallery.livery(livery)));
             ids.push(texture.id());
         }
-        for engine in [
-            EngineStyle::Steam,
-            EngineStyle::Diesel,
-            EngineStyle::Electric,
-        ] {
+        for engine in EngineStyle::ALL {
             let texture = gallery.engine(engine);
             assert_eq!(texture.size(), [60, 29]);
             assert!(std::ptr::eq(texture, gallery.engine(engine)));

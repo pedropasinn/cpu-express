@@ -39,6 +39,10 @@ pub struct WagonDef {
     pub name: String,
     pub seats: u32,
     pub cargo_units: u32,
+    #[serde(default = "fictional_kind")]
+    pub kind: ContentKind,
+    #[serde(default)]
+    pub required_stops: u64,
     #[serde(default)]
     pub aliases: Vec<String>,
     #[serde(default)]
@@ -52,6 +56,9 @@ pub struct CargoDef {
     pub name: String,
     /// Wagon type able to carry this cargo.
     pub wagon: String,
+    /// Additional compatible stock; `wagon` remains the primary recommendation.
+    #[serde(default)]
+    pub compatible_wagons: Vec<String>,
     #[serde(default)]
     pub aliases: Vec<String>,
     #[serde(default)]
@@ -132,6 +139,10 @@ pub struct LocomotiveDef {
 pub enum ContentKind {
     Fictional,
     Real,
+}
+
+fn fictional_kind() -> ContentKind {
+    ContentKind::Fictional
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
@@ -475,6 +486,15 @@ fn validate_core(core: &CoreDocument) -> Vec<CatalogError> {
             .map(|l| (l.id.as_str(), &l.aliases[..])),
     );
     for wagon in &core.wagons {
+        if wagon.kind != ContentKind::Fictional {
+            report.push(
+                at,
+                format!(
+                    "vagão `{}`: material rodante real exige um futuro esquema de fontes",
+                    wagon.id
+                ),
+            );
+        }
         if wagon.seats == 0 && wagon.cargo_units == 0 {
             report.push(at, format!("vagão `{}`: sem lugares e sem carga", wagon.id));
         }
@@ -492,19 +512,28 @@ fn validate_core(core: &CoreDocument) -> Vec<CatalogError> {
         }
     }
     for cargo in &core.cargo {
-        match core.wagons.iter().find(|w| w.id == cargo.wagon) {
-            None => report.push(
-                at,
-                format!("carga `{}`: o vagão `{}` não existe", cargo.id, cargo.wagon),
-            ),
-            Some(wagon) if wagon.cargo_units == 0 => report.push(
-                at,
-                format!(
-                    "carga `{}`: o vagão `{}` não transporta carga",
-                    cargo.id, cargo.wagon
+        let mut seen = BTreeSet::new();
+        for wagon_id in std::iter::once(&cargo.wagon).chain(&cargo.compatible_wagons) {
+            if !seen.insert(wagon_id) {
+                report.push(
+                    at,
+                    format!("carga `{}`: vagão `{wagon_id}` repetido", cargo.id),
+                );
+            }
+            match core.wagons.iter().find(|w| w.id == *wagon_id) {
+                None => report.push(
+                    at,
+                    format!("carga `{}`: o vagão `{}` não existe", cargo.id, wagon_id),
                 ),
-            ),
-            Some(_) => {}
+                Some(wagon) if wagon.cargo_units == 0 => report.push(
+                    at,
+                    format!(
+                        "carga `{}`: o vagão `{}` não transporta carga",
+                        cargo.id, wagon_id
+                    ),
+                ),
+                Some(_) => {}
+            }
         }
     }
     if !core

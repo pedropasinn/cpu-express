@@ -4,6 +4,7 @@
 //! sleeps, moves a native window, or changes the train's speed. The app's
 //! nearest-neighbor texture upload and the baseline interface are unchanged.
 
+mod engine_details;
 mod engines;
 mod legacy;
 mod palette;
@@ -12,6 +13,7 @@ mod scene;
 mod scenery;
 mod sprites;
 mod stations;
+mod stock_details;
 mod theme;
 
 pub use engines::EngineStyle;
