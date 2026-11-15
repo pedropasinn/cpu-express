@@ -369,7 +369,13 @@ impl CpuExpressApp {
     pub(super) fn arrival_ticket(&self, ui: &mut egui::Ui, last_only: bool) {
         let state = self.world.service_snapshot();
         if state.arrivals.is_empty() {
-            ui.label("Seu primeiro bilhete de chegada aparecerá após a próxima parada.");
+            ui.label(
+                egui::RichText::new(format!(
+                    "Seu diário começa na próxima estação: {}",
+                    self.destination_name()
+                ))
+                .color(game::MUTED),
+            );
         }
         for arrival in state
             .arrivals
@@ -378,35 +384,40 @@ impl CpuExpressApp {
             .take(if last_only { 1 } else { 32 })
         {
             let passengers = format!(
-                "{} embarcaram · {} desembarcaram",
+                "+{} embarcaram / -{} desembarcaram",
                 arrival.boarded, arrival.alighted
             );
-            let cargo = format!(
-                "{} carregadas · {} entregues · {} devolvidas",
-                arrival.cargo_loaded, arrival.cargo_delivered, arrival.cargo_returned
-            );
-            let points = format!("+{} pontos de serviço", arrival.earned);
+            // Only what happened: a stop without cargo shows no row of zeros.
+            let cargo = [
+                (arrival.cargo_loaded, "carregadas"),
+                (arrival.cargo_delivered, "entregues"),
+                (arrival.cargo_returned, "devolvidas, sem pontos"),
+            ]
+            .iter()
+            .filter(|(units, _)| *units > 0)
+            .map(|(units, verb)| format!("{units} {verb}"))
+            .collect::<Vec<_>>()
+            .join(" · ");
+            let points = format!("+{}", arrival.earned);
+            let mut items = vec![ArrivalItem {
+                icon: Icon::Passenger,
+                label: "Passageiros",
+                value: &passengers,
+            }];
+            if !cargo.is_empty() {
+                items.push(ArrivalItem {
+                    icon: Icon::Cargo,
+                    label: "Carga",
+                    value: &cargo,
+                });
+            }
             widgets::arrival_summary(
                 ui,
                 ("arrival", arrival.visit),
                 &ArrivalSummary {
                     station: arrival.station.name(),
-                    detail: &format!(
-                        "Chegada {} · registro salvo · últimas 32 chegadas",
-                        arrival.visit
-                    ),
-                    items: &[
-                        ArrivalItem {
-                            icon: Icon::Passenger,
-                            label: "Passageiros",
-                            value: &passengers,
-                        },
-                        ArrivalItem {
-                            icon: Icon::Cargo,
-                            label: "Carga",
-                            value: &cargo,
-                        },
-                    ],
+                    detail: &format!("Chegada {}", arrival.visit),
+                    items: &items,
                     reward: (arrival.earned > 0).then_some(points.as_str()),
                     action_label: None,
                 },

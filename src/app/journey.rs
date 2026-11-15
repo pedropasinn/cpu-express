@@ -272,33 +272,69 @@ impl CpuExpressApp {
             self.collection_controls(ui);
         }
         if self.journey_page == 2 {
-            self.storage_controls(ui);
-            ui.separator();
+            // A failed save stays visible even with the file section closed.
             if let Some(message) = &self.progress_notice {
-                ui.colored_label(game::BLUE, message);
+                ui.colored_label(game::RED, message);
             }
-            if self.progress_path.is_some() {
-                game::hint(
+            ui.horizontal(|ui| {
+                game::pixel_label(ui, "Últimas chegadas", 2.0, game::INK);
+                game::hint(ui, "O diário guarda as últimas 32 chegadas.");
+            });
+            if self.world.service_snapshot().arrivals.is_empty() {
+                ui.horizontal(|ui| {
+                    let (rect, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
+                    game::sprite(ui.painter(), rect, game::Sprite::Bilhete);
+                    self.arrival_ticket(ui, false);
+                });
+                if game::button(
                     ui,
-                    "Progresso salvo a cada 30 s e ao sair. Sem avanço offline.",
-                );
-                if ui.button("Salvar viagem agora").clicked() {
-                    self.persist_progress(true);
+                    "diary-open-map",
+                    Icon::Map,
+                    "Ver mapa",
+                    false,
+                    egui::vec2(170.0, 34.0),
+                )
+                .clicked()
+                {
+                    self.journey_page = 0;
                 }
             } else {
-                game::hint(ui, "Viagem temporária de demonstração/teste.");
+                self.arrival_ticket(ui, false);
             }
-            self.arrival_ticket(ui, false);
-            egui::CollapsingHeader::new("Diário da viagem")
-                .default_open(true)
-                .show(ui, |ui| {
-                    if self.travel_log.is_empty() {
-                        ui.label("As próximas chegadas e conquistas aparecerão aqui.");
-                    }
+            if !self.travel_log.is_empty() {
+                egui::CollapsingHeader::new("Outros acontecimentos").show(ui, |ui| {
                     for message in self.travel_log.iter().rev() {
                         ui.label(message);
                     }
                 });
+            }
+            egui::CollapsingHeader::new("Arquivo da viagem").show(ui, |ui| {
+                if self.progress_path.is_some() {
+                    ui.label(
+                        egui::RichText::new("Salva sozinho a cada 30 s e ao sair.")
+                            .color(game::MUTED),
+                    );
+                    if game::button(
+                        ui,
+                        "save-now",
+                        Icon::Save,
+                        "Salvar agora",
+                        false,
+                        egui::vec2(200.0, 34.0),
+                    )
+                    .clicked()
+                    {
+                        self.persist_progress(true);
+                    }
+                } else {
+                    ui.label(
+                        egui::RichText::new("Viagem temporária · não salva neste perfil")
+                            .color(game::MUTED),
+                    );
+                }
+                self.storage_controls(ui);
+            });
             egui::CollapsingHeader::new("Estações e conquistas").show(ui, |ui| {
                 let journey = self.world.journey_snapshot();
                 ui.label(
