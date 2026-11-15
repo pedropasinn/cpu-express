@@ -3,9 +3,12 @@ use cpu_express::{
     simulation::{BranchKind, Journey, Route, World},
 };
 fn directory() -> std::path::PathBuf {
+    // Windows clock samples may repeat across concurrently running tests.
+    static NEXT_DIRECTORY: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     let p = std::env::temp_dir().join(format!(
-        "ce-import-{}-{}",
+        "ce-import-{}-{}-{}",
         std::process::id(),
+        NEXT_DIRECTORY.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()

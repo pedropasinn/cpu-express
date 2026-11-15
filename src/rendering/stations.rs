@@ -57,6 +57,7 @@ fn draw(
         service,
         view,
         super::StationStyles::default(),
+        (super::PassengerOptions::default(), view.options.weather),
     );
 }
 
@@ -66,12 +67,21 @@ pub(super) fn draw_styled(
     service: Option<StationService>,
     view: View,
     styles: super::StationStyles,
+    (options, weather): (super::PassengerOptions, super::Weather),
 ) {
     if let Some(branch) = world.excursion_snapshot().current {
         draw_excursion(canvas, branch, view);
         return;
     }
     let journey = world.journey_snapshot();
+    // Only real-service presentation opts into the new cast. None retains
+    // pixel-exact illustrative galleries, and excursions never borrow counts.
+    let cast = service.map(|_| super::passengers::PlatformCast {
+        seed: journey.seed,
+        arrival: journey.stations_visited,
+        options,
+        weather,
+    });
     let traveled = journey.segment_progress * journey.route_segment.length_units;
     let waiting = world.station_wait() > 0.0;
     if let Some(x) = station_x(if waiting { 0.0 } else { traveled }, false, canvas.width()) {
@@ -86,14 +96,14 @@ pub(super) fn draw_styled(
                 alighting: 1,
             })
             .normalized();
-        draw_station_with_style(
+        draw_station_content(
             canvas,
             x,
-            (journey.route_segment.from.index(), styles.departing),
+            (journey.route_segment.from.index(), styles.departing, cast),
             service,
             Biome::from(journey.route_segment.biome_hint),
             view,
-            !waiting && traveled < 100.0,
+            !waiting && traveled < 100.0 && (cast.is_none() || traveled >= 1.0),
         );
     }
     if !waiting
@@ -109,10 +119,10 @@ pub(super) fn draw_styled(
                 alighting: 1,
             }
         };
-        draw_station_with_style(
+        draw_station_content(
             canvas,
             x,
-            (journey.route_segment.to.index(), styles.arriving),
+            (journey.route_segment.to.index(), styles.arriving, cast),
             approaching,
             Biome::from(journey.next_biome_hint),
             view,
@@ -188,6 +198,30 @@ fn draw_station_with_style(
     canvas: &mut Canvas<'_>,
     x: i32,
     (station, style): (usize, Option<super::StationStyle>),
+    service: StationService,
+    biome: super::Biome,
+    view: View,
+    departing: bool,
+) {
+    draw_station_content(
+        canvas,
+        x,
+        (station, style, None),
+        service,
+        biome,
+        view,
+        departing,
+    );
+}
+
+fn draw_station_content(
+    canvas: &mut Canvas<'_>,
+    x: i32,
+    (station, style, cast): (
+        usize,
+        Option<super::StationStyle>,
+        Option<super::passengers::PlatformCast>,
+    ),
     service: StationService,
     biome: super::Biome,
     view: View,
@@ -371,10 +405,31 @@ fn draw_station_with_style(
         }
     }
     if detailed {
-        // Platform edge joints and a porter remain present across all phases.
+        // Platform edge joints remain present across all phases.
         for dx in (0..70).step_by(8) {
             canvas.pixel(x + dx, 55, p.trim);
         }
+    }
+    if let Some(cast) = cast {
+        let crowd_style = style.or(Some(match biome {
+            Biome::GreenValley => super::StationStyle::Plateau,
+            Biome::Forest => super::StationStyle::TimberHalt,
+            Biome::HighDesert => super::StationStyle::MountainStone,
+            Biome::Coast => super::StationStyle::PortTerminal,
+        }));
+        super::passengers::platform(
+            canvas,
+            x,
+            cast,
+            service,
+            crowd_style,
+            &p,
+            (view.seconds, detailed, departing),
+        );
+        return;
+    }
+    if detailed {
+        // Original illustrative porter for callers without real service data.
         canvas.rect(x + 66, 46, 2, 2, cream);
         canvas.rect(x + 65, 48, 4, 4, p.water);
         canvas.rect(x + 66, 52, 1, 2, ink);
@@ -510,6 +565,10 @@ mod tests {
                             Some(StationService::default()),
                             view,
                             styles,
+                            (
+                                super::super::PassengerOptions::default(),
+                                view.options.weather,
+                            ),
                         );
                         pixels
                     };

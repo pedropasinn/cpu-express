@@ -193,6 +193,45 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         }
     }
     renderer.set_station_styles(cpu_express::rendering::StationStyles::default());
+    for reduce_motion in [false, true] {
+        for cold in [false, true] {
+            renderer.set_passenger_options(cpu_express::rendering::PassengerOptions {
+                reduce_motion,
+                cold,
+            });
+            for weather in [Weather::Clear, Weather::Rain, Weather::Snow] {
+                renderer.set_local_atmosphere(Some((weather, true)));
+                for progress in [0.0, 0.1, 0.5, 0.9, 1.0] {
+                    renderer.set_station_service(Some(StationService {
+                        progress,
+                        boarding: 3,
+                        alighting: 3,
+                    }));
+                    std::hint::black_box(renderer.render(&train, &world));
+                }
+            }
+        }
+    }
+    let mut portraits = [eframe::egui::Color32::TRANSPARENT; 320 * 70];
+    for kind in cpu_express::rendering::PassengerKind::ALL {
+        for action in cpu_express::rendering::PassengerAction::ALL {
+            for frame in 0..4 {
+                cpu_express::rendering::draw_passenger_preview(
+                    &mut portraits,
+                    (160, 53),
+                    cpu_express::rendering::PassengerSprite {
+                        kind,
+                        action,
+                        frame,
+                        outfit: frame,
+                        weather: Weather::Rain,
+                        options: cpu_express::rendering::PassengerOptions::default(),
+                    },
+                    &cpu_express::rendering::Palette::for_biome(Biome::Forest),
+                );
+            }
+        }
+    }
     for branch_world in &branch_worlds {
         for weather in [Weather::Rain, Weather::Snow, Weather::Thunderstorm] {
             renderer.set_local_atmosphere(Some((weather, true)));

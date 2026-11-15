@@ -44,6 +44,7 @@ pub struct SceneRenderer {
     coaches: [CoachStyle; 3],
     station_service: Option<StationService>,
     station_styles: super::StationStyles,
+    passenger_options: super::PassengerOptions,
     engine: EngineStyle,
 }
 
@@ -71,6 +72,7 @@ impl SceneRenderer {
             weather_precipitation: None,
             station_service: None,
             station_styles: super::StationStyles::default(),
+            passenger_options: super::PassengerOptions::default(),
             engine: EngineStyle::default(),
             coaches: [
                 CoachStyle::Observation,
@@ -169,6 +171,12 @@ impl SceneRenderer {
         self.station_styles = styles;
     }
 
+    /// Pure presentation controls; the application adapter owns preferences.
+    /// Static poses preserve real counts and the start/end of each service.
+    pub fn set_passenger_options(&mut self, options: super::PassengerOptions) {
+        self.passenger_options = options;
+    }
+
     pub fn set_livery(&mut self, livery: crate::simulation::objectives::Livery) {
         self.livery = livery;
     }
@@ -229,6 +237,7 @@ impl SceneRenderer {
             options.day_cycle = true;
             light_seconds = phase;
         }
+        let passenger_weather = options.weather;
         if self.quality == RenderQuality::Low {
             options.weather = Weather::Clear;
         }
@@ -273,6 +282,7 @@ impl SceneRenderer {
             self.station_service,
             view,
             self.station_styles,
+            (self.passenger_options, passenger_weather),
         );
         scenery::weather(&mut canvas, view);
         let origin = canvas.train_origin();

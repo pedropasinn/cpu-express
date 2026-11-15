@@ -9,6 +9,7 @@ mod engines;
 mod landmarks;
 mod legacy;
 mod palette;
+mod passengers;
 mod rolling_stock;
 mod scene;
 mod scenery;
@@ -21,6 +22,9 @@ mod theme;
 
 pub use engines::EngineStyle;
 pub use palette::Palette;
+pub use passengers::{
+    PassengerAction, PassengerKind, PassengerOptions, PassengerSprite, draw_passenger_preview,
+};
 pub use rolling_stock::CoachStyle;
 pub use scene::{
     DISPLAY_HEIGHT, DISPLAY_WIDTH, FRAMEBUFFER_BYTES, HEIGHT, MAX_WIDTH, MIN_WIDTH, SceneRenderer,
