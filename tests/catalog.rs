@@ -544,7 +544,14 @@ fn renamed_retired_and_unknown_identifiers_have_distinct_outcomes() {
         catalog.resolve_wagon("freight"),
         Resolution::Renamed("boxcar")
     );
-    assert_eq!(catalog.resolve_wagon("hopper"), Resolution::Unknown);
+    assert_eq!(
+        catalog.resolve_wagon("hopper"),
+        Resolution::Current("hopper")
+    );
+    assert_eq!(
+        catalog.resolve_wagon("unknown_wagon_fixture"),
+        Resolution::Unknown
+    );
     // A retired livery stays recognisable so a save that owns it is not rejected.
     assert_eq!(
         catalog.resolve_livery("midnight"),

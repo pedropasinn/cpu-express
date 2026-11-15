@@ -6,11 +6,13 @@
 
 mod engine_details;
 mod engines;
+mod landmarks;
 mod legacy;
 mod palette;
 mod rolling_stock;
 mod scene;
 mod scenery;
+mod segment_scenery;
 mod sprites;
 mod stations;
 mod stock_details;
@@ -23,6 +25,7 @@ pub use scene::{
     DISPLAY_HEIGHT, DISPLAY_WIDTH, FRAMEBUFFER_BYTES, HEIGHT, MAX_WIDTH, MIN_WIDTH, SceneRenderer,
     WIDTH,
 };
+pub use segment_scenery::{SceneryContext, SegmentScenery};
 pub use stations::StationService;
 pub use theme::{
     BIOME_LENGTH_PX, Biome, DAY_CYCLE_SECONDS, ROUTE_PERIOD_PX, RenderQuality, SceneContext,

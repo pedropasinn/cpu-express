@@ -31,3 +31,15 @@ As galerias de motores e material e o conversor recusam substituir arquivos exis
 - **Aurora:** exportação existente de quatro biomas e composições antigas para conferir continuidade visual. Não substitui os testes de hash.
 
 As miniaturas de oficina usam o mesmo renderer, recortes de 42 × 28 e 60 × 29, nearest e upload somente na criação de `StockGallery`. A inspeção das imagens será headless; não comprova apresentação pelo compositor, faixa no desktop, DPI ou navegação nativa.
+
+## Atualização de estado — Agente 2, 2026-11-15
+
+O registro acima descreve a entrega histórica do Agente 1. A base recebida pelo Agente 2 já continha os adaptadores em `10073dd`. Após corrigir a expectativa antiga de `hopper` desconhecido no teste de catálogo, a suíte final desta rodada passou: 356 testes, zero falhas, dois exportadores opcionais ignorados; Clippy sem warnings e formatação aprovados. Não houve edição de arquivos protegidos pelo Agente 2. As galerias específicas de motores/vagões continuam com os comandos históricos acima, sem afirmar nova inspeção visual delas.
+
+A documentação de cenário, legenda das linhas e instruções de integração estão em [CENARIO.md](CENARIO.md). Imagens finais geradas e inspecionadas nesta rodada:
+
+- [12 etiquetas e quatro combinações, em quatro condições](agente2-cenarios-final.png).
+- [13 trechos de Paranaguá–Curitiba com etiquetas e biomas do catálogo](agente2-trechos-final.png).
+- [Circuito Aurora pelo exportador art_review](agente2-aurora-final.png).
+
+As imagens sem o sufixo `-final` são prévias preservadas para histórico. O relato completo do Agente 2 está no fim de [RODADA_CONTEUDO.md](../RODADA_CONTEUDO.md).

@@ -36,6 +36,7 @@ pub struct SceneRenderer {
     quality: RenderQuality,
     options: SceneOptions,
     context: Option<SceneContext>,
+    scenery: super::SceneryContext,
     local_atmosphere: Option<(Weather, bool)>,
     local_lighting: Option<f64>,
     weather_wind: Option<f32>,
@@ -62,6 +63,7 @@ impl SceneRenderer {
             quality: RenderQuality::Full,
             options: SceneOptions::default(),
             context: None,
+            scenery: super::SceneryContext::default(),
             local_atmosphere: None,
             local_lighting: None,
             weather_wind: None,
@@ -141,6 +143,12 @@ impl SceneRenderer {
     /// No new fields or responsibilities are required from the baseline World.
     pub fn set_scene_context(&mut self, context: Option<SceneContext>) {
         self.context = context.map(SceneContext::normalized);
+    }
+
+    /// Explicit opt-in from the route adapter. Reset to Default for Aurora and
+    /// excursions without segment tags. No catalog lookup or heap allocation.
+    pub fn set_scenery_context(&mut self, scenery: super::SceneryContext) {
+        self.scenery = scenery;
     }
 
     pub fn set_coaches(&mut self, coaches: [CoachStyle; 3]) {
@@ -228,11 +236,24 @@ impl SceneRenderer {
         };
         let weight = (context.blend * 256.0).round() as u32;
         if weight >= 256 {
-            scenery::background(&mut self.pixels, context.next_biome, view);
+            scenery::background(
+                &mut self.pixels,
+                context.next_biome,
+                view,
+                self.scenery.next,
+            );
         } else {
-            scenery::background(&mut self.pixels, context.biome, view);
-            if weight > 0 && context.biome != context.next_biome {
-                scenery::background(&mut self.transition, context.next_biome, view);
+            scenery::background(&mut self.pixels, context.biome, view, self.scenery.current);
+            if weight > 0
+                && (context.biome != context.next_biome
+                    || self.scenery.current != self.scenery.next)
+            {
+                scenery::background(
+                    &mut self.transition,
+                    context.next_biome,
+                    view,
+                    self.scenery.next,
+                );
                 blend_backgrounds(&mut self.pixels, &self.transition, weight);
             }
         }
@@ -334,6 +355,59 @@ fn draw_smoke(canvas: &mut Canvas<'_>, world: &World, detailed: bool) {
 #[cfg(test)]
 mod width_tests {
     use super::*;
+    #[test]
+    fn pontes_e_tuneis_preservam_todos_os_pixels_do_trem_e_trilhos() {
+        use crate::rendering::{SceneryContext, SegmentScenery};
+        use crate::simulation::catalog::SceneryTag as T;
+        let train = Train::new(&crate::config::Config::default());
+        let world = World::default();
+        let mut renderer = SceneRenderer::new();
+        renderer.set_local_lighting(Some(180.0));
+        renderer.set_scenery_context(SceneryContext::new(SegmentScenery::from_tags(&[
+            T::Bridge,
+            T::Tunnel,
+            T::Viaduct,
+            T::Mountain,
+            T::Forest,
+        ])));
+        for width in [160, 320, 641] {
+            renderer.set_width(width);
+            for engine in EngineStyle::ALL {
+                renderer.set_engine(engine);
+                let mut train_pixels = vec![Color32::TRANSPARENT; width * HEIGHT];
+                let mut c = Canvas::new(&mut train_pixels);
+                c.origin = c.train_origin();
+                draw_train(
+                    &mut c,
+                    train.wheel_phase(),
+                    &renderer.coaches,
+                    engine,
+                    false,
+                    true,
+                );
+                let frame = renderer.render(&train, &world);
+                for (expected, actual) in train_pixels.iter().zip(frame) {
+                    if expected.a() == 255 {
+                        assert_eq!(expected, actual);
+                    }
+                }
+                let rail = frame[57 * width..61 * width].to_vec();
+                renderer.set_scenery_context(SceneryContext::default());
+                assert_eq!(
+                    rail,
+                    renderer.render(&train, &world)[57 * width..61 * width]
+                );
+                renderer.set_scenery_context(SceneryContext::new(SegmentScenery::from_tags(&[
+                    T::Bridge,
+                    T::Tunnel,
+                    T::Viaduct,
+                    T::Mountain,
+                    T::Forest,
+                ])));
+            }
+        }
+    }
+
     #[test]
     fn largura_variavel_cobre_superficie_e_reutiliza_buffers() {
         let train = Train::new(&crate::config::Config::default());
