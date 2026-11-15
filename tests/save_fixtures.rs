@@ -105,7 +105,10 @@ fn rc7_fixtures_load_without_invented_service_and_without_touching_the_file() {
         assert_eq!(service.last_processed_visit, fixture.visits);
         assert_eq!(service.owned_rewards.len(), fixture.liveries);
         for livery in Livery::ALL {
-            assert_eq!(service.owns(livery), livery.available(journey));
+            assert_eq!(
+                service.owns(livery),
+                Livery::ORIGINAL.contains(&livery) && livery.available(journey)
+            );
         }
         fs::remove_dir_all(dir).unwrap();
     }

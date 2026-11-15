@@ -331,7 +331,9 @@ impl ServiceState {
             contracts_completed: 0,
             credits: 0,
             collection: Vec::new(),
-            owned_rewards: Livery::ALL
+            // Legacy migration restores only the original earned content.
+            // Later paints are granted by the next arrival, as with older v4.
+            owned_rewards: Livery::ORIGINAL
                 .into_iter()
                 .filter(|l| l.available(snapshot))
                 .collect(),
@@ -463,7 +465,7 @@ impl ServiceState {
                 .any(|w| !w.available(snapshot.stations_visited))
             || self.passengers.len() > 12
             || self.arrivals.len() > 32
-            || self.owned_rewards.len() > 4
+            || self.owned_rewards.len() > Livery::ALL.len()
         {
             return Err(invalid());
         }
@@ -496,7 +498,9 @@ impl ServiceState {
         {
             return Err(invalid());
         }
-        if Livery::ALL
+        // Older v4 checkpoints cannot own later content yet. Arrival grants
+        // missing additions through the existing idempotent transaction.
+        if Livery::ORIGINAL
             .iter()
             .any(|r| r.available(snapshot) && !self.owns(*r))
         {

@@ -139,10 +139,21 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
     }
     for engine in EngineStyle::ALL {
         renderer.set_engine(engine);
-        renderer.set_local_lighting(Some(348.0));
-        for livery in cpu_express::simulation::objectives::Livery::ALL {
-            renderer.set_livery(livery);
-            std::hint::black_box(renderer.render(&train, &world));
+        for quality in [RenderQuality::Full, RenderQuality::Low] {
+            renderer.set_quality(quality);
+            for (light, weather) in [
+                (90.0, Weather::Clear),
+                (348.0, Weather::Clear),
+                (450.0, Weather::Clear),
+                (90.0, Weather::Rain),
+            ] {
+                renderer.set_local_lighting(Some(light));
+                renderer.set_local_atmosphere(Some((weather, light < 400.0)));
+                for livery in cpu_express::simulation::objectives::Livery::ALL {
+                    renderer.set_livery(livery);
+                    std::hint::black_box(renderer.render(&train, &world));
+                }
+            }
         }
     }
     for style in CoachStyle::ALL {
