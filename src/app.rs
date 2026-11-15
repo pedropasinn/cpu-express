@@ -2310,7 +2310,7 @@ impl CpuExpressApp {
                                         Icon::Train,
                                     ),
                                     PanelTab::Journey => (
-                                        "Diário de viagem",
+                                        "Viagem",
                                         "Estações, objetivos e novas descobertas",
                                         Icon::Book,
                                     ),
@@ -2328,7 +2328,7 @@ impl CpuExpressApp {
                             };
                             game::ribbon(ui, title, emblem, compact);
                             let _ = subtitle;
-                            let dock_height = if compact { 48.0 } else { 72.0 };
+                            let dock_height = if compact { 48.0 } else { 76.0 };
                             let content_height =
                                 (ui.available_height() - 34.0 - dock_height).max(90.0);
                             egui::ScrollArea::vertical()

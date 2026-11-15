@@ -14,6 +14,7 @@ pub mod rendering;
 pub mod simulation;
 
 pub mod ui_game;
+pub mod ui_sprites;
 pub mod ui_stock;
 
 pub mod ui_services;

@@ -368,6 +368,16 @@ pub fn icon(painter: &egui::Painter, rect: Rect, icon: Icon, color: Color32) {
     if !rect.is_finite() || rect.width() <= 0.0 || rect.height() <= 0.0 {
         return;
     }
+    // Enabled icons use the coloured artwork; a muted colour keeps the flat silhouette,
+    // which is how a disabled control is told apart.
+    // A selected button already has a coloured face: its icon stays a light silhouette.
+    if color != MUTED
+        && color != CARD
+        && let Some(art) = sprite_for(icon)
+        && sprite(painter, rect, art)
+    {
+        return;
+    }
     let ppp = painter.ctx().pixels_per_point();
     let cell = (rect.width().min(rect.height()) * ppp / 12.0).floor() / ppp;
     // Below twelve physical pixels there is no legible pixel grid.
@@ -498,6 +508,8 @@ pub fn button(
         let stacked = face.width() < 100.0 && rect.height() >= 46.0;
         let icon_size = if stacked {
             18.0
+        } else if face.height() >= 40.0 {
+            32.0
         } else {
             24.0_f32.min(face.height() - 8.0)
         };
@@ -1212,7 +1224,16 @@ pub fn ribbon(ui: &mut egui::Ui, title: &str, emblem: Icon, compact: bool) -> Re
         Stroke::new(1.0, BUTTER),
         egui::StrokeKind::Inside,
     );
-    icon(&painter, badge.shrink(4.0), emblem, WOOD_DARK);
+    icon(
+        &painter,
+        if medallion >= 32.0 {
+            badge
+        } else {
+            badge.shrink(4.0)
+        },
+        emblem,
+        WOOD_DARK,
+    );
     // Capitals occupy rows two to eight of the ten-row line.
     let origin = egui::pos2(badge.right() + 10.0, body.center().y - 2.0 - cell * 5.5);
     display_text(&painter, origin, title, cell, CREAM, WOOD_DARK);
@@ -1300,7 +1321,7 @@ pub fn dock_button(
     let pixel_caption =
         caption && pixel_text_size(label, 2.0).x <= face.width() - 6.0 && face.height() >= 48.0;
     let reserved = if pixel_caption {
-        30.0
+        26.0
     } else if caption {
         20.0
     } else {
@@ -1314,12 +1335,6 @@ pub fn dock_button(
         } else {
             face.center().y
         },
-    );
-    icon(
-        &painter,
-        Rect::from_center_size(icon_center + Vec2::splat(1.0), Vec2::splat(icon_size)),
-        icon_kind,
-        WOOD_DARK,
     );
     icon(
         &painter,
@@ -1400,4 +1415,64 @@ pub fn section_frame(ui: &mut egui::Ui, title: &str, content: impl FnOnce(&mut e
         ui.add_space(6.0);
         content(ui);
     });
+}
+
+pub use crate::ui_sprites::Sprite;
+
+/// Paints a coloured 16 x 16 sprite centred in `rect`, on whole physical pixels.
+/// Returns false, drawing nothing, when `rect` is too small for the grid.
+pub fn sprite(painter: &egui::Painter, rect: Rect, sprite: Sprite) -> bool {
+    if !rect.is_finite() {
+        return false;
+    }
+    let ppp = painter.ctx().pixels_per_point();
+    let cell = (rect.width().min(rect.height()) * ppp / 16.0).floor() / ppp;
+    if cell <= 0.0 {
+        return false;
+    }
+    let origin = rect.center() - Vec2::splat(cell * 8.0);
+    let origin = egui::pos2(
+        (origin.x * ppp).round() / ppp,
+        (origin.y * ppp).round() / ppp,
+    );
+    let mut mesh = egui::Mesh::default();
+    for &(x, y, width, height, r, g, b) in sprite.cells() {
+        mesh.add_colored_rect(
+            Rect::from_min_size(
+                origin + egui::vec2(f32::from(x), f32::from(y)) * cell,
+                egui::vec2(f32::from(width), f32::from(height)) * cell,
+            ),
+            Color32::from_rgb(r, g, b),
+        );
+    }
+    painter.add(egui::Shape::mesh(mesh));
+    true
+}
+
+/// Coloured artwork for an interface icon, when one exists.
+const fn sprite_for(icon: Icon) -> Option<Sprite> {
+    Some(match icon {
+        Icon::Train => Sprite::Locomotiva,
+        Icon::Map => Sprite::Mapa,
+        Icon::Paint => Sprite::Oficina,
+        Icon::Settings => Sprite::Engrenagem,
+        Icon::Help => Sprite::Ajuda,
+        Icon::Star => Sprite::Estrela,
+        Icon::Lock => Sprite::Cadeado,
+        Icon::Check => Sprite::Confirmar,
+        Icon::Clock => Sprite::Relogio,
+        Icon::Station => Sprite::Estacao,
+        Icon::Cpu => Sprite::Cpu,
+        Icon::Memory => Sprite::Memoria,
+        Icon::Pause => Sprite::Pausar,
+        Icon::Play => Sprite::Retomar,
+        Icon::Save => Sprite::Salvar,
+        Icon::Close => Sprite::Fechar,
+        Icon::Weather => Sprite::Nuvem,
+        Icon::Passenger => Sprite::Passageiro,
+        Icon::Cargo => Sprite::Caixote,
+        Icon::Ticket => Sprite::Bilhete,
+        Icon::Mail => Sprite::Encomenda,
+        Icon::Book => return None,
+    })
 }
