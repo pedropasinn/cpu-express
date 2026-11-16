@@ -234,7 +234,8 @@
         "port",
         "coast",
         "plain",
-        "bridge"
+        "bridge",
+        "industrial"
       ],
       "adaptation": "simplified",
       "source_refs": [
@@ -271,7 +272,9 @@
         "plain",
         "forest",
         "river",
-        "bridge"
+        "bridge",
+        "village",
+        "town"
       ],
       "adaptation": "simplified",
       "source_refs": [
@@ -289,7 +292,9 @@
       "scenery": [
         "forest",
         "river",
-        "bridge"
+        "bridge",
+        "village",
+        "town"
       ],
       "adaptation": "simplified",
       "source_refs": [
@@ -437,7 +442,10 @@
       "scenery": [
         "plateau",
         "farmland",
-        "bridge"
+        "bridge",
+        "city",
+        "suburb",
+        "industrial"
       ],
       "adaptation": "simplified",
       "source_refs": [
@@ -455,7 +463,10 @@
       "scenery": [
         "plateau",
         "urban",
-        "bridge"
+        "bridge",
+        "city",
+        "suburb",
+        "industrial"
       ],
       "adaptation": "simplified",
       "source_refs": [

@@ -191,6 +191,11 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
         cpu_express::simulation::catalog::SceneryTag::Port,
         cpu_express::simulation::catalog::SceneryTag::Coast,
         cpu_express::simulation::catalog::SceneryTag::Plateau,
+        cpu_express::simulation::catalog::SceneryTag::Town,
+        cpu_express::simulation::catalog::SceneryTag::City,
+        cpu_express::simulation::catalog::SceneryTag::Industrial,
+        cpu_express::simulation::catalog::SceneryTag::Suburb,
+        cpu_express::simulation::catalog::SceneryTag::Village,
     ] {
         renderer.set_scenery_context(cpu_express::rendering::SceneryContext {
             current: cpu_express::rendering::SegmentScenery::from_tags(&[tag]),
@@ -214,6 +219,22 @@ fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
             }
         }
     }
+    for seed in [0, 2026, u64::MAX] {
+        for density in [0.0, 0.35, 0.7, 1.0, f32::NAN] {
+            renderer.set_settlement_context(cpu_express::rendering::SettlementContext {
+                seed,
+                density,
+            });
+            renderer.set_scenery_context(cpu_express::rendering::SceneryContext::new(
+                cpu_express::rendering::SegmentScenery::from_tags(&[
+                    cpu_express::simulation::catalog::SceneryTag::City,
+                    cpu_express::simulation::catalog::SceneryTag::Industrial,
+                ]),
+            ));
+            std::hint::black_box(renderer.render(&train, &world));
+        }
+    }
+    renderer.set_settlement_context(Default::default());
     renderer.set_scenery_context(cpu_express::rendering::SceneryContext::default());
     for style in cpu_express::rendering::StationStyle::ALL {
         renderer.set_station_styles(cpu_express::rendering::StationStyles {

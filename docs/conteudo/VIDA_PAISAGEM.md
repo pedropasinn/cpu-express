@@ -1,5 +1,7 @@
 # Vida e movimento na paisagem — Agente 6
 
+> Atualização E4, 2026-11-16: E5 ligou as etiquetas e a preferência de movimento ao aplicativo; E2 também fornece redução por bateria baixa. As construções e animações adicionais estão em [Cenário E4](../expansao/CENARIO_E4.md). As pendências e evidências abaixo são o registro histórico da entrega do Agente 6.
+
 Arte original em Rust, `kind: fictional`, de 2026-11-15. São vinhetas de ambientação, sem reprodução de construções reais, fatos históricos, recursos externos ou efeitos no serviço ferroviário. Não há itens persistidos, novas capacidades ou recompensas.
 
 ## Conteúdo e ritmo

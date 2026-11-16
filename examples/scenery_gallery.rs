@@ -21,9 +21,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     let path = std::env::args()
         .nth(1)
         .ok_or("informe um novo caminho .ppm")?;
+    let mode = std::env::args().nth(2).unwrap_or_default();
+    if mode.starts_with("--elementos") {
+        return elements(&path, mode.contains("noite"));
+    }
+    let expansion = mode == "--expansao" || mode == "--faixa60" || mode == "--aproximacao";
+    let strip = mode == "--faixa60";
+    let approach = mode == "--aproximacao";
     let motion = std::env::args().nth(2).as_deref() == Some("--vida");
     let still = std::env::args().nth(2).as_deref() == Some("--estatico");
-    let width = if motion || still { WIDTH * 2 } else { WIDTH };
+    let width = if motion || still || expansion {
+        WIDTH * 2
+    } else {
+        WIDTH
+    };
     let mut out = BufWriter::new(OpenOptions::new().write(true).create_new(true).open(path)?);
     let samples: &[(Biome, &[T])] = &[
         (Biome::GreenValley, &[T::Plain]),
@@ -50,6 +61,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         (Biome::GreenValley, &[T::Plateau, T::Farmland, T::Urban]),
     ];
     // Catalog access belongs to this offline exporter, never to the renderer.
+    let expanded: &[(Biome, &[T])] = &[
+        (Biome::GreenValley, &[T::Village]),
+        (Biome::GreenValley, &[T::Town]),
+        (Biome::GreenValley, &[T::City]),
+        (Biome::GreenValley, &[T::Industrial]),
+        (Biome::Coast, &[T::Port]),
+        (Biome::GreenValley, &[T::Suburb]),
+    ];
     let line_rows;
     let rows = if std::env::args().nth(2).as_deref() == Some("--linha") {
         let catalog = Catalog::builtin()
@@ -71,13 +90,26 @@ fn main() -> Result<(), Box<dyn Error>> {
             })
             .collect::<Vec<_>>();
         line_rows.as_slice()
+    } else if strip {
+        &expanded[2..3]
+    } else if expansion {
+        expanded
     } else {
         samples
     };
-    write!(out, "P6\n{} {}\n255\n", width * 4, HEIGHT * rows.len())?;
+    write!(
+        out,
+        "P6\n{} {}\n255\n",
+        width * 4,
+        if strip {
+            60 * rows.len()
+        } else {
+            HEIGHT * rows.len()
+        }
+    )?;
     let train = Train::new(&Config::default());
     let mut world = World::default();
-    let distance = if motion || still {
+    let distance = if motion || still || expansion {
         // The longer second leg keeps both stations outside the 640 px sheet.
         let route = cpu_express::simulation::Route::default();
         route.segments()[0].length_units + route.segments()[1].length_units * 0.5
@@ -117,7 +149,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 (180.0, Weather::Rain, 60.0),
             ]
         };
-        let frames = states.map(|(light, weather, time)| {
+        let mut column = 0;
+        let frames = states.map(|(mut light, mut weather, time)| {
+            use cpu_express::rendering::SettlementContext;
+            renderer.set_settlement_context(SettlementContext {
+                seed: cpu_express::simulation::DEFAULT_JOURNEY_SEED,
+                density: if approach {
+                    [0.0, 0.35, 0.7, 1.0][column]
+                } else {
+                    1.0
+                },
+            });
+            column += 1;
+            if approach {
+                light = 180.0;
+                weather = Weather::Clear;
+            }
             world.restore_journey(
                 cpu_express::simulation::Journey::restore_checkpoint(
                     cpu_express::simulation::DEFAULT_JOURNEY_SEED,
@@ -130,7 +177,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             renderer.set_local_lighting(Some(light));
             renderer.render(&train, &world).to_vec()
         });
-        for y in 0..HEIGHT {
+        for y in (if strip { 10 } else { 0 })..HEIGHT {
             for frame in &frames {
                 for pixel in &frame[y * width..(y + 1) * width] {
                     out.write_all(&[pixel.r(), pixel.g(), pixel.b()])?;
@@ -143,5 +190,36 @@ fn main() -> Result<(), Box<dyn Error>> {
         "Galeria de cenário: {} linhas × 4 condições, pixels nativos.",
         rows.len()
     );
+    Ok(())
+}
+
+fn elements(path: &str, night: bool) -> Result<(), Box<dyn Error>> {
+    use cpu_express::rendering::{SettlementElement, draw_settlement_preview};
+    use eframe::egui::Color32;
+    let width = 64;
+    let columns = 8;
+    let rows = SettlementElement::ALL.len().div_ceil(columns);
+    let mut sheet = vec![Color32::from_rgb(35, 44, 55); columns * width * rows * HEIGHT];
+    let mut cell = vec![Color32::BLACK; width * HEIGHT];
+    for (index, element) in SettlementElement::ALL.into_iter().enumerate() {
+        draw_settlement_preview(
+            &mut cell,
+            element,
+            2026,
+            if night { 480.0 } else { 180.0 },
+            Weather::Clear,
+        );
+        for y in 0..HEIGHT {
+            let target = (index / columns * HEIGHT + y) * columns * width + index % columns * width;
+            sheet[target..target + width].copy_from_slice(&cell[y * width..(y + 1) * width]);
+        }
+        println!("{}: {}", index + 1, element.name());
+    }
+    let mut out = BufWriter::new(OpenOptions::new().write(true).create_new(true).open(path)?);
+    write!(out, "P6\n{} {}\n255\n", columns * width, rows * HEIGHT)?;
+    for pixel in sheet {
+        out.write_all(&[pixel.r(), pixel.g(), pixel.b()])?;
+    }
+    out.flush()?;
     Ok(())
 }

@@ -1,5 +1,7 @@
 # Cenários por etiqueta — Agente 2
 
+> Atualização E4, 2026-11-16: o aplicativo já recebe etiquetas e movimento desde E5. O conjunto passou a `u32`, com cinco etiquetas novas e 38 construções adicionais; Aurora agora usa essa arte intencionalmente. Consulte [Cenário E4](../expansao/CENARIO_E4.md). O texto abaixo preserva o contrato e as evidências históricas da primeira entrega.
+
 Arte original desenhada em Rust, `kind: fictional`, criada em 2026-11-15. As vinhetas evocam tipos de paisagem; não reproduzem estruturas identificadas, engenharia ou quantidade de túneis da ferrovia real. Nenhum recurso externo, logotipo ou ficha histórica foi usado.
 
 ## Entrada e integração

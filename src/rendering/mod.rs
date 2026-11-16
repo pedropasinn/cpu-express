@@ -16,6 +16,7 @@ mod rolling_stock;
 mod scene;
 mod scenery;
 mod segment_scenery;
+mod settlements;
 mod sprites;
 mod station_architecture;
 mod stations;
@@ -35,6 +36,7 @@ pub use scene::{
     WIDTH,
 };
 pub use segment_scenery::{SceneryContext, SegmentScenery};
+pub use settlements::{SettlementContext, SettlementElement, draw_settlement_preview};
 pub use station_architecture::{StationStyle, StationStyles};
 pub use stations::StationService;
 pub use theme::{

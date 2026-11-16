@@ -255,6 +255,7 @@ pub(super) fn draw(c: &mut Canvas<'_>, p: &Palette, v: View, tags: SegmentScener
         }
         super::landscape_life::middle(c, p, v, tags, x);
     }
+    super::settlements::draw(c, p, v, tags);
     // The playing track stays horizontal. Structures suggest curves only in
     // the distance; nothing moves the train's sockets or the wheel baseline.
     c.rect(0, 54, c.width(), 16, p.foreground_shadow);
@@ -473,6 +474,7 @@ mod tests {
         ]);
         let p = Palette::for_biome(Biome::Forest);
         let view = View {
+            settlement: super::super::SettlementContext::default(),
             scenery_life: super::super::SceneryLifeOptions::default(),
             wind_speed_kmh: None,
             precipitation_mm: None,

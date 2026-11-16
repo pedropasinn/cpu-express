@@ -47,6 +47,22 @@ impl CpuExpressApp {
             self.world.excursion_snapshot().current.is_some(),
         );
         self.renderer.set_scenery_context(scenery);
+        let snapshot = self.world.journey_snapshot();
+        // Aurora's inhabited endpoints; E3 must supply the active itinerary's
+        // endpoints (including reverse travel) when it enables other lines.
+        let (departure, arrival) = match snapshot.route_segment.index {
+            0 => (true, false),
+            2 => (false, true),
+            3 => (true, true),
+            _ => (false, false),
+        };
+        self.renderer
+            .set_settlement_context(crate::rendering::SettlementContext::along_segment(
+                snapshot.seed,
+                snapshot.segment_progress,
+                departure,
+                arrival,
+            ));
         self.renderer.set_station_styles(styles);
         self.renderer.set_scenery_life_options(SceneryLifeOptions {
             reduce_motion: self.config.reduce_menu_motion || self.machine_effects.low_power,

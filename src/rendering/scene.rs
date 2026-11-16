@@ -37,6 +37,7 @@ pub struct SceneRenderer {
     options: SceneOptions,
     context: Option<SceneContext>,
     scenery: super::SceneryContext,
+    settlement: super::SettlementContext,
     scenery_life: super::SceneryLifeOptions,
     local_atmosphere: Option<(Weather, bool)>,
     local_lighting: Option<f64>,
@@ -69,6 +70,7 @@ impl SceneRenderer {
             options: SceneOptions::default(),
             context: None,
             scenery: super::SceneryContext::default(),
+            settlement: super::SettlementContext::default(),
             scenery_life: super::SceneryLifeOptions::default(),
             local_atmosphere: None,
             local_lighting: None,
@@ -164,8 +166,13 @@ impl SceneRenderer {
         self.context = context.map(SceneContext::normalized);
     }
 
-    /// Explicit opt-in from the route adapter. Reset to Default for Aurora and
-    /// excursions without segment tags. No catalog lookup or heap allocation.
+    /// Route-owned variation and proximity for the tagged settlement layers.
+    pub fn set_settlement_context(&mut self, context: super::SettlementContext) {
+        self.settlement = context;
+    }
+
+    /// Explicit route tags. Empty restores the untagged legacy landscape;
+    /// excursions without scenery must clear this context. No catalog lookup.
     pub fn set_scenery_context(&mut self, scenery: super::SceneryContext) {
         self.scenery = scenery;
     }
@@ -263,6 +270,7 @@ impl SceneRenderer {
             options.weather = Weather::Clear;
         }
         let view = View {
+            settlement: self.settlement,
             scenery_life: self.scenery_life,
             wind_speed_kmh: self.weather_wind,
             precipitation_mm: self.weather_precipitation,

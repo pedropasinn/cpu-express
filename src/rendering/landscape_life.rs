@@ -322,6 +322,7 @@ mod tests {
 
     fn view() -> View {
         View {
+            settlement: super::super::SettlementContext::default(),
             scenery_life: SceneryLifeOptions::default(),
             wind_speed_kmh: None,
             precipitation_mm: None,
@@ -356,6 +357,7 @@ mod tests {
                     frame(
                         tag,
                         View {
+                            settlement: super::super::SettlementContext::default(),
                             scenery_life: SceneryLifeOptions {
                                 reduce_motion: true
                             },
@@ -432,6 +434,7 @@ mod tests {
     #[test]
     fn luzes_seguem_iluminacao_mesmo_com_movimento_reduzido() {
         let v = View {
+            settlement: super::super::SettlementContext::default(),
             scenery_life: SceneryLifeOptions {
                 reduce_motion: true,
             },
@@ -480,6 +483,7 @@ mod tests {
             &mut Canvas::new(&mut pixels),
             &p,
             View {
+                settlement: super::super::SettlementContext::default(),
                 scenery_life: SceneryLifeOptions {
                     reduce_motion: true,
                 },

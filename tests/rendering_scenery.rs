@@ -7,7 +7,7 @@ use cpu_express::{
     simulation::{Train, World, catalog::SceneryTag as T},
 };
 
-const TAGS: [T; 12] = [
+const TAGS: [T; 17] = [
     T::Plain,
     T::Farmland,
     T::Forest,
@@ -20,6 +20,11 @@ const TAGS: [T; 12] = [
     T::Port,
     T::Coast,
     T::Plateau,
+    T::Town,
+    T::City,
+    T::Industrial,
+    T::Suburb,
+    T::Village,
 ];
 
 #[test]

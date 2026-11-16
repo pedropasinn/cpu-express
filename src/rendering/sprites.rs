@@ -17,6 +17,7 @@ pub(super) const fn rgb(r: u8, g: u8, b: u8) -> Color32 {
 pub(super) struct Canvas<'a> {
     pixels: &'a mut [Color32],
     width: i32,
+    clip_rows: (i32, i32),
     pub(super) origin: i32,
 }
 
@@ -26,6 +27,7 @@ impl<'a> Canvas<'a> {
         Self {
             pixels,
             width,
+            clip_rows: (0, LOGICAL_HEIGHT),
             origin: 0,
         }
     }
@@ -42,12 +44,21 @@ impl<'a> Canvas<'a> {
         ((self.width - 320) / 2).min(0)
     }
 
+    pub(super) fn clip_rows(&mut self, top: i32, bottom: i32) -> (i32, i32) {
+        let old = self.clip_rows;
+        self.clip_rows = (
+            top.clamp(0, LOGICAL_HEIGHT),
+            bottom.clamp(top.clamp(0, LOGICAL_HEIGHT), LOGICAL_HEIGHT),
+        );
+        old
+    }
+
     pub(super) fn rect(&mut self, x: i32, y: i32, width: i32, height: i32, color: Color32) {
         let x = x + self.origin;
         let left = x.clamp(0, self.width) as usize;
         let right = (x + width).clamp(0, self.width) as usize;
-        let top = y.clamp(0, LOGICAL_HEIGHT) as usize;
-        let bottom = (y + height).clamp(0, LOGICAL_HEIGHT) as usize;
+        let top = y.clamp(self.clip_rows.0, self.clip_rows.1) as usize;
+        let bottom = (y + height).clamp(self.clip_rows.0, self.clip_rows.1) as usize;
         if left >= right || top >= bottom {
             return;
         }

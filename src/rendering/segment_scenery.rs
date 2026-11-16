@@ -4,7 +4,7 @@ use crate::simulation::catalog::SceneryTag;
 /// A set of segment tags; order and duplicates never affect the image.
 /// Empty means the original Aurora landscape, including its exact pixels.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct SegmentScenery(u16);
+pub struct SegmentScenery(u32);
 
 impl SegmentScenery {
     pub const EMPTY: Self = Self(0);
@@ -43,7 +43,7 @@ impl SceneryContext {
     }
 }
 
-const fn bit(tag: SceneryTag) -> u16 {
+const fn bit(tag: SceneryTag) -> u32 {
     1 << match tag {
         SceneryTag::Plain => 0,
         SceneryTag::Farmland => 1,
@@ -57,5 +57,10 @@ const fn bit(tag: SceneryTag) -> u16 {
         SceneryTag::Port => 9,
         SceneryTag::Coast => 10,
         SceneryTag::Plateau => 11,
+        SceneryTag::Town => 12,
+        SceneryTag::City => 13,
+        SceneryTag::Industrial => 14,
+        SceneryTag::Suburb => 15,
+        SceneryTag::Village => 16,
     }
 }

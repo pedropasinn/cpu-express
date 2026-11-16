@@ -222,6 +222,11 @@ pub enum SceneryTag {
     Port,
     Coast,
     Plateau,
+    Town,
+    City,
+    Industrial,
+    Suburb,
+    Village,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
