@@ -12,27 +12,32 @@ impl CpuExpressApp {
             || e.daily_orders.iter().any(|o| o.claimable(e, j, s))
     }
 
-    pub(super) fn perform_economy_action(&mut self, action: EconomyAction) {
-        let swapped = matches!(action, EconomyAction::SwapOrder { .. });
+    pub(super) fn perform_economy_action(&mut self, action: EconomyAction) -> bool {
+        let message = match &action {
+            EconomyAction::SwapOrder { .. } => "Ordem trocada e salva.",
+            EconomyAction::BuyCrate { .. } => "Remessa salva. Confira sua peça.",
+            EconomyAction::BuyDirect(_) => "Peça comprada e salva.",
+            EconomyAction::Reveal { .. } => "Remessa conferida e salva.",
+            EconomyAction::BuyMuseumStamp => "Selo do museu comprado e salvo.",
+            _ => "Prêmio recolhido e salvo.",
+        };
         let result = if let Some(path) = &self.progress_path {
             crate::progress::economy_action(path, &mut self.world, action)
         } else {
-            Err("Viagem temporária: abra um perfil salvo para recolher moedas.".into())
+            Err("Viagem temporária: abra um perfil salvo para comprar ou recolher.".into())
         };
         match result {
             Ok(warning) => {
                 self.progress_notice = warning;
-                self.notification = Some(
-                    if swapped {
-                        "Ordem trocada e salva."
-                    } else {
-                        "Prêmio recolhido e salvo."
-                    }
-                    .into(),
-                );
+                self.shop.visit_summary = None;
+                self.notification = Some(message.into());
                 self.scene_dirty = true;
+                true
             }
-            Err(error) => self.progress_notice = Some(error),
+            Err(error) => {
+                self.progress_notice = Some(error);
+                false
+            }
         }
     }
 

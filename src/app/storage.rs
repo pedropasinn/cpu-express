@@ -41,6 +41,7 @@ impl CpuExpressApp {
                 match result {
                     Ok(Some(world)) => {
                         self.world = world;
+                        self.shop = shop::ShopState::default();
                         self.seen_rewards = (
                             self.world.service_snapshot().owned_rewards.len(),
                             self.world.service_snapshot().collection.len(),

@@ -22,6 +22,7 @@ mod menus;
 mod missions;
 mod scenery;
 mod services;
+mod shop;
 mod storage;
 mod workshop;
 
@@ -239,6 +240,7 @@ pub struct CpuExpressApp {
     show_help: bool,
     panel_tab: PanelTab,
     menu: menus::MenuState,
+    shop: shop::ShopState,
     appearance_page: u8,
     journey_page: u8,
     selected_station: Option<crate::simulation::StationId>,
@@ -522,6 +524,7 @@ impl CpuExpressApp {
             show_help: false,
             panel_tab: PanelTab::default(),
             menu: menus::MenuState::default(),
+            shop: shop::ShopState::default(),
             appearance_page: 0,
             journey_page: 0,
             selected_station: None,
@@ -632,6 +635,9 @@ impl CpuExpressApp {
             AppAction::ToggleControls => {
                 self.show_controls = !self.show_controls;
                 self.show_help = false;
+                if !self.show_controls {
+                    self.shop.visit_open = false;
+                }
             }
             AppAction::ToggleHelp => {
                 self.show_help = !self.show_help;
@@ -659,6 +665,7 @@ impl CpuExpressApp {
             AppAction::ClosePanel => {
                 self.show_controls = false;
                 self.show_help = false;
+                self.shop.visit_open = false;
             }
             AppAction::Quit => {
                 #[cfg(windows)]
@@ -842,6 +849,7 @@ impl CpuExpressApp {
     }
 
     fn step_frame(&mut self, ctx: &egui::Context) {
+        self.observe_economy();
         let now = Instant::now();
         if self.was_hidden
             || (now + Duration::from_millis(1) < self.next_frame
@@ -877,6 +885,7 @@ impl CpuExpressApp {
                     .advance_expedition(&mut self.train, cpu, dt, &self.config);
             }
             self.consume_travel_events();
+            self.observe_economy();
         }
         // Pausing freezes particles and wheels and reuses the existing GPU texture.
         // An explicit visual edit can redraw once without advancing the journey.
@@ -1489,6 +1498,7 @@ impl CpuExpressApp {
                 ),
                 egui::Color32::WHITE,
             );
+            self.paint_coin_gain(ui, image, preview_width);
         }
         ui.add_space(8.0);
     }
@@ -2245,8 +2255,8 @@ impl CpuExpressApp {
                                 PanelTab::Journey => self.journey_controls(ui),
                                 PanelTab::Appearance => self.appearance_controls(ui),
                                 PanelTab::Behavior => self.behavior_controls(ui),
-                                PanelTab::Shop => self.shop_preview(ui),
-                                PanelTab::Collection => self.postcards_page(ui),
+                                PanelTab::Shop => self.shop_page(ui),
+                                PanelTab::Collection => self.collection_page(ui),
                             }
                         }
                         // Tab may focus a control below the 60-point viewport.
@@ -2721,6 +2731,7 @@ impl eframe::App for CpuExpressApp {
                 egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
                 egui::Color32::WHITE,
             );
+            self.paint_coin_gain(ui, scene_bounds, self.renderer.width() as f32);
         }
         if strip_ui {
             #[cfg(windows)]

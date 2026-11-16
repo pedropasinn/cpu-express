@@ -124,6 +124,49 @@ fn export_floating_panels() {
     export_expansion_menus();
 }
 
+#[test]
+#[ignore = "exportação E6 para diretório explícito; não valida compositor"]
+fn export_economy_menus() {
+    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
+    let directory = Path::new(&directory);
+    fs::create_dir_all(directory).unwrap();
+    for (page, pages) in [
+        ("loja-inicial", 1),
+        ("loja", 1),
+        ("chances", 5),
+        ("garantia", 1),
+        ("direta", 13),
+        ("colecao", 17),
+        ("museu", 1),
+        ("revelacao", 4),
+        ("repetida", 5),
+        ("abertura", 2),
+        ("compra-concluida", 1),
+        ("moedas", 1),
+        ("maquina", 1),
+    ] {
+        for index in 0..pages {
+            // Motors and paints need three pages; avoid redundant clamped exports.
+            if matches!(page, "direta" | "colecao") && matches!(index, 8 | 9 | 13 | 14) {
+                continue;
+            }
+            export_scenario(
+                directory,
+                Scenario {
+                    name: &format!("floating_e6_{page}_{index}"),
+                    hud_mode: HudMode::Clean,
+                    paused: true,
+                    action: None,
+                    idle: false,
+                    size: [704, 676],
+                    tab: None,
+                    scroll: 0.0,
+                },
+            );
+        }
+    }
+}
+
 fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
     let Scenario {
         name,
@@ -177,6 +220,10 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
             app.prepare_demo_review(3600, None);
         }
         app.prepare_demo_menu(page, index.parse().unwrap());
+    }
+    if let Some(page) = name.strip_prefix("floating_e6_") {
+        let (page, index) = page.rsplit_once('_').unwrap();
+        app.prepare_demo_store(page, index.parse().unwrap());
     }
     let mut frame = eframe::Frame::_new_kittest();
     let mut textures = HashMap::new();

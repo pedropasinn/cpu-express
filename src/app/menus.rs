@@ -44,7 +44,7 @@ pub(super) fn synchronize_panel_size(ctx: &egui::Context) {
     }
 }
 
-fn tabs(ui: &mut egui::Ui, id: &str, current: &mut usize, labels: &[&str]) {
+pub(super) fn tabs(ui: &mut egui::Ui, id: &str, current: &mut usize, labels: &[&str]) {
     let width = (ui.available_width() - (labels.len() - 1) as f32 * 6.0) / labels.len() as f32;
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 6.0;
@@ -97,7 +97,7 @@ pub(super) fn pager(
     *page * per_page..((*page + 1) * per_page).min(total)
 }
 
-fn rarity_style(rarity: Rarity) -> (&'static str, egui::Color32) {
+pub(super) fn rarity_style(rarity: Rarity) -> (&'static str, egui::Color32) {
     match rarity {
         Rarity::Common => ("Comum", game::MUTED),
         Rarity::Uncommon => ("Incomum", game::GREEN),
@@ -191,6 +191,7 @@ impl CpuExpressApp {
     }
 
     pub(super) fn central_menu(&mut self, root: &mut egui::Ui) {
+        self.begin_economy_visit();
         game::apply_style(root);
         game::wood_frame(root.painter(), root.max_rect());
         egui::Frame::new().inner_margin(20).show(root, |ui| {
@@ -216,9 +217,12 @@ impl CpuExpressApp {
             );
             let ribbon = ui
                 .horizontal(|ui| {
-                    ui.allocate_ui(egui::vec2(420.0, 42.0), |ui| {
+                    ui.allocate_ui(egui::vec2(388.0, 42.0), |ui| {
                         game::ribbon(ui, title, Icon::Train, true);
                     });
+                    let (coin, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
+                    game::sprite(ui.painter(), coin, game::Sprite::Moeda);
                     ui.add_sized(
                         [150.0, 32.0],
                         egui::Label::new(
@@ -268,8 +272,8 @@ impl CpuExpressApp {
                         PanelTab::Journey => self.travel_pages(ui),
                         PanelTab::Appearance => self.stock_page(ui),
                         PanelTab::Behavior => self.settings_pages(ui),
-                        PanelTab::Shop => self.shop_preview(ui),
-                        PanelTab::Collection => self.postcards_page(ui),
+                        PanelTab::Shop => self.shop_page(ui),
+                        PanelTab::Collection => self.collection_page(ui),
                     }
                 }
                 // Exporters and tests inspect the actual extent, including open controls.
@@ -291,6 +295,7 @@ impl CpuExpressApp {
                 .progress_notice
                 .as_deref()
                 .or(self.preferences_notice.as_deref())
+                .or(self.shop.visit_summary.as_deref())
                 .or(self.notification.as_deref())
                 .or_else(|| self.equipment_notice.as_ref().map(|v| v.0.as_str()))
                 .unwrap_or(if self.paused {
@@ -363,8 +368,22 @@ impl CpuExpressApp {
             ui,
             "train",
             &mut self.menu.drive,
-            &["Cabine", "Vagões", "Motores", "Pinturas", "Favoritos"],
+            &[
+                "Cabine",
+                "Vagões",
+                "Motores",
+                "Pinturas",
+                "Favoritos",
+                "Máquina",
+            ],
         );
+        if self.menu.drive == 5 {
+            ui.heading("Sala de máquinas");
+            ui.label("Os medidores desta sala ainda não estão disponíveis.");
+            ui.label("CPU e memória atuais podem ser consultadas na Cabine.");
+            ui.label("As leituras da máquina não saem do computador.");
+            return;
+        }
         if (1..=3).contains(&self.menu.drive) {
             self.stock_page(ui);
             return;
@@ -928,19 +947,6 @@ impl CpuExpressApp {
             self.panel_tab = PanelTab::Drive;
             self.menu.drive = 1;
         }
-    }
-
-    pub(super) fn shop_preview(&self, ui: &mut egui::Ui) {
-        ui.heading("Remessas da ferrovia");
-        ui.label("Novas remessas chegam em breve.");
-        ui.label("As moedas recolhidas já ficam guardadas no seu perfil.");
-        for kind in crate::simulation::economy::CrateKind::ALL {
-            if let Ok(def) = kind.definition() {
-                ui.label(format!("{} · {} réis", kind.name(), def.price));
-            }
-        }
-        ui.separator();
-        ui.label("Sem dinheiro real, anúncios ou ofertas que expiram.");
     }
 
     fn settings_pages(&mut self, ui: &mut egui::Ui) {

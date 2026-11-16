@@ -1,6 +1,6 @@
 # Ícones originais do CPU Express
 
-43 símbolos de interface, desenhados por Codex para o projeto em **14/11/2026**. Geometria autoral construída com coordenadas de retângulos e células desenhadas manualmente; sem vetorização automática de imagens, extração de sprites ou cópia de recursos do jogo de referência. Não foi usada geração de imagem nesta entrega.
+43 símbolos iniciais, desenhados por Codex para o projeto em **14/11/2026**, mais oito símbolos econômicos da E6 em **16/11/2026** (51 no total). Geometria autoral construída com coordenadas de retângulos e células desenhadas manualmente; sem vetorização automática de imagens, extração de sprites ou cópia de recursos do jogo de referência. Não foi usada geração de imagem nesta entrega.
 
 Mesma **licença MIT** do projeto: [LICENSE](../../LICENSE), copyright © 2026 CPU Express contributors. Os SVGs, esta documentação, o validador e a folha de conferência são distribuídos sob essa licença. Não há dependências ou recursos gráficos de terceiros nos ícones.
 
@@ -36,6 +36,8 @@ Os arquivos finais são autossuficientes. O conversor não precisa de fonte, bib
 | `#5B8C4A` | Folha |
 
 ## Inventário e intenção
+
+Adições E6: `moeda.svg` (roda ferroviária), `pilha-moedas.svg`, `saco-moedas.svg` e cinco remessas distintas: `caixa-patio.svg` (madeira), `caixa-oficina.svg` (engradado metálico), `caixa-plataforma.svg` (mala), `caixa-garagem.svg` (galpão) e `caixa-atelie.svg` (lata). `grandes/moeda-48.svg` é a versão ampliada por três, preservando os pixels. O subdiretório de versões grandes não entra na tabela 16 × 16. Geometria reproduzível com `node assets/icons/draw_economy.cjs`; integração e limitação do Python local em [MENUS_E6.md](../../docs/expansao/MENUS_E6.md).
 
 | Arquivo | Leitura e uso sugerido |
 | --- | --- |

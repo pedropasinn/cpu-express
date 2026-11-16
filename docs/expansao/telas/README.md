@@ -53,3 +53,57 @@ Os índices dos arquivos começam em zero. Páginas acima do último índice dis
 | vagoes_2 | [Abrir](floating_e5_vagoes_2.png) |
 | vagoes_3 | [Abrir](floating_e5_vagoes_3.png) |
 | vagoes_4 | [Abrir](floating_e5_vagoes_4.png) |
+
+## Telas da E6
+
+47 renderizações headless novas de loja, chances, garantia, compra direta, coleção, museu, abertura, revelação, repetidas, moedas e espaço da Máquina. Fonte e limites em [MENUS_E6.md](../MENUS_E6.md). As telas E5 acima permanecem como histórico. Demonstração sem perfil: botões de compra desabilitados; os testes de clique habilitado usam saves temporários.
+
+| Tela | Imagem |
+| --- | --- |
+| abertura_0 | [Abrir](floating_e6_abertura_0.png) |
+| abertura_1 (tampa levantada) | [Abrir](floating_e6_abertura_1.png) |
+| chances_0 | [Abrir](floating_e6_chances_0.png) |
+| chances_1 | [Abrir](floating_e6_chances_1.png) |
+| chances_2 | [Abrir](floating_e6_chances_2.png) |
+| chances_3 | [Abrir](floating_e6_chances_3.png) |
+| chances_4 | [Abrir](floating_e6_chances_4.png) |
+| colecao_0 | [Abrir](floating_e6_colecao_0.png) |
+| colecao_1 | [Abrir](floating_e6_colecao_1.png) |
+| colecao_10 | [Abrir](floating_e6_colecao_10.png) |
+| colecao_11 | [Abrir](floating_e6_colecao_11.png) |
+| colecao_12 | [Abrir](floating_e6_colecao_12.png) |
+| colecao_15 | [Abrir](floating_e6_colecao_15.png) |
+| colecao_16 | [Abrir](floating_e6_colecao_16.png) |
+| colecao_2 | [Abrir](floating_e6_colecao_2.png) |
+| colecao_3 | [Abrir](floating_e6_colecao_3.png) |
+| colecao_4 | [Abrir](floating_e6_colecao_4.png) |
+| colecao_5 | [Abrir](floating_e6_colecao_5.png) |
+| colecao_6 | [Abrir](floating_e6_colecao_6.png) |
+| colecao_7 | [Abrir](floating_e6_colecao_7.png) |
+| compra-concluida_0 | [Abrir](floating_e6_compra-concluida_0.png) |
+| direta_0 | [Abrir](floating_e6_direta_0.png) |
+| direta_1 | [Abrir](floating_e6_direta_1.png) |
+| direta_10 | [Abrir](floating_e6_direta_10.png) |
+| direta_11 | [Abrir](floating_e6_direta_11.png) |
+| direta_12 | [Abrir](floating_e6_direta_12.png) |
+| direta_2 | [Abrir](floating_e6_direta_2.png) |
+| direta_3 | [Abrir](floating_e6_direta_3.png) |
+| direta_4 | [Abrir](floating_e6_direta_4.png) |
+| direta_5 | [Abrir](floating_e6_direta_5.png) |
+| direta_6 | [Abrir](floating_e6_direta_6.png) |
+| direta_7 | [Abrir](floating_e6_direta_7.png) |
+| garantia_0 | [Abrir](floating_e6_garantia_0.png) |
+| loja_0 | [Abrir](floating_e6_loja_0.png) |
+| loja-inicial_0 | [Abrir](floating_e6_loja-inicial_0.png) |
+| maquina_0 | [Abrir](floating_e6_maquina_0.png) |
+| moedas_0 | [Abrir](floating_e6_moedas_0.png) |
+| museu_0 | [Abrir](floating_e6_museu_0.png) |
+| repetida_0 | [Abrir](floating_e6_repetida_0.png) |
+| repetida_1 | [Abrir](floating_e6_repetida_1.png) |
+| repetida_2 | [Abrir](floating_e6_repetida_2.png) |
+| repetida_3 | [Abrir](floating_e6_repetida_3.png) |
+| repetida_4 | [Abrir](floating_e6_repetida_4.png) |
+| revelacao_0 | [Abrir](floating_e6_revelacao_0.png) |
+| revelacao_1 | [Abrir](floating_e6_revelacao_1.png) |
+| revelacao_2 | [Abrir](floating_e6_revelacao_2.png) |
+| revelacao_3 | [Abrir](floating_e6_revelacao_3.png) |

@@ -5,6 +5,7 @@ Run from the project root after adding or changing an icon:
     python assets/icons/build_sprites.py
 
 The game embeds the generated table; it never reads SVG or image files at run time.
+If Python cannot run on the host, build_sprites.cjs emits the same table with Node.
 """
 import pathlib
 import re

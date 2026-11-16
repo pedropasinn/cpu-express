@@ -8,12 +8,14 @@ $nomes = @(
     'cpu','memoria','pontos','postal','porto','montanha','tunel','ponte',
     'bandeira','som','mudo','dica','seta-esquerda','seta-direita','despacho',
     'devolver','vagao-passageiros','vagao-dormitorio','vagao-panoramico',
-    'vagao-carga','vagao-tanque'
+    'vagao-carga','vagao-tanque',
+    'moeda','pilha-moedas','saco-moedas','caixa-patio','caixa-oficina',
+    'caixa-plataforma','caixa-garagem','caixa-atelie'
 )
 $paleta = @('#342016','#794E2D','#B27C48','#FFF6DE','#EBDAB5','#F6D080',
     '#BF8D37','#1C7064','#104640','#2F647E','#B23A30','#7FB4C8','#5B8C4A')
 $arquivos = @(Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.svg' -File)
-if ($arquivos.Count -ne $nomes.Count) { throw "Esperados 43 SVGs, encontrados $($arquivos.Count)." }
+if ($arquivos.Count -ne $nomes.Count) { throw "Esperados $($nomes.Count) SVGs, encontrados $($arquivos.Count)." }
 $total = 0
 $maiorPaleta = 0
 foreach ($nome in $nomes) {
