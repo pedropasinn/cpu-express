@@ -56,10 +56,11 @@ impl CpuExpressApp {
                             self.config.visual.livery = Default::default();
                         }
                         use crate::rendering::EngineStyle;
-                        let requirement = self.config.visual.engine.required_reward();
-                        if requirement
-                            .is_some_and(|r| !self.world.service_snapshot().collection.contains(&r))
-                        {
+                        if !self.world.economy().owns(
+                            &crate::simulation::economy::ItemId::Locomotive(
+                                self.config.visual.engine.id().into(),
+                            ),
+                        ) {
                             self.config.visual.engine = EngineStyle::Steam;
                         }
                         self.train = Train::new(&self.config);

@@ -1,0 +1,122 @@
+{
+  "catalog_version": 1,
+  "economy": {
+    "balance": 30,
+    "bonus_remainder": 0,
+    "cargo_by_kind": {
+      "bicycles": 0,
+      "chilled": 0,
+      "containers": 0,
+      "fair_equipment": 0,
+      "gas": 0,
+      "grain": 0,
+      "liquid": 0,
+      "livestock": 0,
+      "machinery": 0,
+      "ore": 0,
+      "parcels": 0,
+      "steel_coils": 0,
+      "supplies": 0,
+      "timber": 0,
+      "vehicles": 0
+    },
+    "contract_remainder": 0,
+    "crate_misses": {
+      "cargo_workshop": 0,
+      "engine_garage": 0,
+      "general_yard": 0,
+      "paint_atelier": 0,
+      "platform_comfort": 0
+    },
+    "daily_orders": [],
+    "inventory": [
+      {
+        "wagon": "freight"
+      },
+      {
+        "wagon": "passenger"
+      },
+      {
+        "wagon": "tank"
+      },
+      {
+        "locomotive": "steam"
+      },
+      {
+        "livery": "aurora"
+      }
+    ],
+    "last_order_active_seconds": 0.0,
+    "last_order_swap_active_seconds": 0.0,
+    "legacy_mission_claim_pending": false,
+    "museum_stamps": 0,
+    "next_order_id": 1,
+    "next_transaction_id": 2,
+    "paid_missions": [],
+    "passenger_remainder": 0,
+    "pending_purchase": null,
+    "random_state": 42,
+    "rule_version": 1,
+    "total_earned": 30,
+    "total_spent": 0,
+    "transactions": [
+      {
+        "balance": 30,
+        "credited": 30,
+        "debited": 0,
+        "id": 1,
+        "reason": "Boas-vindas"
+      }
+    ],
+    "welcome_crate_available": true
+  },
+  "journey": {
+    "active_seconds": 0.0,
+    "distance": 0.0,
+    "route": "aurora-v1",
+    "seed": 42,
+    "station_wait": 0.0,
+    "version": 1
+  },
+  "line": "aurora-v1",
+  "lines": {
+    "aurora-v1": {
+      "active_seconds": 0.0,
+      "completed_runs": 0,
+      "discovered_stations": [
+        "aurora"
+      ],
+      "distance": 0.0,
+      "seed": 42,
+      "station_wait": 0.0,
+      "stations_visited": 0
+    }
+  },
+  "service": {
+    "arrivals": [],
+    "automatic_contracts": true,
+    "branch": {
+      "current": null,
+      "discoveries": [],
+      "pending": null
+    },
+    "cargo_delivered": 0,
+    "collection": [],
+    "composition": [
+      "passenger",
+      "passenger",
+      "freight"
+    ],
+    "contract": null,
+    "contracts_completed": 0,
+    "credits": 0,
+    "last_processed_visit": 0,
+    "owned_rewards": [
+      "aurora"
+    ],
+    "passengers": [],
+    "passengers_boarded": 0,
+    "passengers_delivered": 0
+  },
+  "version": 5
+}

@@ -1,0 +1,38 @@
+{
+  "journey": {
+    "active_seconds": 2000.0,
+    "distance": 40000.0,
+    "route": "aurora-v1",
+    "seed": 42,
+    "station_wait": 0.0,
+    "version": 1
+  },
+  "service": {
+    "arrivals": [],
+    "cargo_delivered": 20,
+    "collection": [
+      "passenger_postcard",
+      "cargo_postcard"
+    ],
+    "composition": [
+      "observation",
+      "sleeper",
+      "freight"
+    ],
+    "contract": null,
+    "contracts_completed": 2,
+    "credits": 240,
+    "last_processed_visit": 18,
+    "owned_rewards": [
+      "aurora",
+      "ocean",
+      "sunset",
+      "midnight",
+      "cherry"
+    ],
+    "passengers": [],
+    "passengers_boarded": 20,
+    "passengers_delivered": 20
+  },
+  "version": 2
+}

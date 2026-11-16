@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Checkpoint {
     pub version: u32,
@@ -68,9 +68,9 @@ pub fn lock_profile(config: &Path) -> Result<fs::File, String> {
         .map_err(|e| format!("Este perfil já está em uso ou não pode ser aberto: {e}"))
 }
 
-/// v3 added dispatch choice and safe returns. v4 records which catalogue line the
-/// journey runs on and the catalogue version that wrote it; v1 to v3 migrate with
-/// exact backups and always mean the Aurora circuit.
+/// v5 adds the economy and per-line progress. v1-v4 migrate with exact backups;
+/// all those legacy documents describe Aurora. Optional fields exist only to
+/// decode legacy documents: decode_world requires both fields for v5.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorldCheckpoint {
@@ -83,12 +83,22 @@ pub struct WorldCheckpoint {
     pub line: String,
     pub journey: Checkpoint,
     pub service: crate::simulation::ServiceState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub economy: Option<crate::simulation::economy::EconomyState>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lines: Option<std::collections::BTreeMap<String, crate::simulation::world::LineProgress>>,
 }
 fn decode_world(bytes: &[u8]) -> Result<World, String> {
     let value: serde_json::Value =
         serde_json::from_slice(bytes).map_err(|e| format!("Jornada inválida, preservada: {e}"))?;
+    if value.get("version").and_then(|v| v.as_u64()) == Some(5)
+        && (value["economy"].get("pending_purchase").is_none()
+            || value["journey"].get("station_wait").is_none())
+    {
+        return Err("Jornada v5 incompleta; arquivo preservado.".into());
+    }
     // Defaults are only a migration convenience, never silent repair of a current save.
-    if matches!(value.get("version").and_then(|v| v.as_u64()), Some(3 | 4)) {
+    if matches!(value.get("version").and_then(|v| v.as_u64()), Some(3..=5)) {
         let service = &value["service"];
         if service.get("automatic_contracts").is_none()
             || service.get("branch").is_none()
@@ -100,15 +110,17 @@ fn decode_world(bytes: &[u8]) -> Result<World, String> {
             return Err("Jornada v3 incompleta; arquivo preservado.".into());
         }
     }
+    let mut economy = None;
+    let mut lines = None;
     let (checkpoint, service) = match value.get("version").and_then(|v| v.as_u64()) {
         Some(1) => (
             serde_json::from_value::<Checkpoint>(value).map_err(|e| e.to_string())?,
             None,
         ),
-        Some(version @ 2..=4) => {
+        Some(version @ 2..=5) => {
             let saved: WorldCheckpoint =
                 serde_json::from_value(value).map_err(|e| e.to_string())?;
-            if version == 4 {
+            if version >= 4 {
                 // A line or catalogue this edition cannot run is someone else's journey.
                 if saved.catalog_version == 0
                     || saved.catalog_version > crate::simulation::catalog::CATALOG_VERSION
@@ -124,6 +136,20 @@ fn decode_world(bytes: &[u8]) -> Result<World, String> {
             } else if saved.catalog_version != 0 || !saved.line.is_empty() {
                 return Err("Jornada com campos de outra versão; arquivo preservado.".into());
             }
+            if version == 5 {
+                economy = Some(
+                    saved
+                        .economy
+                        .ok_or("Jornada v5 sem economia; arquivo preservado.")?,
+                );
+                lines = Some(
+                    saved
+                        .lines
+                        .ok_or("Jornada v5 sem progresso por linha; arquivo preservado.")?,
+                );
+            } else if saved.economy.is_some() || saved.lines.is_some() {
+                return Err("Jornada antiga com campos v5; arquivo preservado.".into());
+            }
             (saved.journey, Some(saved.service))
         }
         _ => return Err("Versão da jornada incompatível; arquivo preservado.".into()),
@@ -136,7 +162,41 @@ fn decode_world(bytes: &[u8]) -> Result<World, String> {
     world.restore_journey(journey);
     world.set_station_wait(checkpoint.station_wait);
     if let Some(service) = service {
+        if economy.is_none()
+            && service
+                .composition
+                .iter()
+                .any(|w| !w.available(world.journey_snapshot().stations_visited))
+        {
+            return Err("Composição legada inválida; arquivo preservado.".into());
+        }
         world.restore_service(service)?;
+    }
+    if let Some(economy) = economy {
+        if economy
+            .cargo_by_kind
+            .values()
+            .try_fold(0_u64, |sum, value| sum.checked_add(*value))
+            .is_none_or(|sum| sum > world.service_state().cargo_delivered)
+        {
+            return Err("Contadores de carga divergentes; arquivo preservado.".into());
+        }
+        // Do not silently repair mismatched duplicate livery ownership in a current save.
+        if crate::simulation::objectives::Livery::ALL.iter().any(|l| {
+            world.service_state().owns(*l)
+                != economy.owns(&crate::simulation::economy::ItemId::livery(*l))
+        }) {
+            return Err("Posse de pinturas divergente; arquivo preservado.".into());
+        }
+        world.restore_economy(economy)?;
+        let lines = lines.unwrap();
+        // Only Aurora is runnable in E1a; E3 will validate the other itinerary IDs.
+        if lines != world.line_progress() {
+            return Err("Progresso por linha divergente; arquivo preservado.".into());
+        }
+        world.lines = lines;
+    } else {
+        world.migrate_economy();
     }
     Ok(world)
 }
@@ -156,7 +216,7 @@ pub fn load_world(path: &Path) -> Result<Option<World>, String> {
         Err(e) => Err(format!("Não foi possível ler a jornada: {e}")),
     }
 }
-const CURRENT_VERSION: u64 = 4;
+pub const CURRENT_VERSION: u64 = 5;
 
 /// The checkpoint that was valid immediately before the latest replacement.
 pub fn previous_path(path: &Path) -> PathBuf {
@@ -239,6 +299,57 @@ pub fn save_checkpoint(path: &Path, world: &World) -> Result<Option<String>, Str
     Ok(warning)
 }
 
+/// Purchases/reveals/mission claims use this immediate writer, never the 30 s timer.
+/// A recovery-copy warning is a successful commit; only Err rolls back memory.
+pub fn transact_economy<T>(
+    path: &Path,
+    world: &mut World,
+    change: impl FnOnce(&mut crate::simulation::economy::EconomyState) -> Result<T, String>,
+) -> Result<(T, Option<String>), String> {
+    let mut warning = None;
+    let result = world.transact_economy(change, |candidate| {
+        warning = save_checkpoint(path, candidate)?;
+        Ok(())
+    })?;
+    Ok((result, warning))
+}
+
+pub fn economy_action(
+    path: &Path,
+    world: &mut World,
+    action: crate::simulation::economy::EconomyAction,
+) -> Result<Option<String>, String> {
+    transact_economy(path, world, |state| state.apply(action)).map(|(_, warning)| warning)
+}
+
+/// Persist an arrival before its events can be consumed. Failed writes restore
+/// journey, services, RNG, wallet, train and notifications together.
+pub fn advance_checkpoint(
+    path: &Path,
+    world: &mut World,
+    train: &mut crate::simulation::Train,
+    cpu: f32,
+    seconds: f64,
+    config: &crate::config::Config,
+) -> Result<Option<String>, String> {
+    if !world.may_arrive(seconds) {
+        world.advance_expedition(train, cpu, seconds, config);
+        return Ok(None);
+    }
+    let mut candidate = world.clone();
+    let mut next_train = train.clone();
+    candidate.advance_expedition(&mut next_train, cpu, seconds, config);
+    let warning = if candidate.economy().next_transaction_id != world.economy().next_transaction_id
+    {
+        save_checkpoint(path, &candidate)?
+    } else {
+        None
+    };
+    *world = candidate;
+    *train = next_train;
+    Ok(warning)
+}
+
 /// Compatibility view for old tools; product callers must use load_world.
 pub fn load(path: &Path) -> Result<Option<(Journey, f64)>, String> {
     load_world(path).map(|world| world.map(|w| (w.journey().clone(), w.station_wait())))
@@ -252,7 +363,7 @@ pub fn save(path: &Path, world: &World) -> Result<(), String> {
     if let Ok(original) = fs::read(path) {
         let value: serde_json::Value =
             serde_json::from_slice(&original).map_err(|e| e.to_string())?;
-        if let Some(version @ 1..=3) = value.get("version").and_then(|v| v.as_u64()) {
+        if let Some(version @ 1..=4) = value.get("version").and_then(|v| v.as_u64()) {
             let backup = path.with_extension(format!("v{version}.backup.json"));
             match fs::OpenOptions::new()
                 .write(true)
@@ -291,6 +402,8 @@ fn encode_world(world: &World) -> Result<Vec<u8>, String> {
         line: crate::simulation::route::CIRCUIT_LINE_ID.to_owned(),
         journey: checkpoint,
         service: world.service_snapshot().clone(),
+        economy: Some(world.economy().clone()),
+        lines: Some(world.line_progress()),
     };
     let bytes = serde_json::to_vec_pretty(&saved).map_err(|e| e.to_string())?;
     decode_world(&bytes)?;

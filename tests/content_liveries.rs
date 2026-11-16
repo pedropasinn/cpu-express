@@ -12,6 +12,8 @@ fn roundtrip(world: &World) -> World {
         line: "aurora-v1".into(),
         journey: Checkpoint::capture(world.journey_snapshot()),
         service: world.service_state().clone(),
+        economy: None,
+        lines: None,
     };
     checkpoint.journey.station_wait = world.station_wait();
     let bytes = serde_json::to_vec(&checkpoint).unwrap();
@@ -95,7 +97,7 @@ fn advanced_old_v4_keeps_ownership_until_next_arrival_then_grants_once() {
 }
 
 #[test]
-fn natural_arrivals_grant_each_new_paint_exactly_at_its_threshold() {
+fn new_profiles_grant_only_original_paints_at_their_thresholds() {
     let config = Config::default();
     let mut train = Train::new(&config);
     let mut world = World::default();
@@ -105,7 +107,7 @@ fn natural_arrivals_grant_each_new_paint_exactly_at_its_threshold() {
         for livery in Livery::ALL {
             assert_eq!(
                 world.service_state().owns(livery),
-                livery.available(snapshot)
+                Livery::ORIGINAL.contains(&livery) && livery.available(snapshot)
             );
         }
         if snapshot.stations_visited >= 49 {

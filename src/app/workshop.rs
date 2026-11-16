@@ -5,12 +5,13 @@ use super::*;
 fn composition_preview(
     ui: &mut egui::Ui,
     response: &egui::Response,
-    service: &crate::simulation::ServiceState,
+    world: &crate::simulation::World,
     coaches: [CoachStyle; 3],
     equipment_notice: &mut Option<(String, Instant)>,
 ) -> bool {
     use crate::simulation::CargoKind;
 
+    let service = world.service_state();
     let composition = coaches.map(service_wagon);
     let before = service.capacity();
     let after = composition.iter().fold((0, 0), |(seats, cargo), wagon| {
@@ -38,7 +39,7 @@ fn composition_preview(
     }
 
     let mut preview = service.clone();
-    let validation = preview.set_composition(composition);
+    let validation = world.clone().set_service_composition(composition);
     if response.clicked()
         && let Err(error) = &validation
     {
@@ -216,7 +217,7 @@ impl CpuExpressApp {
                         let allowed = composition_preview(
                             ui,
                             &response,
-                            self.world.service_snapshot(),
+                            &self.world,
                             coaches,
                             &mut self.equipment_notice,
                         );
@@ -271,7 +272,7 @@ impl CpuExpressApp {
                             let allowed = composition_preview(
                                 column,
                                 &response,
-                                self.world.service_snapshot(),
+                                &self.world,
                                 coaches,
                                 &mut self.equipment_notice,
                             );
@@ -310,14 +311,21 @@ impl CpuExpressApp {
                         .size(18.0)
                         .strong(),
                 );
-                game::hint(ui, "Cada chegada aproxima você de uma nova pintura.");
+                game::hint(
+                    ui,
+                    "Quatro pinturas vêm das viagens; as demais fazem parte da loja.",
+                );
                 for pair in crate::simulation::objectives::Livery::ALL.chunks(2) {
                     ui.columns(2, |columns| {
                         for (column, &livery) in columns.iter_mut().zip(pair) {
                             let unlocked =
                                 self.demo_mode || self.world.service_snapshot().owns(livery);
                             let selected = self.config.visual.livery == livery;
-                            let state = if !unlocked {
+                            let original =
+                                crate::simulation::objectives::Livery::ORIGINAL.contains(&livery);
+                            let state = if !unlocked && !original {
+                                "Ainda não possuída".into()
+                            } else if !unlocked {
                                 format!(
                                     "{} / {} chegadas",
                                     journey.stations_visited,
@@ -343,13 +351,17 @@ impl CpuExpressApp {
                             }
                             if response.clicked() && !unlocked {
                                 self.equipment_notice = Some((
-                                    format!(
-                                        "{}: faltam {} chegadas. Consulte Viagem / Objetivos.",
-                                        livery.name(),
-                                        livery
-                                            .required_stops()
-                                            .saturating_sub(journey.stations_visited)
-                                    ),
+                                    if !original {
+                                        format!("{}: obtenha esta pintura na loja.", livery.name())
+                                    } else {
+                                        format!(
+                                            "{}: faltam {} chegadas. Consulte Viagem / Objetivos.",
+                                            livery.name(),
+                                            livery
+                                                .required_stops()
+                                                .saturating_sub(journey.stations_visited)
+                                        )
+                                    },
                                     Instant::now() + Duration::from_secs(6),
                                 ));
                             }
@@ -457,11 +469,17 @@ impl CpuExpressApp {
                     "Novas silhuetas para os serviços que sua ferrovia realiza.",
                 );
                 for engine in crate::rendering::EngineStyle::ALL {
-                    let requirement = engine.required_reward();
                     let unlocked = self.demo_mode
-                        || requirement
-                            .is_none_or(|r| self.world.service_snapshot().collection.contains(&r));
-                    let description = engine.unlock_description();
+                        || self.world.economy().owns(
+                            &crate::simulation::economy::ItemId::Locomotive(engine.id().into()),
+                        );
+                    let description = if unlocked {
+                        "Modelo possuído"
+                    } else if engine == crate::rendering::EngineStyle::Diesel {
+                        "Entregue 20 unidades de carga"
+                    } else {
+                        "Obtenha este modelo na loja"
+                    };
                     let selected = self.config.visual.engine == engine;
                     let texture = self.stock_gallery.as_ref().unwrap().engine(engine);
                     let response = stock_card(

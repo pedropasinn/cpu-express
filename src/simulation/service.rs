@@ -27,6 +27,30 @@ pub enum ServiceWagon {
 }
 
 impl ServiceWagon {
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::Passenger => "passenger",
+            Self::Sleeper => "sleeper",
+            Self::Freight => "freight",
+            Self::Tank => "tank",
+            Self::Observation => "observation",
+            Self::Dining => "dining",
+            Self::Mail => "mail",
+            Self::Gondola => "gondola",
+            Self::Hopper => "hopper",
+            Self::Timber => "timber",
+            Self::Refrigerator => "refrigerator",
+            Self::Livestock => "livestock",
+            Self::Container => "container",
+            Self::Autorack => "autorack",
+            Self::PressureTank => "pressure_tank",
+            Self::Crane => "crane",
+            Self::Bicycle => "bicycle",
+            Self::Coil => "coil",
+            Self::Fair => "fair",
+        }
+    }
+
     pub const ALL: [Self; 19] = [
         Self::Passenger,
         Self::Sleeper,
@@ -175,6 +199,26 @@ pub enum CargoKind {
     FairEquipment,
 }
 impl CargoKind {
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::Parcels => "parcels",
+            Self::Supplies => "supplies",
+            Self::Liquid => "liquid",
+            Self::Ore => "ore",
+            Self::Grain => "grain",
+            Self::Timber => "timber",
+            Self::Chilled => "chilled",
+            Self::Livestock => "livestock",
+            Self::Containers => "containers",
+            Self::Vehicles => "vehicles",
+            Self::Gas => "gas",
+            Self::Machinery => "machinery",
+            Self::Bicycles => "bicycles",
+            Self::SteelCoils => "steel_coils",
+            Self::FairEquipment => "fair_equipment",
+        }
+    }
+
     pub const ALL: [Self; 15] = [
         Self::Parcels,
         Self::Supplies,
@@ -379,6 +423,13 @@ impl ServiceState {
                 wagon.required_stops()
             ));
         }
+        self.set_owned_composition(composition)
+    }
+    /// Ownership is checked by World; service checks only occupied capacity.
+    pub(crate) fn set_owned_composition(
+        &mut self,
+        composition: [ServiceWagon; 3],
+    ) -> Result<(), String> {
         let old = self.composition;
         self.composition = composition;
         let (p, c) = self.capacity();
@@ -459,10 +510,6 @@ impl ServiceState {
         self.branch.validate(snapshot)?;
         let invalid = || "Estado de serviços inválido; arquivo preservado.".to_owned();
         if self.last_processed_visit != snapshot.stations_visited
-            || self
-                .composition
-                .iter()
-                .any(|w| !w.available(snapshot.stations_visited))
             || self.passengers.len() > 12
             || self.arrivals.len() > 32
             || self.owned_rewards.len() > Livery::ALL.len()
@@ -729,7 +776,7 @@ impl ServiceState {
         }
         summary.earned = u64::from(summary.alighted) * 2 + u64::from(summary.cargo_delivered) * 10;
         self.credits += summary.earned;
-        for reward in Livery::ALL {
+        for reward in Livery::ORIGINAL {
             if reward.available(snapshot) && !self.owns(reward) {
                 self.owned_rewards.push(reward);
             }

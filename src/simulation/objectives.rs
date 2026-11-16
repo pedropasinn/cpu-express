@@ -19,6 +19,21 @@ pub enum Livery {
 }
 
 impl Livery {
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::Aurora => "aurora",
+            Self::Ocean => "ocean",
+            Self::Sunset => "sunset",
+            Self::Midnight => "midnight",
+            Self::Cherry => "cherry",
+            Self::Ivory => "ivory",
+            Self::Lagoon => "lagoon",
+            Self::Heather => "heather",
+            Self::Sunflower => "sunflower",
+            Self::Slate => "slate",
+        }
+    }
+
     /// Mandatory ownership in checkpoints written before the content expansion.
     pub const ORIGINAL: [Self; 4] = [Self::Aurora, Self::Ocean, Self::Sunset, Self::Midnight];
     pub const ALL: [Self; 10] = [

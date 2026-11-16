@@ -46,7 +46,7 @@ const FIXTURES: [Fixture; 4] = [
         visits: 49,
         at_station: None,
         wait: 0.0,
-        liveries: 4,
+        liveries: 10,
     },
 ];
 
@@ -105,10 +105,7 @@ fn rc7_fixtures_load_without_invented_service_and_without_touching_the_file() {
         assert_eq!(service.last_processed_visit, fixture.visits);
         assert_eq!(service.owned_rewards.len(), fixture.liveries);
         for livery in Livery::ALL {
-            assert_eq!(
-                service.owns(livery),
-                Livery::ORIGINAL.contains(&livery) && livery.available(journey)
-            );
+            assert_eq!(service.owns(livery), livery.available(journey));
         }
         fs::remove_dir_all(dir).unwrap();
     }
@@ -132,7 +129,7 @@ fn migrated_fixture_reopened_twice_keeps_the_same_domain_and_exact_backup() {
         );
         let migrated = fs::read(&file).unwrap();
         let document: serde_json::Value = serde_json::from_slice(&migrated).unwrap();
-        assert_eq!(document["version"], 4);
+        assert_eq!(document["version"], 5);
         assert_eq!(document["line"], "aurora-v1");
         assert_eq!(document["catalog_version"], 1);
 

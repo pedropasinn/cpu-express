@@ -45,6 +45,23 @@ pub struct World {
     random_state: u64,
     journey: Journey,
     service: super::ServiceState,
+    economy: super::economy::EconomyState,
+    machine_bonus_millis: u32,
+    pub(crate) lines: std::collections::BTreeMap<String, LineProgress>,
+}
+
+/// Per-line progress uses catalogue station IDs so E3 can retain any itinerary.
+/// Services are global and line switching must leave no passengers or contract aboard.
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LineProgress {
+    pub seed: u64,
+    pub distance: f64,
+    pub active_seconds: f64,
+    pub station_wait: f64,
+    pub stations_visited: u64,
+    pub completed_runs: u64,
+    pub discovered_stations: std::collections::BTreeSet<String>,
 }
 
 impl Default for World {
@@ -54,6 +71,105 @@ impl Default for World {
 }
 
 impl World {
+    pub fn economy(&self) -> &super::economy::EconomyState {
+        &self.economy
+    }
+    pub fn set_machine_bonus(&mut self, multiplier: f32) {
+        self.machine_bonus_millis = if multiplier.is_finite() {
+            (multiplier.clamp(1.0, 1.3) * 1000.0).round() as u32
+        } else {
+            1000
+        };
+    }
+    pub fn machine_bonus(&self) -> f32 {
+        self.machine_bonus_millis as f32 / 1000.0
+    }
+    pub fn line_progress(&self) -> std::collections::BTreeMap<String, LineProgress> {
+        let mut lines = self.lines.clone();
+        let snapshot = self.journey_snapshot();
+        lines.insert(
+            super::route::CIRCUIT_LINE_ID.into(),
+            LineProgress {
+                seed: snapshot.seed,
+                distance: snapshot.total_distance_units,
+                active_seconds: snapshot.active_seconds,
+                station_wait: self.station_wait,
+                stations_visited: snapshot.stations_visited,
+                completed_runs: snapshot.completed_laps,
+                discovered_stations: self
+                    .journey
+                    .route()
+                    .stations()
+                    .iter()
+                    .filter(|s| snapshot.discovered_stations[s.id.index()])
+                    .map(|s| {
+                        // Stable catalogue IDs, not translated display names.
+                        ["aurora", "pines", "ridge", "harbor"][s.id.index()].to_owned()
+                    })
+                    .collect(),
+            },
+        );
+        lines
+    }
+    pub(crate) fn restore_economy(
+        &mut self,
+        economy: super::economy::EconomyState,
+    ) -> Result<(), String> {
+        economy.validate()?;
+        if self
+            .service
+            .composition
+            .iter()
+            .any(|w| !economy.owns(&super::economy::ItemId::wagon(*w)))
+        {
+            return Err("Composição sem posse; arquivo preservado.".into());
+        }
+        self.economy = economy;
+        self.sync_owned_liveries();
+        Ok(())
+    }
+    pub(crate) fn migrate_economy(&mut self) {
+        self.economy =
+            super::economy::EconomyState::migrated(self.journey_snapshot(), &self.service);
+        self.sync_owned_liveries();
+    }
+    fn sync_owned_liveries(&mut self) {
+        self.service.owned_rewards = super::objectives::Livery::ALL
+            .into_iter()
+            .filter(|l| self.economy.owns(&super::economy::ItemId::livery(*l)))
+            .collect();
+    }
+    /// Stage all domain changes; only publish after the writer succeeds.
+    /// The writer must atomically persist the entire candidate. Err means no disk commit.
+    pub fn transact_economy<T>(
+        &mut self,
+        change: impl FnOnce(&mut super::economy::EconomyState) -> Result<T, String>,
+        persist: impl FnOnce(&World) -> Result<(), String>,
+    ) -> Result<T, String> {
+        let mut candidate = self.clone();
+        let result = change(&mut candidate.economy)?;
+        candidate.economy.validate()?;
+        candidate.sync_owned_liveries();
+        persist(&candidate)?;
+        *self = candidate;
+        Ok(result)
+    }
+    pub fn economy_action(
+        &mut self,
+        action: super::economy::EconomyAction,
+        persist: impl FnOnce(&World) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.transact_economy(|state| state.apply(action), persist)
+    }
+    /// Clone only on a possible arrival, never on an ordinary rendering frame.
+    pub fn may_arrive(&self, seconds: f64) -> bool {
+        seconds.is_finite()
+            && seconds > 0.0
+            && !self.is_paused()
+            && self.service.branch.current.is_none()
+            && self.journey_snapshot().distance_to_next_station_units
+                <= seconds.min(1.0) * 24.0 + 1e-6
+    }
     pub fn excursion_snapshot(&self) -> &super::BranchState {
         &self.service.branch
     }
@@ -91,7 +207,13 @@ impl World {
         &mut self,
         composition: [super::ServiceWagon; 3],
     ) -> Result<(), String> {
-        self.service.set_composition(composition)
+        if let Some(wagon) = composition
+            .iter()
+            .find(|w| !self.economy.owns(&super::economy::ItemId::wagon(**w)))
+        {
+            return Err(format!("Você ainda não possui o modelo {}.", wagon.name()));
+        }
+        self.service.set_owned_composition(composition)
     }
     pub fn restore_service(&mut self, service: super::ServiceState) -> Result<(), String> {
         service.validate(self.journey_snapshot())?;
@@ -167,6 +289,12 @@ impl World {
                 self.advance_scene_with_route(step, distance, train.speed_kmh(), step * 24.0);
                 if self.journey.snapshot().stations_visited > previous_visits {
                     self.service.arrive(self.journey.snapshot());
+                    self.economy.arrive(
+                        self.journey.snapshot(),
+                        &self.service,
+                        self.machine_bonus_millis,
+                    );
+                    self.sync_owned_liveries();
                     self.station_wait = 8.0;
                     train.stop_at_station();
                 }
@@ -185,6 +313,8 @@ impl World {
         self.scroll_px =
             (snapshot.total_distance_units / TRAVEL_UNITS_PER_SCENE_PIXEL) % SCROLL_PERIOD_PX;
         self.service = super::ServiceState::migrated(snapshot);
+        self.economy = super::economy::EconomyState::migrated(snapshot, &self.service);
+        self.sync_owned_liveries();
         self.journey = journey;
         self.smoke.clear();
     }
@@ -199,7 +329,19 @@ impl World {
             spawn_fraction: 0.0,
             random_state: seed,
             journey: Journey::from_seed(seed),
-            service: super::ServiceState::migrated(Journey::from_seed(seed).snapshot()),
+            service: {
+                let mut service =
+                    super::ServiceState::migrated(Journey::from_seed(seed).snapshot());
+                service.composition = [
+                    super::ServiceWagon::Passenger,
+                    super::ServiceWagon::Passenger,
+                    super::ServiceWagon::Freight,
+                ];
+                service
+            },
+            economy: super::economy::EconomyState::new(seed),
+            machine_bonus_millis: 1000,
+            lines: Default::default(),
         }
     }
 

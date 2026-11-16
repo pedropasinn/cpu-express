@@ -24,6 +24,8 @@ fn milestones_survive_v4_roundtrip_without_replaying_transactions() {
         line: "aurora-v1".into(),
         journey: Checkpoint::capture(world.journey_snapshot()),
         service: world.service_state().clone(),
+        economy: None,
+        lines: None,
     };
     let bytes = serde_json::to_vec(&saved).unwrap();
     let restored: WorldCheckpoint = serde_json::from_slice(&bytes).unwrap();

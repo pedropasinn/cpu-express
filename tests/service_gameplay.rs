@@ -91,7 +91,7 @@ fn v1_migration_preserves_unlocks_and_original_bytes() {
     let file = path("migration");
     std::fs::write(&file, &bytes).unwrap();
     let w = progress::load_world(&file).unwrap().unwrap();
-    assert_eq!(w.service_state().owned_rewards.len(), 4);
+    assert_eq!(w.service_state().owned_rewards.len(), 5);
     assert_eq!(w.service_state().passengers_delivered, 0);
     progress::save(&file, &w).unwrap();
     assert_eq!(

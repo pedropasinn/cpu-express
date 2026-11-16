@@ -117,7 +117,7 @@ fn truncated_or_damaged_checkpoint_resumes_from_the_previous_valid_one() {
 fn newer_version_is_never_set_aside_or_downgraded() {
     let (dir, file, _, world) = profile("future");
     let mut future: serde_json::Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
-    future["version"] = serde_json::json!(5);
+    future["version"] = serde_json::json!(6);
     future["service"]["future_field"] = serde_json::json!({"kept": true});
     let bytes = serde_json::to_vec_pretty(&future).unwrap();
     fs::write(&file, &bytes).unwrap();
@@ -322,7 +322,8 @@ fn a_day_of_unattended_travel_keeps_state_and_checkpoint_bounded() {
     }
     assert!(world.journey_snapshot().stations_visited > 500);
     assert!(world.journey_snapshot().dropped_events > 0);
-    assert!(largest < 16_384, "{largest}");
+    // v5 also keeps 128 bounded economic transactions.
+    assert!(largest < 32_768, "{largest}");
     // One main document, one recovery copy, nothing accumulating beside them.
     assert_eq!(fs::read_dir(&dir).unwrap().count(), 2);
     let reopened = progress::load_profile(&file).unwrap().0.unwrap();
@@ -333,17 +334,19 @@ fn a_day_of_unattended_travel_keeps_state_and_checkpoint_bounded() {
 /// SAV-02: v4 names the catalogue line. A v3 document migrates with an exact backup;
 /// a line or catalogue this edition cannot run is preserved, never reinterpreted.
 #[test]
-fn v3_migrates_to_v4_and_foreign_lines_are_preserved() {
+fn v3_migrates_to_v5_and_foreign_lines_are_preserved() {
     let (dir, file, _, world) = profile("v4");
     let current = fs::read(&file).unwrap();
     let document: serde_json::Value = serde_json::from_slice(&current).unwrap();
-    assert_eq!(document["version"], 4);
+    assert_eq!(document["version"], 5);
     assert_eq!(document["line"], "aurora-v1");
     assert_eq!(document["catalog_version"], 1);
 
     // The same journey as rc.2 wrote it.
     let mut v3 = document.clone();
     v3["version"] = serde_json::json!(3);
+    v3.as_object_mut().unwrap().remove("economy");
+    v3.as_object_mut().unwrap().remove("lines");
     v3.as_object_mut().unwrap().remove("line");
     v3.as_object_mut().unwrap().remove("catalog_version");
     let v3_bytes = serde_json::to_vec_pretty(&v3).unwrap();
@@ -356,7 +359,9 @@ fn v3_migrates_to_v4_and_foreign_lines_are_preserved() {
         fs::read(file.with_extension("v3.backup.json")).unwrap(),
         v3_bytes
     );
-    assert_eq!(fs::read(&file).unwrap(), current);
+    let reopened = progress::load_world(&file).unwrap().unwrap();
+    assert_eq!(reopened.economy(), migrated.economy());
+    assert_eq!(reopened.journey_snapshot(), migrated.journey_snapshot());
 
     // v4 documents this edition must not touch.
     type Change = fn(&mut serde_json::Value);

@@ -1,0 +1,237 @@
+{
+  "catalog_version": 1,
+  "economy": {
+    "balance": 30,
+    "bonus_remainder": 0,
+    "cargo_by_kind": {
+      "bicycles": 0,
+      "chilled": 0,
+      "containers": 0,
+      "fair_equipment": 0,
+      "gas": 0,
+      "grain": 0,
+      "liquid": 0,
+      "livestock": 0,
+      "machinery": 0,
+      "ore": 0,
+      "parcels": 0,
+      "steel_coils": 0,
+      "supplies": 0,
+      "timber": 0,
+      "vehicles": 0
+    },
+    "contract_remainder": 0,
+    "crate_misses": {
+      "cargo_workshop": 0,
+      "engine_garage": 0,
+      "general_yard": 1,
+      "paint_atelier": 0,
+      "platform_comfort": 0
+    },
+    "daily_orders": [],
+    "inventory": [
+      {
+        "wagon": "autorack"
+      },
+      {
+        "wagon": "bicycle"
+      },
+      {
+        "wagon": "coil"
+      },
+      {
+        "wagon": "container"
+      },
+      {
+        "wagon": "crane"
+      },
+      {
+        "wagon": "dining"
+      },
+      {
+        "wagon": "fair"
+      },
+      {
+        "wagon": "freight"
+      },
+      {
+        "wagon": "gondola"
+      },
+      {
+        "wagon": "hopper"
+      },
+      {
+        "wagon": "livestock"
+      },
+      {
+        "wagon": "mail"
+      },
+      {
+        "wagon": "observation"
+      },
+      {
+        "wagon": "passenger"
+      },
+      {
+        "wagon": "pressure_tank"
+      },
+      {
+        "wagon": "refrigerator"
+      },
+      {
+        "wagon": "sleeper"
+      },
+      {
+        "wagon": "tank"
+      },
+      {
+        "wagon": "timber"
+      },
+      {
+        "locomotive": "articulated_steam"
+      },
+      {
+        "locomotive": "diesel"
+      },
+      {
+        "locomotive": "electric"
+      },
+      {
+        "locomotive": "express_steam"
+      },
+      {
+        "locomotive": "freight_steam"
+      },
+      {
+        "locomotive": "rack_electric"
+      },
+      {
+        "locomotive": "railcar"
+      },
+      {
+        "locomotive": "shunter"
+      },
+      {
+        "locomotive": "steam"
+      },
+      {
+        "locomotive": "twin_diesel"
+      },
+      {
+        "livery": "aurora"
+      },
+      {
+        "livery": "cherry"
+      },
+      {
+        "livery": "midnight"
+      },
+      {
+        "livery": "ocean"
+      },
+      {
+        "livery": "sunset"
+      }
+    ],
+    "last_order_active_seconds": 0.0,
+    "last_order_swap_active_seconds": 0.0,
+    "legacy_mission_claim_pending": true,
+    "museum_stamps": 0,
+    "next_order_id": 1,
+    "next_transaction_id": 3,
+    "paid_missions": [],
+    "passenger_remainder": 0,
+    "pending_purchase": {
+      "crate_kind": "general_yard",
+      "duplicate": true,
+      "item": {
+        "wagon": "freight"
+      },
+      "paid": 0,
+      "pool_version": 1,
+      "rarity": "common",
+      "refund": 0,
+      "transaction_id": 2
+    },
+    "random_state": 4354685564936845396,
+    "rule_version": 1,
+    "total_earned": 30,
+    "total_spent": 0,
+    "transactions": [
+      {
+        "balance": 30,
+        "credited": 30,
+        "debited": 0,
+        "id": 1,
+        "reason": "Boas-vindas"
+      },
+      {
+        "balance": 30,
+        "credited": 0,
+        "debited": 0,
+        "id": 2,
+        "reason": "Remessa"
+      }
+    ],
+    "welcome_crate_available": false
+  },
+  "journey": {
+    "active_seconds": 2000.0,
+    "distance": 40000.0,
+    "route": "aurora-v1",
+    "seed": 42,
+    "station_wait": 0.0,
+    "version": 1
+  },
+  "line": "aurora-v1",
+  "lines": {
+    "aurora-v1": {
+      "active_seconds": 2000.0,
+      "completed_runs": 4,
+      "discovered_stations": [
+        "aurora",
+        "harbor",
+        "pines",
+        "ridge"
+      ],
+      "distance": 40000.0,
+      "seed": 42,
+      "station_wait": 0.0,
+      "stations_visited": 18
+    }
+  },
+  "service": {
+    "arrivals": [],
+    "automatic_contracts": true,
+    "branch": {
+      "current": null,
+      "discoveries": [],
+      "pending": null
+    },
+    "cargo_delivered": 20,
+    "collection": [
+      "passenger_postcard",
+      "cargo_postcard"
+    ],
+    "composition": [
+      "observation",
+      "sleeper",
+      "freight"
+    ],
+    "contract": null,
+    "contracts_completed": 2,
+    "credits": 240,
+    "last_processed_visit": 18,
+    "owned_rewards": [
+      "aurora",
+      "ocean",
+      "sunset",
+      "midnight",
+      "cherry"
+    ],
+    "passengers": [],
+    "passengers_boarded": 20,
+    "passengers_delivered": 20
+  },
+  "version": 5
+}

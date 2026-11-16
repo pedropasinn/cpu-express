@@ -3,6 +3,7 @@
 pub mod branch;
 pub use branch::{BranchExpedition, BranchKind, BranchPhase, BranchState, BranchStop};
 pub mod catalog;
+pub mod economy;
 pub mod itinerary;
 pub mod journey;
 pub mod map_layout;

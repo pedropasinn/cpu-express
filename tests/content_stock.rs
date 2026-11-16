@@ -117,7 +117,7 @@ fn specialized_cargo_loads_delivers_and_survives_v4_restart() {
         progress::save_checkpoint(&path, &world).unwrap();
         let json: serde_json::Value =
             serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
-        assert_eq!(json["version"], 4);
+        assert_eq!(json["version"], 5);
         let (restored, warning) = progress::load_profile(&path).unwrap();
         assert!(warning.is_none());
         let mut restored = restored.unwrap();

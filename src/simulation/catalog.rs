@@ -10,6 +10,29 @@
 use serde::Deserialize;
 use std::{collections::BTreeSet, fmt, sync::OnceLock};
 
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, Deserialize,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum Rarity {
+    #[default]
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+}
+impl Rarity {
+    pub const ALL: [Self; 4] = [Self::Common, Self::Uncommon, Self::Rare, Self::Epic];
+    pub const fn direct_price(self) -> u64 {
+        match self {
+            Self::Common => 120,
+            Self::Uncommon => 240,
+            Self::Rare => 480,
+            Self::Epic => 900,
+        }
+    }
+}
+
 /// Highest catalogue format this build understands.
 pub const CATALOG_VERSION: u32 = 1;
 
@@ -36,6 +59,8 @@ impl fmt::Display for CatalogError {
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct WagonDef {
+    #[serde(default)]
+    pub rarity: Rarity,
     pub id: String,
     pub name: String,
     pub seats: u32,
@@ -69,6 +94,8 @@ pub struct CargoDef {
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct LiveryDef {
+    #[serde(default)]
+    pub rarity: Rarity,
     pub id: String,
     pub name: String,
     pub required_stops: u64,
@@ -113,6 +140,8 @@ pub enum Traction {
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct LocomotiveDef {
+    #[serde(default)]
+    pub rarity: Rarity,
     pub id: String,
     pub name: String,
     pub traction: Traction,

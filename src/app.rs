@@ -464,8 +464,12 @@ impl CpuExpressApp {
         }
         if !demo_mode {
             use crate::rendering::EngineStyle;
-            let reward = config.visual.engine.required_reward();
-            if reward.is_some_and(|r| !world.service_snapshot().collection.contains(&r)) {
+            if !world
+                .economy()
+                .owns(&crate::simulation::economy::ItemId::Locomotive(
+                    config.visual.engine.id().into(),
+                ))
+            {
                 config.visual.engine = EngineStyle::Steam;
             }
         }
@@ -843,8 +847,28 @@ impl CpuExpressApp {
         let dt = self.clock.take_step(self.opened.elapsed());
         if !self.suspended() {
             let cpu = self.cpu_percent();
-            self.world
-                .advance_expedition(&mut self.train, cpu, dt, &self.config);
+            if let Some(path) = &self.progress_path {
+                match crate::progress::advance_checkpoint(
+                    path,
+                    &mut self.world,
+                    &mut self.train,
+                    cpu,
+                    dt,
+                    &self.config,
+                ) {
+                    Ok(Some(warning)) => self.progress_notice = Some(warning),
+                    Ok(None) => {}
+                    Err(error) => {
+                        self.progress_notice = Some(error.clone());
+                        self.notification = Some(format!("Viagem pausada: {error}"));
+                        self.paused = true;
+                        self.world.set_paused(true);
+                    }
+                }
+            } else {
+                self.world
+                    .advance_expedition(&mut self.train, cpu, dt, &self.config);
+            }
             self.consume_travel_events();
         }
         // Pausing freezes particles and wheels and reuses the existing GPU texture.

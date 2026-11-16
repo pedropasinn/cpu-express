@@ -20,6 +20,21 @@ pub enum EngineStyle {
 }
 
 impl EngineStyle {
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::Steam => "steam",
+            Self::Diesel => "diesel",
+            Self::Electric => "electric",
+            Self::FreightSteam => "freight_steam",
+            Self::Shunter => "shunter",
+            Self::Railcar => "railcar",
+            Self::ExpressSteam => "express_steam",
+            Self::ArticulatedSteam => "articulated_steam",
+            Self::TwinDiesel => "twin_diesel",
+            Self::RackElectric => "rack_electric",
+        }
+    }
+
     pub const ALL: [Self; 10] = [
         Self::Steam,
         Self::Diesel,
