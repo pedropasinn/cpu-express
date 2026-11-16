@@ -44,6 +44,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         service: world.service_state().clone(),
         economy: None,
         lines: None,
+        line_services: None,
+        boarding_closed: None,
     };
     let v4 = serde_json::to_value(checkpoint)?;
     create(&folder.join("v4.json"), &v4)?;
@@ -80,6 +82,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             service: world.service_state().clone(),
             economy: Some(world.economy().clone()),
             lines: Some(world.line_progress()),
+            line_services: None,
+            boarding_closed: None,
         })?)
     };
     create(&folder.join("v5-pending.json"), &capture(&migrated)?)?;

@@ -26,6 +26,8 @@ fn milestones_survive_v4_roundtrip_without_replaying_transactions() {
         service: world.service_state().clone(),
         economy: None,
         lines: None,
+        line_services: None,
+        boarding_closed: None,
     };
     let bytes = serde_json::to_vec(&saved).unwrap();
     let restored: WorldCheckpoint = serde_json::from_slice(&bytes).unwrap();

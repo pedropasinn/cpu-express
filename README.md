@@ -14,6 +14,8 @@ Abra `cpu-express.exe` na distribuição portátil rc.3. Clique no trem para abr
 
 ## Desenvolver
 
+Na branch `expansao`, Curitiba–Paranaguá já é jogável: **Viagem → Linhas**. Use **Encerrar embarques**, aguarde o trem vazio numa parada elegível e escolha **Viajar nesta linha**. A fonte de desenvolvimento usa checkpoint v6 com migração e backup v1–v5; a distribuição rc.3 abaixo permanece histórica. [Guia da integração E3](docs/expansao/LINHAS_E3.md).
+
 Esta é a única base atual de código. `src/` contém domínio, renderer, UI e integração Windows; `tests/` e `examples/` fornecem verificações e exportadores. `scripts/dev.ps1` encontra a toolchain local sem alterar o PATH permanentemente. Cargo.lock fixa as dependências.
 
 ```powershell

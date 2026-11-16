@@ -355,7 +355,7 @@ impl EconomyState {
             .expect("initial balance fits");
         state
     }
-    pub fn migrated(snapshot: JourneySnapshot, service: &ServiceState) -> Self {
+    pub fn migrated(snapshot: JourneySnapshot, service: &ServiceState<impl Clone + Eq>) -> Self {
         let mut state = Self::new(snapshot.seed);
         state.legacy_mission_claim_pending = true;
         for wagon in ServiceWagon::ALL {
@@ -434,7 +434,7 @@ impl EconomyState {
     pub(crate) fn arrive(
         &mut self,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
         multiplier: u32,
     ) {
         let Some(arrival) = service.arrivals.last() else {
@@ -493,7 +493,7 @@ impl EconomyState {
         &mut self,
         action: EconomyAction,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Result<(), String> {
         match action {
             EconomyAction::ClaimMission(id) => self.claim_mission(&id, snapshot, service)?,

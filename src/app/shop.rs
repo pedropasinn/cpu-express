@@ -260,8 +260,8 @@ impl CpuExpressApp {
                 .filter(|o| {
                     o.claimable(
                         economy,
-                        self.world.journey_snapshot(),
-                        self.world.service_state(),
+                        self.world.economic_snapshot(),
+                        self.world.service_view(),
                     )
                 })
                 .count();
@@ -1007,20 +1007,17 @@ mod tests {
         let item = app.shop.direct_result.clone().unwrap();
         assert_eq!(app.world.economy().balance, before - 240);
         assert!(app.world.economy().owns(&item));
-        let original_composition = app.world.service_snapshot().composition;
+        let original_composition = app.world.service_view().composition;
         let original_visual = app.config.visual.coaches;
         app.progress_path = Some(path.parent().unwrap().to_owned());
         click(&mut app, &ctx, "Equipar");
-        assert_eq!(
-            app.world.service_snapshot().composition,
-            original_composition
-        );
+        assert_eq!(app.world.service_view().composition, original_composition);
         assert_eq!(app.config.visual.coaches, original_visual);
         app.progress_path = Some(path.clone());
         click(&mut app, &ctx, "Equipar");
         let reopened = crate::progress::load_world(&path).unwrap().unwrap();
         assert_eq!(
-            reopened.service_snapshot().composition[0],
+            reopened.service_view().composition[0],
             service_wagon(CoachStyle::ALL[stock_index(&item)])
         );
         assert_eq!(reopened.economy(), app.world.economy());

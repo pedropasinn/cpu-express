@@ -347,6 +347,8 @@ pub struct LineDef {
     pub segments: Vec<SegmentDef>,
     #[serde(default)]
     pub open_questions: Vec<String>,
+    #[serde(default)]
+    pub editorial_notes: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]

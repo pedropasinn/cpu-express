@@ -14,6 +14,8 @@ fn roundtrip(world: &World) -> World {
         service: world.service_state().clone(),
         economy: None,
         lines: None,
+        line_services: None,
+        boarding_closed: None,
     };
     checkpoint.journey.station_wait = world.station_wait();
     let bytes = serde_json::to_vec(&checkpoint).unwrap();

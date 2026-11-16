@@ -149,7 +149,7 @@ impl Mission {
     pub fn progress(
         self,
         journey: JourneySnapshot,
-        service: &super::ServiceState,
+        service: &super::ServiceState<impl Clone + Eq>,
     ) -> MissionProgress {
         let value = match self.counter {
             MissionCounter::Passengers => service.passengers_delivered,

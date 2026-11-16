@@ -70,9 +70,16 @@ fn catalogue_circuit_uses_base_lengths_and_refuses_drafts() {
     let aurora = playable(catalog().line("aurora-v1").unwrap(), DEFAULT_UNITS_PER_KM).unwrap();
     assert_eq!(aurora.layout(), Layout::Circuit);
     assert_eq!(aurora.run_length(), 9000.0);
-    let draft = catalog().line("curitiba-paranagua").unwrap();
+    assert!(
+        playable(
+            catalog().line("curitiba-paranagua").unwrap(),
+            DEFAULT_UNITS_PER_KM
+        )
+        .is_ok()
+    );
+    let draft = catalog().line("vitoria-minas").unwrap();
     let error = playable(draft, DEFAULT_UNITS_PER_KM).unwrap_err();
-    assert!(error.contains("curitiba-paranagua") && error.contains("rascunho"));
+    assert!(error.contains("vitoria-minas") && error.contains("rascunho"));
     assert!(Itinerary::from_line(draft, f64::NAN).is_err());
     assert!(Itinerary::from_line(draft, 0.0).is_err());
 }

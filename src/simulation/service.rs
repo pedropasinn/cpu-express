@@ -357,6 +357,54 @@ const STATIONS: [StationId; 4] = [
     StationId::Harbor,
 ];
 impl<S: Clone + Eq> ServiceState<S> {
+    /// Presentation/economy projection; durable identities remain in each line's service.
+    pub fn map_stations<T: Clone + Eq>(&self, map: impl Fn(&S) -> T) -> ServiceState<T> {
+        ServiceState {
+            branch: self.branch.clone(),
+            composition: self.composition,
+            passengers: self
+                .passengers
+                .iter()
+                .map(|p| PassengerGroup {
+                    origin: map(&p.origin),
+                    destination: map(&p.destination),
+                    count: p.count,
+                })
+                .collect(),
+            automatic_contracts: self.automatic_contracts,
+            contract: self.contract.as_ref().map(|c| CargoContract {
+                kind: c.kind,
+                id: c.id,
+                origin: map(&c.origin),
+                destination: map(&c.destination),
+                units: c.units,
+                reward: c.reward,
+                status: c.status,
+            }),
+            last_processed_visit: self.last_processed_visit,
+            passengers_boarded: self.passengers_boarded,
+            passengers_delivered: self.passengers_delivered,
+            cargo_delivered: self.cargo_delivered,
+            contracts_completed: self.contracts_completed,
+            credits: self.credits,
+            owned_rewards: self.owned_rewards.clone(),
+            collection: self.collection.clone(),
+            arrivals: self
+                .arrivals
+                .iter()
+                .map(|a| ArrivalSummary {
+                    visit: a.visit,
+                    station: map(&a.station),
+                    boarded: a.boarded,
+                    alighted: a.alighted,
+                    cargo_loaded: a.cargo_loaded,
+                    cargo_delivered: a.cargo_delivered,
+                    cargo_returned: a.cargo_returned,
+                    earned: a.earned,
+                })
+                .collect(),
+        }
+    }
     pub fn capacity(&self) -> (u32, u32) {
         self.composition.iter().fold((0, 0), |(p, c), w| {
             let (a, b) = w.capacity();
@@ -624,6 +672,16 @@ impl<S: Clone + Eq> ServiceState<S> {
     }
     /// Shared transaction; the route owner supplies stable endpoints and visit identity.
     pub(crate) fn arrive_at(&mut self, seed: u64, visit: u64, station: S, destination: S) {
+        self.arrive_at_with_boarding(seed, visit, station, destination, true);
+    }
+    pub(crate) fn arrive_at_with_boarding(
+        &mut self,
+        seed: u64,
+        visit: u64,
+        station: S,
+        destination: S,
+        boarding: bool,
+    ) {
         if visit <= self.last_processed_visit {
             return;
         }
@@ -673,7 +731,11 @@ impl<S: Clone + Eq> ServiceState<S> {
         }
         let entropy = seed.wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
         let (seats, _) = self.capacity();
-        let count = (4 + (entropy % 17) as u32).min(seats - self.passenger_count());
+        let count = if boarding {
+            (4 + (entropy % 17) as u32).min(seats - self.passenger_count())
+        } else {
+            0
+        };
         if count > 0 {
             if let Some(group) = self
                 .passengers
@@ -691,7 +753,7 @@ impl<S: Clone + Eq> ServiceState<S> {
             summary.boarded = count;
             self.passengers_boarded += u64::from(count);
         }
-        if self.contract.is_none() {
+        if boarding && self.contract.is_none() {
             let units = 4 + ((entropy >> 8) % 9) as u32;
             let kind = if self.cargo_capacity(CargoKind::Liquid) > 0
                 && (self.cargo_capacity(CargoKind::Parcels) == 0 || (entropy >> 16) % 3 == 2)
@@ -737,7 +799,8 @@ impl<S: Clone + Eq> ServiceState<S> {
                 },
             });
         }
-        if self.automatic_contracts
+        if boarding
+            && self.automatic_contracts
             && let Some(c) = &mut self.contract
             && c.status == ContractStatus::Offered
         {
@@ -826,6 +889,9 @@ impl ServiceState {
         Ok(())
     }
     pub(crate) fn arrive(&mut self, snapshot: JourneySnapshot) {
+        self.arrive_with_boarding(snapshot, true);
+    }
+    pub(crate) fn arrive_with_boarding(&mut self, snapshot: JourneySnapshot, boarding: bool) {
         let visit = snapshot.stations_visited;
         if visit <= self.last_processed_visit {
             return;
@@ -835,7 +901,7 @@ impl ServiceState {
             .seed
             .wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
         let destination = STATIONS[(station.index() + 1 + (entropy % 3) as usize) % STATIONS.len()];
-        self.arrive_at(snapshot.seed, visit, station, destination);
+        self.arrive_at_with_boarding(snapshot.seed, visit, station, destination, boarding);
         for reward in Livery::ORIGINAL {
             if reward.available(snapshot) && !self.owns(reward) {
                 self.owned_rewards.push(reward);

@@ -6,9 +6,9 @@ use crate::simulation::economy::EconomyAction;
 impl CpuExpressApp {
     pub(super) fn has_claimable_rewards(&self) -> bool {
         let e = self.world.economy();
-        let j = self.world.journey_snapshot();
-        let s = self.world.service_state();
-        e.missions(j, s).iter().any(|m| m.claimable())
+        let j = self.world.economic_snapshot();
+        let s = self.world.service_view();
+        self.world.missions().iter().any(|m| m.claimable())
             || e.daily_orders.iter().any(|o| o.claimable(e, j, s))
     }
 
@@ -43,9 +43,14 @@ impl CpuExpressApp {
 
     pub(super) fn missions_page(&mut self, ui: &mut egui::Ui) {
         let e = self.world.economy();
-        let j = self.world.journey_snapshot();
-        let s = self.world.service_state();
-        let missions: Vec<_> = e.missions(j, s).into_iter().filter(|m| m.visible).collect();
+        let j = self.world.economic_snapshot();
+        let s = self.world.service_view();
+        let missions: Vec<_> = self
+            .world
+            .missions()
+            .into_iter()
+            .filter(|m| m.visible)
+            .collect();
         let next = missions
             .iter()
             .filter(|m| !m.paid)

@@ -38,7 +38,7 @@ fn to_visit(session: &mut LineSession, visit: u64) {
 #[test]
 fn fourteen_stations_both_directions_deliver_and_restore_without_replay() {
     assert_eq!(LineSession::SERVICE_KIND, ContentKind::Fictional);
-    assert!(LineSession::playable(line(), 42).is_err());
+    assert!(LineSession::playable(line(), 42).is_ok());
     let mut session = inspection();
     assert!(session.can_leave_line());
     for visit in 1..=52 {

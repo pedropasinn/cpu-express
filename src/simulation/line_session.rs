@@ -22,6 +22,23 @@ pub struct CatalogStationId {
     pub station: String,
 }
 
+impl CatalogStationId {
+    pub fn name(&self) -> &'static str {
+        super::catalog::Catalog::builtin()
+            .as_ref()
+            .ok()
+            .and_then(|c| c.line(&self.line))
+            .and_then(|l| l.stations.iter().find(|s| s.id == self.station))
+            .map_or("Parada desconhecida", |s| s.name.as_str())
+    }
+    pub fn aurora(id: super::StationId) -> Self {
+        Self {
+            line: super::route::CIRCUIT_LINE_ID.into(),
+            station: ["aurora", "pines", "ridge", "harbor"][id.index()].into(),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct LineSession {
     itinerary: Itinerary,
@@ -142,6 +159,12 @@ impl LineSession {
     pub fn service(&self) -> &ServiceState<CatalogStationId> {
         &self.service
     }
+    pub(crate) fn service_mut(&mut self) -> &mut ServiceState<CatalogStationId> {
+        &mut self.service
+    }
+    pub fn dwell_seconds(&self) -> f64 {
+        self.position().at_station.map_or(8.0, |s| self.dwell[s])
+    }
     pub fn position(&self) -> Position {
         self.itinerary.locate(self.progress.distance)
     }
@@ -179,6 +202,9 @@ impl LineSession {
 
     /// Applies at most one arrival per active step. Wait consumes the same clock.
     pub fn advance(&mut self, seconds: f64) -> AdvanceOutcome {
+        self.advance_with_boarding(seconds, true)
+    }
+    pub(crate) fn advance_with_boarding(&mut self, seconds: f64, boarding: bool) -> AdvanceOutcome {
         if self.paused {
             return AdvanceOutcome::Paused;
         }
@@ -211,12 +237,22 @@ impl LineSession {
                 .wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
             let destination = (station + 1 + (entropy % (self.stations.len() as u64 - 1)) as usize)
                 % self.stations.len();
-            self.service.arrive_at(
-                self.progress.seed,
-                visit,
-                self.stations[station].clone(),
-                self.stations[destination].clone(),
-            );
+            if boarding {
+                self.service.arrive_at(
+                    self.progress.seed,
+                    visit,
+                    self.stations[station].clone(),
+                    self.stations[destination].clone(),
+                );
+            } else {
+                self.service.arrive_at_with_boarding(
+                    self.progress.seed,
+                    visit,
+                    self.stations[station].clone(),
+                    self.stations[destination].clone(),
+                    false,
+                );
+            }
             self.progress.station_wait =
                 (self.dwell[station] - (moving - distance / Self::SPEED).max(0.0)).max(0.0);
             self.progress
@@ -233,7 +269,7 @@ impl LineSession {
     }
 
     /// Validates the v5 per-line record and generic services before publishing either.
-    /// The application checkpoint deliberately still rejects non-Aurora profiles.
+    /// The application embeds these services in v6 without converting Aurora IDs.
     pub fn restore(
         &mut self,
         progress: LineProgress,

@@ -5,19 +5,21 @@ impl CpuExpressApp {
         self.world
             .excursion_snapshot()
             .current
-            .map_or(self.world.journey_snapshot().next_station.name, |e| {
-                e.station_name()
-            })
+            .map_or(self.world.travel_view().next_name, |e| e.station_name())
     }
     pub(super) fn travel_progress(&self) -> f32 {
         self.world
             .excursion_snapshot()
             .current
-            .map_or(self.world.journey_snapshot().segment_progress as f32, |e| {
+            .map_or(self.world.travel_view().segment_progress as f32, |e| {
                 (e.active_seconds() / 188.0) as f32
             })
     }
     pub(super) fn branch_controls(&mut self, ui: &mut egui::Ui) {
+        if self.world.active_session().is_some() {
+            ui.label("Ramais disponíveis somente no Circuito Aurora.");
+            return;
+        }
         let branch = self.world.excursion_snapshot();
         if let Some(excursion) = branch.current {
             section(ui, "Excursão em andamento", |ui| {

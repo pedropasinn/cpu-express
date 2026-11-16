@@ -138,7 +138,7 @@ impl OrderCounter {
         self,
         economy: &EconomyState,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> u64 {
         match self {
             Self::Arrivals => snapshot.stations_visited,
@@ -244,7 +244,7 @@ impl DailyOrder {
         &self,
         economy: &EconomyState,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> u64 {
         self.template().map_or(0, |t| {
             t.counter
@@ -257,7 +257,7 @@ impl DailyOrder {
         &self,
         economy: &EconomyState,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> bool {
         self.progress(economy, snapshot, service) >= self.goal
     }
@@ -296,7 +296,7 @@ impl EconomyState {
     pub fn missions(
         &self,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Vec<MissionStatus> {
         let mut missions: Vec<_> = MISSIONS
             .iter()
@@ -348,7 +348,7 @@ impl EconomyState {
         &mut self,
         id: &str,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Result<(), String> {
         let mission = self
             .missions(snapshot, service)
@@ -365,7 +365,7 @@ impl EconomyState {
     pub(super) fn settle_legacy_missions(
         &mut self,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Result<(), String> {
         if !self.legacy_mission_claim_pending {
             return Err("Marcos antigos já conferidos.".into());
@@ -381,7 +381,11 @@ impl EconomyState {
         Ok(())
     }
     /// Conservative eligibility: existing stock, or one owned replacement that fits all aboard.
-    pub fn order_eligible(&self, template: &OrderTemplate, service: &ServiceState) -> bool {
+    pub fn order_eligible(
+        &self,
+        template: &OrderTemplate,
+        service: &ServiceState<impl Clone + Eq>,
+    ) -> bool {
         let supports = |composition: &[ServiceWagon; 3]| match template.counter {
             OrderCounter::Passengers => composition.iter().any(|w| w.capacity().0 > 0),
             OrderCounter::Cargo(kind) => {
@@ -420,7 +424,7 @@ impl EconomyState {
     fn make_order(
         &mut self,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
         telegram: bool,
         excluded: Option<&str>,
     ) -> Option<DailyOrder> {
@@ -458,7 +462,7 @@ impl EconomyState {
     pub(crate) fn offer_order_on_arrival(
         &mut self,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
         telegram_requested: bool,
     ) -> bool {
         if snapshot.active_seconds - self.last_order_active_seconds < ORDER_INTERVAL_SECONDS {
@@ -479,7 +483,7 @@ impl EconomyState {
         &mut self,
         id: u64,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Result<(), String> {
         let index = self
             .daily_orders
@@ -498,7 +502,7 @@ impl EconomyState {
         &mut self,
         id: u64,
         snapshot: JourneySnapshot,
-        service: &ServiceState,
+        service: &ServiceState<impl Clone + Eq>,
     ) -> Result<(), String> {
         if snapshot.at_station.is_none()
             || service.branch.current.is_some()

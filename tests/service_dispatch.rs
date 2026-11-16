@@ -69,7 +69,7 @@ fn restart(world: &World) -> World {
     let path = file("restart");
     progress::save(&path, world).unwrap();
     let value: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    assert_eq!(value["version"], 5);
+    assert_eq!(value["version"], 6);
     let restored = progress::load_world(&path).unwrap().unwrap();
     assert_eq!(restored.service_state(), world.service_state());
     assert_eq!(restored.station_wait(), world.station_wait());
@@ -316,6 +316,8 @@ fn legacy_v2(world: &World) -> Vec<u8> {
         service: world.service_state().clone(),
         economy: None,
         lines: None,
+        line_services: None,
+        boarding_closed: None,
     })
     .unwrap();
     // Fields introduced by v4 never existed in a v2 document.
@@ -357,7 +359,7 @@ fn v2_missing_fields_defaults_to_auto_and_backup_preserves_exact_bytes() {
     let backup = path.with_extension("v2.backup.json");
     assert_eq!(fs::read(&backup).unwrap(), original);
     let current: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    assert_eq!(current["version"], 5);
+    assert_eq!(current["version"], 6);
     next_arrival(&mut migrated);
     progress::save(&path, &migrated).unwrap();
     assert_eq!(fs::read(&backup).unwrap(), original);
@@ -390,7 +392,7 @@ fn future_checkpoint_is_protected_even_when_replaced_after_load() {
     progress::save(&path, &world).unwrap();
     let loaded = progress::load_world(&path).unwrap().unwrap();
     let mut value: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-    value["version"] = serde_json::json!(6);
+    value["version"] = serde_json::json!(7);
     let future = serde_json::to_vec_pretty(&value).unwrap();
     fs::write(&path, &future).unwrap();
     assert!(progress::load_world(&path).is_err());

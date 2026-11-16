@@ -1,0 +1,381 @@
+{
+  "version": 6,
+  "catalog_version": 1,
+  "line": "curitiba-paranagua",
+  "journey": {
+    "version": 1,
+    "route": "aurora-v1",
+    "seed": 42,
+    "distance": 0.0,
+    "active_seconds": 0.0,
+    "station_wait": 0.0
+  },
+  "service": {
+    "branch": {
+      "pending": null,
+      "current": null,
+      "discoveries": []
+    },
+    "composition": [
+      "passenger",
+      "passenger",
+      "freight"
+    ],
+    "passengers": [],
+    "automatic_contracts": true,
+    "contract": null,
+    "last_processed_visit": 0,
+    "passengers_boarded": 0,
+    "passengers_delivered": 0,
+    "cargo_delivered": 0,
+    "contracts_completed": 0,
+    "credits": 0,
+    "owned_rewards": [
+      "aurora",
+      "ocean",
+      "sunset"
+    ],
+    "collection": [],
+    "arrivals": []
+  },
+  "economy": {
+    "rule_version": 1,
+    "balance": 33,
+    "total_earned": 33,
+    "total_spent": 0,
+    "next_transaction_id": 8,
+    "transactions": [
+      {
+        "id": 1,
+        "reason": "Boas-vindas",
+        "credited": 30,
+        "debited": 0,
+        "balance": 30
+      },
+      {
+        "id": 2,
+        "reason": "Chegada e serviços",
+        "credited": 0,
+        "debited": 0,
+        "balance": 30
+      },
+      {
+        "id": 3,
+        "reason": "Chegada e serviços",
+        "credited": 0,
+        "debited": 0,
+        "balance": 30
+      },
+      {
+        "id": 4,
+        "reason": "Chegada e serviços",
+        "credited": 1,
+        "debited": 0,
+        "balance": 31
+      },
+      {
+        "id": 5,
+        "reason": "Chegada e serviços",
+        "credited": 1,
+        "debited": 0,
+        "balance": 32
+      },
+      {
+        "id": 6,
+        "reason": "Chegada e serviços",
+        "credited": 1,
+        "debited": 0,
+        "balance": 33
+      },
+      {
+        "id": 7,
+        "reason": "Chegada e serviços",
+        "credited": 0,
+        "debited": 0,
+        "balance": 33
+      }
+    ],
+    "inventory": [
+      {
+        "wagon": "freight"
+      },
+      {
+        "wagon": "passenger"
+      },
+      {
+        "wagon": "tank"
+      },
+      {
+        "locomotive": "steam"
+      },
+      {
+        "livery": "aurora"
+      },
+      {
+        "livery": "ocean"
+      },
+      {
+        "livery": "sunset"
+      }
+    ],
+    "pending_purchase": null,
+    "crate_misses": {
+      "general_yard": 0,
+      "cargo_workshop": 0,
+      "platform_comfort": 0,
+      "engine_garage": 0,
+      "paint_atelier": 0
+    },
+    "random_state": 11400714819323198527,
+    "welcome_crate_available": true,
+    "passenger_remainder": 2,
+    "contract_remainder": 10,
+    "bonus_remainder": 500,
+    "cargo_by_kind": {
+      "bicycles": 0,
+      "chilled": 0,
+      "containers": 0,
+      "fair_equipment": 0,
+      "gas": 0,
+      "grain": 0,
+      "liquid": 0,
+      "livestock": 0,
+      "machinery": 0,
+      "ore": 0,
+      "parcels": 5,
+      "steel_coils": 0,
+      "supplies": 0,
+      "timber": 0,
+      "vehicles": 0
+    },
+    "paid_missions": [],
+    "legacy_mission_claim_pending": false,
+    "daily_orders": [
+      {
+        "id": 1,
+        "template_id": "supplies",
+        "baselines": {
+          "supplies": 0
+        },
+        "goal": 48,
+        "reward": 15,
+        "entered_active_seconds": 822.0,
+        "telegram": false
+      }
+    ],
+    "next_order_id": 2,
+    "last_order_active_seconds": 822.0,
+    "last_order_swap_active_seconds": 0.0,
+    "museum_stamps": 0
+  },
+  "lines": {
+    "aurora-v1": {
+      "seed": 42,
+      "distance": 0.0,
+      "active_seconds": 0.0,
+      "station_wait": 0.0,
+      "stations_visited": 0,
+      "completed_runs": 0,
+      "discovered_stations": [
+        "aurora"
+      ]
+    },
+    "curitiba-paranagua": {
+      "seed": 42,
+      "distance": 30432.0,
+      "active_seconds": 1300.0,
+      "station_wait": 0.0,
+      "stations_visited": 6,
+      "completed_runs": 0,
+      "discovered_stations": [
+        "alexandra",
+        "engenheiro-lange",
+        "marumbi",
+        "morretes",
+        "paranagua",
+        "porto-de-cima",
+        "saquarema"
+      ]
+    }
+  },
+  "line_services": {
+    "curitiba-paranagua": {
+      "branch": {
+        "pending": null,
+        "current": null,
+        "discoveries": []
+      },
+      "composition": [
+        "passenger",
+        "passenger",
+        "freight"
+      ],
+      "passengers": [
+        {
+          "origin": {
+            "line": "curitiba-paranagua",
+            "station": "saquarema"
+          },
+          "destination": {
+            "line": "curitiba-paranagua",
+            "station": "paranagua"
+          },
+          "count": 7
+        },
+        {
+          "origin": {
+            "line": "curitiba-paranagua",
+            "station": "morretes"
+          },
+          "destination": {
+            "line": "curitiba-paranagua",
+            "station": "paranagua"
+          },
+          "count": 5
+        },
+        {
+          "origin": {
+            "line": "curitiba-paranagua",
+            "station": "porto-de-cima"
+          },
+          "destination": {
+            "line": "curitiba-paranagua",
+            "station": "piraquara"
+          },
+          "count": 19
+        },
+        {
+          "origin": {
+            "line": "curitiba-paranagua",
+            "station": "engenheiro-lange"
+          },
+          "destination": {
+            "line": "curitiba-paranagua",
+            "station": "veu-de-noiva"
+          },
+          "count": 16
+        },
+        {
+          "origin": {
+            "line": "curitiba-paranagua",
+            "station": "marumbi"
+          },
+          "destination": {
+            "line": "curitiba-paranagua",
+            "station": "veu-de-noiva"
+          },
+          "count": 1
+        }
+      ],
+      "automatic_contracts": true,
+      "contract": {
+        "kind": "parcels",
+        "id": 5,
+        "origin": {
+          "line": "curitiba-paranagua",
+          "station": "engenheiro-lange"
+        },
+        "destination": {
+          "line": "curitiba-paranagua",
+          "station": "veu-de-noiva"
+        },
+        "units": 6,
+        "reward": 60,
+        "status": "loaded"
+      },
+      "last_processed_visit": 6,
+      "passengers_boarded": 58,
+      "passengers_delivered": 10,
+      "cargo_delivered": 5,
+      "contracts_completed": 1,
+      "credits": 70,
+      "owned_rewards": [
+        "aurora",
+        "ocean",
+        "sunset"
+      ],
+      "collection": [],
+      "arrivals": [
+        {
+          "visit": 1,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "alexandra"
+          },
+          "boarded": 10,
+          "alighted": 0,
+          "cargo_loaded": 5,
+          "cargo_delivered": 0,
+          "cargo_returned": 0,
+          "earned": 0
+        },
+        {
+          "visit": 2,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "saquarema"
+          },
+          "boarded": 7,
+          "alighted": 0,
+          "cargo_loaded": 0,
+          "cargo_delivered": 0,
+          "cargo_returned": 0,
+          "earned": 0
+        },
+        {
+          "visit": 3,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "morretes"
+          },
+          "boarded": 5,
+          "alighted": 0,
+          "cargo_loaded": 0,
+          "cargo_delivered": 0,
+          "cargo_returned": 0,
+          "earned": 0
+        },
+        {
+          "visit": 4,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "porto-de-cima"
+          },
+          "boarded": 19,
+          "alighted": 10,
+          "cargo_loaded": 0,
+          "cargo_delivered": 5,
+          "cargo_returned": 0,
+          "earned": 70
+        },
+        {
+          "visit": 5,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "engenheiro-lange"
+          },
+          "boarded": 16,
+          "alighted": 0,
+          "cargo_loaded": 6,
+          "cargo_delivered": 0,
+          "cargo_returned": 0,
+          "earned": 0
+        },
+        {
+          "visit": 6,
+          "station": {
+            "line": "curitiba-paranagua",
+            "station": "marumbi"
+          },
+          "boarded": 1,
+          "alighted": 0,
+          "cargo_loaded": 0,
+          "cargo_delivered": 0,
+          "cargo_returned": 0,
+          "earned": 0
+        }
+      ]
+    }
+  },
+  "boarding_closed": false
+}

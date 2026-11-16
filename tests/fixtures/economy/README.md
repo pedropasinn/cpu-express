@@ -15,3 +15,6 @@ $env:CARGO_NET_OFFLINE = 'true'
 - `v5-pending.json`: migração v4 com uma remessa grátis sorteada, repetida e ainda não revelada. Reembolso zero, resultado/RNG/garantia já persistidos.
 
 Os testes copiam os bytes para diretórios temporários exclusivos. Conferem backups exatos de v1 a v4, reabertura, preservação dos direitos adquiridos, ausência de carga retroativa por espécie, campos obrigatórios, versões futuras e recuperação de compra pendente. As fixtures rc7 anteriores continuam separadas e intactas.
+# Complemento E3 — v6
+
+`v6-real-line.json` é uma fixture estática nova: seed 42, Curitiba–Paranaguá ativa após 1.300 segundos, serviços fictícios em curso e carteira compartilhada. Gerada pelo exemplo `line_checkpoint`, que exige caminho novo e não acessa perfil real. A suíte reabre/grava/reabre sem repetir renda. As fixtures v1–v5 abaixo foram preservadas byte a byte; a migração v5 ganha backup exato `.v5.backup.json`.

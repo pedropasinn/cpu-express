@@ -1,4 +1,7 @@
 use crate::config::Config;
+#[path = "world_lines.rs"]
+mod lines_support;
+pub use lines_support::TravelView;
 
 use super::{
     AdvanceOutcome, DEFAULT_JOURNEY_SEED, Journey, JourneySnapshot, TRAVEL_UNITS_PER_SCENE_PIXEL,
@@ -37,7 +40,7 @@ impl SmokeParticle {
 /// Small, bounded scene state independent of egui, sysinfo and the operating OS.
 #[derive(Clone, Debug)]
 pub struct World {
-    station_wait: f64,
+    pub(crate) station_wait: f64,
     elapsed_seconds: f64,
     scroll_px: f64,
     smoke: Vec<SmokeParticle>,
@@ -49,10 +52,15 @@ pub struct World {
     machine_bonus_millis: u32,
     telegram_requested: bool,
     pub(crate) lines: std::collections::BTreeMap<String, LineProgress>,
+    pub(crate) active_line: String,
+    pub(crate) sessions: std::collections::BTreeMap<String, super::line_session::LineSession>,
+    pub(crate) boarding_closed: bool,
+    service_view: super::ServiceState<super::line_session::CatalogStationId>,
+    catalog_arrival: Option<super::ArrivalSummary<super::line_session::CatalogStationId>>,
 }
 
 /// Per-line progress uses catalogue station IDs so E3 can retain any itinerary.
-/// Services are global and line switching must leave no passengers or contract aboard.
+/// Services stay local; the wallet, stock and economic counters span all lines.
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LineProgress {
@@ -90,7 +98,11 @@ impl World {
         self.machine_bonus_millis as f32 / 1000.0
     }
     pub fn line_progress(&self) -> std::collections::BTreeMap<String, LineProgress> {
-        let mut lines = self.lines.clone();
+        let mut lines: std::collections::BTreeMap<_, _> = self
+            .sessions
+            .iter()
+            .map(|(id, session)| (id.clone(), session.progress().clone()))
+            .collect();
         let snapshot = self.journey_snapshot();
         lines.insert(
             super::route::CIRCUIT_LINE_ID.into(),
@@ -143,6 +155,10 @@ impl World {
             .into_iter()
             .filter(|l| self.economy.owns(&super::economy::ItemId::livery(*l)))
             .collect();
+        for session in self.sessions.values_mut() {
+            session.service_mut().owned_rewards = self.service.owned_rewards.clone();
+        }
+        self.refresh_service_view();
     }
     /// Stage all domain changes; only publish after the writer succeeds.
     /// The writer must atomically persist the entire candidate. Err means no disk commit.
@@ -165,9 +181,26 @@ impl World {
         persist: impl FnOnce(&World) -> Result<(), String>,
     ) -> Result<(), String> {
         let mut candidate = self.clone();
-        candidate
-            .economy
-            .apply(action, candidate.journey_snapshot(), &candidate.service)?;
+        if let super::economy::EconomyAction::ClaimMission(id) = &action
+            && id.starts_with("line.curitiba-paranagua.")
+        {
+            let mission = candidate
+                .missions()
+                .into_iter()
+                .find(|m| m.id == id)
+                .ok_or("Missão desconhecida.")?;
+            if !mission.claimable() {
+                return Err("Missão incompleta ou já recolhida.".into());
+            }
+            candidate.economy.record(mission.title, mission.reward, 0)?;
+            candidate.economy.paid_missions.insert(id.clone());
+        } else {
+            candidate.economy.apply(
+                action,
+                candidate.economic_snapshot(),
+                &candidate.service_view,
+            )?;
+        }
         candidate.economy.validate()?;
         candidate.sync_owned_liveries();
         persist(&candidate)?;
@@ -180,20 +213,25 @@ impl World {
             && seconds > 0.0
             && !self.is_paused()
             && self.service.branch.current.is_none()
-            && self.journey_snapshot().distance_to_next_station_units
-                <= seconds.min(1.0) * 24.0 + 1e-6
+            && self.travel_view().distance_to_next <= seconds.min(1.0) * 24.0 + 1e-6
     }
     pub fn excursion_snapshot(&self) -> &super::BranchState {
         &self.service.branch
     }
     pub fn request_excursion(&mut self, kind: super::BranchKind) -> Result<(), String> {
+        if self.active_session().is_some() || self.boarding_closed {
+            return Err("Retome os embarques no Circuito Aurora para explorar ramais.".into());
+        }
         self.service.branch.request(kind, self.journey.snapshot())?;
         self.service
             .branch
             .try_depart(self.journey.snapshot(), self.station_wait);
+        self.service_view.branch.clone_from(&self.service.branch);
         Ok(())
     }
 
+    /// Legacy Aurora state for its unchanged checkpoint representation.
+    /// Application consumers use service_view for active endpoints and global totals.
     pub fn service_state(&self) -> &super::ServiceState {
         &self.service
     }
@@ -209,12 +247,31 @@ impl World {
     }
     pub fn set_automatic_contracts(&mut self, automatic: bool) {
         self.service.automatic_contracts = automatic;
+        for session in self.sessions.values_mut() {
+            session.set_automatic_contracts(automatic);
+        }
+        self.refresh_service_view();
     }
     pub fn accept_cargo_contract(&mut self) -> Result<(), String> {
-        self.service.accept_contract(self.service_platform())
+        if self.boarding_closed {
+            return Err("Embarques encerrados. Retome para aceitar encomendas.".into());
+        }
+        let result = if let Some(session) = self.sessions.get_mut(&self.active_line) {
+            session.accept_contract()
+        } else {
+            self.service.accept_contract(self.service_platform())
+        };
+        self.refresh_service_view();
+        result
     }
     pub fn cancel_cargo_contract(&mut self) -> Result<(), String> {
-        self.service.cancel_contract(self.service_platform())
+        let result = if let Some(session) = self.sessions.get_mut(&self.active_line) {
+            session.cancel_contract()
+        } else {
+            self.service.cancel_contract(self.service_platform())
+        };
+        self.refresh_service_view();
+        result
     }
     pub fn set_service_composition(
         &mut self,
@@ -226,7 +283,15 @@ impl World {
         {
             return Err(format!("Você ainda não possui o modelo {}.", wagon.name()));
         }
-        self.service.set_owned_composition(composition)
+        if !self.service_view.can_carry_with(composition) {
+            return Err("Capacidade insuficiente para o serviço a bordo.".into());
+        }
+        self.service.set_owned_composition(composition)?;
+        for session in self.sessions.values_mut() {
+            session.service_mut().set_owned_composition(composition)?;
+        }
+        self.refresh_service_view();
+        Ok(())
     }
     pub fn restore_service(&mut self, service: super::ServiceState) -> Result<(), String> {
         service.validate(self.journey_snapshot())?;
@@ -234,11 +299,13 @@ impl World {
             return Err("Excursão e serviço na base simultâneos.".into());
         }
         self.service = service;
+        self.refresh_service_view();
         Ok(())
     }
 
     pub fn station_wait(&self) -> f64 {
-        self.station_wait
+        self.active_session()
+            .map_or(self.station_wait, |s| s.progress().station_wait)
     }
 
     pub fn set_station_wait(&mut self, seconds: f64) {
@@ -266,6 +333,13 @@ impl World {
             Ok(dt) => dt,
             Err(outcome) => return outcome,
         };
+        if self.boarding_closed && self.can_leave_line() {
+            train.stop_at_station();
+            return AdvanceOutcome::Paused;
+        }
+        if self.active_session().is_some() {
+            return self.advance_catalog_line(train, cpu, dt, config);
+        }
         let mut remaining = dt;
         let initial_distance = self.journey.snapshot().total_distance_units;
         // At most a departure and an arrival can occur within a <=1 second step.
@@ -283,6 +357,7 @@ impl World {
                 };
                 self.advance_scene_with_route(step, distance, train.speed_kmh(), 0.0);
                 self.service.branch.advance(step);
+                self.service_view.branch.clone_from(&self.service.branch);
                 remaining -= step;
             } else if self.station_wait > 0.0 {
                 let step = remaining.min(self.station_wait);
@@ -301,20 +376,13 @@ impl World {
                 let previous_visits = self.journey.snapshot().stations_visited;
                 self.advance_scene_with_route(step, distance, train.speed_kmh(), step * 24.0);
                 if self.journey.snapshot().stations_visited > previous_visits {
-                    self.service.arrive(self.journey.snapshot());
-                    self.economy.arrive(
-                        self.journey.snapshot(),
-                        &self.service,
-                        self.machine_bonus_millis,
-                    );
-                    self.sync_owned_liveries();
-                    if self.economy.offer_order_on_arrival(
-                        self.journey_snapshot(),
-                        &self.service,
-                        self.telegram_requested,
-                    ) {
-                        self.telegram_requested = false;
+                    if self.boarding_closed {
+                        self.service
+                            .arrive_with_boarding(self.journey.snapshot(), false);
+                    } else {
+                        self.service.arrive(self.journey.snapshot());
                     }
+                    self.pay_arrival();
                     self.station_wait = 8.0;
                     train.stop_at_station();
                 }
@@ -341,7 +409,7 @@ impl World {
     /// Same baseline scenery with a reproducible route and smoke seed.
     #[must_use]
     pub fn with_seed(seed: u64) -> Self {
-        Self {
+        let mut world = Self {
             station_wait: 0.0,
             elapsed_seconds: 0.0,
             scroll_px: 0.0,
@@ -363,7 +431,15 @@ impl World {
             machine_bonus_millis: 1000,
             telegram_requested: false,
             lines: Default::default(),
-        }
+            active_line: super::route::CIRCUIT_LINE_ID.into(),
+            sessions: Default::default(),
+            boarding_closed: false,
+            service_view: super::ServiceState::migrated(Journey::from_seed(seed).snapshot())
+                .map_stations(|s| super::line_session::CatalogStationId::aurora(*s)),
+            catalog_arrival: None,
+        };
+        world.refresh_service_view();
+        world
     }
 
     /// Advance scenery and smoke without allocating an unbounded history.
@@ -430,6 +506,11 @@ impl World {
         let AdvanceOutcome::Advanced { seconds: dt, .. } = outcome else {
             return outcome;
         };
+        self.advance_visual(dt, distance_px, speed_kmh);
+        outcome
+    }
+
+    fn advance_visual(&mut self, dt: f64, distance_px: f64, speed_kmh: f64) {
         let distance = distance_px;
         self.elapsed_seconds = (self.elapsed_seconds + dt).min(f64::MAX);
         self.scroll_px =
@@ -475,7 +556,6 @@ impl World {
                 self.smoke.push(particle);
             }
         }
-        outcome
     }
 
     #[must_use]

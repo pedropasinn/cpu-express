@@ -73,7 +73,7 @@ pub(super) fn draw_styled(
         draw_excursion(canvas, branch, view);
         return;
     }
-    let journey = world.journey_snapshot();
+    let journey = world.travel_view();
     // Only real-service presentation opts into the new cast. None retains
     // pixel-exact illustrative galleries, and excursions never borrow counts.
     let cast = service.map(|_| super::passengers::PlatformCast {
@@ -82,13 +82,13 @@ pub(super) fn draw_styled(
         options,
         weather,
     });
-    let traveled = journey.segment_progress * journey.route_segment.length_units;
+    let traveled = journey.segment_progress * journey.segment_length;
     let waiting = world.station_wait() > 0.0;
     if let Some(x) = station_x(if waiting { 0.0 } else { traveled }, false, canvas.width()) {
         let service = service
             .unwrap_or(StationService {
                 progress: if waiting {
-                    ((8.0 - world.station_wait()) / 8.0) as f32
+                    ((world.station_dwell() - world.station_wait()) / world.station_dwell()) as f32
                 } else {
                     1.0
                 },
@@ -99,16 +99,14 @@ pub(super) fn draw_styled(
         draw_station_content(
             canvas,
             x,
-            (journey.route_segment.from.index(), styles.departing, cast),
+            (journey.from_index, styles.departing, cast),
             service,
-            Biome::from(journey.route_segment.biome_hint),
+            Biome::from(journey.biome),
             view,
             !waiting && traveled < 100.0 && (cast.is_none() || traveled >= 1.0),
         );
     }
-    if !waiting
-        && let Some(x) = station_x(journey.distance_to_next_station_units, true, canvas.width())
-    {
+    if !waiting && let Some(x) = station_x(journey.distance_to_next, true, canvas.width()) {
         // Actual service counts describe the last arrival, never a future one.
         let approaching = if service.is_some() {
             StationService::default()
@@ -122,9 +120,9 @@ pub(super) fn draw_styled(
         draw_station_content(
             canvas,
             x,
-            (journey.route_segment.to.index(), styles.arriving, cast),
+            (journey.to_index, styles.arriving, cast),
             approaching,
-            Biome::from(journey.next_biome_hint),
+            Biome::from(journey.next_biome),
             view,
             false,
         );

@@ -90,7 +90,7 @@ fn v5_fixtures_roundtrip_every_reserved_field_and_pending_reveal() {
         assert_eq!(reopened.economy(), &before);
         assert_eq!(reopened.line_progress(), lines);
         let value: serde_json::Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
-        assert_eq!(value["version"], 5);
+        assert_eq!(value["version"], 6);
         assert_eq!(value["lines"].as_object().unwrap().len(), 1);
         for field in [
             "inventory",
@@ -198,7 +198,7 @@ fn v4_backup_conflict_and_future_save_never_destroy_originals() {
     assert!(progress::save_checkpoint(&path, &world).is_err());
     assert_eq!(fs::read(&path).unwrap(), LEGACY[3]);
     assert_eq!(fs::read(&backup).unwrap(), b"outro backup");
-    let future = br#"{"version":6}"#;
+    let future = br#"{"version":7}"#;
     fs::write(&path, future).unwrap();
     fs::write(progress::previous_path(&path), NEW).unwrap();
     assert!(progress::load_profile(&path).is_err());

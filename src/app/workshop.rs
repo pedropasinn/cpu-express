@@ -11,7 +11,7 @@ fn composition_preview(
 ) -> bool {
     use crate::simulation::CargoKind;
 
-    let service = world.service_state();
+    let service = world.service_view();
     let composition = coaches.map(service_wagon);
     let before = service.capacity();
     let after = composition.iter().fold((0, 0), |(seats, cargo), wagon| {
@@ -155,7 +155,7 @@ impl CpuExpressApp {
                 {
                     self.coach_slot = slot;
                 }
-                let (seats, hold) = self.world.service_snapshot().capacity();
+                let (seats, hold) = self.world.service_view().capacity();
                 // Totals of the train as numbers beside their objects.
                 ui.horizontal(|ui| {
                     for (sprite, value, name) in [
@@ -320,8 +320,7 @@ impl CpuExpressApp {
                 for pair in crate::simulation::objectives::Livery::ALL.chunks(2) {
                     ui.columns(2, |columns| {
                         for (column, &livery) in columns.iter_mut().zip(pair) {
-                            let unlocked =
-                                self.demo_mode || self.world.service_snapshot().owns(livery);
+                            let unlocked = self.demo_mode || self.world.service_view().owns(livery);
                             let selected = self.config.visual.livery == livery;
                             let original =
                                 crate::simulation::objectives::Livery::ORIGINAL.contains(&livery);

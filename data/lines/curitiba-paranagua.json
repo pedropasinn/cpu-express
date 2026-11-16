@@ -2,7 +2,7 @@
   "line_format": 1,
   "id": "curitiba-paranagua",
   "name": "Estrada de Ferro Paranaguá–Curitiba",
-  "status": "draft",
+  "status": "playable",
   "kind": "real",
   "layout": "shuttle",
   "era": {
@@ -476,7 +476,9 @@
       "note": "OSM: 0 túnel(is) somando 0 m e 2 ponte(s)/viaduto(s) somando 33 m; altitude de 889 m a 891 m."
     }
   ],
-  "open_questions": [
+  "open_questions": [],
+  "editorial_notes": [
+    "Os serviços mostrados são do jogo e não representam a operação real.",
     "O motor de viagem ainda não percorre linhas de ponta a ponta (shuttle) nem mais de quatro estações; a linha fica como rascunho até o checkpoint v4.",
     "Serviço de passageiros atual: confirmar em fonte do operador quais pontos têm embarque hoje (o trem turístico parte de Curitiba e vai a Morretes); os demais são pontos operacionais de carga.",
     "Demanda de passageiros e tipos de carga por estação ainda não definidos (porto em Paranaguá, turismo em Morretes e Marumbi).",

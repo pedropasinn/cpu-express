@@ -60,7 +60,7 @@ impl PassengerCharter {
         }
     }
 
-    pub fn preview(self, service: &ServiceState) -> CharterPreview {
+    pub fn preview(self, service: &ServiceState<impl Clone + Eq>) -> CharterPreview {
         let free_seats = service
             .capacity()
             .0

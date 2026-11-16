@@ -1,4 +1,4 @@
-//! Read-only railway atlas. Selecting a station never changes a live journey.
+//! Railway map and durable line selection. Station selection remains read-only.
 use super::*;
 use crate::simulation::{
     catalog::{Catalog, LineDef},
@@ -24,6 +24,35 @@ fn preview() -> Result<&'static (&'static LineDef, MapLayout), &'static str> {
 }
 
 impl CpuExpressApp {
+    fn line_action(&mut self, line: Option<&str>) {
+        let Some(path) = &self.progress_path else {
+            self.progress_notice =
+                Some("Viagem temporária: use um perfil salvo para trocar de linha.".into());
+            return;
+        };
+        let mut warning = None;
+        let persist = |candidate: &World| {
+            warning = crate::progress::save_checkpoint(path, candidate)?;
+            Ok(())
+        };
+        let result = if let Some(line) = line {
+            self.world.switch_line(line, persist)
+        } else {
+            self.world
+                .set_boarding_closed(!self.world.boarding_closed(), persist)
+        };
+        match result {
+            Ok(()) => {
+                self.progress_notice = warning;
+                self.notification = Some("Escolha salva.".into());
+                self.scene_dirty = true;
+                if line.is_some() {
+                    self.train.stop_at_station();
+                }
+            }
+            Err(error) => self.progress_notice = Some(error),
+        }
+    }
     pub(super) fn line_map_page(&mut self, ui: &mut egui::Ui) {
         let (line, map) = match preview() {
             Ok(map) => map,
@@ -32,8 +61,62 @@ impl CpuExpressApp {
                 return;
             }
         };
-        ui.strong("Curitiba–Paranaguá · consulta da linha");
-        ui.small("14 paradas reais · viagem ainda indisponível · Aurora continua em curso.");
+        ui.strong("Curitiba–Paranaguá · 14 paradas reais");
+        let real_active = self.world.active_line_id() == line.id;
+        ui.horizontal(|ui| {
+            ui.small(if real_active {
+                "Linha ativa · ida e volta"
+            } else {
+                "Linha ativa: Circuito Aurora"
+            });
+            let target = if real_active {
+                "aurora-v1"
+            } else {
+                line.id.as_str()
+            };
+            let label = if real_active {
+                "Voltar ao Circuito Aurora"
+            } else {
+                "Viajar nesta linha"
+            };
+            if ui
+                .add_enabled(
+                    self.progress_path.is_some() && self.world.can_leave_line(),
+                    egui::Button::new(label),
+                )
+                .clicked()
+            {
+                self.line_action(Some(target));
+            }
+        });
+        ui.horizontal(|ui| {
+            if ui
+                .add_enabled(
+                    self.progress_path.is_some(),
+                    egui::Button::new(if self.world.boarding_closed() {
+                        "Retomar embarques"
+                    } else {
+                        "Encerrar embarques"
+                    }),
+                )
+                .clicked()
+            {
+                self.line_action(None);
+            }
+            let s = self.world.service_view();
+            ui.small(format!(
+                "A bordo: {} passageiros · {} carga",
+                s.passenger_count(),
+                s.cargo_count()
+            ));
+        });
+        ui.small(
+            if self.world.boarding_closed() && self.world.can_leave_line() {
+                "Trem pronto: escolha uma linha ou retome os embarques para partir."
+            } else {
+                "Troca: parado, trem vazio, sem contrato aceito; terminal na linha real."
+            },
+        );
         let count = map.stations().len();
         self.menu.line_station = self.menu.line_station.min(count - 1);
         ui.horizontal(|ui| {
@@ -55,7 +138,7 @@ impl CpuExpressApp {
             }
         });
         let (rect, _) = ui.allocate_exact_size(
-            egui::vec2(ui.available_width(), 140.0),
+            egui::vec2(ui.available_width(), 112.0),
             egui::Sense::hover(),
         );
         let painter = ui.painter_at(rect);
@@ -76,6 +159,7 @@ impl CpuExpressApp {
         }
         let focused = ui.memory(|m| m.focused());
         let station_id = |index| egui::Id::unique(("real-line-station", line.id.as_str(), index));
+        let progress = self.world.line_progress().get(&line.id).cloned();
         for station in map.stations() {
             let pos = project(station.point);
             let selected = self.menu.line_station == station.ordinal;
@@ -85,11 +169,19 @@ impl CpuExpressApp {
                 egui::Sense::click(),
             );
             let name = &line.stations[station.catalog_index].name;
+            let known = progress.as_ref().is_some_and(|p| {
+                p.discovered_stations
+                    .contains(&line.stations[station.catalog_index].id)
+            });
             hit.widget_info(|| {
                 egui::WidgetInfo::labeled(
                     egui::Role::Button,
                     true,
-                    format!("{}: {name}", station.ordinal + 1),
+                    format!(
+                        "{}: {name} · {}",
+                        station.ordinal + 1,
+                        if known { "Descoberta" } else { "A descobrir" }
+                    ),
                 )
             });
             if hit.clicked() {
@@ -108,6 +200,16 @@ impl CpuExpressApp {
             }
             painter.circle_filled(pos, 12.0, if selected { game::GOLD } else { game::CARD });
             painter.circle_stroke(pos, 12.0, egui::Stroke::new(2.0, game::EDGE));
+            if known {
+                painter.circle_filled(pos + egui::vec2(9.0, -10.0), 4.0, game::GREEN);
+                painter.text(
+                    pos + egui::vec2(9.0, -10.0),
+                    egui::Align2::CENTER_CENTER,
+                    "+",
+                    egui::FontId::proportional(10.0),
+                    game::PAPER,
+                );
+            }
             painter.text(
                 pos,
                 egui::Align2::CENTER_CENTER,
@@ -117,13 +219,26 @@ impl CpuExpressApp {
             );
             hit.on_hover_text(name);
         }
+        if real_active && let Some(progress) = &progress {
+            let train = map.train(progress.distance);
+            let p = project(train.point) + egui::vec2(0.0, 21.0);
+            game::sprite(
+                &painter,
+                egui::Rect::from_center_size(p, egui::Vec2::splat(20.0)),
+                game::Sprite::Locomotiva,
+            );
+            painter.line_segment(
+                [p, project(train.point)],
+                egui::Stroke::new(2.0, game::GOLD),
+            );
+        }
         if let Some((low, high)) = map.elevation_range() {
             ui.small(format!(
                 "Perfil de altitude · {low:.0}–{high:.0} m · distância proporcional"
             ));
         }
         let (profile, _) =
-            ui.allocate_exact_size(egui::vec2(ui.available_width(), 65.0), egui::Sense::hover());
+            ui.allocate_exact_size(egui::vec2(ui.available_width(), 42.0), egui::Sense::hover());
         let plot = profile.shrink2(egui::vec2(10.0, 6.0));
         let project = |p: MapPoint| {
             plot.min + egui::vec2(plot.width() * p.x as f32, plot.height() * p.y as f32)
@@ -150,15 +265,21 @@ impl CpuExpressApp {
             .map_or("altitude não informada".into(), |h| {
                 format!("{h:.0} m de altitude")
             });
-        ui.label(format!("{km} · {altitude}"));
+        let known = progress
+            .as_ref()
+            .is_some_and(|p| p.discovered_stations.contains(&definition.id));
+        ui.label(format!(
+            "{km} · {altitude} · {}",
+            if known { "Descoberta" } else { "A descobrir" }
+        ));
         if let Some(architecture) = &definition.architecture {
             ui.small(format!(
                 "Arte fictícia: {}",
                 super::scenery::station_style(architecture.style).name()
             ));
         }
-        ui.small("Esquema de paradas; não representa a geometria dos trilhos.");
-        ui.small("Serviços planejados são do jogo e não representam a operação real.");
+        ui.small("Verde: descoberta · dourado: trem · esquema sem geometria real.");
+        ui.small(crate::simulation::line_session::LineSession::SERVICE_NOTICE);
         ui.label(
             line.attribution
                 .as_deref()
@@ -170,6 +291,49 @@ impl CpuExpressApp {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn line_actions_save_immediately_and_keep_state_after_failure() {
+        let ctx = egui::Context::default();
+        let mut app = CpuExpressApp::new_demo(
+            &ctx,
+            LaunchOptions {
+                config: Config::default(),
+                config_path: None,
+                warning: None,
+                cpu_override: Some(50.0),
+                exit_after: None,
+                diagnostics: None,
+            },
+        );
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let folder = std::env::temp_dir().join(format!("ce-e3-ui-{nonce}"));
+        std::fs::create_dir_all(&folder).unwrap();
+        let path = folder.join("journey.json");
+        app.progress_path = Some(path.clone());
+        std::fs::write(&path, "protegido").unwrap();
+        app.line_action(Some("curitiba-paranagua"));
+        assert_eq!(app.world.active_line_id(), "aurora-v1");
+        assert!(app.progress_notice.is_some());
+        app.line_action(None);
+        assert!(!app.world.boarding_closed());
+        let valid = folder.join("valid.json");
+        app.progress_path = Some(valid.clone());
+        app.line_action(None);
+        assert!(
+            crate::progress::load_world(&valid)
+                .unwrap()
+                .unwrap()
+                .boarding_closed()
+        );
+        app.line_action(Some("curitiba-paranagua"));
+        let reopened = crate::progress::load_world(&valid).unwrap().unwrap();
+        assert_eq!(reopened.active_line_id(), "curitiba-paranagua");
+        assert_eq!(reopened.economy(), app.world.economy());
+        assert_eq!(std::fs::read(&path).unwrap(), b"protegido");
+    }
     #[test]
     fn atlas_keyboard_moves_one_stop_and_never_mutates_journey() {
         let ctx = egui::Context::default();

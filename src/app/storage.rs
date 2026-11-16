@@ -43,17 +43,13 @@ impl CpuExpressApp {
                         self.world = world;
                         self.shop = shop::ShopState::default();
                         self.seen_rewards = (
-                            self.world.service_snapshot().owned_rewards.len(),
-                            self.world.service_snapshot().collection.len(),
+                            self.world.service_view().owned_rewards.len(),
+                            self.world.service_view().collection.len(),
                         );
                         self.world.set_paused(self.suspended());
                         self.config.visual.coaches =
-                            self.world.service_snapshot().composition.map(coach_style);
-                        if !self
-                            .world
-                            .service_snapshot()
-                            .owns(self.config.visual.livery)
-                        {
+                            self.world.service_view().composition.map(coach_style);
+                        if !self.world.service_view().owns(self.config.visual.livery) {
                             self.config.visual.livery = Default::default();
                         }
                         use crate::rendering::EngineStyle;
@@ -135,7 +131,7 @@ mod tests {
             .find(|p| p.to_string_lossy().contains("before-import-session"))
             .unwrap();
         let saved = crate::progress::load_world(backup).unwrap().unwrap();
-        assert_eq!(saved.service_snapshot(), live.service_snapshot());
+        assert_eq!(saved.service_view(), live.service_view());
         assert_eq!(
             saved.journey_snapshot().total_distance_units,
             live.journey_snapshot().total_distance_units

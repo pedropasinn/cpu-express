@@ -148,6 +148,53 @@ fn export_line_map() {
 }
 
 #[test]
+#[ignore = "exportação E3 jogável para diretório explícito; não valida compositor"]
+fn export_playable_lines() {
+    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
+    let directory = Path::new(&directory);
+    fs::create_dir_all(directory).unwrap();
+    for (page, seconds) in [
+        ("seletor", 0),
+        ("linhas", 0),
+        ("mapa", 1300),
+        ("mapa", 2500),
+        ("trem", 1300),
+        ("trem", 1225),
+        ("trem", 2268),
+        ("servicos", 1300),
+        ("diario", 2500),
+        ("missoes", 2500),
+    ] {
+        export_scenario(
+            directory,
+            Scenario {
+                name: &format!("floating_e3j_{page}_{seconds}"),
+                hud_mode: HudMode::Clean,
+                paused: true,
+                action: None,
+                idle: false,
+                size: [704, 676],
+                tab: None,
+                scroll: 0.0,
+            },
+        );
+    }
+    export_scenario(
+        directory,
+        Scenario {
+            name: "faixa_e3j_1300",
+            hud_mode: HudMode::Clean,
+            paused: true,
+            action: None,
+            idle: false,
+            size: [960, 60],
+            tab: None,
+            scroll: 0.0,
+        },
+    );
+}
+
+#[test]
 #[ignore = "exportação E6 para diretório explícito; não valida compositor"]
 fn export_economy_menus() {
     let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
@@ -276,6 +323,19 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
     }
     if let Some(index) = name.strip_prefix("floating_e2_maquina_") {
         app.prepare_demo_machine(index.parse().unwrap());
+    }
+    if let Some(page) = name.strip_prefix("floating_e3j_") {
+        let (page, seconds) = page.rsplit_once('_').unwrap();
+        if page != "seletor" {
+            app.prepare_demo_real_line(seconds.parse().unwrap());
+        }
+        app.prepare_demo_menu(
+            if page == "seletor" { "linhas" } else { page },
+            if page == "missoes" { 6 } else { 0 },
+        );
+    }
+    if name == "faixa_e3j_1300" {
+        app.prepare_demo_real_line(1300);
     }
     let mut frame = eframe::Frame::_new_kittest();
     let mut textures = HashMap::new();

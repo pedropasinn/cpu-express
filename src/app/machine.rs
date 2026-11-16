@@ -59,7 +59,7 @@ impl CpuExpressApp {
             .set_machine_bonus(self.machine_effects.multiplier());
         if !self.suspended()
             && self.machine.take_telegram(
-                self.world.journey_snapshot().active_seconds,
+                self.world.economic_snapshot().active_seconds,
                 self.machine_effects,
             )
         {
@@ -189,7 +189,7 @@ impl CpuExpressApp {
         }
         ui.small(format!(
             "Hodômetro: {:.0} min ativos de viagem · sem progresso offline",
-            self.world.journey_snapshot().active_seconds / 60.0
+            self.world.economic_snapshot().active_seconds / 60.0
         ));
         if ui
             .checkbox(

@@ -70,13 +70,13 @@ pub(super) fn station_style(style: crate::simulation::catalog::ArchitectureStyle
 impl CpuExpressApp {
     pub(super) fn update_scenery_adapter(&mut self) {
         let (scenery, styles) = route_art(
-            crate::simulation::route::CIRCUIT_LINE_ID,
-            self.world.journey_snapshot().route_segment.index,
-            true,
+            self.world.active_line_id(),
+            self.world.travel_view().segment,
+            self.world.travel_view().forward,
             self.world.excursion_snapshot().current.is_some(),
         );
         self.renderer.set_scenery_context(scenery);
-        let snapshot = self.world.journey_snapshot();
+        let snapshot = self.world.travel_view();
         let inhabited = |style| {
             matches!(
                 style,

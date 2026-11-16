@@ -313,6 +313,24 @@ impl CpuExpressApp {
         Self::create(ctx, options, true)
     }
 
+    /// Headless real-line evidence, with no profile I/O or external data.
+    #[doc(hidden)]
+    pub fn prepare_demo_real_line(&mut self, seconds: u32) {
+        if !self.demo_mode {
+            return;
+        }
+        self.world = World::with_seed(42);
+        self.world
+            .switch_line("curitiba-paranagua", |_| Ok(()))
+            .expect("playable builtin");
+        for _ in 0..seconds.min(6000) {
+            self.world
+                .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
+        }
+        self.world.set_paused(self.suspended());
+        self.scene_dirty = true;
+    }
+
     /// Prepare a bounded, deterministic populated demonstration for visual review.
     /// Never advances a real profile or writes files. Product time remains wall-clock driven.
     #[doc(hidden)]
@@ -353,7 +371,7 @@ impl CpuExpressApp {
     /// Deterministic dispatch states for headless review; never touches a real profile.
     #[doc(hidden)]
     pub fn prepare_demo_contract_review(&mut self, returning: bool, incompatible: bool) {
-        if !self.demo_mode || self.world.service_state().contract.is_some() {
+        if !self.demo_mode || self.world.service_view().contract.is_some() {
             return;
         }
         self.world.set_automatic_contracts(false);
@@ -366,7 +384,7 @@ impl CpuExpressApp {
         for _ in 0..600 {
             self.world
                 .advance_expedition(&mut self.train, 50.0, 1.0, &self.config);
-            if self.world.service_state().contract.is_some() {
+            if self.world.service_view().contract.is_some() {
                 break;
             }
         }
@@ -475,7 +493,7 @@ impl CpuExpressApp {
             .set_service_composition(config.visual.coaches.map(service_wagon))
             .is_err()
         {
-            config.visual.coaches = world.service_snapshot().composition.map(coach_style);
+            config.visual.coaches = world.service_view().composition.map(coach_style);
         }
         if !demo_mode {
             use crate::rendering::EngineStyle;
@@ -505,8 +523,8 @@ impl CpuExpressApp {
             local_weather.cache_error = Some(error);
         }
         let seen_rewards = (
-            world.service_snapshot().owned_rewards.len(),
-            world.service_snapshot().collection.len(),
+            world.service_view().owned_rewards.len(),
+            world.service_view().collection.len(),
         );
         world.set_paused(config.start_paused);
         Self {
@@ -818,7 +836,7 @@ impl CpuExpressApp {
             "real"
         };
         let journey = self.world.journey_snapshot();
-        let record = serde_json::json!({
+        let mut record = serde_json::json!({
             "event": if final_record { "shutdown" } else { "sample" },
             "elapsed_seconds": self.opened.elapsed().as_secs_f64(),
             "mode": mode,
@@ -847,7 +865,13 @@ impl CpuExpressApp {
             "requested_taskbar_mode": self.config.taskbar_mode,
             "render_surface_size": self.render_surface_size,
             "station_wait_seconds": self.world.station_wait(),
-            "services": self.world.service_snapshot(),
+            "services": self.world.service_view(),
+        });
+        record["active_line"] = serde_json::json!({
+            "id": self.world.active_line_id(),
+            "distance_units": self.world.active_session().map_or(journey.total_distance_units, |s| s.progress().distance),
+            "global_active_seconds": self.world.economic_snapshot().active_seconds,
+            "global_stations_visited": self.world.economic_snapshot().stations_visited,
         });
         if let Some(diagnostics) = &mut self.diagnostics
             && let Err(error) = diagnostics.record(&record)
@@ -914,9 +938,7 @@ impl CpuExpressApp {
                 self.renderer.set_engine(self.config.visual.engine);
             }
             self.renderer
-                .set_scene_context(Some(SceneContext::from_journey(
-                    &self.world.journey_snapshot(),
-                )));
+                .set_scene_context(Some(SceneContext::from_world(&self.world)));
             self.update_scenery_adapter();
             self.renderer
                 .set_quality(if self.machine_effects.low_power {
@@ -930,7 +952,7 @@ impl CpuExpressApp {
             );
             let livery = self.config.visual.livery;
             self.renderer.set_livery(
-                if self.world.service_snapshot().owns(livery) || self.demo_mode {
+                if self.world.service_view().owns(livery) || self.demo_mode {
                     livery
                 } else {
                     crate::simulation::objectives::Livery::Aurora
@@ -950,10 +972,11 @@ impl CpuExpressApp {
                     .as_ref()
                     .and_then(|s| s.precipitation_mm),
             );
-            let arrival = self.world.service_snapshot().arrivals.last();
+            let arrival = self.world.service_view().arrivals.last();
             self.renderer
                 .set_station_service(Some(crate::rendering::StationService {
-                    progress: ((1.0 - self.world.station_wait() / 8.0) as f32)
+                    progress: ((1.0 - self.world.station_wait() / self.world.station_dwell())
+                        as f32)
                         .powf(1.0 / (1.0 + self.machine_effects.gauges[2].unwrap_or(0.0) * 0.2)),
                     boarding: arrival.map_or(0, |a| a.boarded),
                     alighting: arrival.map_or(0, |a| a.alighted),
@@ -1013,7 +1036,7 @@ impl CpuExpressApp {
     fn consume_travel_events(&mut self) {
         let mut messages = Vec::new();
         let mut reward = false;
-        let state = self.world.service_snapshot();
+        let state = self.world.service_view();
         for livery in state.owned_rewards.iter().skip(self.seen_rewards.0) {
             messages.push(format!("Pintura conquistada: {}", livery.name()));
             reward = true;
@@ -1034,10 +1057,25 @@ impl CpuExpressApp {
         }
         self.seen_rewards = (state.owned_rewards.len(), state.collection.len());
 
+        if let Some(arrival) = self.world.pop_catalog_arrival() {
+            let message = format!(
+                "{} · {} embarcaram · {} desembarcaram · +{} pontos",
+                arrival.station.name(),
+                arrival.boarded,
+                arrival.alighted,
+                arrival.earned
+            );
+            if self.travel_log.len() == 32 {
+                self.travel_log.pop_front();
+            }
+            self.travel_log.push_back(message.clone());
+            messages.push(message);
+        }
+
         while let Some(event) = self.world.pop_travel_event() {
             let message = match event {
                 TravelEvent::StationArrived { station, .. } => {
-                    let arrival = self.world.service_snapshot().arrivals.last();
+                    let arrival = self.world.service_view().arrivals.last();
                     Some(arrival.map_or_else(
                         || format!("Chegada: {}", station.name()),
                         |a| {
@@ -1443,7 +1481,7 @@ impl CpuExpressApp {
         if self.show_controls || self.show_help {
             return;
         }
-        let journey = self.world.journey_snapshot();
+        let journey = self.world.travel_view();
         if self.config.effective_hud_mode() == HudMode::Compact && bounds.width() >= 550.0 {
             let rect = egui::Rect::from_min_max(
                 egui::pos2(bounds.left() + 306.0, bounds.bottom() - 24.0),
@@ -1476,8 +1514,8 @@ impl CpuExpressApp {
                 ACCENT,
             );
             ui.interact(rect, egui::Id::unique("journey-progress"), egui::Sense::hover())
-                .on_hover_text(format!("{} até {}\nFaltam {:.0} unidades fictícias.\n{} visitas · {} circuitos. Abra Opções / Viagem para detalhes.",
-                    journey.route_segment.from.name(), self.destination_name(), journey.distance_to_next_station_units, journey.stations_visited, journey.completed_laps));
+                .on_hover_text(format!("{} até {}\nFaltam {:.0} unidades fictícias.\n{} visitas nesta linha. Abra Viagem para detalhes.",
+                    journey.from_name, self.destination_name(), journey.distance_to_next, journey.stations_visited));
         }
         if let Some((message, until)) = &self.travel_notice
             && Instant::now() < *until
@@ -1620,7 +1658,6 @@ impl CpuExpressApp {
             return;
         }
         game::apply_style(ui);
-        let journey = self.world.journey_snapshot();
         if self.world.excursion_snapshot().current.is_some() {
             self.branch_controls(ui);
         }
@@ -1635,7 +1672,7 @@ impl CpuExpressApp {
         let seconds = if waiting > 0.0 {
             waiting.ceil()
         } else {
-            (journey.distance_to_next_station_units / 24.0).ceil()
+            (self.world.travel_view().distance_to_next / 24.0).ceil()
         };
         // Active seconds only: the clock stands still while paused.
         let situation = if self.world.excursion_snapshot().current.is_some() {
@@ -1744,7 +1781,7 @@ impl CpuExpressApp {
         });
         ui.add_space(6.0);
         // Shortcut to services carrying the real occupancy.
-        let service = self.world.service_snapshot();
+        let service = self.world.service_view();
         let (seats, hold) = service.capacity();
         let (aboard, cargo) = (service.passenger_count(), service.cargo_count());
         let mut open_services = false;
@@ -2796,9 +2833,9 @@ impl eframe::App for CpuExpressApp {
                 "CPU Express · {} · {:.0} km/h\n{}\nClique: painel · Botão direito: pausa",
                 self.cpu_label(),
                 self.train.speed_kmh(),
-                self.world.journey_snapshot().next_station.name
+                self.world.travel_view().next_name
             ));
-            let progress = self.world.journey_snapshot().segment_progress as f32;
+            let progress = self.world.travel_view().segment_progress as f32;
             ui.painter().rect_filled(
                 egui::Rect::from_min_size(
                     bounds.left_bottom() - egui::vec2(0.0, 2.0),

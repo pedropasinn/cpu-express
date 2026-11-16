@@ -85,7 +85,7 @@ fn station_architecture_is_optional_validated_and_explicitly_fictional() {
         !builtin()
             .line("curitiba-paranagua")
             .unwrap()
-            .open_questions
+            .editorial_notes
             .is_empty()
     );
 }
@@ -291,20 +291,22 @@ fn aurora_line_mirrors_the_running_route_for_any_seed() {
 }
 
 #[test]
-fn draft_line_is_checked_but_never_offered_to_the_player() {
+fn real_line_is_playable_with_preserved_editorial_notes() {
     let catalog = builtin();
     let draft = catalog.line("curitiba-paranagua").unwrap();
-    assert_eq!(draft.status, LineStatus::Draft);
+    assert_eq!(draft.status, LineStatus::Playable);
     assert_eq!(draft.layout, Layout::Shuttle);
     assert_eq!(draft.segments.len(), draft.stations.len() - 1);
-    assert!(!draft.open_questions.is_empty());
+    assert!(draft.open_questions.is_empty());
+    assert!(draft.editorial_notes.len() >= 5);
     let playable: Vec<&str> = catalog.playable_lines().map(|l| l.id.as_str()).collect();
-    assert_eq!(playable, ["aurora-v1"]);
+    assert_eq!(playable, ["aurora-v1", "curitiba-paranagua"]);
 
     // The researched data is complete: only the recorded open questions keep it a draft.
     let core: Value = serde_json::from_str(CORE).unwrap();
     let mut promoted: Value = serde_json::from_str(PARANAGUA).unwrap();
     promoted["status"] = json!("playable");
+    promoted["open_questions"] = json!(["Questão estrutural impeditiva"]);
     let errors = errors_of(&core, std::slice::from_ref(&promoted));
     assert_eq!(errors.len(), 1, "{errors:#?}");
     assert!(errors[0].contains("questões em aberto"));

@@ -117,7 +117,7 @@ fn truncated_or_damaged_checkpoint_resumes_from_the_previous_valid_one() {
 fn newer_version_is_never_set_aside_or_downgraded() {
     let (dir, file, _, world) = profile("future");
     let mut future: serde_json::Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
-    future["version"] = serde_json::json!(6);
+    future["version"] = serde_json::json!(7);
     future["service"]["future_field"] = serde_json::json!({"kept": true});
     let bytes = serde_json::to_vec_pretty(&future).unwrap();
     fs::write(&file, &bytes).unwrap();
@@ -338,7 +338,7 @@ fn v3_migrates_to_v5_and_foreign_lines_are_preserved() {
     let (dir, file, _, world) = profile("v4");
     let current = fs::read(&file).unwrap();
     let document: serde_json::Value = serde_json::from_slice(&current).unwrap();
-    assert_eq!(document["version"], 5);
+    assert_eq!(document["version"], 6);
     assert_eq!(document["line"], "aurora-v1");
     assert_eq!(document["catalog_version"], 1);
 
@@ -347,6 +347,8 @@ fn v3_migrates_to_v5_and_foreign_lines_are_preserved() {
     v3["version"] = serde_json::json!(3);
     v3.as_object_mut().unwrap().remove("economy");
     v3.as_object_mut().unwrap().remove("lines");
+    v3.as_object_mut().unwrap().remove("line_services");
+    v3.as_object_mut().unwrap().remove("boarding_closed");
     v3.as_object_mut().unwrap().remove("line");
     v3.as_object_mut().unwrap().remove("catalog_version");
     let v3_bytes = serde_json::to_vec_pretty(&v3).unwrap();

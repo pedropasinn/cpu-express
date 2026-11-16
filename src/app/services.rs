@@ -5,7 +5,7 @@ use crate::ui_services::{self as widgets, ArrivalItem, ArrivalSummary, ServiceVi
 impl CpuExpressApp {
     pub(super) fn services_controls(&mut self, ui: &mut egui::Ui) {
         use game::Sprite;
-        let state = self.world.service_snapshot().clone();
+        let state = self.world.service_view().clone();
         let mut accept = false;
         let mut cancel = false;
         let mut open_workshop = false;
@@ -254,7 +254,7 @@ impl CpuExpressApp {
             game::pixel_label(ui, "Passageiros", 2.0, game::INK);
             game::hint(
                 ui,
-                "Embarque e desembarque são automáticos nas estações. Sem prazos.",
+                if self.world.boarding_closed() { "Embarques encerrados; desembarques e entregas continuam. Retome em Viagem > Linhas." } else { "Embarque e desembarque são automáticos nas estações. Sem prazos." },
             );
         });
         game::progress(
@@ -287,7 +287,12 @@ impl CpuExpressApp {
             });
         } else if state.passengers.is_empty() {
             ui.label(
-                egui::RichText::new("Passageiros embarcam na próxima parada").color(game::MUTED),
+                egui::RichText::new(if self.world.boarding_closed() {
+                    "Embarques encerrados · trem vazio"
+                } else {
+                    "Passageiros embarcam na próxima parada"
+                })
+                .color(game::MUTED),
             );
         }
         let mut by_destination: Vec<(&'static str, u32)> = Vec::new();
@@ -298,9 +303,33 @@ impl CpuExpressApp {
                 None => by_destination.push((name, group.count)),
             }
         }
-        for (destination, count) in &by_destination {
+        let per_page = if self.world.active_session().is_some() {
+            2
+        } else {
+            3
+        };
+        let range = if by_destination.len() > per_page {
+            super::menus::pager(
+                ui,
+                "service-destinations",
+                &mut self.menu.service_destinations,
+                by_destination.len(),
+                per_page,
+            )
+        } else {
+            0..by_destination.len()
+        };
+        for (destination, count) in &by_destination[range] {
             ui.horizontal(|ui| {
-                art(ui, Sprite::Passageiro, 32.0);
+                art(
+                    ui,
+                    Sprite::Passageiro,
+                    if self.world.active_session().is_some() {
+                        20.0
+                    } else {
+                        32.0
+                    },
+                );
                 game::pixel_label(ui, &count.to_string(), 2.0, game::INK);
                 art(ui, Sprite::SetaDireita, 16.0);
                 ui.label(egui::RichText::new(*destination).size(15.0));
@@ -339,7 +368,7 @@ impl CpuExpressApp {
             match result {
                 Ok(()) => {
                     // Report what the transaction actually did, read back from the domain.
-                    let now = self.world.service_snapshot().contract.clone();
+                    let now = self.world.service_view().contract.clone();
                     self.notification = Some(match now {
                         Some(c) if c.status == ContractStatus::Loaded => {
                             format!("{} un. carregadas", c.units)
@@ -368,7 +397,7 @@ impl CpuExpressApp {
     }
 
     pub(super) fn arrival_ticket(&self, ui: &mut egui::Ui, last_only: bool) {
-        let state = self.world.service_snapshot();
+        let state = self.world.service_view();
         if state.arrivals.is_empty() {
             ui.label(
                 egui::RichText::new(format!(
@@ -466,7 +495,7 @@ impl CpuExpressApp {
             });
         }
         self.branch_collection(ui);
-        let state = self.world.service_snapshot();
+        let state = self.world.service_view();
         for (reward, title, detail) in [
             (
                 ServiceReward::PassengerPostcard,

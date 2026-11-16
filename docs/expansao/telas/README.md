@@ -118,3 +118,23 @@ Exportações do egui em 704 × 676, com sinais simulados e identificação de d
 | Sinais indisponíveis, bônus zero | [Abrir](floating_e2_maquina_1.png) |
 | Bateria baixa e marcha tranquila | [Abrir](floating_e2_maquina_2.png) |
 | Atividade de entrada desligada | [Abrir](floating_e2_maquina_3.png) |
+
+## E3 — Curitiba–Paranaguá jogável
+
+Exportações headless do aplicativo, com serviços determinísticos e perfil de demonstração. As ações que exigem disco ficam desabilitadas nessa demonstração; gravação, troca e rollback são exercitados em testes com caminhos temporários. As imagens anteriores permanecem históricas. Não são capturas do compositor Windows.
+
+| Estado | Tela |
+| --- | --- |
+| Aurora: botão Viajar nesta linha | [Abrir](floating_e3j_seletor_0.png) |
+| Linha real: origem e retorno ao Aurora | [Abrir](floating_e3j_linhas_0.png) |
+| Mapa: trem na ida e descobertas | [Abrir](floating_e3j_mapa_1300.png) |
+| Mapa: trem no retorno, 14 paradas descobertas | [Abrir](floating_e3j_mapa_2500.png) |
+| Cabine e trecho Marumbi–Cadeado | [Abrir](floating_e3j_trem_1300.png) |
+| Parada de serviço em Marumbi | [Abrir](floating_e3j_trem_1225.png) |
+| Terminal de Curitiba e inversão da viagem | [Abrir](floating_e3j_trem_2268.png) |
+| Encomenda real do jogo e destinos paginados | [Abrir](floating_e3j_servicos_1300.png) |
+| Diário: Curitiba e retorno a Pinhais | [Abrir](floating_e3j_diario_2500.png) |
+| Missão Suba a serra e ordens globais | [Abrir](floating_e3j_missoes_2500.png) |
+| Faixa de 960 × 60, pixels sem interpolação | [Abrir](faixa_e3j_1300.png) |
+
+Reprodução offline: definir `CPU_EXPRESS_CONFIG` em diretório temporário, `CPU_EXPRESS_OFFLINE=1`, `CARGO_NET_OFFLINE=true` e `CPU_EXPRESS_VISUAL_DIR` como destino explícito. Executar `cargo test --locked --test ux_visual -j 2 export_playable_lines -- --ignored`, depois `node docs/ux_rasterizar.cjs <cada JSON e3j gerado>`. Não rasterizar os JSONs antigos como se fossem evidência nova. Guia e decisões: [LINHAS_E3.md](../LINHAS_E3.md).

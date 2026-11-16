@@ -61,6 +61,32 @@ unsafe impl GlobalAlloc for TrackingAllocator {
 static ALLOCATOR: TrackingAllocator = TrackingAllocator;
 
 #[test]
+fn real_line_view_and_render_allocate_nothing_in_both_directions() {
+    let config = Config::default();
+    let mut train = Train::new(&config);
+    let mut world = World::with_seed(42);
+    world.switch_line("curitiba-paranagua", |_| Ok(())).unwrap();
+    let mut renderer = SceneRenderer::new();
+    for seconds in [1300, 1200] {
+        for _ in 0..seconds {
+            world.advance_expedition(&mut train, 40.0, 1.0, &config);
+        }
+        renderer.render(&train, &world);
+        ALLOCATIONS.with(|count| count.set(0));
+        COUNTING.with(|active| active.set(true));
+        for _ in 0..10 {
+            std::hint::black_box(world.travel_view());
+            std::hint::black_box(world.service_view());
+            std::hint::black_box(world.economic_snapshot());
+            renderer.set_scene_context(Some(SceneContext::from_world(&world)));
+            std::hint::black_box(renderer.render(&train, &world));
+        }
+        COUNTING.with(|active| active.set(false));
+        assert_eq!(ALLOCATIONS.with(Cell::get), 0);
+    }
+}
+
+#[test]
 fn render_and_mode_changes_make_no_heap_allocations_after_construction() {
     let config = Config::default();
     let mut train = Train::new(&config);

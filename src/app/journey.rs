@@ -3,6 +3,10 @@ use super::*;
 impl CpuExpressApp {
     pub(super) fn journey_controls(&mut self, ui: &mut egui::Ui) {
         game::apply_style(ui);
+        if self.world.active_session().is_some() {
+            self.line_map_page(ui);
+            return;
+        }
         let journey = self.world.journey_snapshot();
         let page_width = ((ui.available_width() - 32.0) / 5.0).floor().max(76.0);
         ui.horizontal_wrapped(|ui| {
@@ -175,11 +179,16 @@ impl CpuExpressApp {
                     } else {
                         "Ainda não visitada · viaje até aqui para descobrir"
                     });
-                    let service = self.world.service_snapshot();
+                    let service = self.world.service_view();
                     let arriving: u32 = service
                         .passengers
                         .iter()
-                        .filter(|p| p.destination == station)
+                        .filter(|p| {
+                            p.destination
+                                == crate::simulation::line_session::CatalogStationId::aurora(
+                                    station,
+                                )
+                        })
                         .map(|p| p.count)
                         .sum();
                     ui.label(format!(
@@ -280,7 +289,7 @@ impl CpuExpressApp {
                 game::pixel_label(ui, "Últimas chegadas", 2.0, game::INK);
                 game::hint(ui, "O diário guarda as últimas 32 chegadas.");
             });
-            if self.world.service_snapshot().arrivals.is_empty() {
+            if self.world.service_view().arrivals.is_empty() {
                 ui.horizontal(|ui| {
                     let (rect, _) =
                         ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());

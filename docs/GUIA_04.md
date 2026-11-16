@@ -1,5 +1,7 @@
 # CPU Express 0.4.0-rc.3 — serviços e escolhas
 
+**Desenvolvimento na branch expansao:** a continuação E3 torna Curitiba–Paranaguá jogável com 14 paradas e troca em Viagem → Linhas. O checkpoint atual da fonte é v6, com backups exatos v1–v5. Veja [LINHAS_E3.md](expansao/LINHAS_E3.md) para embarques, troca, missões e persistência. O restante deste guia registra a distribuição rc.3 anterior.
+
 Esta edição amplia a ferrovia mantendo o encaixe à esquerda, o modo flutuante e os menus independentes. A viagem usa tempo ativo, não a carga de CPU. Pausa, ocultação e fechamento não rendem progresso offline.
 
 ## Começar

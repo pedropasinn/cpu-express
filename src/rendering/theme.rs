@@ -71,6 +71,15 @@ pub struct SceneContext {
 }
 
 impl SceneContext {
+    pub fn from_world(world: &crate::simulation::World) -> Self {
+        let view = world.travel_view();
+        let t = ((view.segment_progress - 0.75) / 0.25).clamp(0.0, 1.0) as f32;
+        Self {
+            biome: view.biome.into(),
+            next_biome: view.next_biome.into(),
+            blend: t * t * (3.0 - 2.0 * t),
+        }
+    }
     #[must_use]
     pub const fn new(biome: Biome) -> Self {
         Self {

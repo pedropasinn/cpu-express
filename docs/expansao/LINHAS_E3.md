@@ -1,5 +1,25 @@
 # E3 — domínio genérico e consulta da linha
 
+## Atualização: linha jogável no aplicativo — 16/11/2026
+
+Esta continuação substitui o estado parcial descrito no histórico abaixo. **Curitiba–Paranaguá está jogável**, com as 14 paradas, ida e volta, passageiros e encomendas fictícios. Em **Viagem → Linhas**, use **Encerrar embarques**: novos passageiros e novos aceites param; os serviços já assumidos continuam. O trem espera quando chega vazio a uma parada elegível. No Aurora pode ser qualquer estação, fora de excursão; na linha real precisa ser um terminal. Contrato aceito aguardando capacidade precisa ser atendido ou cancelado em Serviços. Use **Viajar nesta linha**, ou **Voltar ao Circuito Aurora**. A escolha e o encerramento dos embarques são gravados imediatamente; erro conserva o estado anterior. Depois da troca, **Retomar embarques** permite partir se eles estavam encerrados.
+
+O embarque inicial da linha real acontece em Alexandra, após sair de Paranaguá, seguindo o mesmo princípio do início de Aurora: a origem é descoberta, sem gerar uma chegada/recompensa artificial. A escala permanece 480 unidades/km e 24 unidades/s, com quatro segundos nas pequenas paradas e oito nas demais. Não há avanço offline. Serviços e arquitetura são fictícios: **Os serviços mostrados são do jogo e não representam a operação real.** As antigas dúvidas foram conservadas em `editorial_notes`; Vitória–Minas segue rascunho.
+
+O mapa de Viagem acompanha a linha ativa. Na linha real, o trem percorre o esquema e as descobertas usam IDs persistidos; a ficha indica Descoberta/A descobrir. Serviços e diário mostram os destinos reais, com paginação de passageiros quando necessário. Faixa e prévia recebem ambiente, arquitetura e trecho conforme o sentido. A coleção inclui as novas paradas. As missões **Conheça as 14 paradas** (30 moedas) e **Suba a serra** (20 moedas, descoberta de Roça Nova após partir do litoral) são recolhidas uma vez em Missões, com gravação transacional.
+
+### Persistência e APIs atuais
+
+- O mapa `lines` reservado no v5 continua guardando os mesmos campos. Foi necessário **v6** para acrescentar `line_services` (serviços com IDs qualificados) e `boarding_closed`. `line` identifica a viagem ativa. `journey`/`service` conservam a representação Aurora, inclusive suas distâncias e enums. Não se converte distância entre linhas.
+- Migração v1–v5 preserva o arquivo anterior em `.vN.backup.json`; `.previous.json`, recuperação e recusa de versões futuras permanecem. Não há pagamento repetido ao restaurar. Fixtures antigas não foram regravadas; `tests/fixtures/economy/v6-real-line.json` acrescenta um caso em movimento.
+- Carteira, inventário, RNG, ordens, missões pagas, restos da renda e bônus da máquina são únicos. Tempo/chegadas e totais de serviços para a economia são a soma das linhas; baselines das ordens não reiniciam. Composição e preferência de despacho são compartilhadas. Histórico e oferta de cada linha ficam preservados, e a linha inativa não pode ter pessoas/carga/contrato aceito.
+- `World::travel_view()` é a visão de rota sem alocação para desenho; `active_session()` dá o percurso genérico; `service_view()` fornece ocupação/IDs da linha ativa com totais globais em cache; `economic_snapshot()` mantém os contadores globais; `missions()` inclui os novos marcos. `journey_snapshot()` e `service_state()` conservam a API legada Aurora para ferramentas e checkpoint, não são a visão da linha ativa.
+- `switch_line` e `set_boarding_closed` publicam um candidato somente após o escritor confirmar. Chegadas genéricas passam por `advance_checkpoint` antes de notificações. A UI não paga moedas.
+
+Testes, resultados finais e limites desta continuação estão no novo relato ao fim de [PLANO_EXPANSAO.md](../PLANO_EXPANSAO.md). As novas evidências ficam em `telas/`, prefixo `e3j`; são exportações headless, não capturas do compositor.
+
+## Histórico da entrega parcial
+
 Entrega parcial de desenvolvimento, 16/11/2026. Foi adotado o recorte autorizado nos Ajustes do plano: domínio genérico testável e mapa consultável, mantendo Curitiba–Paranaguá fora do seletor de viagem. **A linha real ainda não é jogável no aplicativo.** Aurora continua sendo a única linha do World e do checkpoint v5. Vitória–Minas permanece rascunho e não aparece na consulta.
 
 ## O que aparece no aplicativo

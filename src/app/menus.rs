@@ -5,6 +5,7 @@ use crate::simulation::economy::{ItemId, Rarity};
 #[derive(Default)]
 pub(super) struct MenuState {
     pub line_station: usize,
+    pub service_destinations: usize,
     pub drive: usize,
     pub settings: usize,
     pub stock: [usize; 3],
@@ -394,13 +395,12 @@ impl CpuExpressApp {
         }
         self.scene_preview(ui, true);
         ui.heading(self.destination_name());
-        let j = self.world.journey_snapshot();
         let remaining = self.world.excursion_snapshot().current.map_or_else(
             || {
                 if self.world.station_wait() > 0.0 {
                     self.world.station_wait()
                 } else {
-                    j.distance_to_next_station_units / 24.0
+                    self.world.travel_view().distance_to_next / 24.0
                 }
             },
             |e| e.remaining_seconds(),
@@ -411,7 +411,9 @@ impl CpuExpressApp {
             self.travel_progress(),
             &format!(
                 "{} · {:.0} s ativos",
-                if self.suspended() {
+                if self.world.boarding_closed() && self.world.can_leave_line() {
+                    "Pronto para trocar de linha"
+                } else if self.suspended() {
                     "Relógio parado"
                 } else if self.world.station_wait() > 0.0 {
                     "Embarque"
@@ -441,7 +443,7 @@ impl CpuExpressApp {
                 .map_or("sem leitura".into(), |v| format!("{v:.0}%")),
             self.train.speed_kmh()
         ));
-        let service = self.world.service_state();
+        let service = self.world.service_view();
         let (seats, cargo) = service.capacity();
         if ui
             .button(format!(
@@ -479,6 +481,10 @@ impl CpuExpressApp {
     }
 
     fn map_page(&mut self, ui: &mut egui::Ui) {
+        if self.world.active_session().is_some() {
+            self.line_map_page(ui);
+            return;
+        }
         let j = self.world.journey_snapshot();
         ui.strong("Circuito Aurora · linha fictícia");
         if self.world.excursion_snapshot().current.is_some() {
@@ -552,10 +558,13 @@ impl CpuExpressApp {
         if let Some(station) = self.selected_station {
             let n: u32 = self
                 .world
-                .service_state()
+                .service_view()
                 .passengers
                 .iter()
-                .filter(|p| p.destination == station)
+                .filter(|p| {
+                    p.destination
+                        == crate::simulation::line_session::CatalogStationId::aurora(station)
+                })
                 .map(|p| p.count)
                 .sum();
             ui.strong(station.name());
@@ -610,7 +619,7 @@ impl CpuExpressApp {
             }
             return;
         }
-        let state = self.world.service_state();
+        let state = self.world.service_view();
         let range = pager(
             ui,
             "arrivals",
@@ -668,7 +677,7 @@ impl CpuExpressApp {
                     );
                 }
             });
-            let (seats, hold) = self.world.service_state().capacity();
+            let (seats, hold) = self.world.service_view().capacity();
             ui.label(format!("Trem: {seats} lugares · {hold} espaços de carga"));
         } else {
             ui.label(if category == 1 {
@@ -887,6 +896,18 @@ impl CpuExpressApp {
             .iter()
             .map(|s| (s.name, j.discovered_stations[s.id.index()]))
             .collect();
+        if let Ok(catalog) = crate::simulation::catalog::Catalog::builtin()
+            && let Some(line) = catalog.line("curitiba-paranagua")
+        {
+            let lines = self.world.line_progress();
+            let progress = lines.get(&line.id);
+            for station in &line.stations {
+                cards.push((
+                    station.name.as_str(),
+                    progress.is_some_and(|p| p.discovered_stations.contains(&station.id)),
+                ));
+            }
+        }
         for stop in [
             crate::simulation::BranchStop::MiranteDaSerra,
             crate::simulation::BranchStop::CaisDasConchas,
@@ -906,10 +927,7 @@ impl CpuExpressApp {
                 "Correio sobre trilhos",
             ),
         ] {
-            cards.push((
-                name,
-                self.world.service_state().collection.contains(&reward),
-            ));
+            cards.push((name, self.world.service_view().collection.contains(&reward)));
         }
         ui.label(format!(
             "{} / {} postais conquistados",
@@ -1192,6 +1210,52 @@ mod tests {
     use crate::simulation::economy::EconomyAction;
 
     #[test]
+    fn real_line_pages_fit_with_many_destinations_and_correct_route() {
+        let ctx = egui::Context::default();
+        let mut app = CpuExpressApp::new_demo(
+            &ctx,
+            LaunchOptions {
+                config: Config::default(),
+                config_path: None,
+                warning: None,
+                cpu_override: Some(50.0),
+                exit_after: None,
+                diagnostics: None,
+            },
+        );
+        for seconds in [0, 1300, 2300, 3500, 4500] {
+            app.prepare_demo_real_line(seconds);
+            assert_eq!(app.destination_name(), app.world.travel_view().next_name);
+            for page in [
+                "trem", "mapa", "linhas", "servicos", "diario", "missoes", "ramais",
+            ] {
+                app.prepare_demo_menu(page, if page == "missoes" { 6 } else { 0 });
+                for _ in 0..3 {
+                    ctx.run_ui(
+                        egui::RawInput {
+                            screen_rect: Some(egui::Rect::from_min_size(
+                                egui::Pos2::ZERO,
+                                egui::vec2(704.0, 676.0),
+                            )),
+                            ..Default::default()
+                        },
+                        |ui| app.central_menu(ui),
+                    )
+                    .drop_without_applying_deltas();
+                }
+                let height = ctx
+                    .data(|d| d.get_temp::<f32>(egui::Id::unique("central-content-height")))
+                    .unwrap();
+                let (width, limit) = ctx
+                    .data(|d| d.get_temp::<(f32, f32)>(egui::Id::unique("central-content-width")))
+                    .unwrap();
+                assert!(height <= 492.1, "{seconds}/{page}: {height}");
+                assert!(width <= limit + 0.1, "{seconds}/{page}: {width} > {limit}");
+            }
+        }
+    }
+
+    #[test]
     fn all_central_pages_fit_without_scrolling() {
         let ctx = egui::Context::default();
         let mut app = CpuExpressApp::new_demo(
@@ -1444,7 +1508,7 @@ mod tests {
         let mission = app
             .world
             .economy()
-            .missions(app.world.journey_snapshot(), app.world.service_state())
+            .missions(app.world.journey_snapshot(), app.world.service_view())
             .into_iter()
             .find(|m| m.claimable())
             .unwrap();

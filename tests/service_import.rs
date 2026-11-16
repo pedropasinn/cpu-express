@@ -90,5 +90,5 @@ fn import_v1_converts_to_current_without_modifying_source() {
     assert_eq!(std::fs::read(&source).unwrap(), original);
     let saved: serde_json::Value =
         serde_json::from_slice(&std::fs::read(&destination).unwrap()).unwrap();
-    assert_eq!(saved["version"], 5);
+    assert_eq!(saved["version"], 6);
 }
