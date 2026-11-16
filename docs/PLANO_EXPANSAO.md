@@ -94,6 +94,47 @@ Princípio: cada sinal do computador alimenta **um sistema do trem**, com efeito
 - Saldo de moedas sempre visível no canto da faixa do título.
 - Estilo: o que já existe em `src/ui_game.rs` (madeira, faixa, fonte pixelada, sprites 16×16 de `assets/icons/` gerados por `assets/icons/build_sprites.py`). Menos texto, mais objeto e número.
 
+## Ajustes após a avaliação do Codex (valem sobre o texto acima quando houver conflito)
+
+Avaliação completa em `docs/expansao/AVALIACAO_PLANO_CODEX.md`. O que mudou:
+
+**Fatos corrigidos.** Hoje existem 19 vagões, 15 cargas, 10 locomotivas e 10 pinturas; as miniaturas já existem (`src/ui_stock.rs`, `StockGallery`) e a oficina já as usa. `ServiceState::arrive` embarca e desembarca na hora e a parada geral dura 8 s: **não existe espera de carga para encurtar**. `SysinfoProvider` só coleta CPU e RAM e o `Cargo.toml` só habilita `system` no sysinfo. `SegmentScenery(u16)` já usa 12 bits e `Port` já existe. `app.rs::step_frame` ainda não chama `set_scenery_context`, `set_station_styles` nem as opções de movimento. `StationId` tem quatro variantes, `ServiceState::arrive` usa `% 4`, e `progress.rs` recusa outras linhas.
+
+**Ordem nova da fila** (o que o jogador vê vem antes do que é estrutural e arriscado):
+`E1a → E1b → E5 → E6 → E2 → E4 → E3 → revisão de telas → E7`.
+
+**Persistência.** O E1a é o dono do formato v5 e já reserva nele: progresso **por linha** (mapa `id da linha → progresso`, hoje só Aurora), inventário, carteira, transações com ID crescente, compra pendente, contadores por espécie de carga, garantia por caixa, semente do sorteio, missões pagas. O E3 usa esses campos; só cria v6 se for impossível evitar, com migração. Compra, recolhimento de prêmio e troca de linha **gravam na hora** (não esperam os 30 s de `persist_progress`); se a gravação falhar, o estado em memória volta ao anterior e o jogador é avisado.
+
+**Posse e progressão** (resolve "os marcos esvaziam a loja"):
+- Posse é do **modelo**: quem possui pode equipar em quantas vagas quiser.
+- **Perfil antigo:** tudo o que podia equipar na migração vira possuído (direito adquirido).
+- **Perfil novo:** começa com Vapor Aurora, Passageiros, Carga, Tanque e a pintura inicial; composição inicial Passageiros / Passageiros / Carga. Os marcos antigos de chegadas e postais passam a pagar **moedas e postais**, e concedem só: Dormitório (primeiro circuito completo), Diesel do Porto (postal de carga), e as quatro pinturas originais pelos marcos atuais. Todo o resto vem de caixa ou compra direta.
+
+**Renda** (corrige a sobreposição e a conta errada):
+- Chegada: 1 moeda (≈ 70/h no Aurora já seria demais com 2).
+- Passageiros: 1 moeda a cada 4 entregues, **guardando o resto** para a próxima.
+- Carga: só o contrato concluído paga, `prêmio ÷ 20` com resto guardado, mínimo 2. Nada por unidade.
+- Ordens do dia: no máximo 3 ativas; uma nova só entra **em uma chegada**, e no máximo uma por 10 min ativos; cada ordem guarda o valor dos contadores no momento em que entrou; pode ser trocada sem punição uma vez a cada 10 min; só pede o que a composição **equipada ou possuída e equipável agora** consegue fazer.
+- Alvo conferido pelo simulador: 90–130 moedas por hora ativa **já com** ordens e bônus; primeira caixa comprada entre 15 e 30 min, além da grátis (a grátis não gera reembolso de repetida).
+- O simulador tem estratégia fixa e declarada: compra a caixa mais barata que ainda pode dar peça nova; quando nenhuma pode, compra direta da peça mais barata que falta; depois selos. Informa quantas execuções não completam a coleção em 30 dias.
+- Conjuntos de cada caixa são listados por ID no código e validados em teste; se "Plataforma e conforto" ou "Ateliê" não tiverem peça rara ou épica suficiente, o agente ajusta as faixas daquela caixa (ex.: sem épico, a chance vai para raro) e registra no relato — não inventa raridade só para preencher tabela.
+
+**Máquina** (mantém o pedido do Pedro de a máquina ajudar o trem, sem premiar desperdício):
+- **Todo** efeito que mexe em moedas fica dentro do teto único de +30%. Não há passageiro extra, parada mais curta nem carga mais rápida: Memória, Disco e Rede têm efeito **só visual** (movimento na plataforma, guindaste do pátio trabalhando, fios do telégrafo piscando) e contam para os medidores da Sala de máquinas.
+- Moedas: Foguista (atividade de teclado e mouse) até +15%; Caldeira (processador) até +10%, saturando em **15%** de uso; "Linha viva" (rede com qualquer tráfego) +5%. Usar o computador normalmente já dá o teto; nada cresce além disso.
+- Telegrama = uma quarta ordem do dia ocasional, respeitando o limite de uma ordem nova a cada 10 min.
+- Atividade de entrada: ligada por padrão, **avisada na tela de acolhida** com o botão para desligar ali mesmo; nenhum histórico é gravado, só a média do último minuto em memória.
+- Tempo ativo continua vindo do `SimulationClock`. Amostras parciais e vencidas seguem as regras de `metrics/mod.rs`.
+- Redação de privacidade: "as leituras da máquina não saem do computador". O clima local, quando ligado pelo jogador, continua consultando o serviço de meteorologia como hoje.
+
+**E3 — linha real.** Jogável significa: a viagem percorre as 14 paradas reais, com serviços **do jogo** (passageiros e encomendas fictícios, marcados `kind: fictional`). As `open_questions` da linha não são apagadas: passam para um campo de notas editoriais que não bloqueia `playable`, com a frase "os serviços mostrados são do jogo e não representam a operação real". Aurora é circuito: a troca de linha acontece parado em qualquer estação, sem passageiros nem carga a bordo e sem contrato aceito, fora de excursão. Se a generalização não fechar, entregar o que estiver verde (domínio genérico testado, mapa da linha consultável) e manter a linha fora do seletor.
+
+**E4.** Primeiro confere que o E5 ligou `set_scenery_context`/`set_station_styles`/movimento (se não ligou, liga). Para etiquetas novas, alargar `SegmentScenery` para `u32`.
+
+**E5.** As miniaturas já existem: o trabalho é paginar e mostrar raridade/posse. Em tela menor que 704 × 676 a janela encolhe proporcionalmente por escala (`pixels_per_point`), sem layout alternativo. Também liga ao app o conteúdo pendente: contexto de cenário por trecho, estilos de estação e opções de movimento de passageiros e paisagem.
+
+**E7 / verificação final.** Além das correções das telas: um teste de ponta a ponta "ganhar moedas → comprar caixa → equipar a peça → fechar e reabrir → tudo igual", e um relato do que só pode ser conferido na tela (foco, teclado, DPI, compositor).
+
 ## Fila de agentes
 
 ### E1 — Economia no domínio e save v5
