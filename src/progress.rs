@@ -355,7 +355,7 @@ fn settle_loaded_missions(
             }
         };
         let message = format!(
-            "Marcos antigos conferidos: +{} moedas, uma única vez.",
+            "Marcos antigos conferidos: +{} réis, uma única vez.",
             w.economy().balance - before
         );
         notice = Some(

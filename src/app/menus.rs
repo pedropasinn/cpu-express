@@ -53,10 +53,13 @@ pub(super) fn tabs(ui: &mut egui::Ui, id: &str, current: &mut usize, labels: &[&
         for (index, label) in labels.iter().enumerate() {
             if ui
                 .push_id((id, index), |ui| {
-                    ui.add_sized(
-                        [width, 32.0],
-                        egui::Button::new(egui::RichText::new(*label).strong())
-                            .selected(*current == index),
+                    game::button(
+                        ui,
+                        (id, index),
+                        game::action_icon(label),
+                        label,
+                        *current == index,
+                        egui::vec2(width, 36.0),
                     )
                 })
                 .inner
@@ -77,18 +80,38 @@ pub(super) fn pager(
 ) -> std::ops::Range<usize> {
     let pages = total.div_ceil(per_page).max(1);
     *page = (*page).min(pages - 1);
+    if pages == 1 {
+        return 0..total;
+    }
     ui.push_id(id, |ui| {
         ui.horizontal(|ui| {
             if ui
-                .add_enabled(*page > 0, egui::Button::new("<"))
+                .add_enabled(
+                    *page > 0,
+                    game::ActionButton::new("<").min_size(egui::vec2(40.0, 40.0)),
+                )
                 .on_hover_text("Página anterior")
                 .clicked()
             {
                 *page -= 1;
             }
-            ui.label(format!("Página {} / {pages}", *page + 1));
+            for index in 0..pages {
+                let (r, _) = ui.allocate_exact_size(egui::vec2(10.0, 16.0), egui::Sense::hover());
+                ui.painter().circle_filled(
+                    r.center(),
+                    3.0,
+                    if index == *page {
+                        game::GREEN
+                    } else {
+                        game::MUTED
+                    },
+                );
+            }
             if ui
-                .add_enabled(*page + 1 < pages, egui::Button::new(">"))
+                .add_enabled(
+                    *page + 1 < pages,
+                    game::ActionButton::new(">").min_size(egui::vec2(40.0, 40.0)),
+                )
                 .on_hover_text("Próxima página")
                 .clicked()
             {
@@ -101,10 +124,10 @@ pub(super) fn pager(
 
 pub(super) fn rarity_style(rarity: Rarity) -> (&'static str, egui::Color32) {
     match rarity {
-        Rarity::Common => ("Comum", game::MUTED),
-        Rarity::Uncommon => ("Incomum", game::GREEN),
-        Rarity::Rare => ("Raro", game::BLUE),
-        Rarity::Epic => ("Épico", egui::Color32::from_rgb(117, 62, 144)),
+        Rarity::Common => ("Comum", egui::Color32::from_rgb(138, 122, 102)),
+        Rarity::Uncommon => ("Incomum", egui::Color32::from_rgb(63, 143, 79)),
+        Rarity::Rare => ("Raro", egui::Color32::from_rgb(58, 111, 184)),
+        Rarity::Epic => ("Épico", egui::Color32::from_rgb(123, 70, 176)),
     }
 }
 
@@ -176,12 +199,13 @@ impl CpuExpressApp {
                     self.menu.diary_tab = 2;
                 }
             }
-            "janela" | "clima" | "fluidez" | "sessao" => {
+            "janela" | "clima" | "fluidez" | "sessao" | "sobre" => {
                 self.panel_tab = PanelTab::Behavior;
                 self.menu.settings = match page {
                     "janela" => 0,
                     "clima" => 1,
                     "fluidez" => 2,
+                    "sobre" => 4,
                     _ => 3,
                 };
             }
@@ -227,21 +251,29 @@ impl CpuExpressApp {
                     let (coin, _) =
                         ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
                     game::sprite(ui.painter(), coin, game::Sprite::Moeda);
-                    ui.add_sized(
-                        [150.0, 32.0],
-                        egui::Label::new(
-                            egui::RichText::new(format!("{} réis", self.world.economy().balance))
-                                .strong()
-                                .size(20.0)
-                                .color(game::CREAM),
-                        )
-                        .truncate(),
+                    game::pixel_label(
+                        ui,
+                        &self.world.economy().balance.to_string(),
+                        2.0,
+                        game::CREAM,
                     )
-                    .on_hover_text(format!(
-                        "{} Réis de Ferro · moedas do jogo",
-                        self.world.economy().balance
-                    ));
-                    if ui.button("?").on_hover_text("Ajuda (F1)").clicked() {
+                    .on_hover_text("Saldo em réis");
+                    if self.paused {
+                        let (r, _) =
+                            ui.allocate_exact_size(egui::Vec2::splat(20.0), egui::Sense::hover());
+                        game::icon(ui.painter(), r, Icon::Pause, game::CREAM);
+                    }
+                    if game::button(
+                        ui,
+                        "help",
+                        Icon::Help,
+                        "?",
+                        self.show_help,
+                        egui::vec2(32.0, 32.0),
+                    )
+                    .on_hover_text("Ajuda (F1)")
+                    .clicked()
+                    {
                         self.show_help = !self.show_help;
                     }
                 })
@@ -302,11 +334,7 @@ impl CpuExpressApp {
                 .or(self.shop.visit_summary.as_deref())
                 .or(self.notification.as_deref())
                 .or_else(|| self.equipment_notice.as_ref().map(|v| v.0.as_str()))
-                .unwrap_or(if self.paused {
-                    "Viagem pausada · progresso preservado"
-                } else {
-                    "Tempo ativo · sem prazo nem perda por ausência"
-                });
+                .unwrap_or("");
             ui.add(
                 egui::Label::new(egui::RichText::new(status).size(12.0).color(
                     if self.progress_notice.is_some() {
@@ -393,72 +421,106 @@ impl CpuExpressApp {
             self.favorites_page(ui);
             return;
         }
-        self.scene_preview(ui, true);
-        ui.heading(self.destination_name());
-        let remaining = self.world.excursion_snapshot().current.map_or_else(
-            || {
-                if self.world.station_wait() > 0.0 {
-                    self.world.station_wait()
-                } else {
-                    self.world.travel_view().distance_to_next / 24.0
-                }
-            },
-            |e| e.remaining_seconds(),
-        );
-        game::progress(
-            ui,
-            "cab-progress",
-            self.travel_progress(),
-            &format!(
-                "{} · {:.0} s ativos",
-                if self.world.boarding_closed() && self.world.can_leave_line() {
-                    "Pronto para trocar de linha"
-                } else if self.suspended() {
-                    "Relógio parado"
-                } else if self.world.station_wait() > 0.0 {
-                    "Embarque"
-                } else {
-                    "Próxima parada"
+        self.scene_preview(ui, false);
+        game::section_frame(ui, "Próxima parada", |ui| {
+            game::heading(ui, self.destination_name());
+            let remaining = self.world.excursion_snapshot().current.map_or_else(
+                || {
+                    if self.world.station_wait() > 0.0 {
+                        self.world.station_wait()
+                    } else {
+                        self.world.travel_view().distance_to_next / 24.0
+                    }
                 },
-                remaining.ceil()
-            ),
-            game::GREEN,
-        );
-        if game::button(
-            ui,
-            "cab-pause",
-            if self.paused { Icon::Play } else { Icon::Pause },
-            if self.paused { "Retomar" } else { "Pausar" },
-            false,
-            egui::vec2(170.0, 36.0),
-        )
-        .clicked()
-        {
-            self.dispatch(AppAction::TogglePause, ui.ctx());
-        }
-        ui.label(format!(
-            "CPU {} · Memória {} · {:.0} km/h visuais",
-            self.cpu_label(),
-            self.ram_percent()
-                .map_or("sem leitura".into(), |v| format!("{v:.0}%")),
-            self.train.speed_kmh()
-        ));
+                |e| e.remaining_seconds(),
+            );
+            let status = if self.world.boarding_closed() && self.world.can_leave_line() {
+                "Pronto para trocar de linha".into()
+            } else if self.suspended() {
+                format!("Pausado: {:.0} s", remaining.ceil())
+            } else {
+                format!("Chegada em {:.0} s", remaining.ceil())
+            };
+            game::progress(
+                ui,
+                "cab-progress",
+                self.travel_progress(),
+                &status,
+                game::GREEN,
+            );
+            ui.horizontal(|ui| {
+                ui.add_space(((ui.available_width() - 260.0) / 2.0).max(0.0));
+                if game::button(
+                    ui,
+                    "cab-pause",
+                    if self.paused { Icon::Play } else { Icon::Pause },
+                    if self.paused { "Retomar" } else { "Pausar" },
+                    true,
+                    egui::vec2(260.0, 52.0),
+                )
+                .clicked()
+                {
+                    self.dispatch(AppAction::TogglePause, ui.ctx());
+                }
+            });
+        });
+        ui.columns(3, |cols| {
+            for (ui, (icon, label, value)) in cols.iter_mut().zip([
+                (Icon::Cpu, self.cpu_label(), self.cpu_percent() / 100.0),
+                (
+                    Icon::Memory,
+                    self.ram_percent()
+                        .map_or("Sem leitura".into(), |v| format!("RAM {v:.0}%")),
+                    self.ram_percent().unwrap_or(0.0) / 100.0,
+                ),
+                (
+                    Icon::Train,
+                    format!(
+                        "{:.0} km/h",
+                        if self.suspended() {
+                            0.0
+                        } else {
+                            self.train.speed_kmh()
+                        }
+                    ),
+                    self.train.speed_kmh() as f32 / 100.0,
+                ),
+            ]) {
+                ui.horizontal(|ui| {
+                    let (r, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(24.0), egui::Sense::hover());
+                    game::icon(ui.painter(), r, icon, game::INK);
+                    let ppp = ui.pixels_per_point();
+                    let cell = (2.0 * ppp).round() / ppp;
+                    let cell = if game::pixel_text_size(&label, cell).x <= ui.available_width() {
+                        cell
+                    } else {
+                        1.0
+                    };
+                    game::pixel_label(ui, &label, cell, game::INK);
+                });
+                game::progress(ui, ("cab-gauge", icon), value, "", game::GREEN);
+            }
+        });
         let service = self.world.service_view();
         let (seats, cargo) = service.capacity();
-        if ui
-            .button(format!(
-                "Serviços · {}/{} passageiros · {}/{} carga",
-                service.passenger_count(),
-                seats,
-                service.cargo_count(),
-                cargo
-            ))
-            .clicked()
-        {
-            self.panel_tab = PanelTab::Journey;
-            self.journey_page = 3;
-        }
-        self.arrival_ticket(ui, true);
+        ui.horizontal(|ui| {
+            for (icon, value) in [
+                (
+                    Icon::Passenger,
+                    format!("{}/{seats}", service.passenger_count()),
+                ),
+                (Icon::Cargo, format!("{}/{cargo}", service.cargo_count())),
+            ] {
+                let (r, _) = ui.allocate_exact_size(egui::Vec2::splat(24.0), egui::Sense::hover());
+                game::icon(ui.painter(), r, icon, game::INK);
+                game::pixel_label(ui, &value, 2.0, game::INK);
+            }
+            if game::action(ui, "Serviços").clicked() {
+                self.panel_tab = PanelTab::Journey;
+                self.journey_page = 3;
+            }
+        });
     }
 
     fn travel_pages(&mut self, ui: &mut egui::Ui) {
@@ -492,7 +554,7 @@ impl CpuExpressApp {
             return;
         }
         let (rect, _) = ui.allocate_exact_size(
-            egui::vec2(ui.available_width(), 200.0),
+            egui::vec2(ui.available_width(), 300.0),
             egui::Sense::hover(),
         );
         let painter = ui.painter_at(rect);
@@ -525,8 +587,12 @@ impl CpuExpressApp {
                 game::GREEN,
             );
             painter.text(
-                p + egui::vec2(0.0, 17.0),
-                egui::Align2::CENTER_TOP,
+                p + egui::vec2(0.0, if station.id.index() < 2 { -24.0 } else { 24.0 }),
+                if station.id.index() < 2 {
+                    egui::Align2::CENTER_BOTTOM
+                } else {
+                    egui::Align2::CENTER_TOP
+                },
                 station.name,
                 egui::FontId::proportional(14.0),
                 game::INK,
@@ -537,12 +603,17 @@ impl CpuExpressApp {
         }
         let i = j.route_segment.index;
         let p = points[i] + (points[(i + 1) % 4] - points[i]) * j.segment_progress as f32;
-        painter.circle_filled(p, 8.0, game::GOLD);
+        game::icon(
+            &painter,
+            egui::Rect::from_center_size(p, egui::vec2(32.0, 24.0)),
+            Icon::Train,
+            game::INK,
+        );
         game::progress(
             ui,
             "map-progress",
             j.segment_progress as f32,
-            &format!("{} → {}", j.route_segment.from.name(), j.next_station.name),
+            &format!("{} > {}", j.route_segment.from.name(), j.next_station.name),
             game::GREEN,
         );
         ui.label(format!(
@@ -596,7 +667,7 @@ impl CpuExpressApp {
             if ui
                 .add_enabled(
                     self.progress_path.is_some(),
-                    egui::Button::new("Salvar agora"),
+                    game::ActionButton::new("Salvar agora"),
                 )
                 .clicked()
             {
@@ -625,7 +696,7 @@ impl CpuExpressApp {
             "arrivals",
             &mut self.menu.diary,
             state.arrivals.len(),
-            3,
+            7,
         );
         if state.arrivals.is_empty() {
             ui.label(format!("Seu diário começa em {}", self.destination_name()));
@@ -637,22 +708,65 @@ impl CpuExpressApp {
             .skip(range.start)
             .take(range.len())
         {
-            egui::Frame::new()
-                .fill(game::CARD)
-                .inner_margin(8)
-                .show(ui, |ui| {
-                    ui.strong(format!("{} · chegada {}", a.station.name(), a.visit));
-                    ui.label(format!(
-                        "+{} embarcaram · −{} desembarcaram · +{} pontos",
-                        a.boarded, a.alighted, a.earned
-                    ));
-                    if a.cargo_loaded + a.cargo_delivered + a.cargo_returned > 0 {
-                        ui.label(format!(
-                            "Carga: {} carregadas · {} entregues · {} devolvidas",
-                            a.cargo_loaded, a.cargo_delivered, a.cargo_returned
-                        ));
-                    }
-                });
+            let (r, response) = ui
+                .allocate_exact_size(egui::vec2(ui.available_width(), 46.0), egui::Sense::hover());
+            let painter = ui.painter_at(r);
+            painter.rect_filled(r, 2, game::CARD);
+            game::icon(
+                &painter,
+                egui::Rect::from_min_size(r.min + egui::vec2(6.0, 10.0), egui::Vec2::splat(24.0)),
+                Icon::Station,
+                game::INK,
+            );
+            painter.text(
+                r.min + egui::vec2(36.0, 8.0),
+                egui::Align2::LEFT_TOP,
+                a.station.name(),
+                egui::FontId::proportional(14.0),
+                game::INK,
+            );
+            painter.text(
+                r.min + egui::vec2(36.0, 27.0),
+                egui::Align2::LEFT_TOP,
+                format!("Chegada {}", a.visit),
+                egui::FontId::proportional(11.0),
+                game::MUTED,
+            );
+            for (index, (icon, n, label)) in [
+                (Icon::Passenger, u64::from(a.boarded), "embarcaram"),
+                (Icon::Passenger, u64::from(a.alighted), "entregues"),
+                (Icon::Cargo, u64::from(a.cargo_delivered), "entregues"),
+                (Icon::Star, a.earned, "registro"),
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                if n == 0 {
+                    continue;
+                }
+                let pos = r.min + egui::vec2(254.0 + index as f32 * 98.0, 6.0);
+                game::icon(
+                    &painter,
+                    egui::Rect::from_min_size(pos, egui::Vec2::splat(20.0)),
+                    icon,
+                    game::INK,
+                );
+                game::pixel_text(
+                    &painter,
+                    pos + egui::vec2(24.0, 4.0),
+                    &n.to_string(),
+                    1.5,
+                    game::INK,
+                );
+                painter.text(
+                    pos + egui::vec2(0.0, 24.0),
+                    egui::Align2::LEFT_TOP,
+                    label,
+                    egui::FontId::proportional(11.0),
+                    game::MUTED,
+                );
+            }
+            response.on_hover_text(format!("Pontos de serviço são registro histórico, não saldo em réis. Carga: {} carregadas; {} entregues; {} devolvidas.",a.cargo_loaded,a.cargo_delivered,a.cargo_returned));
         }
     }
 
@@ -667,24 +781,7 @@ impl CpuExpressApp {
             self.menu.drive.saturating_sub(1).min(2)
         };
         if category == 0 {
-            ui.horizontal(|ui| {
-                ui.label("Equipar na posição:");
-                for index in 0..3 {
-                    ui.selectable_value(
-                        &mut self.coach_slot,
-                        index,
-                        format!("Vagão {}", index + 1),
-                    );
-                }
-            });
-            let (seats, hold) = self.world.service_view().capacity();
-            ui.label(format!("Trem: {seats} lugares · {hold} espaços de carga"));
-        } else {
-            ui.label(if category == 1 {
-                "Locomotivas · aparência, sem bônus de velocidade"
-            } else {
-                "Pinturas · esmalte da locomotiva"
-            });
+            self.wagon_slots(ui);
         }
         let items: Vec<_> = match category {
             0 => CoachStyle::ALL
@@ -705,11 +802,11 @@ impl CpuExpressApp {
             "stock-pages",
             &mut self.menu.stock[category],
             items.len(),
-            4,
+            6,
         );
         let mut equip = None;
-        for row in items[range.clone()].chunks(2) {
-            ui.columns(2, |cols| {
+        for row in items[range.clone()].chunks(3) {
+            ui.columns(3, |cols| {
                 for (col, (id, name)) in cols.iter_mut().zip(row) {
                     let index = items.iter().position(|v| v.0 == *id).unwrap();
                     let owned = self.world.economy().owns(id);
@@ -737,60 +834,134 @@ impl CpuExpressApp {
                         }
                     };
                     let (rarity, color) = rarity_style(id.rarity().unwrap_or_default());
-                    let response = stock_card(
+                    let response = game::button(
                         col,
-                        texture,
-                        name,
+                        ("stock", category, index),
                         if selected {
-                            "Equipado · possuído"
+                            Icon::Check
                         } else if owned {
-                            "Possuído · equipar"
+                            Icon::Train
                         } else {
-                            "Não possuído · obtenha na loja"
+                            Icon::Lock
                         },
+                        "",
                         selected,
-                        owned,
+                        egui::vec2(col.available_width(), 164.0),
                     );
-                    col.painter().rect_stroke(
-                        response.rect.shrink(1.0),
-                        3,
-                        egui::Stroke::new(2.0, color),
+                    let r = response.rect;
+                    let painter = col.painter_at(r);
+                    painter.rect_filled(r.shrink(2.0), 2, game::CARD);
+                    painter.rect_stroke(
+                        r,
+                        2,
+                        egui::Stroke::new(4.0, if selected { game::GOLD } else { color }),
                         egui::StrokeKind::Inside,
                     );
-                    col.horizontal(|ui| {
-                        ui.colored_label(color, rarity);
-                        if category == 0 {
-                            let (seats, cargo) = service_wagon(CoachStyle::ALL[index]).capacity();
-                            let (r, _) = ui
-                                .allocate_exact_size(egui::Vec2::splat(16.0), egui::Sense::hover());
-                            game::icon(
-                                ui.painter(),
-                                r,
-                                if seats > 0 {
-                                    Icon::Passenger
-                                } else {
-                                    Icon::Cargo
-                                },
-                                game::INK,
-                            );
-                            ui.label(if seats > 0 {
-                                format!("{seats} lugares")
-                            } else {
-                                format!("{cargo} carga")
-                            })
-                            .on_hover_text(
-                                crate::simulation::CargoKind::ALL
-                                    .iter()
-                                    .filter(|kind| {
-                                        service_wagon(CoachStyle::ALL[index]).cargo_capacity(**kind)
-                                            > 0
-                                    })
-                                    .map(|kind| kind.name())
-                                    .collect::<Vec<_>>()
-                                    .join(" · "),
-                            );
+                    painter.rect_filled(
+                        egui::Rect::from_min_size(r.min, egui::vec2(r.width(), 24.0)),
+                        1,
+                        color,
+                    );
+                    game::pixel_text(
+                        &painter,
+                        r.min + egui::vec2(8.0, 5.0),
+                        rarity,
+                        1.5,
+                        game::CREAM,
+                    );
+                    let size = texture.size_vec2();
+                    let scale = (160.0 / size.x).min(74.0 / size.y).floor();
+                    painter.image(
+                        texture.id(),
+                        egui::Rect::from_center_size(
+                            r.center() - egui::vec2(0.0, 8.0),
+                            size * scale,
+                        ),
+                        egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
+                        if owned {
+                            egui::Color32::WHITE
+                        } else {
+                            egui::Color32::from_gray(80)
+                        },
+                    );
+                    painter.text(
+                        egui::pos2(r.center().x, r.bottom() - 42.0),
+                        egui::Align2::CENTER_CENTER,
+                        name,
+                        egui::FontId::proportional(12.0),
+                        game::INK,
+                    );
+                    let (icon, detail) = if category == 0 {
+                        let (seats, cargo) = service_wagon(CoachStyle::ALL[index]).capacity();
+                        if seats > 0 {
+                            (Icon::Passenger, format!("{seats}"))
+                        } else {
+                            (Icon::Cargo, format!("{cargo}"))
                         }
+                    } else {
+                        (
+                            if selected {
+                                Icon::Check
+                            } else if owned {
+                                Icon::Train
+                            } else {
+                                Icon::Lock
+                            },
+                            if selected {
+                                "Equipado".into()
+                            } else if owned {
+                                "Possuído".into()
+                            } else {
+                                "Na loja".into()
+                            },
+                        )
+                    };
+                    game::icon(
+                        &painter,
+                        egui::Rect::from_min_size(
+                            r.left_bottom() + egui::vec2(12.0, -30.0),
+                            egui::Vec2::splat(20.0),
+                        ),
+                        icon,
+                        game::INK,
+                    );
+                    game::pixel_text(
+                        &painter,
+                        r.left_bottom() + egui::vec2(40.0, -25.0),
+                        &detail,
+                        1.5,
+                        game::INK,
+                    );
+                    if !owned {
+                        game::icon(
+                            &painter,
+                            egui::Rect::from_min_size(
+                                r.right_top() + egui::vec2(-28.0, 30.0),
+                                egui::Vec2::splat(20.0),
+                            ),
+                            Icon::Lock,
+                            game::INK,
+                        );
+                    }
+                    if response.has_focus() {
+                        painter.rect_stroke(
+                            r.shrink(5.0),
+                            1,
+                            egui::Stroke::new(2.0, game::BLUE),
+                            egui::StrokeKind::Inside,
+                        );
+                    }
+                    response.widget_info(|| {
+                        egui::WidgetInfo::selected(egui::Role::Button, true, selected, *name)
                     });
+                    let response = response.on_hover_text(format!(
+                        "{name}: {rarity}. {}",
+                        if owned {
+                            "Equipar respeitando a ocupação atual"
+                        } else {
+                            "Obtenha na loja"
+                        }
+                    ));
                     if response.clicked() {
                         if owned {
                             equip = Some(index);
@@ -833,11 +1004,14 @@ impl CpuExpressApp {
     }
 
     fn favorites_page(&mut self, ui: &mut egui::Ui) {
-        ui.label("Até quatro composições; a ocupação atual precisa caber.");
+        if self.stock_gallery.is_none() {
+            self.stock_gallery = Some(StockGallery::new(ui.ctx()));
+        }
         if ui
             .add_enabled(
                 self.config.visual.favorite_consists.len() < 4,
-                egui::Button::new("Guardar composição atual"),
+                game::ActionButton::new("Guardar composição atual")
+                    .min_size(egui::vec2(280.0, 44.0)),
             )
             .clicked()
         {
@@ -852,16 +1026,42 @@ impl CpuExpressApp {
         for (index, coaches) in self.config.visual.favorite_consists.iter().enumerate() {
             ui.horizontal(|ui| {
                 ui.allocate_ui_with_layout(
-                    egui::vec2(420.0, 44.0),
-                    egui::Layout::top_down(egui::Align::Min),
+                    egui::vec2(414.0, 76.0),
+                    egui::Layout::left_to_right(egui::Align::Center),
                     |ui| {
-                        ui.label(coaches.map(coach_name).join(" · "));
+                        for coach in coaches {
+                            let texture = self.stock_gallery.as_ref().unwrap().coach(*coach);
+                            ui.add(
+                                egui::Image::new(texture)
+                                    .fit_to_exact_size(texture.size_vec2() * 2.0),
+                            )
+                            .on_hover_text(coach_name(*coach));
+                        }
                     },
                 );
-                if ui.button("Equipar").clicked() {
+                if game::button(
+                    ui,
+                    ("favorite-equip", index),
+                    Icon::Train,
+                    "Equipar",
+                    false,
+                    egui::vec2(150.0, 40.0),
+                )
+                .clicked()
+                {
                     equip = Some(*coaches);
                 }
-                if ui.button("Esquecer").clicked() {
+                if game::button(
+                    ui,
+                    ("favorite-delete", index),
+                    Icon::Close,
+                    "",
+                    false,
+                    egui::vec2(40.0, 40.0),
+                )
+                .on_hover_text("Esquecer composição")
+                .clicked()
+                {
                     remove = Some(index);
                 }
             });
@@ -886,7 +1086,7 @@ impl CpuExpressApp {
     }
 
     pub(super) fn postcards_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Postais de viagem");
+        game::heading(ui, "Postais de viagem");
         let j = self.world.journey_snapshot();
         let mut cards: Vec<_> = self
             .world
@@ -962,7 +1162,7 @@ impl CpuExpressApp {
                 }
             });
         }
-        if ui.button("Ver peças do trem").clicked() {
+        if game::action(ui, "Ver peças do trem").clicked() {
             self.panel_tab = PanelTab::Drive;
             self.menu.drive = 1;
         }
@@ -973,7 +1173,7 @@ impl CpuExpressApp {
             ui,
             "settings",
             &mut self.menu.settings,
-            &["Janela", "Clima", "Fluidez", "Sessão"],
+            &["Janela", "Clima", "Fluidez", "Sessão", "Sobre"],
         );
         match self.menu.settings {
             0 => {
@@ -987,11 +1187,25 @@ impl CpuExpressApp {
             }
             1 => self.climate_page(ui),
             2 => self.comfort_page(ui),
+            4 => {
+                game::section_frame(ui, "Sobre", |ui| {
+                    ui.label("CPU Express: uma ferrovia para acompanhar seu dia.");
+                    ui.label("As leituras da máquina não saem do computador.");
+                    ui.label("Só presença de atividade no último minuto; sem ler teclas, títulos de janela ou salvar histórico.");
+                    ui.label("Clima opcional: Open-Meteo, CC BY 4.0.");
+                    ui.label("Mapas: © OpenStreetMap contributors.");
+                    ui.label("Aurora, serviços e arte das estações são fictícios.");
+                    ui.label("Réis são a moeda do jogo, sem dinheiro real, anúncios ou ofertas que expiram.");
+                    ui.label(
+                        "Pontos de serviço são registro histórico; não são saldo para compras.",
+                    );
+                });
+            }
             _ => {
                 self.compact_drive_controls(ui);
                 ui.separator();
                 self.storage_controls(ui);
-                if ui.button("Rever boas-vindas").clicked() {
+                if game::action(ui, "Rever boas-vindas").clicked() {
                     self.welcome_taskbar = self.config.taskbar_mode;
                     self.weather_draft = self.config.weather_location.clone();
                     self.welcome = true;
@@ -1039,10 +1253,10 @@ impl CpuExpressApp {
                 );
             });
             ui.label("O nome identifica o local; informe as coordenadas. Sem GPS ou localização automática.");
-            if ui.button("Usar São Paulo, SP").clicked() {
+            if game::action(ui, "Usar São Paulo, SP").clicked() {
                 self.weather_draft = Default::default();
             }
-            if ui.button("Aplicar local").clicked() {
+            if game::action(ui, "Aplicar local").clicked() {
                 match self.local_weather.set_location(self.weather_draft.clone()) {
                     Ok(()) => {
                         self.config.weather_location = self.weather_draft.clone();
@@ -1054,7 +1268,7 @@ impl CpuExpressApp {
                 }
             }
         } else {
-            ui.heading(&self.config.weather_location.city);
+            game::heading(ui, &self.config.weather_location.city);
             if let Some(s) = &self.local_weather.last_good {
                 ui.label(format!(
                     "{} · {:.1} °C · {}",
@@ -1093,7 +1307,7 @@ impl CpuExpressApp {
                 if ui
                     .add_enabled(
                         self.local_weather.can_refresh(),
-                        egui::Button::new("Atualizar clima"),
+                        game::ActionButton::new("Atualizar clima"),
                     )
                     .clicked()
                 {
@@ -1151,7 +1365,7 @@ impl CpuExpressApp {
                 if ui
                     .add_enabled(
                         self.config.sound_volume > 0.0 && !self.config.quiet_mode,
-                        egui::Button::new("Ouvir exemplo"),
+                        game::ActionButton::new("Ouvir exemplo"),
                     )
                     .clicked()
                 {
@@ -1190,17 +1404,53 @@ impl CpuExpressApp {
     }
 
     fn help_page(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Uma ferrovia para acompanhar seu dia");
-        ui.label("1. A viagem avança com tempo ativo. CPU muda o ritmo visual.");
-        ui.label(
-            "2. Passageiros e cargas viajam nos vagões compatíveis; entregas são automáticas.",
+        game::section_frame(ui, "Atalhos", |ui| {
+            for (key, action) in [
+                ("Espaço", "Pausar ou retomar"),
+                ("Esc", "Fechar a central"),
+                ("F1", "Abrir ajuda"),
+                ("R", "Reposicionar o trem"),
+                ("Tab", "Próximo controle"),
+                ("Enter", "Acionar o controle focado"),
+            ] {
+                ui.horizontal(|ui| {
+                    let (r, _) =
+                        ui.allocate_exact_size(egui::vec2(90.0, 32.0), egui::Sense::hover());
+                    ui.painter().rect_filled(r, 3, game::BUTTER);
+                    game::pixel_text(
+                        ui.painter(),
+                        r.min + egui::vec2(8.0, 8.0),
+                        key,
+                        1.5,
+                        game::INK,
+                    );
+                    ui.label(action);
+                });
+            }
+        });
+        game::section_frame(ui, "Como ganhar réis", |ui| {
+            ui.horizontal(|ui| {
+                for (icon, label) in [
+                    (Icon::Station, "Chegadas"),
+                    (Icon::Cargo, "Entregas"),
+                    (Icon::Mail, "Ordens"),
+                    (Icon::Star, "Marcos"),
+                ] {
+                    let (r, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(28.0), egui::Sense::hover());
+                    game::icon(ui.painter(), r, icon, game::INK);
+                    ui.label(label);
+                }
+            });
+            ui.label("Caixas pagas repetidas devolvem parte do preço.");
+            game::hint(
+                ui,
+                "A máquina ajuda a renda até +30%. CPU também muda o ritmo visual; a distância depende do tempo ativo.",
+            );
+        });
+        ui.small(
+            "Mapas reais: © OpenStreetMap contributors. Créditos e privacidade em Ajustes > Sobre.",
         );
-        ui.label("3. Clique no trem para abrir a central. Recolha moedas em Viagem > Missões.");
-        ui.label("Pausa, ocultação e minimização não acumulam progresso offline.");
-        ui.separator();
-        self.help_contents(ui);
-        ui.label("As leituras da máquina não saem do computador. O clima consulta o serviço de meteorologia.");
-        ui.small("Mapas reais: © OpenStreetMap contributors. Aurora é fictícia.");
     }
 }
 
@@ -1208,6 +1458,67 @@ impl CpuExpressApp {
 mod tests {
     use super::*;
     use crate::simulation::economy::EconomyAction;
+
+    #[test]
+    fn cabine_identifica_simulacao_e_revalida_cpu_em_cache() {
+        let ctx = egui::Context::default();
+        ctx.enable_accesskit();
+        let mut app = CpuExpressApp::new_demo(
+            &ctx,
+            LaunchOptions {
+                config: Config::default(),
+                config_path: None,
+                warning: None,
+                cpu_override: Some(50.0),
+                exit_after: None,
+                diagnostics: None,
+            },
+        );
+        app.prepare_demo_menu("trem", 0);
+        for (case, expected) in [
+            "DEMO · CPU 50.0%",
+            "SIMULADO · CPU 50.0%",
+            "Lendo CPU…",
+            "CPU 37.0%",
+            "Leitura atrasada",
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            app.demo_mode = case == 0;
+            app.cpu_override = (case <= 1).then_some(50.0);
+            app.metrics.measured_at = Instant::now();
+            app.metrics.cpu_percent = Some(37.0);
+            app.metrics.status = MetricStatus::WarmingUp;
+            if case >= 3 {
+                app.metrics.status = MetricStatus::Unavailable("RAM indisponível".into());
+            }
+            if case == 4 {
+                app.metrics.measured_at -= Duration::from_secs(10);
+            }
+            let output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(704.0, 676.0),
+                    )),
+                    ..Default::default()
+                },
+                |ui| app.central_menu(ui),
+            );
+            let visible_label = output
+                .platform_output
+                .accesskit_update
+                .as_ref()
+                .is_some_and(|tree| {
+                    tree.nodes.iter().any(|(_, node)| {
+                        node.label() == Some(expected) || node.value() == Some(expected)
+                    })
+                });
+            output.drop_without_applying_deltas();
+            assert!(visible_label, "Cabine precisa mostrar {expected}");
+        }
+    }
 
     #[test]
     fn real_line_pages_fit_with_many_destinations_and_correct_route() {

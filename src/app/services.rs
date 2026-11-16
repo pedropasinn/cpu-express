@@ -166,7 +166,7 @@ impl CpuExpressApp {
                                 Icon::Paint,
                                 "Abrir vagões",
                                 true,
-                                egui::vec2(190.0, 40.0),
+                                egui::vec2(190.0, 44.0),
                             )
                             .clicked();
                             cancel = game::button(
@@ -175,7 +175,7 @@ impl CpuExpressApp {
                                 Icon::Close,
                                 "Recusar",
                                 false,
-                                egui::vec2(130.0, 32.0),
+                                egui::vec2(150.0, 44.0),
                             )
                             .clicked();
                         });
@@ -220,7 +220,7 @@ impl CpuExpressApp {
                             Icon::Cargo,
                             "Devolver à origem",
                             false,
-                            egui::vec2(240.0, 32.0),
+                            egui::vec2(240.0, 44.0),
                         )
                         .clicked();
                         ui.label(
@@ -304,7 +304,7 @@ impl CpuExpressApp {
             }
         }
         let per_page = if self.world.active_session().is_some() {
-            2
+            1
         } else {
             3
         };
@@ -344,7 +344,7 @@ impl CpuExpressApp {
                 (Sprite::Caixote, state.contracts_completed, "encomendas"),
                 (Sprite::Pontos, state.credits, "pontos de serviço"),
             ] {
-                art(ui, sprite, 16.0);
+                art(ui, sprite, 20.0);
                 ui.label(
                     egui::RichText::new(format!("{value} {caption}"))
                         .size(12.0)
@@ -457,7 +457,7 @@ impl CpuExpressApp {
 
     pub(super) fn collection_controls(&mut self, ui: &mut egui::Ui) {
         let journey = self.world.journey_snapshot();
-        ui.heading("Postais da ferrovia");
+        game::heading(ui, "Postais da ferrovia");
         game::hint(ui, "As descobertas e os serviços completam seu caderno.");
         for station in self.world.journey().route().stations() {
             let known = journey.discovered_stations[station.id.index()];

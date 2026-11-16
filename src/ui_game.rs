@@ -13,6 +13,86 @@ pub const GOLD: Color32 = Color32::from_rgb(191, 141, 55);
 pub const GREEN: Color32 = Color32::from_rgb(38, 107, 91);
 pub const BLUE: Color32 = Color32::from_rgb(47, 100, 126);
 
+/// Adapter for enabled/sized egui layouts; every action uses the game control.
+pub struct ActionButton {
+    label: String,
+    selected: bool,
+    size: Option<Vec2>,
+}
+
+impl ActionButton {
+    pub fn new(label: impl Into<egui::WidgetText>) -> Self {
+        Self {
+            label: label.into().text().to_owned(),
+            selected: false,
+            size: None,
+        }
+    }
+
+    pub fn selected(mut self, selected: bool) -> Self {
+        self.selected = selected;
+        self
+    }
+
+    pub fn min_size(mut self, size: Vec2) -> Self {
+        self.size = Some(size);
+        self
+    }
+}
+
+impl egui::Widget for ActionButton {
+    fn ui(self, ui: &mut egui::Ui) -> Response {
+        let size = self.size.unwrap_or_else(|| {
+            egui::vec2(
+                (self.label.chars().count() as f32 * 8.0 + 38.0)
+                    .max(150.0)
+                    .min(ui.available_width().max(40.0)),
+                40.0,
+            )
+        });
+        let icon = action_icon(&self.label);
+        button(
+            ui,
+            ui.next_auto_id(),
+            icon,
+            &self.label,
+            self.selected,
+            size,
+        )
+    }
+}
+
+pub fn action(ui: &mut egui::Ui, label: impl Into<egui::WidgetText>) -> Response {
+    ui.add(ActionButton::new(label))
+}
+
+pub fn action_icon(label: &str) -> Icon {
+    let label = label.to_lowercase();
+    if label.contains("salvar")
+        || label.contains("guardar")
+        || label.contains("exportar")
+        || label.contains("importar")
+    {
+        Icon::Save
+    } else if label.contains("compr") || label.contains("recolh") || label.contains("réis") {
+        Icon::Star
+    } else if label.contains("equip") || label.contains("trem") || label.contains("vag") {
+        Icon::Train
+    } else if label.contains("fechar") || label.contains("sair") || label.contains("esquecer") {
+        Icon::Close
+    } else if label == "?" || label == "i" || label.contains("ajuda") {
+        Icon::Help
+    } else {
+        Icon::Play
+    }
+}
+
+pub fn heading(ui: &mut egui::Ui, text: impl AsRef<str>) -> Response {
+    let text = text.as_ref();
+    let cell = (ui.available_width() / pixel_text_size(text, 1.0).x.max(1.0)).min(2.0);
+    pixel_label(ui, text, cell, INK)
+}
+
 /// Session-only menu preference. Does not alter scene art or simulation time.
 pub fn set_reduce_motion(ctx: &egui::Context, enabled: bool) {
     ctx.data_mut(|data| data.insert_temp(egui::Id::unique("game-reduce-menu-motion"), enabled));
@@ -434,6 +514,9 @@ pub fn button(
     let (_, rect) = ui.allocate_space(size.max(egui::vec2(28.0, 28.0)));
     // Sense::click participates in egui's standard Tab/Space/Enter handling.
     let response = ui.interact(rect, id, egui::Sense::click());
+    if response.gained_focus() {
+        response.scroll_to_me(None);
+    }
     let enabled = ui.is_enabled();
     let reduced_motion = reduce_motion(ui.ctx());
     response
@@ -515,10 +598,15 @@ pub fn button(
         };
         let gap = if label.is_empty() { 0.0 } else { 8.0 };
         // Pixel capitals are the voice of the game; long labels fall back to the text font.
-        let cell = 2.0;
+        let cell = snapped_cell(&painter, 2.0);
+        let cell = if pixel_text_size(label, cell).x > face.width() - 14.0 {
+            snapped_cell(&painter, 1.0)
+        } else {
+            cell
+        };
         let lettering = pixel_text_size(label, cell);
         let room = face.width() - if stacked { 8.0 } else { icon_size + gap + 14.0 };
-        let fits = !label.is_empty() && face.height() >= 26.0;
+        let fits = !label.is_empty() && face.height() >= 14.0;
         let with_icon = fits && lettering.x <= room;
         let alone = fits && !stacked && !with_icon && lettering.x <= face.width() - 14.0;
         let pixel = with_icon || alone;
@@ -554,8 +642,16 @@ pub fn button(
         };
         // The text shape stays for UI harnesses even when the pixel lettering replaces it.
         painter.text(
-            anchor,
-            align,
+            if pixel && !stacked {
+                face.center()
+            } else {
+                anchor
+            },
+            if pixel {
+                egui::Align2::CENTER_CENTER
+            } else {
+                align
+            },
             label,
             font,
             if pixel {
@@ -629,6 +725,16 @@ pub fn progress(
             );
         }
         // One unmodified text shape: harnesses and assistive tools find exactly this caption.
+        let text_size = painter
+            .layout_no_wrap(label.to_owned(), egui::FontId::proportional(12.0), CREAM)
+            .size();
+        if !label.is_empty() {
+            painter.rect_filled(
+                Rect::from_center_size(rect.center(), text_size + egui::vec2(8.0, 2.0)),
+                2,
+                WOOD_DARK,
+            );
+        }
         painter.text(
             rect.center(),
             egui::Align2::CENTER_CENTER,
@@ -723,6 +829,12 @@ pub const FRAME: f32 = 12.0;
 /// drawn above the base letter, so Portuguese titles need no extra glyphs.
 fn glyph(letter: char) -> [&'static str; 7] {
     match letter {
+        '<' => [
+            "....#", "...#.", "..#..", ".#...", "..#..", "...#.", "....#",
+        ],
+        '>' => [
+            "#....", ".#...", "..#..", "...#.", "..#..", ".#...", "#....",
+        ],
         'A' => [
             ".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#",
         ],
@@ -1051,6 +1163,7 @@ pub fn hint(ui: &mut egui::Ui, text: impl Into<egui::WidgetText>) -> Response {
 
 /// Pixel-font heading with a drop shadow, exposed to assistive technology as a label.
 pub fn pixel_label(ui: &mut egui::Ui, text: &str, cell: f32, color: Color32) -> Response {
+    let cell = snapped_cell(ui.painter(), cell);
     let (rect, response) = ui.allocate_exact_size(
         pixel_text_size(text, cell) + Vec2::splat(cell),
         egui::Sense::hover(),
@@ -1318,8 +1431,10 @@ pub fn dock_button(
         mix(CREAM, WOOD, 0.6)
     };
     let caption = face.height() >= 34.0 && !label.is_empty();
-    let pixel_caption =
-        caption && pixel_text_size(label, 2.0).x <= face.width() - 6.0 && face.height() >= 48.0;
+    let caption_cell = snapped_cell(&painter, 2.0);
+    let pixel_caption = caption
+        && pixel_text_size(label, caption_cell).x <= face.width() - 6.0
+        && face.height() >= 34.0;
     let reserved = if pixel_caption {
         26.0
     } else if caption {
@@ -1343,7 +1458,7 @@ pub fn dock_button(
         foreground,
     );
     if caption {
-        let lettering = pixel_text_size(label, 2.0);
+        let lettering = pixel_text_size(label, caption_cell);
         let pixel = pixel_caption;
         let anchor = egui::pos2(
             face.center().x,
@@ -1361,9 +1476,15 @@ pub fn dock_button(
             },
         );
         if pixel {
-            let origin = egui::pos2(anchor.x - lettering.x * 0.5, anchor.y - 11.0);
-            pixel_text(&painter, origin + shadow_offset(2.0), label, 2.0, WOOD_DARK);
-            pixel_text(&painter, origin, label, 2.0, foreground);
+            let origin = egui::pos2(anchor.x - lettering.x * 0.5, anchor.y - caption_cell * 5.5);
+            pixel_text(
+                &painter,
+                origin + shadow_offset(caption_cell),
+                label,
+                caption_cell,
+                WOOD_DARK,
+            );
+            pixel_text(&painter, origin, label, caption_cell, foreground);
         }
     }
     response

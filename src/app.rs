@@ -1300,7 +1300,7 @@ impl CpuExpressApp {
             if ui
                 .put(
                     rect,
-                    egui::Button::new("!").fill(egui::Color32::from_rgb(92, 62, 30)),
+                    game::ActionButton::new("!").min_size(egui::vec2(28.0, 28.0)),
                 )
                 .on_hover_text(format!("{message}\nClique para dispensar este aviso."))
                 .clicked()
@@ -1320,9 +1320,14 @@ impl CpuExpressApp {
                     egui::vec2(width, 24.0),
                 );
                 left += width + 4.0;
-                ui.put(rect, egui::Button::new(label).selected(selected))
-                    .on_hover_text(hint)
-                    .clicked()
+                ui.put(
+                    rect,
+                    game::ActionButton::new(label)
+                        .selected(selected)
+                        .min_size(rect.size()),
+                )
+                .on_hover_text(hint)
+                .clicked()
             };
         let mut action = None;
         if button(
@@ -1626,17 +1631,19 @@ impl CpuExpressApp {
             }
         });
         ui.horizontal(|ui| {
-            if ui
-                .button(if self.paused {
+            if game::action(
+                ui,
+                if self.paused {
                     "Seguir (Espaço)"
                 } else {
                     "Pausar (Espaço)"
-                })
-                .clicked()
+                },
+            )
+            .clicked()
             {
                 self.dispatch(AppAction::TogglePause, ui.ctx());
             }
-            if ui.button("Reposicionar (R)").clicked() {
+            if game::action(ui, "Reposicionar (R)").clicked() {
                 self.dispatch(AppAction::Reposition, ui.ctx());
             }
         });
@@ -1873,21 +1880,29 @@ impl CpuExpressApp {
 
     fn welcome_controls(&mut self, ui: &mut egui::Ui) {
         game::apply_style(ui);
-        self.scene_preview(ui, true);
-        ui.heading("Uma pequena ferrovia para acompanhar seu dia");
-        ui.label("1. Escolha onde seu trem aparece.");
+        self.scene_preview(ui, false);
+        game::heading(ui, "Bem-vindo a bordo");
+        game::pixel_label(ui, "Seu trem viaja enquanto você trabalha", 1.5, game::INK);
+        ui.label("Viaje, entregue e recolha réis em Missões.");
         ui.horizontal(|ui| {
-            ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
-            ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
+            for (value, label, icon) in [
+                (true, "Barra de tarefas", Icon::Train),
+                (false, "Janela flutuante", Icon::Map),
+            ] {
+                if game::button(
+                    ui,
+                    ("welcome-mode", value),
+                    icon,
+                    label,
+                    self.welcome_taskbar == value,
+                    egui::vec2(300.0, 72.0),
+                )
+                .clicked()
+                {
+                    self.welcome_taskbar = value;
+                }
+            }
         });
-        ui.label("2. Viaje, transporte e recolha moedas em Missões.");
-        ui.label("3. Clique no trem para voltar à central; Esc fecha o painel.");
-        ui.separator();
-        ui.label(format!(
-            "Clima: {}. Altere em Ajustes > Clima.",
-            self.config.weather_location.city
-        ));
-        ui.label("As leituras da máquina não saem do computador.");
         if ui
             .checkbox(
                 &mut self.config.use_input_activity,
@@ -1897,13 +1912,30 @@ impl CpuExpressApp {
         {
             self.apply_input_preference();
         }
-        ui.small("Só presença de atividade no último minuto, sem ler teclas nem salvar histórico.");
-        ui.label("O clima consulta o serviço de meteorologia. Não há progresso offline.");
+        ui.small("Só presença de atividade no último minuto; sem ler teclas nem salvar histórico.");
+        game::hint(
+            ui,
+            "As leituras da máquina não saem do computador. Clima opcional consulta o serviço de meteorologia.",
+        );
         if let Some(notice) = self.notification_message() {
             ui.colored_label(game::RED, notice);
         }
 
-        if ui.button("Começar viagem").clicked() {
+        if ui
+            .horizontal(|ui| {
+                ui.add_space(((ui.available_width() - 280.0) / 2.0).max(0.0));
+                game::button(
+                    ui,
+                    "welcome-start",
+                    Icon::Play,
+                    "Começar viagem",
+                    true,
+                    egui::vec2(280.0, 56.0),
+                )
+            })
+            .inner
+            .clicked()
+        {
             match self.local_weather.set_location(self.weather_draft.clone()) {
                 Ok(()) => {
                     self.config.weather_location = self.weather_draft.clone();
@@ -2145,7 +2177,7 @@ impl CpuExpressApp {
                     "Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.",
                 );
             }
-            if ui.button("Restaurar posição e tamanho").clicked() {
+            if game::action(ui, "Restaurar posição e tamanho").clicked() {
                 self.slider_geometry = None;
                 self.config.taskbar_fit_height = true;
                 self.config.taskbar_offset = 0;
@@ -2187,8 +2219,7 @@ impl CpuExpressApp {
                 self.sync_clock();
             }
             ui.horizontal(|ui| {
-                if ui
-                    .button("Minimizar")
+                if game::action(ui, "Minimizar")
                     .on_hover_text("Restaurar pela barra de tarefas")
                     .clicked()
                 {
@@ -2197,7 +2228,7 @@ impl CpuExpressApp {
                 if ui
                 .add_enabled(
                     self.tray_available(),
-                    egui::Button::new("Ocultar na bandeja"),
+                    game::ActionButton::new("Ocultar na bandeja"),
                 )
                 .on_hover_text(if self.tray_available() {
                     "Restaurar pelo ícone do CPU Express na área de notificação do Windows."
@@ -2285,9 +2316,8 @@ impl CpuExpressApp {
                         "Opções"
                     });
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        close = ui.button("Fechar · Esc").clicked();
-                        if ui
-                            .button("Sair")
+                        close = game::action(ui, "Fechar · Esc").clicked();
+                        if game::action(ui, "Sair")
                             .on_hover_text("Encerrar o aplicativo (Ctrl+Q)")
                             .clicked()
                         {

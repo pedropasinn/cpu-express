@@ -64,8 +64,11 @@ impl CpuExpressApp {
                 }));
             });
         ui.horizontal(|ui| {
-            ui.strong("Ordens do dia");
-            ui.small("Sem prazo · uma nova a cada 10 min ativos, na chegada");
+            game::heading(ui, "Ordens do dia");
+            game::hint(
+                ui,
+                "Sem prazo. Uma nova a cada 10 minutos ativos, na chegada.",
+            );
         });
         let range = pager(
             ui,
@@ -91,16 +94,20 @@ impl CpuExpressApp {
                         game::progress(ui, ("order", order.id), n as f32/order.goal as f32, &format!("{n}/{}", order.goal), game::GREEN);
                         ui.label(format!("+{} réis", order.reward));
                         ui.horizontal(|ui| {
-                            if ui.add_enabled(order.claimable(e,j,s), egui::Button::new("Recolher")).clicked() { action = Some(EconomyAction::ClaimOrder { order_id: order.id }); }
+                            if ui.add_enabled(order.claimable(e,j,s), game::ActionButton::new("Recolher").selected(true).min_size(egui::vec2(150.0,40.0))).clicked() { action = Some(EconomyAction::ClaimOrder { order_id: order.id }); }
                             let can_swap = self.world.station_wait() > 0.0 && j.active_seconds - e.last_order_active_seconds.max(e.last_order_swap_active_seconds) >= 600.0;
-                            if ui.add_enabled(can_swap, egui::Button::new("Trocar")).on_hover_text("Troca gratuita na parada, após 10 min ativos da última ordem ou troca").clicked() { action = Some(EconomyAction::SwapOrder { order_id: order.id }); }
+                            if ui.add_enabled(can_swap, game::ActionButton::new(">").min_size(egui::vec2(40.0,40.0))).on_hover_text("Troca gratuita na parada, após 10 min ativos da última ordem ou troca").clicked() { action = Some(EconomyAction::SwapOrder { order_id: order.id }); }
                         });
-                    } else { ui.label("Aguardando ordem"); ui.small("Continue a viagem. A próxima chegada elegível traz uma tarefa possível para seu trem."); }
+                    } else {
+                        let (r,_)=ui.allocate_exact_size(egui::Vec2::splat(48.0),egui::Sense::hover());game::icon(ui.painter(),r,Icon::Clock,game::INK);
+                        game::pixel_label(ui,"Em breve",2.0,game::INK);
+                        ui.small("A viagem traz novas ordens.");
+                    }
                 });
             }
         });
         ui.horizontal(|ui| {
-            ui.strong("Marcos");
+            game::heading(ui, "Marcos");
             pager(ui, "missions", &mut self.menu.missions, missions.len(), 3);
         });
         for mission in missions.iter().skip(self.menu.missions * 3).take(3) {
@@ -115,11 +122,13 @@ impl CpuExpressApp {
                         game::BLUE,
                     );
                 });
-                ui.label(format!("+{} réis", mission.reward));
+                ui.allocate_ui(egui::vec2(100.0, 40.0), |ui| {
+                    game::pixel_label(ui, &format!("+{}", mission.reward), 2.0, game::GOLD);
+                });
                 if ui
                     .add_enabled(
                         mission.claimable(),
-                        egui::Button::new(if mission.paid {
+                        game::ActionButton::new(if mission.paid {
                             "Recolhido"
                         } else {
                             "Recolher"

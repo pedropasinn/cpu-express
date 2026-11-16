@@ -57,6 +57,34 @@ fn key_events(key: Key) -> Vec<Event> {
         .collect()
 }
 
+#[test]
+fn fractional_pixel_labels_reserve_their_painted_width_at_each_scale() {
+    for scale in [1.0, 1.25, 1.5, 2.0] {
+        let ctx = egui::Context::default();
+        ctx.set_pixels_per_point(scale);
+        let mut bounds = Rect::NOTHING;
+        let output = frame(&ctx, 0.0, vec![], |ui| {
+            bounds = ui_game::pixel_label(ui, "Cargas e oficina", 1.5, ui_game::GREEN).rect;
+        });
+        let mut painted = 0;
+        for shape in output.shapes {
+            if let Shape::Mesh(mesh) = shape.shape {
+                for vertex in &mesh.vertices {
+                    if vertex.color == ui_game::GREEN {
+                        painted += 1;
+                        assert!(
+                            bounds.contains(vertex.pos),
+                            "escala {scale}: {:?} fora de {bounds:?}",
+                            vertex.pos
+                        );
+                    }
+                }
+            }
+        }
+        assert!(painted > 0);
+    }
+}
+
 fn button_frame(
     ctx: &egui::Context,
     time: f64,

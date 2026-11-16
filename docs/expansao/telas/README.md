@@ -1,4 +1,10 @@
-# Telas da E5
+# Telas — revisão E7 e histórico
+
+**Entrega atual:** [galeria final E7](e7-final/README.md), com todas as telas reexportadas da fonte corrigida. [Galeria anterior às alterações](e7-antes/README.md) registra a primeira ação da E7. Os arquivos soltos abaixo são históricos, de E5/E6/E2/E3; não representam esta revisão.
+
+Comece pela [Cabine com PAUSAR](e7-final/floating_e5_trem_0.png), [Cabine com réis](e7-final/floating_e6_moedas_0.png), [remessas](e7-final/floating_e6_loja_0.png), [revelação](e7-final/floating_e6_revelacao_0.png), [oficina](e7-final/floating_e5_vagoes_0.png) e [Sobre](e7-final/floating_e5_sobre_0.png). São renderizações headless do egui, não capturas do compositor Windows. [Correções e pendências](../CORRECOES_E7.md) · [Conferência presencial](../CONFERIR_NA_TELA.md).
+
+## Histórico — Telas da E5
 
 45 renderizações headless do egui, em 704 × 676, produzidas pelo exportador `export_expansion_menus` da fonte desta entrega. Não são capturas de uma janela no compositor Windows. Perfil de demonstração; nenhum acesso ao perfil real.
 

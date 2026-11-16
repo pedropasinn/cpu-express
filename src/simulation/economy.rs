@@ -398,17 +398,17 @@ impl EconomyState {
         let balance = self
             .balance
             .checked_sub(debited)
-            .ok_or("Moedas insuficientes.")?
+            .ok_or("Réis insuficientes.")?
             .checked_add(credited)
-            .ok_or("Limite de moedas atingido.")?;
+            .ok_or("Limite de réis atingido.")?;
         let earned = self
             .total_earned
             .checked_add(credited)
-            .ok_or("Limite de moedas atingido.")?;
+            .ok_or("Limite de réis atingido.")?;
         let spent = self
             .total_spent
             .checked_add(debited)
-            .ok_or("Limite de moedas atingido.")?;
+            .ok_or("Limite de réis atingido.")?;
         let next = self
             .next_transaction_id
             .checked_add(1)
@@ -551,7 +551,7 @@ impl EconomyState {
                 }
                 let paid = if free { 0 } else { definition.price };
                 if self.balance < paid {
-                    return Err("Moedas insuficientes.".into());
+                    return Err("Réis insuficientes.".into());
                 }
                 let misses = self.crate_misses.get(&kind).copied().unwrap_or(0);
                 let weights = definition.effective_weights(misses);

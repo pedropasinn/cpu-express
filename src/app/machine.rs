@@ -70,13 +70,13 @@ impl CpuExpressApp {
     pub(super) fn machine_page(&mut self, ui: &mut egui::Ui) {
         ui.spacing_mut().item_spacing.y = 3.0;
         let e = self.machine_effects;
-        ui.heading("Sala de máquinas");
+        game::heading(ui, "Sala de máquinas");
         ui.horizontal(|ui| {
             let (r, _) = ui.allocate_exact_size(egui::vec2(32.0, 32.0), egui::Sense::hover());
             game::sprite(ui.painter(), r, game::Sprite::Moeda);
             ui.colored_label(
                 game::GREEN,
-                egui::RichText::new(format!("+{:.0}% de moedas", (e.multiplier() - 1.0) * 100.0))
+                egui::RichText::new(format!("+{:.0}% de réis", (e.multiplier() - 1.0) * 100.0))
                     .size(23.0),
             );
             ui.small("Teto +30% · chegadas e entregas");
@@ -94,7 +94,7 @@ impl CpuExpressApp {
                 game::Sprite::Cpu,
                 "Caldeira · CPU",
                 format!(
-                    "+{:.0}% moedas · satura em 15% de CPU",
+                    "+{:.0}% réis · satura em 15% de CPU",
                     e.coin_parts[0] * 100.0
                 ),
             ),
@@ -107,7 +107,7 @@ impl CpuExpressApp {
                     "Marcha tranquila · só visual".into()
                 } else {
                     format!(
-                        "+{:.0}% moedas · 20 s ativos/min bastam",
+                        "+{:.0}% réis · 20 s ativos/min bastam",
                         e.coin_parts[1] * 100.0
                     )
                 },

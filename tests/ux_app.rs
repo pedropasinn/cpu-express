@@ -465,11 +465,12 @@ fn tab_starts_on_the_toolbar_and_reveals_scrolled_panel_controls() {
     let focused_notice = output.shapes.iter().any(|shape| {
         find_text_center(&shape.shape, "!").is_some_and(|position| focused.rect.contains(position))
     });
+    output.drop_without_applying_deltas();
     assert!(
         focused.rect.contains(pause_position) || focused_notice,
-        "First Tab must reach a visible header control, not the scenery"
+        "First Tab must reach a visible header control, not the scenery: focus {:?}, pause {pause_position:?}",
+        focused.rect
     );
-    output.drop_without_applying_deltas();
 
     harness
         .app

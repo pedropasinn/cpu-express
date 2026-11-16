@@ -2,7 +2,7 @@ use super::*;
 impl CpuExpressApp {
     pub(super) fn storage_controls(&mut self, ui: &mut egui::Ui) {
         ui.horizontal_wrapped(|ui| {
-            if ui.button("Exportar viagem…").clicked() {
+            if game::action(ui, "Exportar viagem…").clicked() {
                 let result = (|| {
                     if let Some(path) = platform::choose_journey_file(true)? {
                         crate::progress::save(&path, &self.world)?;
@@ -21,7 +21,7 @@ impl CpuExpressApp {
             if ui
                 .add_enabled(
                     self.progress_path.is_some(),
-                    egui::Button::new("Importar viagem…"),
+                    game::ActionButton::new("Importar viagem…"),
                 )
                 .on_hover_text(
                     "Substitui a viagem atual após validar o arquivo e guardar backup da anterior.",

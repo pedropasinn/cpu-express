@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+     Running tests\ux_visual.rs (target\debug\build\cpu-express/1f6df0baf1f37608\out\ux_visual-1f6df0baf1f37608.exe)
+
+running 7 tests
+test export_actual_egui_layouts_for_visual_review ... ok
+test export_economy_menus ... ok
+test export_expansion_menus ... ok
+test export_floating_panels ... ok
+test export_line_map ... ok
+test export_machine_menus ... ok
+test export_playable_lines ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 63.23s
+
+EXIT_CODE=0

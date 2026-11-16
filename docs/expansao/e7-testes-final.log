@@ -1,0 +1,897 @@
+   Compiling cpu-express v0.4.0-rc.3 (C:\Users\pedro\repo\Active\cpu-express\desenvolvimento\cpu-express-integracao)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 11s
+     Running unittests src\lib.rs (target\debug\build\cpu-express/86b055dbf46a83b1\out\cpu_express-86b055dbf46a83b1.exe)
+
+running 144 tests
+test app::branches::branch_map_tests::visit_keeps_train_at_destination_while_its_eta_counts_down ... ok
+test app::menus::tests::small_screen_keeps_aspect_ratio_and_never_enlarges ... ok
+test app::branches::branch_map_tests::phase_eta_and_tracks_follow_the_active_clock ... ok
+test app::scenery::tests::real_line_reverses_platforms_and_selects_adjacent_scenery_at_terminals ... ok
+test app::scenery::tests::route_context_tracks_segments_and_clears_for_excursions ... ok
+test app::machine::tests::adapter_applies_only_fresh_bonus_and_clears_opted_out_input ... ok
+test app::shop::tests::arrival_notice_uses_committed_income_and_visits_do_not_regrant_rewards ... ok
+test app::menus::tests::zoom_reapplies_native_constraints_after_pixels_per_point_changes ... ok
+test app::line_map::tests::line_actions_save_immediately_and_keep_state_after_failure ... ok
+test app::menus::tests::cabine_identifica_simulacao_e_revalida_cpu_em_cache ... ok
+test app::line_map::tests::atlas_keyboard_moves_one_stop_and_never_mutates_journey ... ok
+test app::machine::tests::six_gauges_and_dock_fit_every_machine_state ... ok
+test app::menus::tests::reward_button_commits_once_and_failed_write_keeps_wallet ... ok
+test app::shop::tests::guarantee_screen_uses_normalized_actual_weights_and_no_imaginary_epic ... ok
+test app::storage::tests::import_preserves_live_session_even_when_disk_save_is_corrupt ... ok
+test app::tests::demo_worker_never_invokes_real_provider_factory ... ok
+test app::shop::tests::duplicate_refund_and_museum_button_do_not_repeat_on_repaint ... ok
+test app::tests::acolhida_e_recuperacao_nao_dependem_de_config_valida ... ok
+test app::shop::tests::direct_purchase_and_equipment_buttons_keep_owned_model_after_reopening ... ok
+test app::tests::failed_checkpoint_is_reported_once_and_retried_only_on_the_next_interval ... ok
+test app::tests::diagnostic_record_identifies_version_mode_freshness_pause_and_journey ... ok
+test app::tests::gesto_e_slider_so_gravam_geometria_confirmada ... ok
+test app::tests::partial_cpu_remains_usable_when_only_memory_failed ... ok
+test app::tests::memory_remains_usable_during_cpu_warm_up_but_not_after_expiry ... ok
+test audio::tests::construction_and_silent_calls_never_start_a_worker ... ok
+test audio::tests::cues_are_original_distinct_and_repeatable ... ok
+test audio::tests::expired_and_silent_requests_do_not_reach_playback ... ok
+test app::tests::preference_failure_retains_dirty_state_and_recovers_without_another_edit ... ok
+test audio::tests::pcm_headers_duration_and_headroom_are_valid_for_every_cue ... ok
+test app::tests::acolhida_confirma_escolhas_e_nao_reaparece_no_perfil_salvo ... ok
+test audio::tests::shutdown_does_not_join_playback_and_discards_waiting_cue ... ok
+test audio::tests::queue_retains_only_one_waiting_request ... ok
+test audio::tests::volume_scales_pcm_without_touching_header_or_clipping ... ok
+test config::strip_tests::preferencias_antigas_recebem_defaults_da_faixa ... ok
+test diagnostics::tests::absent_or_invalid_memory_is_null_in_all_three_fields ... ok
+test diagnostics::tests::generic_records_are_unchanged_and_missing_freshness_is_not_invented ... ok
+test diagnostics::tests::invalid_cpu_is_null_without_erasing_valid_ram_or_simulation_input ... ok
+test diagnostics::tests::manual_and_fallback_inputs_remain_explicit_even_if_real_metrics_are_stale ... ok
+test diagnostics::tests::measured_zero_memory_usage_is_preserved_with_a_valid_total ... ok
+test diagnostics::tests::stale_observations_do_not_become_current_real_metrics ... ok
+test diagnostics::tests::valid_memory_and_unrelated_fields_are_preserved ... ok
+test diagnostics::tests::jsonl_is_normalized_flushed_and_bounded_without_a_large_fixture ... ok
+test frame_pacing::tests::early_frame_consumes_one_deadline ... ok
+test app::tests::returning_to_strip_clips_retained_floating_ui_allocation ... ok
+test frame_pacing::tests::long_stalls_skip_frames_without_scheduling_a_catch_up_burst ... ok
+test frame_pacing::tests::repeated_visual_edits_do_not_postpone_the_scheduled_frame ... ok
+test frame_timings::tests::bounded_window_evicts_ancient_spike ... ok
+test frame_pacing::tests::irregular_delivery_preserves_the_original_cadence ... ok
+test local_weather::tests::coordinates_only_enter_fixed_endpoint_as_numeric_query_values ... ok
+test local_weather::tests::disabled_never_starts_network ... ok
+test local_weather::tests::completed_worker_requests_redraw_and_recovers_from_error ... ok
+test local_weather::tests::invalid_day_and_temperature_are_rejected ... ok
+test local_weather::tests::lighting_redraw_uses_wall_clock_minute_without_mutating_observation ... ok
+test local_weather::tests::location_change_drains_old_worker_without_accepting_its_result ... ok
+test local_weather::tests::location_switch_preserves_global_request_cooldown ... ok
+test local_weather::tests::maps_all_supported_wmo_groups ... ok
+test local_weather::tests::offline_keeps_last_good_and_throttles_retry ... ok
+test local_weather::tests::parses_local_time_and_night ... ok
+test local_weather::tests::optional_fields_reject_invalid_values_but_allow_polar_missing_events ... ok
+test local_weather::tests::solar_and_intensity_fields_parse_with_explicit_units_and_legacy_fallback ... ok
+test local_weather::tests::rejects_missing_corrupt_stale_future_and_oversized ... ok
+test local_weather::tests::solar_phase_matches_ampere_anchors_and_is_continuous_across_dawn_and_midnight ... ok
+test metrics::sysinfo_provider::tests::both_counter_errors_are_explained ... ok
+test local_weather::tests::accepted_result_persists_and_cache_failure_retries_without_network ... ok
+test metrics::sysinfo_provider::tests::fast_repeated_call_keeps_value_status_and_original_timestamp ... ok
+test metrics::sysinfo_provider::tests::first_refresh_warms_up_without_inventing_cpu ... ok
+test metrics::sysinfo_provider::tests::invalid_cpu_is_unavailable_and_preserves_valid_ram ... ok
+test metrics::sysinfo_provider::tests::invalid_memory_uses_absence_sentinels_and_preserves_valid_cpu ... ok
+test local_weather::tests::old_city_completion_cannot_replace_new_city_cache ... ok
+test metrics::sysinfo_provider::tests::legitimate_zero_cpu_is_ready_after_a_baseline ... ok
+test metrics::sysinfo_provider::tests::missing_cpu_counters_cannot_be_reported_as_zero_usage ... ok
+test metrics::tests::age_is_not_reset_when_a_delayed_sample_is_consumed ... ok
+test app::shop::tests::store_button_commits_before_reveal_and_recovers_exact_result ... ok
+test metrics::tests::manual_machine_signals_validate_independently ... ok
+test metrics::tests::provider_minimum_and_busy_loop_floor_are_respected ... ok
+test metrics::tests::stop_disconnection_is_an_exit_signal ... ok
+test platform::journey_dialog::native::tests::malformed_dialog_results_are_not_paths ... ok
+test platform::journey_dialog::native::tests::selected_path_is_lossless_and_stops_at_terminator ... ok
+test platform::strip::tests::altura_livre_e_dpi ... ok
+test platform::strip::tests::barra_menor_que_minimo_usa_toda_a_largura_sem_panico ... ok
+test metrics::tests::ui_poll_returns_while_the_slot_is_locked ... ok
+test platform::strip::tests::clique_e_arraste_usam_limiar_fisico ... ok
+test platform::strip::tests::limites_e_borda_esquerda_preservam_direita ... ok
+test platform::tray::tests::keyboard_menu_sentinel_remains_signed ... ok
+test platform::tray::tests::version_four_callbacks_decode_icon_and_event_separately ... ok
+test platform::tray::tests::tray_menu_coordinates_preserve_negative_monitor_origins ... ok
+test metrics::tests::a_poisoned_slot_is_recoverable_without_losing_the_owned_sample ... ok
+test rendering::engines::tests::freight_steam_has_four_coupled_axles_and_the_original_chimney_socket ... ok
+test rendering::engines::tests::second_wave_steam_keeps_emitter_and_has_phase_locked_cranks ... ok
+test rendering::engines::tests::engine_crop_preserves_all_wheels_and_coupling_sockets ... ok
+test rendering::engines::tests::engines_have_distinct_silhouettes_not_just_different_colors ... ok
+test rendering::landscape_life::tests::cancela_fica_fechada_perto_do_trem_e_reducao_preserva_pose ... ok
+test rendering::landscape_life::tests::luzes_seguem_iluminacao_mesmo_com_movimento_reduzido ... ok
+test rendering::landscape_life::tests::animacoes_tem_quadros_distintos_e_reducao_congela_todas_as_etiquetas ... ok
+test rendering::landscape_life::tests::componentes_tem_movimento_proprio_limitado_e_estatico_em_low ... ok
+test app::tests::workshop_equips_chosen_slot_and_locked_paint_stays_locked ... ok
+test rendering::landmarks::tests::periodos_e_recorte_independem_da_largura ... ok
+test rendering::passengers::tests::every_kind_has_a_distinct_original_silhouette ... ok
+test rendering::passengers::tests::real_counts_endpoints_saturation_and_static_positions_are_preserved ... ok
+test rendering::passengers::tests::seed_arrival_and_station_choose_cast_without_render_history_or_extra_children ... ok
+test rendering::passengers::tests::platform_clips_at_all_supported_widths_and_never_draws_under_rails ... ok
+test rendering::rolling_stock::tests::carriage_styles_are_distinct_at_native_resolution ... ok
+test rendering::rolling_stock::tests::engine_details_preserve_chimney_wheels_and_crank ... ok
+test rendering::rolling_stock::tests::every_car_has_two_wheels_on_the_baseline_rail ... ok
+test app::menus::tests::exceptional_pages_keep_actions_inside_the_window ... ok
+test rendering::rolling_stock::tests::passenger_without_new_effects_matches_original_sprite ... ok
+test rendering::rolling_stock::tests::new_cars_have_distinct_opaque_silhouettes_and_keep_couplers ... ok
+test rendering::passengers::tests::clothes_follow_palette_rain_and_cold_and_stay_inside_authored_bounds ... ok
+test rendering::scene::width_tests::largura_nao_muda_periodo_do_parallax ... ok
+test rendering::scene::width_tests::framebuffer_320_regression ... ok
+test app::menus::tests::real_line_pages_fit_with_many_destinations_and_correct_route ... ok
+test rendering::settlements::tests::decoracao_congela_sem_perder_resposta_ao_clima ... ok
+test rendering::stations::tests::active_platform_animation_freezes_during_pause ... ok
+test app::branches::branch_map_tests::compact_map_renders_both_branches_and_all_phases_without_overflow ... ok
+test rendering::stations::tests::all_station_identities_and_positions_survive_arrival_and_departure ... ok
+test rendering::settlements::tests::camadas_preservam_wrap_recorte_e_trilhos ... ok
+test rendering::stations::tests::culling_only_removes_fully_offscreen_art ... ok
+test rendering::scene::width_tests::pontes_e_tuneis_preservam_todos_os_pixels_do_trem_e_trilhos ... ok
+test simulation::economy::tests::small_deliveries_keep_both_division_remainders_and_contract_minimum ... ok
+test rendering::stations::tests::explicit_zero_service_never_invents_passengers_and_counts_are_bounded ... ok
+test rendering::stations::tests::excursions_move_off_aurora_and_keep_landmarks_across_phase_boundaries ... ok
+test simulation::economy_goals::tests::all_eighteen_missions_pay_once_and_total_405 ... ok
+test simulation::economy_goals::tests::order_baselines_swap_cooldowns_and_invalid_definitions ... ok
+test simulation::economy_goals::tests::cargo_thresholds_do_not_use_aggregate_or_other_species ... ok
+test simulation::machine::tests::overload_cannot_store_extra_bonus_in_the_average ... ok
+test simulation::machine::tests::partial_invalid_and_power_never_reduce_base ... ok
+test simulation::machine::tests::saturation_replay_expiry_and_opt_out ... ok
+test simulation::machine::tests::telegram_uses_active_time_and_no_backlog ... ok
+test simulation::route::tests::circuit_runs_on_catalogue_content_and_the_fallback_is_identical ... ok
+test simulation::route::tests::seeded_lengths_keep_the_rc7_values ... ok
+test simulation::service::content_tests::mixed_stock_still_offers_legacy_and_each_equipped_specialty ... ok
+test ui_stock::tests::coach_crop_keeps_complete_wheels_for_every_style ... ok
+test ui_stock::tests::engine_crop_contains_actual_livery_pixels_and_chimney ... ok
+test ui_stock::tests::gallery_uploads_all_distinct_textures_and_reuses_handles ... ok
+test rendering::stations::tests::authored_styles_keep_bounds_and_meet_at_the_platform_in_every_quality ... ok
+test rendering::scene::width_tests::largura_variavel_cobre_superficie_e_reutiliza_buffers ... ok
+test simulation::service::content_tests::old_stock_keeps_offer_kind_units_destination_and_reward ... ok
+test rendering::passengers::tests::every_action_animates_and_reduced_motion_freezes_all_types_and_weather ... ok
+test app::shop::tests::every_store_and_collection_page_fits_and_keeps_exit_visible ... ok
+test rendering::engines::tests::second_wave_sprites_clip_exactly_at_both_edges_for_all_widths ... ok
+test rendering::landscape_life::tests::vida_preserva_wrap_e_recorte_em_todas_as_fases ... ok
+test app::menus::tests::all_central_pages_fit_without_scrolling ... ok
+test rendering::rolling_stock::tests::all_coaches_clip_exactly_at_both_edges_in_both_detail_modes ... ok
+test app::shop::tests::ganhar_reis_comprar_caixa_equipar_salvar_e_reabrir_preserva_tudo ... ok
+
+test result: ok. 144 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.15s
+
+     Running unittests src\main.rs (target\debug\build\cpu-express/c64febb274c636e7\out\cpu_express-c64febb274c636e7.exe)
+
+running 12 tests
+test tests::normal_launch_keeps_real_cpu_and_demo_is_explicit ... ok
+test tests::help_short_circuits_before_starting_the_application ... ok
+test tests::explicit_demo_cpu_is_independent_of_flag_order ... ok
+test tests::numeric_boundaries_are_safe_and_invalid_cpu_is_rejected ... ok
+test tests::original_flags_can_be_combined_with_demo ... ok
+test tests::original_smoke_alias_and_last_value_semantics_are_preserved ... ok
+test tests::missing_values_and_unknown_flags_report_portuguese_errors ... ok
+test tests::matching_new_destinations_do_not_create_any_file ... ok
+test tests::diagnostics_rejects_relative_absolute_and_dot_aliases ... ok
+test tests::windows_case_alias_does_not_truncate_configuration ... ok
+test tests::diagnostic_open_cannot_truncate_the_configuration ... ok
+test tests::a_distinct_diagnostic_file_preserves_config_and_records_normally ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\catalog.rs (target\debug\build\cpu-express/8c99a75802fa486a\out\catalog-8c99a75802fa486a.exe)
+
+running 14 tests
+test aurora_line_mirrors_the_running_route_for_any_seed ... ok
+test every_identifier_already_stored_in_a_save_resolves_in_the_catalogue ... ok
+test paranagua_line_matches_the_collected_sources ... ok
+test additional_cargo_carriers_are_validated_and_old_core_defaults_stay_valid ... ok
+test rewards_liveries_and_locomotives_mirror_the_game ... ok
+test builtin_catalogue_is_valid_and_loads_identically_every_time ... ok
+test vitoria_minas_draft_keeps_unmeasured_stretches_open ... ok
+test renamed_retired_and_unknown_identifiers_have_distinct_outcomes ... ok
+test real_line_is_playable_with_preserved_editorial_notes ... ok
+test real_line_rules_cover_distances_sources_and_licence ... ok
+test invalid_line_stays_out_of_the_session_and_the_rest_still_loads ... ok
+test station_architecture_is_optional_validated_and_explicitly_fictional ... ok
+test invalid_core_is_refused_with_the_offending_identifier ... ok
+test wagons_and_cargo_mirror_the_service_rules ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\config.rs (target\debug\build\cpu-express/0bc1019c1fa221ff\out\config-0bc1019c1fa221ff.exe)
+
+running 9 tests
+test missing_or_unspecified_config_uses_defaults_without_writing ... ok
+test numeric_values_are_normalized_without_implicitly_rewriting_the_file ... ok
+test partial_config_uses_defaults_for_missing_fields ... ok
+test failed_final_rename_cleans_up_only_its_own_temporary_file ... ok
+test window_layout_defaults_roundtrips_and_clamps_untrusted_geometry ... ok
+test non_directory_parent_fails_gracefully_without_modifying_existing_data ... ok
+test save_normalizes_programmatic_invalid_floats_before_json_encoding ... ok
+test malformed_config_is_preserved_and_reports_a_warning ... ok
+test round_trip_creates_parents_and_replaces_the_previous_complete_file ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\content_liveries.rs (target\debug\build\cpu-express/75f8ef574c37849f\out\content_liveries-75f8ef574c37849f.exe)
+
+running 3 tests
+test stable_paint_ids_and_arrival_thresholds_are_additive ... ok
+test advanced_old_v4_keeps_ownership_until_next_arrival_then_grants_once ... ok
+test new_profiles_grant_only_original_paints_at_their_thresholds ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\content_missions.rs (target\debug\build\cpu-express/2bc5a5f91e87cb7d\out\content_missions-2bc5a5f91e87cb7d.exe)
+
+running 4 tests
+test discovery_is_distinct_and_collection_does_not_count_equipped_stock ... ok
+test every_mission_has_unique_id_and_correct_durable_threshold ... ok
+test charter_preview_accounts_for_occupied_seats_and_specialty_without_mutating_service ... ok
+test milestones_survive_v4_roundtrip_without_replaying_transactions ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\content_stock.rs (target\debug\build\cpu-express/7bd6e80f4cff74ec\out\content_stock-7bd6e80f4cff74ec.exe)
+
+running 6 tests
+test each_second_wave_wagon_has_an_exclusive_role_without_replacing_old_stock ... ok
+test all_stock_has_a_stable_identity_and_bidirectional_visual_adapter ... ok
+test arrival_unlocks_are_enforced_at_the_domain_boundary ... ok
+test specialist_manual_acceptance_and_return_keep_cargo_and_do_not_award_delivery ... ok
+test specialized_cargo_loads_delivers_and_survives_v4_restart ... ok
+test every_new_combination_is_deterministic_at_native_resolution ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests\economy.rs (target\debug\build\cpu-express/71713dc78fbba82f\out\economy-71713dc78fbba82f.exe)
+
+running 12 tests
+test general_pool_is_explicit_complete_and_has_no_empty_weighted_band ... ok
+test free_duplicate_has_no_refund_and_welcome_cannot_repeat ... ok
+test new_profile_owns_models_and_only_small_milestones_grant_more ... ok
+test machine_bonus_is_bounded_fractional_and_not_saved_as_machine_history ... ok
+test arrival_income_keeps_remainders_and_does_not_pay_cargo_twice ... ok
+test direct_purchase_equips_multiple_slots_and_survives_restart ... ok
+test bounded_log_retains_monotonic_ids_and_balances ... ok
+test purchase_is_saved_before_reveal_and_reopening_never_pays_again ... ok
+test write_failures_rollback_wallet_inventory_rng_pity_and_reveal ... ok
+test e1b_reserved_state_roundtrips_and_failed_claim_does_not_mark_paid ... ok
+test arrival_failure_rolls_back_the_entire_domain_before_notification ... ok
+test guarantee_and_novelty_are_persistent_and_deterministic ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+     Running tests\economy_e1b.rs (target\debug\build\cpu-express/0dcff092b9d9c196\out\economy_e1b-0dcff092b9d9c196.exe)
+
+running 7 tests
+test owned_specialist_must_fit_occupied_composition_to_enable_order ... ok
+test failed_legacy_write_keeps_loaded_journey_and_pending_claim ... ok
+test orders_use_active_time_baselines_slots_and_single_payment_after_restart ... ok
+test mission_claim_is_atomic_single_and_durable ... ok
+test museum_requires_full_collection_and_persists_monotonic_numbers_atomically ... ok
+test legacy_missions_settle_on_load_with_exact_backup_and_notice_once ... ok
+test all_five_pools_have_explicit_ids_valid_bands_and_independent_guarantees ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s
+
+     Running tests\economy_fixtures.rs (target\debug\build\cpu-express/8b8d43602aed2f3d\out\economy_fixtures-8b8d43602aed2f3d.exe)
+
+running 5 tests
+test v4_backup_conflict_and_future_save_never_destroy_originals ... ok
+test v5_fixtures_roundtrip_every_reserved_field_and_pending_reveal ... ok
+test recovery_of_pending_purchase_keeps_result_and_does_not_repeat_refund ... ok
+test missing_or_inconsistent_v5_fields_are_not_repaired_or_overwritten ... ok
+test all_legacy_versions_keep_rights_and_exact_backups_without_retroactive_cargo ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests\expedition.rs (target\debug\build\cpu-express/8f9301b51408228a\out\expedition-8f9301b51408228a.exe)
+
+running 6 tests
+test invalid_or_future_checkpoints_are_rejected ... ok
+test stop_freezes_wheels_and_pause_freezes_service ... ok
+test only_one_writer_can_open_a_profile_and_release_allows_reopening ... ok
+test orphan_temporary_is_preserved_and_repeated_checkpoints_replace_valid_save ... ok
+test checkpoint_restores_route_rewards_and_stop_without_replaying_events ... ok
+test timetable_and_rewards_do_not_depend_on_cpu_or_fps ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests\itinerary.rs (target\debug\build\cpu-express/fa2e9d16c450df66\out\itinerary-fa2e9d16c450df66.exe)
+
+running 4 tests
+test shuttle_runs_end_to_end_and_returns_over_the_same_segments ... ok
+test circuit_itinerary_agrees_with_the_running_engine ... ok
+test catalogue_circuit_uses_base_lengths_and_refuses_drafts ... ok
+test position_is_consistent_for_any_distance_on_both_layouts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\journey_invariants.rs (target\debug\build\cpu-express/30b811ad8aa12045\out\journey_invariants-30b811ad8aa12045.exe)
+
+running 16 tests
+test invalid_distance_discards_the_whole_step_including_active_time ... ok
+test event_queue_keeps_only_the_newest_events_without_losing_achievements ... ok
+test active_time_and_distance_are_distinct_and_zero_motion_has_no_transition ... ok
+test crossing_a_station_with_remaining_distance_does_not_force_a_stop ... ok
+test exact_station_boundary_arrives_once_and_waits_for_motion_to_depart ... ok
+test invalid_or_suspended_adapter_step_leaves_train_state_untouched ... ok
+test completing_a_circuit_discovers_every_station_without_resetting_distance ... ok
+test consuming_events_cannot_replay_or_erase_an_achievement ... ok
+test boundary_roundoff_cannot_place_departure_before_the_preceding_arrival ... ok
+test journey_pause_is_reversible_and_does_not_create_events ... ok
+test paused_adapter_freezes_train_journey_and_scenery_together ... ok
+test rejected_elapsed_time_never_becomes_offline_travel ... ok
+test identical_seed_and_inputs_reproduce_snapshots_and_events ... ok
+test world_adapter_uses_the_existing_analytical_train_integral ... ok
+test displacement_bound_accepts_legitimate_roundoff_but_rejects_excess ... ok
+test frame_rate_preserves_travel_station_sequence_and_train_motion ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests\journey_rendering.rs (target\debug\build\cpu-express/92345674a8cbc53b\out\journey_rendering-92345674a8cbc53b.exe)
+
+running 4 tests
+test invalid_external_snapshot_progress_cannot_poison_visual_blending ... ok
+test station_circuit_controls_all_four_visual_biomes_for_every_seed ... ok
+test paused_journey_has_a_stable_visual_context_and_rendering_is_read_only ... ok
+test station_crossings_keep_scenery_continuous_and_do_not_reset_parallax ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\journey_route.rs (target\debug\build\cpu-express/5f4283297592b288\out\journey_route-5f4283297592b288.exe)
+
+running 5 tests
+test every_seed_builds_one_connected_four_station_circuit ... ok
+test seed_is_repeatable_and_changes_lengths_without_changing_station_identity ... ok
+test station_names_are_stable_display_labels ... ok
+test published_seed_fixtures_keep_the_route_reproducible_across_releases ... ok
+test legs_are_distinct_and_expose_four_theme_hints_without_visuals ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\line_session.rs (target\debug\build\cpu-express/1f4c864d6e92f1a6\out\line_session-1f4c864d6e92f1a6.exe)
+
+running 7 tests
+test generic_domain_handles_twenty_nine_stops_and_rejects_bad_restoration_atomically ... ok
+test departures_require_empty_services_and_the_right_platform ... ok
+test fixture_uses_stable_qualified_ids_and_v5_line_progress ... ok
+test pause_invalid_steps_and_manual_return_keep_the_same_active_clock ... ok
+test generic_clock_and_service_transactions_match_aurora ... ok
+test fourteen_stations_both_directions_deliver_and_restore_without_replay ... ok
+test frame_partition_does_not_skip_stops_or_change_services ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests\local_weather_cache.rs (target\debug\build\cpu-express/e444da79c0c01b8f\out\local_weather_cache-e444da79c0c01b8f.exe)
+
+running 6 tests
+test local_weather_location_validation_and_serde_agree ... ok
+test local_weather_failed_write_recovers_and_invalid_snapshot_preserves_cache ... ok
+test local_weather_restart_keeps_old_observation_and_replaces_valid_cache ... ok
+test local_weather_old_cache_defaults_and_new_solar_fields_round_trip ... ok
+test local_weather_cache_is_bound_to_city_and_coordinates ... ok
+test local_weather_corrupt_future_and_oversized_cache_are_never_overwritten ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests\machine_integration.rs (target\debug\build\cpu-express/73f217dc19bc3840\out\machine_integration-73f217dc19bc3840.exe)
+
+running 2 tests
+test yard_effects_are_optional_and_do_not_mutate_the_world ... ok
+test machine_preserves_services_timetable_and_adds_only_one_fourth_order ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests\map_layout.rs (target\debug\build\cpu-express/e2e5c316e2229209\out\map_layout-e2e5c316e2229209.exe)
+
+running 4 tests
+test missing_altitudes_are_gaps_and_retired_stations_keep_catalog_indices ... ok
+test seeded_circuit_closes_and_mismatched_lines_are_refused ... ok
+test fourteen_stations_and_train_follow_both_directions_and_endpoint_dwell ... ok
+test twenty_nine_stations_fit_five_rows_without_overlapping_markers ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\metrics.rs (target\debug\build\cpu-express/44cbef68dd1a28c4\out\metrics-44cbef68dd1a28c4.exe)
+
+running 5 tests
+test manual_provider_sanitizes_cpu_and_does_not_fabricate_memory ... ok
+test sleeping_worker_shuts_down_without_waiting_for_the_sample_interval ... ok
+test unavailable_provider_publishes_an_error_without_stopping_the_app ... ok
+test full_sample_queue_does_not_block_the_collector_or_shutdown ... ok
+test first_real_cpu_sample_and_immediate_repeat_are_not_reported_as_valid ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests\metrics_worker.rs (target\debug\build\cpu-express/659b1afa7241c402\out\metrics_worker-659b1afa7241c402.exe)
+
+running 14 tests
+test future_timestamps_are_not_mislabeled_current_by_saturating_age ... ok
+test freshness_boundary_and_age_are_deterministic ... ok
+test memory_accessor_does_not_turn_missing_or_inconsistent_counters_into_bytes ... ok
+test provider_minimum_interval_also_sets_the_freshness_window ... ok
+test idle_shutdown_wakes_a_long_timer_and_is_idempotent ... ok
+test a_panicking_provider_publishes_an_explicit_terminal_failure ... ok
+test warming_up_does_not_expose_an_uninitialized_cpu_counter ... ok
+test current_unavailable_snapshot_distinguishes_age_from_counter_status ... ok
+test ui_can_poll_while_the_next_system_query_is_still_blocked ... ok
+test finite_cpu_outliers_are_clamped_without_inventing_a_failure ... ok
+test temporary_unavailability_recovers_without_fabricating_zero_cpu_or_ram ... ok
+test stale_snapshot_clears_readings_and_preserves_the_original_measurement_time ... ok
+test unread_slot_yields_newest_completed_measurement_and_no_backlog ... ok
+test nonfinite_real_cpu_is_unavailable_and_valid_ram_survives ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests\platform_geometry.rs (target\debug\build\cpu-express/f6c12c655286adf9\out\platform_geometry-f6c12c655286adf9.exe)
+
+running 16 tests
+test display_change_fit_handles_extreme_origins_sizes_and_invalid_work_areas ... ok
+test display_change_fit_preserves_a_dragged_position_even_at_the_work_edge ... ok
+test four_edges_across_primary_left_above_and_right_monitors_at_four_dpis ... ok
+test inverted_or_empty_monitors_and_nonpositive_sizes_are_rejected ... ok
+test auto_hidden_taskbar_can_choose_each_edge_with_physical_inset ... ok
+test constraint_shrinks_to_new_monitor_and_preserves_relative_valid_axis ... ok
+test extreme_integer_coordinates_sizes_margins_and_dpi_remain_bounded ... ok
+test multiple_reservations_choose_largest_and_keep_stable_ties ... ok
+test explicit_edge_does_not_override_other_reserved_areas ... ok
+test work_area_intersection_is_explicit_and_never_fabricates_missing_space ... ok
+test panel_invalid_persistence_scale_and_transient_work_area_are_safe ... ok
+test constraints_preserve_user_drag_and_only_move_as_much_as_needed ... ok
+test persisted_bounds_reject_overflow_before_native_monitor_lookup ... ok
+test tiny_work_areas_shrink_each_axis_and_yield_margins ... ok
+test taskbar_small_width_extremes_and_negative_origins_are_safe ... ok
+test panel_recovery_handles_removed_monitor_and_scaled_negative_origin ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\platform_lifecycle.rs (target\debug\build\cpu-express/0acd0d920f64e702\out\platform_lifecycle-0acd0d920f64e702.exe)
+
+running 7 tests
+test losing_the_tray_recovers_only_hidden_windows ... ok
+test startup_invisibility_allows_first_paint_but_user_hiding_suspends ... ok
+test hiding_requires_a_working_recovery_path_in_every_live_state ... ok
+test visible_minimized_hidden_and_closed_are_distinct ... ok
+test closed_is_terminal_and_cannot_be_mistaken_for_hidden ... ok
+test closing_always_works_and_is_idempotent_even_without_a_tray ... ok
+test inspecting_a_failed_hide_does_not_commit_the_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\playable_lines.rs (target\debug\build\cpu-express/b561f7a9d7d1c69c\out\playable_lines-b561f7a9d7d1c69c.exe)
+
+running 6 tests
+test real_line_machine_bonus_changes_only_income_and_holding_terminal_freezes_clock ... ok
+test real_arrival_failure_rolls_back_wallet_service_and_train_and_pause_freezes_both_lines ... ok
+test full_real_round_trip_shared_income_discovery_and_unique_missions ... ok
+test v5_migration_has_exact_backup_and_v6_rejects_unknown_identity_without_overwrite ... ok
+test static_v6_fixture_reopens_in_motion_without_replaying_income ... ok
+test close_boarding_switch_save_reopen_return_preserves_lines_and_global_orders ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests\rendering_allocations.rs (target\debug\build\cpu-express/34ef403a307b3c6b\out\rendering_allocations-34ef403a307b3c6b.exe)
+
+running 4 tests
+test real_line_view_and_render_allocate_nothing_in_both_directions ... ok
+test sala_de_maquinas_medias_e_efeitos_nao_alocam ... ok
+test largura_estavel_nao_aloca_inclusive_transicoes_e_clima ... ok
+test render_and_mode_changes_make_no_heap_allocations_after_construction ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s
+
+     Running tests\rendering_branch.rs (target\debug\build\cpu-express/e8b20f7f488b73ee\out\rendering_branch-e8b20f7f488b73ee.exe)
+
+running 1 test
+test excursion_context_overrides_parked_route_then_restores_it_without_mutation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\rendering_contract.rs (target\debug\build\cpu-express/53b44650adb01a39\out\rendering_contract-53b44650adb01a39.exe)
+
+running 15 tests
+test legacy_ignores_new_options_and_recovers_after_theme_switch ... ok
+test frame_continuity_at_world_wrap_does_not_reset_parallax_offsets ... ok
+test atmosphere_is_optional_and_low_quality_skips_rain_and_cloud_passes ... ok
+test legacy_reproduces_original_frame_byte_for_byte ... ok
+test invalid_context_blends_are_normalized_and_clamped ... ok
+test invalid_simulation_inputs_and_extreme_finite_time_still_render ... ok
+test biome_frames_are_visibly_distinct_beyond_the_palette_api ... ok
+test local_night_does_not_depend_on_simulated_day_cycle ... ok
+test identical_state_produces_identical_frames_without_render_history ... ok
+test coach_variants_fit_inside_their_train_footprint ... ok
+test route_cycles_compatibly_with_world_and_has_no_stateful_reset ... ok
+test wheels_meet_the_same_rail_without_drawing_below_it ... ok
+test local_weather_has_distinct_frames_and_keeps_train_readable ... ok
+test transition_endpoints_reuse_the_same_scroll_and_train ... ok
+test buffer_shape_address_and_opacity_survive_all_modes ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests\rendering_engines.rs (target\debug\build\cpu-express/028e36f2ba7c8993\out\rendering_engines-028e36f2ba7c8993.exe)
+
+running 4 tests
+test engine_catalog_round_trips_with_steam_as_missing_field_default ... ok
+test nonsteam_engines_ignore_existing_simulation_smoke_in_both_themes ... ok
+test all_liveries_work_on_each_engine_without_changing_running_gear ... ok
+test paints_preserve_scene_and_are_deterministic_in_each_lighting_and_quality ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.67s
+
+     Running tests\rendering_life.rs (target\debug\build\cpu-express/e4128e88ce5eba54\out\rendering_life-e4128e88ce5eba54.exe)
+
+running 3 tests
+test pausa_e_suspensao_congelam_vida_sem_acumular_tempo ... ok
+test opcoes_nao_alteram_aurora_vazio_nem_legacy_e_reset_limpa_etiquetas ... ok
+test tempo_ativo_determinismo_reducao_e_low_no_renderer_real ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests\rendering_lighting.rs (target\debug\build\cpu-express/3ea421d798bf388b\out\rendering_lighting-3ea421d798bf388b.exe)
+
+running 2 tests
+test explicit_phase_overrides_day_flag_and_wraps_without_changing_world ... ok
+test dawn_noon_sunset_and_night_are_distinct_and_pause_is_stable ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\rendering_scenery.rs (target\debug\build\cpu-express/cf6e0e8be6efbc08\out\rendering_scenery-cf6e0e8be6efbc08.exe)
+
+running 5 tests
+test etiquetas_sao_conjunto_puro_sem_ordem_nem_duplicatas ... ok
+test tema_legado_ignora_etiquetas ... ok
+test transicao_de_etiquetas_funciona_no_mesmo_bioma ... ok
+test serra_com_mata_usa_terreno_verde_sem_recolorir_o_ceu_do_bioma ... ok
+test etiquetas_sao_distintas_deterministicas_e_reset_restaura_aurora ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests\rendering_settlements.rs (target\debug\build\cpu-express/3ac0b5062d2f7d3f\out\rendering_settlements-3ac0b5062d2f7d3f.exe)
+
+running 4 tests
+test aproximacao_respeita_os_extremos_habitados ... ok
+test catalogo_distribui_cidades_sem_urbanizar_a_serra ... ok
+test elementos_tem_silhuetas_proprias_e_luz_noturna ... ok
+test sementes_deterministicas_sem_historico_e_reducao_de_movimento ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\rendering_station_styles.rs (target\debug\build\cpu-express/b34b7f2bf764013a\out\rendering_station_styles-b34b7f2bf764013a.exe)
+
+running 1 test
+test styles_are_distinct_deterministic_and_opt_in_in_each_atmosphere ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests\rendering_weather_detail.rs (target\debug\build\cpu-express/2592a43dc12f98e6\out\rendering_weather_detail-2592a43dc12f98e6.exe)
+
+running 2 tests
+test detail_never_sets_weather_condition_and_paused_frames_remain_stable ... ok
+test optional_weather_detail_is_bounded_and_none_preserves_existing_frames ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\save_fixtures.rs (target\debug\build\cpu-express/7be442d0ba6f35b7\out\save_fixtures-7be442d0ba6f35b7.exe)
+
+running 5 tests
+test rc7_fixtures_load_without_invented_service_and_without_touching_the_file ... ok
+test migrated_stop_finishes_without_replaying_the_arrival_already_made_in_rc7 ... ok
+test rc7_preferences_load_with_defaults_for_new_fields_and_stay_untouched ... ok
+test migrated_fixture_reopened_twice_keeps_the_same_domain_and_exact_backup ... ok
+test migrated_fixtures_keep_the_timetable_deterministic ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests\save_recovery.rs (target\debug\build\cpu-express/335095f9551008e8\out\save_recovery-335095f9551008e8.exe)
+
+running 12 tests
+test missing_checkpoint_is_a_new_profile_and_does_not_resurrect_the_copy ... ok
+test blocked_recovery_copy_is_reported_without_losing_the_save ... ok
+test read_only_checkpoint_is_not_replaced_or_set_aside ... ok
+test newer_version_is_never_set_aside_or_downgraded ... ok
+test damage_without_a_valid_recovery_copy_stays_untouched ... ok
+test checkpoint_keeps_the_replaced_document_as_recovery_copy ... ok
+test interrupted_writer_leaves_only_an_inert_temporary_file ... ok
+test failed_replacement_keeps_the_valid_checkpoint_and_a_later_retry_succeeds ... ok
+test v3_migrates_to_v5_and_foreign_lines_are_preserved ... ok
+test truncated_or_damaged_checkpoint_resumes_from_the_previous_valid_one ... ok
+test racing_writers_never_leave_an_invalid_checkpoint ... ok
+test a_day_of_unattended_travel_keeps_state_and_checkpoint_bounded ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+     Running tests\service_branch.rs (target\debug\build\cpu-express/225a92604a79988b\out\service_branch-225a92604a79988b.exe)
+
+running 5 tests
+test actual_detour_freezes_main_distance_but_moves_scene_and_active_time ... ok
+test unlocked_request_pending_until_base_and_no_replacement ... ok
+test queued_trip_persists_and_base_service_finishes_before_departure ... ok
+test restart_each_phase_partition_pause_and_repeat_discovery ... ok
+test invalid_phase_and_inconsistent_discovery_do_not_overwrite_save ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests\service_dispatch.rs (target\debug\build\cpu-express/802404e88e783f57\out\service_dispatch-802404e88e783f57.exe)
+
+running 12 tests
+test manual_offer_never_expires_and_refusal_replaces_only_on_next_arrival ... ok
+test acceptance_without_capacity_is_atomic_and_can_be_retried ... ok
+test accept_at_origin_loads_once_and_cancel_at_origin_returns_once ... ok
+test v2_conflicting_backup_blocks_migration_without_overwriting_either_file ... ok
+test v2_missing_fields_defaults_to_auto_and_backup_preserves_exact_bytes ... ok
+test automatic_default_still_loads_delivers_and_survives_restart ... ok
+test incomplete_v3_is_rejected_without_silently_reactivating_automatic_dispatch ... ok
+test returned_lot_cannot_be_restored_as_cargo_in_transit ... ok
+test accept_after_service_waits_for_next_origin_and_accepted_can_be_cancelled ... ok
+test returning_restart_keeps_capacity_until_origin_and_never_pays ... ok
+test loaded_restart_delivers_and_pays_exactly_once ... ok
+test future_checkpoint_is_protected_even_when_replaced_after_load ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests\service_gameplay.rs (target\debug\build\cpu-express/c8ee9d4310c4d6a5\out\service_gameplay-c8ee9d4310c4d6a5.exe)
+
+running 5 tests
+test tank_capacity_is_not_generic_and_downsize_is_rejected ... ok
+test passenger_capacity_pause_and_partition ... ok
+test v1_migration_preserves_unlocks_and_original_bytes ... ok
+test restart_during_station_service_does_not_replay ... ok
+test invalid_v2_is_preserved_and_history_is_bounded ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests\service_import.rs (target\debug\build\cpu-express/13d62f6df3b4aa40\out\service_import-13d62f6df3b4aa40.exe)
+
+running 3 tests
+test import_v1_converts_to_current_without_modifying_source ... ok
+test explicit_import_preserves_corrupt_destination_and_branch_state ... ok
+test same_file_is_noop_and_invalid_source_leaves_destination_untouched ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests\service_motion.rs (target\debug\build\cpu-express/ba9c8c06c6f95ec2\out\service_motion-ba9c8c06c6f95ec2.exe)
+
+running 3 tests
+test braking_preserves_analytical_partition_invariance ... ok
+test scaled_numeric_parameters_match_former_scaled_config_path ... ok
+test animation_and_braking_allocate_nothing_including_branch ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\simulation.rs (target\debug\build\cpu-express/6aad58a7d01ddeff\out\simulation-6aad58a7d01ddeff.exe)
+
+running 7 tests
+test requested_cpu_mapping_and_monotonicity ... ok
+test configuration_repairs_invalid_and_out_of_range_values ... ok
+test speed_distance_and_wheels_are_independent_of_frame_rate ... ok
+test invalid_inputs_do_not_poison_state_and_speed_never_overshoots ... ok
+test analytical_solution_matches_reference_speed_and_distance ... ok
+test world_handles_suspension_and_invalid_input_without_unbounded_spawning ... ok
+test scenery_wrap_and_smoke_remain_bounded_for_a_simulated_hour ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\ui_game.rs (target\debug\build\cpu-express/2ffbf522906e732a\out\ui_game-2ffbf522906e732a.exe)
+
+running 11 tests
+test new_service_icons_have_distinct_finite_pixel_meshes ... ok
+test fractional_pixel_labels_reserve_their_painted_width_at_each_scale ... ok
+test reduced_menu_motion_is_context_local_and_preserves_keyboard_actions ... ok
+test invalid_progress_produces_finite_shapes_and_clamps_the_fill ... ok
+test disabled_button_rejects_keyboard_and_pointer_activation ... ok
+test services_show_exact_facts_and_zero_capacity_without_nan ... ok
+test space_activates_focused_custom_button ... ok
+test enter_activates_focused_custom_button ... ok
+test compact_navigation_label_stays_inside_46_point_button ... ok
+test labels_are_exact_separate_discoverable_text_shapes ... ok
+test service_dashboard_only_returns_enabled_actions ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests\ui_stock.rs (target\debug\build\cpu-express/baf15c63d0fd29cf\out\ui_stock-baf15c63d0fd29cf.exe)
+
+running 4 tests
+test composition_preserves_slot_labels_and_reports_keyboard_selection ... ok
+test locked_cards_are_inspectable_but_never_emit_equip ... ok
+test engine_gallery_uploads_once_and_reuses_three_portraits ... ok
+test narrow_locked_cards_keep_full_names_and_requirements_inside_the_card ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests\ux_app.rs (target\debug\build\cpu-express/a29d2f9fa6daf798\out\ux_app-a29d2f9fa6daf798.exe)
+
+running 12 tests
+test clock_bounds_long_frames_and_handles_reversed_time ... ok
+test clock_discards_pause_time_even_without_intermediate_frames ... ok
+test shortcut_contract_distinguishes_typing_from_commands ... ok
+test escape_closes_panels_and_never_exits ... ok
+test suspended_clock_freezes_wheels_scenery_and_smoke ... ok
+test minimized_app_stops_rasterization_and_journey_then_resumes_without_catch_up ... ok
+test start_paused_freezes_the_actual_app_scene_across_ui_frames ... ok
+test demo_ui_stays_explicit_in_clean_hud_and_does_not_invent_ram ... ok
+test actual_cpu_numeric_editor_owns_keys_until_escape_closes_the_panel ... ok
+test headless_keyboard_pauses_and_esc_only_closes_open_panel ... ok
+test actual_scene_drag_never_steals_toolbar_or_panel_interaction ... ok
+test tab_starts_on_the_toolbar_and_reveals_scrolled_panel_controls ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+
+     Running tests\ux_cli.rs (target\debug\build\cpu-express/d43157a1830ddc61\out\ux_cli-d43157a1830ddc61.exe)
+
+running 2 tests
+test help_and_short_alias_describe_demo_and_current_shortcuts ... ok
+test help_leaves_explicit_config_and_diagnostics_paths_untouched ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.31s
+
+     Running tests\ux_config.rs (target\debug\build\cpu-express/f24e2981da13465e\out\ux_config-f24e2981da13465e.exe)
+
+running 12 tests
+test cycling_hud_restores_visibility_after_a_legacy_hidden_configuration ... ok
+test either_explicit_clean_mode_or_legacy_false_hides_hud ... ok
+test unsupported_future_visual_mode_is_preserved_on_disk ... ok
+test partial_new_config_uses_current_defaults_without_writing ... ok
+test retired_visual_modes_migrate_without_changing_window_or_pacing ... ok
+test original_seven_field_config_keeps_hidden_hud_and_acquires_safe_defaults ... ok
+test valid_preference_bounds_are_repaired_without_losing_future_fields ... ok
+test new_preferences_survive_an_atomic_save_and_a_second_launch ... ok
+test visual_choices_round_trip_without_erasing_future_nested_preferences ... ok
+test unknown_fields_survive_user_changes_and_subsequent_saves ... ok
+test no_file_is_created_until_a_preference_is_explicitly_saved ... ok
+test corrupt_or_incompatible_configs_cannot_be_overwritten_by_autosave ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests\ux_visual.rs (target\debug\build\cpu-express/1f6df0baf1f37608\out\ux_visual-1f6df0baf1f37608.exe)
+
+running 7 tests
+test export_actual_egui_layouts_for_visual_review ... ignored, optional artifact export; requires an explicit output directory
+test export_economy_menus ... ignored, exportação E6 para diretório explícito; não valida compositor
+test export_expansion_menus ... ignored, exportação E5 para diretório explícito; não valida compositor
+test export_floating_panels ... ignored, optional floating-panel artifact export
+test export_line_map ... ignored, exportação E3 para diretório explícito; não valida compositor
+test export_machine_menus ... ignored, exportação E2 para diretório explícito; não valida compositor
+test export_playable_lines ... ignored, exportação E3 jogável para diretório explícito; não valida compositor
+
+test result: ok. 0 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\window_placement.rs (target\debug\build\cpu-express/345cb95aded94202\out\window_placement-345cb95aded94202.exe)
+
+running 7 tests
+test invalid_rectangles_and_window_sizes_are_rejected ... ok
+test taskbar_on_each_edge_keeps_the_whole_window_in_work_area ... ok
+test an_oversized_window_is_fitted_and_margins_give_way ... ok
+test extreme_desktop_coordinates_do_not_overflow ... ok
+test mixed_dpi_uses_physical_size_without_rescaling_global_origin ... ok
+test a_negative_monitor_origin_is_preserved ... ok
+test no_reserved_edge_defaults_to_bottom_right ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\art_review.rs (target\debug\build\cpu-express/27b2d59901c6ffdc\out\art_review-27b2d59901c6ffdc.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\economy_fixtures.rs (target\debug\build\cpu-express/449c6ec936a99d8d\out\economy_fixtures-449c6ec936a99d8d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\economy_sim.rs (target\debug\build\cpu-express/9bbdba09d2b703a0\out\economy_sim-9bbdba09d2b703a0.exe)
+
+running 5 tests
+test economy::tests::small_deliveries_keep_both_division_remainders_and_contract_minimum ... ok
+test economy_goals::tests::cargo_thresholds_do_not_use_aggregate_or_other_species ... ok
+test economy_goals::tests::order_baselines_swap_cooldowns_and_invalid_definitions ... ok
+test economy_goals::tests::all_eighteen_missions_pay_once_and_total_405 ... ok
+test trace_tests::replayed_arrivals_match_product_wallet_inventory_orders_and_rng ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests examples\engine_gallery.rs (target\debug\build\cpu-express/952ef39a40613930\out\engine_gallery-952ef39a40613930.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\export_frame.rs (target\debug\build\cpu-express/e34eeb1c1dbbcedc\out\export_frame-e34eeb1c1dbbcedc.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\journey_core_tests.rs (target\debug\build\cpu-express/94008d00d8af846c\out\journey_core_tests-94008d00d8af846c.exe)
+
+running 7 tests
+test route::tests::seeded_lengths_keep_the_rc7_values ... ok
+test route::tests::circuit_runs_on_catalogue_content_and_the_fallback_is_identical ... ok
+test tests::same_seed_repeats_route_progress_and_events_without_external_dependencies ... ok
+test tests::pauses_sleep_and_invalid_steps_leave_progress_and_event_history_unchanged ... ok
+test tests::exact_arrival_and_next_movement_emit_separate_visual_cues ... ok
+test tests::unconsumed_notifications_stay_bounded_and_do_not_erase_achievements ... ok
+test tests::equal_active_travel_has_equal_progress_at_different_frame_rates ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests examples\journey_demo.rs (target\debug\build\cpu-express/7345c2cc0dd5e5b7\out\journey_demo-7345c2cc0dd5e5b7.exe)
+
+running 2 tests
+test route::tests::seeded_lengths_keep_the_rc7_values ... ok
+test route::tests::circuit_runs_on_catalogue_content_and_the_fallback_is_identical ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\line_checkpoint.rs (target\debug\build\cpu-express/4660be7307b9fa35\out\line_checkpoint-4660be7307b9fa35.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\machine_probe.rs (target\debug\build\cpu-express/8aff77e0b1c91e6a\out\machine_probe-8aff77e0b1c91e6a.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\map_gallery.rs (target\debug\build\cpu-express/3f2fa894457548f9\out\map_gallery-3f2fa894457548f9.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\metrics_probe.rs (target\debug\build\cpu-express/f1928553af3ab52d\out\metrics_probe-f1928553af3ab52d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\passenger_gallery.rs (target\debug\build\cpu-express/44bd04cab92951cf\out\passenger_gallery-44bd04cab92951cf.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\scene_bench.rs (target\debug\build\cpu-express/af61ad42574243da\out\scene_bench-af61ad42574243da.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\scene_gallery.rs (target\debug\build\cpu-express/2212bf92bc7a17ee\out\scene_gallery-2212bf92bc7a17ee.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\scenery_gallery.rs (target\debug\build\cpu-express/4215e4a14a7c838d\out\scenery_gallery-4215e4a14a7c838d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\station_gallery.rs (target\debug\build\cpu-express/c0d3512e72d16c77\out\station_gallery-c0d3512e72d16c77.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\stock_gallery.rs (target\debug\build\cpu-express/d173502844b70b69\out\stock_gallery-d173502844b70b69.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\weather_review.rs (target\debug\build\cpu-express/3cd946ba0c4dfffb\out\weather_review-3cd946ba0c4dfffb.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\window_smoke.rs (target\debug\build\cpu-express/0f5e16691c3b87dd\out\window_smoke-0f5e16691c3b87dd.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples\windows_desktop.rs (target\debug\build\cpu-express/61dfa63bea530ec7\out\windows_desktop-61dfa63bea530ec7.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT_CODE=0

@@ -64,11 +64,6 @@ impl CpuExpressApp {
         ui.strong("Curitiba–Paranaguá · 14 paradas reais");
         let real_active = self.world.active_line_id() == line.id;
         ui.horizontal(|ui| {
-            ui.small(if real_active {
-                "Linha ativa · ida e volta"
-            } else {
-                "Linha ativa: Circuito Aurora"
-            });
             let target = if real_active {
                 "aurora-v1"
             } else {
@@ -82,18 +77,16 @@ impl CpuExpressApp {
             if ui
                 .add_enabled(
                     self.progress_path.is_some() && self.world.can_leave_line(),
-                    egui::Button::new(label),
+                    game::ActionButton::new(label),
                 )
                 .clicked()
             {
                 self.line_action(Some(target));
             }
-        });
-        ui.horizontal(|ui| {
             if ui
                 .add_enabled(
                     self.progress_path.is_some(),
-                    egui::Button::new(if self.world.boarding_closed() {
+                    game::ActionButton::new(if self.world.boarding_closed() {
                         "Retomar embarques"
                     } else {
                         "Encerrar embarques"
@@ -104,11 +97,19 @@ impl CpuExpressApp {
                 self.line_action(None);
             }
             let s = self.world.service_view();
-            ui.small(format!(
-                "A bordo: {} passageiros · {} carga",
-                s.passenger_count(),
-                s.cargo_count()
-            ));
+            game::hint(
+                ui,
+                format!(
+                    "A bordo: {} passageiros; {} carga. {}",
+                    s.passenger_count(),
+                    s.cargo_count(),
+                    if real_active {
+                        "Linha ativa: Curitiba–Paranaguá"
+                    } else {
+                        "Linha ativa: Aurora"
+                    }
+                ),
+            );
         });
         ui.small(
             if self.world.boarding_closed() && self.world.can_leave_line() {
@@ -121,7 +122,10 @@ impl CpuExpressApp {
         self.menu.line_station = self.menu.line_station.min(count - 1);
         ui.horizontal(|ui| {
             if ui
-                .add_enabled(self.menu.line_station > 0, egui::Button::new("Anterior"))
+                .add_enabled(
+                    self.menu.line_station > 0,
+                    game::ActionButton::new("Anterior"),
+                )
                 .clicked()
             {
                 self.menu.line_station = self.menu.line_station.saturating_sub(1);
@@ -130,7 +134,7 @@ impl CpuExpressApp {
             if ui
                 .add_enabled(
                     self.menu.line_station + 1 < count,
-                    egui::Button::new("Próxima"),
+                    game::ActionButton::new("Próxima"),
                 )
                 .clicked()
             {

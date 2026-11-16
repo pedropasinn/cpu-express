@@ -187,7 +187,7 @@ impl CpuExpressApp {
                                     .visual
                                     .favorite_consists
                                     .contains(&self.config.visual.coaches),
-                            egui::Button::new("Guardar composição atual"),
+                            game::ActionButton::new("Guardar composição atual"),
                         )
                         .clicked()
                     {
@@ -209,8 +209,8 @@ impl CpuExpressApp {
                         let response = ui
                             .horizontal_wrapped(|ui| {
                                 let label = coaches.map(coach_name).join(" / ");
-                                let response = ui.button(label);
-                                if ui.small_button("Remover").clicked() {
+                                let response = game::action(ui, label);
+                                if game::action(ui, "Remover").clicked() {
                                     remove = Some(index);
                                 }
                                 response
@@ -433,7 +433,7 @@ impl CpuExpressApp {
                         ui.small(error);
                     }
                     if self.local_weather.enabled {
-                        if ui.add_enabled(self.local_weather.can_refresh(), egui::Button::new("Atualizar clima"))
+                        if ui.add_enabled(self.local_weather.can_refresh(), game::ActionButton::new("Atualizar clima"))
                     .on_hover_text("Atualização automática a cada 15 minutos. Atualização manual: intervalo mínimo de 1 minuto.")
                     .clicked() { self.local_weather.refresh(ui.ctx()); }
                         game::hint(
@@ -452,8 +452,8 @@ impl CpuExpressApp {
                             ui.label("Longitude"); ui.add(egui::DragValue::new(&mut self.weather_draft.longitude).range(-180.0..=180.0).speed(0.001).max_decimals(4));
                         });
                         game::hint(ui, "Use as coordenadas da sua cidade. O nome é uma identificação; não há localização automática do computador.");
-                        if ui.button("Usar São Paulo, SP").clicked() { self.weather_draft = Default::default(); }
-                        if ui.button("Aplicar local").clicked() {
+                        if game::action(ui, "Usar São Paulo, SP").clicked() { self.weather_draft = Default::default(); }
+                        if game::action(ui, "Aplicar local").clicked() {
                             match self.local_weather.set_location(self.weather_draft.clone()) {
                                 Ok(()) => { self.config.weather_location = self.weather_draft.clone(); changed = true; self.local_weather.refresh(ui.ctx()); }
                                 Err(error) => self.local_weather.error = Some(error),
@@ -464,7 +464,7 @@ impl CpuExpressApp {
                 });
             }
             4 => {
-                ui.heading("Locomotivas da coleção");
+                game::heading(ui, "Locomotivas da coleção");
                 game::hint(
                     ui,
                     "Novas silhuetas para os serviços que sua ferrovia realiza.",
@@ -573,7 +573,7 @@ impl CpuExpressApp {
                     if ui
                         .add_enabled(
                             self.config.sound_volume > 0.0 && !self.config.quiet_mode,
-                            egui::Button::new("Ouvir exemplo"),
+                            game::ActionButton::new("Ouvir exemplo"),
                         )
                         .clicked()
                     {
