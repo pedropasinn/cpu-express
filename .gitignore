@@ -9,3 +9,6 @@
 /evidence/
 /benchmarks/
 __pycache__/
+
+# Reproducible egui meshes/textures; the reviewed PNGs are versioned.
+/docs/expansao/telas/*.json

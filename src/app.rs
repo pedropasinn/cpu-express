@@ -18,6 +18,9 @@ use crate::{
 };
 mod branches;
 mod journey;
+mod menus;
+mod missions;
+mod scenery;
 mod services;
 mod storage;
 mod workshop;
@@ -201,6 +204,8 @@ enum PanelTab {
     Journey,
     Appearance,
     Behavior,
+    Shop,
+    Collection,
 }
 
 // This factory is lazy: the demo branch cannot construct SysinfoProvider.
@@ -233,6 +238,7 @@ pub struct CpuExpressApp {
     welcome_taskbar: bool,
     show_help: bool,
     panel_tab: PanelTab,
+    menu: menus::MenuState,
     appearance_page: u8,
     journey_page: u8,
     selected_station: Option<crate::simulation::StationId>,
@@ -515,6 +521,7 @@ impl CpuExpressApp {
             welcome_taskbar,
             show_help: false,
             panel_tab: PanelTab::default(),
+            menu: menus::MenuState::default(),
             appearance_page: 0,
             journey_page: 0,
             selected_station: None,
@@ -885,6 +892,7 @@ impl CpuExpressApp {
                 .set_scene_context(Some(SceneContext::from_journey(
                     &self.world.journey_snapshot(),
                 )));
+            self.update_scenery_adapter();
             let livery = self.config.visual.livery;
             self.renderer.set_livery(
                 if self.world.service_snapshot().owns(livery) || self.demo_mode {
@@ -1486,11 +1494,16 @@ impl CpuExpressApp {
     }
 
     fn compact_drive_controls(&mut self, ui: &mut egui::Ui) {
+        let metric_color = if ui.visuals().dark_mode {
+            ACCENT
+        } else {
+            game::MUTED
+        };
         if self.demo_mode {
             ui.label(
                 egui::RichText::new("DEMO · CPU simulada; RAM indisponível")
                     .size(11.0)
-                    .color(ACCENT),
+                    .color(metric_color),
             );
         } else {
             let mut manual = self.cpu_override.is_some();
@@ -1546,7 +1559,7 @@ impl CpuExpressApp {
             }
         });
         if let Some(notice) = self.telemetry_notice() {
-            ui.label(egui::RichText::new(notice).color(ACCENT));
+            ui.label(egui::RichText::new(notice).color(metric_color));
             if let MetricStatus::Unavailable(error) = &self.metrics.status {
                 ui.label(egui::RichText::new(error).size(11.0));
             }
@@ -1778,42 +1791,32 @@ impl CpuExpressApp {
     }
 
     fn welcome_controls(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Bem-vindo ao CPU Express");
-        ui.label("Uma pequena ferrovia para acompanhar seu dia. Escolha onde ela aparece e o local do clima.");
-        ui.add_space(12.0);
-        ui.strong("Clima da sua cidade");
-        ui.text_edit_singleline(&mut self.weather_draft.city);
-        ui.horizontal_wrapped(|ui| {
-            ui.label("Latitude");
-            ui.add(
-                egui::DragValue::new(&mut self.weather_draft.latitude)
-                    .range(-90.0..=90.0)
-                    .speed(0.001)
-                    .max_decimals(4),
-            );
-            ui.label("Longitude");
-            ui.add(
-                egui::DragValue::new(&mut self.weather_draft.longitude)
-                    .range(-180.0..=180.0)
-                    .speed(0.001)
-                    .max_decimals(4),
-            );
+        game::apply_style(ui);
+        self.scene_preview(ui, true);
+        ui.heading("Uma pequena ferrovia para acompanhar seu dia");
+        ui.label("1. Escolha onde seu trem aparece.");
+        ui.horizontal(|ui| {
+            ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
+            ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
         });
-        game::hint(
-            ui,
-            "O nome identifica o local; use as coordenadas da cidade. Sem GPS, busca automática ou localização por IP.",
+        ui.label("2. Viaje, transporte e recolha moedas em Missões.");
+        ui.label("3. Clique no trem para voltar à central; Esc fecha o painel.");
+        ui.separator();
+        ui.label(format!(
+            "Clima: {}. Altere em Ajustes > Clima.",
+            self.config.weather_location.city
+        ));
+        ui.label("As leituras da máquina não saem do computador.");
+        ui.checkbox(
+            &mut self.config.use_input_activity,
+            "Permitir atividade agregada do teclado e mouse",
         );
-        if ui.button("Manter São Paulo, SP").clicked() {
-            self.weather_draft = Default::default();
-        }
-        ui.add_space(12.0);
-        ui.strong("Onde mostrar o trem");
-        ui.radio_value(&mut self.welcome_taskbar, true, "Faixa na barra de tarefas");
-        ui.radio_value(&mut self.welcome_taskbar, false, "Janela flutuante");
-        game::hint(ui, "Você pode mudar essas escolhas depois na central.");
+        ui.small("Sem ler teclas. Preferência para a Sala de máquinas; coleta ainda indisponível nesta etapa.");
+        ui.label("O clima consulta o serviço de meteorologia. Não há progresso offline.");
         if let Some(notice) = self.notification_message() {
-            ui.colored_label(ACCENT, notice);
+            ui.colored_label(game::RED, notice);
         }
+
         if ui.button("Começar viagem").clicked() {
             match self.local_weather.set_location(self.weather_draft.clone()) {
                 Ok(()) => {
@@ -1942,164 +1945,170 @@ impl CpuExpressApp {
     }
 
     fn behavior_controls(&mut self, ui: &mut egui::Ui) {
-        let mut placement_changed = ui
-            .checkbox(&mut self.config.taskbar_mode, "Na área da barra de tarefas")
-            .changed();
-        if self.config.taskbar_mode {
-            let bar_width = self.native_status["taskbar_width"]
-                .as_i64()
-                .filter(|v| *v > 0)
-                .unwrap_or(1920) as i32;
-            let bar_height = self.native_status["taskbar_height"]
-                .as_i64()
-                .filter(|v| (24..=240).contains(v))
-                .unwrap_or(60) as i32;
-            let mut geometry = self.slider_geometry.unwrap_or([
-                self.config.taskbar_offset,
-                self.config.taskbar_width,
-                self.config.taskbar_height,
-            ]);
-            let effective_width = if geometry[1] == 0 {
-                (bar_height * 32 / 7).min(bar_width / 3)
-            } else {
-                geometry[1].min(bar_width)
-            };
-            let mut changed = ui
-                .add(
-                    egui::Slider::new(&mut geometry[0], 0..=(bar_width - effective_width).max(0))
-                        .text("Posição horizontal (px)"),
-                )
+        if self.menu.window == 0 {
+            let mut placement_changed = ui
+                .checkbox(&mut self.config.taskbar_mode, "Na área da barra de tarefas")
                 .changed();
-            let mut automatic = geometry[1] == 0;
-            if ui.checkbox(&mut automatic, "Largura automática").changed() {
-                geometry[1] = if automatic {
-                    0
+            if self.config.taskbar_mode {
+                let bar_width = self.native_status["taskbar_width"]
+                    .as_i64()
+                    .filter(|v| *v > 0)
+                    .unwrap_or(1920) as i32;
+                let bar_height = self.native_status["taskbar_height"]
+                    .as_i64()
+                    .filter(|v| (24..=240).contains(v))
+                    .unwrap_or(60) as i32;
+                let mut geometry = self.slider_geometry.unwrap_or([
+                    self.config.taskbar_offset,
+                    self.config.taskbar_width,
+                    self.config.taskbar_height,
+                ]);
+                let effective_width = if geometry[1] == 0 {
+                    (bar_height * 32 / 7).min(bar_width / 3)
                 } else {
-                    effective_width.max(160)
+                    geometry[1].min(bar_width)
                 };
-                changed = true;
-            }
-            if !automatic {
-                changed |= ui
+                let mut changed = ui
                     .add(
-                        egui::Slider::new(&mut geometry[1], 160.min(bar_width)..=bar_width)
-                            .text("Largura (px)"),
+                        egui::Slider::new(
+                            &mut geometry[0],
+                            0..=(bar_width - effective_width).max(0),
+                        )
+                        .text("Posição horizontal (px)"),
                     )
                     .changed();
-            }
-            placement_changed |= ui
-                .checkbox(
-                    &mut self.config.taskbar_fit_height,
-                    "Encaixar na altura da barra",
-                )
-                .changed();
-            if !self.config.taskbar_fit_height {
-                if geometry[2] == 0 {
-                    geometry[2] = bar_height.clamp(24, 240);
+                let mut automatic = geometry[1] == 0;
+                if ui.checkbox(&mut automatic, "Largura automática").changed() {
+                    geometry[1] = if automatic {
+                        0
+                    } else {
+                        effective_width.max(160)
+                    };
+                    changed = true;
                 }
-                changed |= ui
-                    .add(egui::Slider::new(&mut geometry[2], 24..=240).text("Altura (px)"))
+                if !automatic {
+                    changed |= ui
+                        .add(
+                            egui::Slider::new(&mut geometry[1], 160.min(bar_width)..=bar_width)
+                                .text("Largura (px)"),
+                        )
+                        .changed();
+                }
+                placement_changed |= ui
+                    .checkbox(
+                        &mut self.config.taskbar_fit_height,
+                        "Encaixar na altura da barra",
+                    )
                     .changed();
-            }
-            placement_changed |= ui
-                .checkbox(&mut self.config.taskbar_rounded, "Cantos arredondados")
-                .changed();
-            if changed || self.slider_geometry.is_some() {
-                let actual_width = if geometry[1] == 0 {
-                    (bar_height * 32 / 7)
-                        .min(bar_width / 3)
-                        .max(160.min(bar_width))
-                } else {
-                    geometry[1].clamp(160.min(bar_width), bar_width)
-                };
-                geometry[0] = geometry[0].clamp(0, bar_width - actual_width);
-                if ui.input(|i| i.pointer.primary_down()) {
-                    self.slider_geometry = Some(geometry);
-                    if changed {
-                        self.pending_dock = true;
-                        self.next_taskbar_check = Instant::now();
+                if !self.config.taskbar_fit_height {
+                    if geometry[2] == 0 {
+                        geometry[2] = bar_height.clamp(24, 240);
                     }
-                } else {
-                    self.slider_geometry = None;
-                    self.commit_strip_geometry(geometry);
-                    placement_changed = true;
+                    changed |= ui
+                        .add(egui::Slider::new(&mut geometry[2], 24..=240).text("Altura (px)"))
+                        .changed();
                 }
+                placement_changed |= ui
+                    .checkbox(&mut self.config.taskbar_rounded, "Cantos arredondados")
+                    .changed();
+                if changed || self.slider_geometry.is_some() {
+                    let actual_width = if geometry[1] == 0 {
+                        (bar_height * 32 / 7)
+                            .min(bar_width / 3)
+                            .max(160.min(bar_width))
+                    } else {
+                        geometry[1].clamp(160.min(bar_width), bar_width)
+                    };
+                    geometry[0] = geometry[0].clamp(0, bar_width - actual_width);
+                    if ui.input(|i| i.pointer.primary_down()) {
+                        self.slider_geometry = Some(geometry);
+                        if changed {
+                            self.pending_dock = true;
+                            self.next_taskbar_check = Instant::now();
+                        }
+                    } else {
+                        self.slider_geometry = None;
+                        self.commit_strip_geometry(geometry);
+                        placement_changed = true;
+                    }
+                    ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
+                }
+                game::hint(
+                    ui,
+                    "Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.",
+                );
+            } else {
+                let rect = self.config.floating_rect.get_or_insert([40, 40, 640, 180]);
+                ui.horizontal(|ui| {
+                    ui.label("X / Y (px)");
+                    placement_changed |= ui
+                        .add(egui::DragValue::new(&mut rect[0]).range(-32768..=32768))
+                        .changed();
+                    placement_changed |= ui
+                        .add(egui::DragValue::new(&mut rect[1]).range(-32768..=32768))
+                        .changed();
+                });
+                placement_changed |= ui
+                    .add(egui::Slider::new(&mut rect[2], 320..=2400).text("Largura (px)"))
+                    .changed();
+                placement_changed |= ui
+                    .add(egui::Slider::new(&mut rect[3], 140..=1200).text("Altura (px)"))
+                    .changed();
+                game::hint(
+                    ui,
+                    "Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.",
+                );
+            }
+            if ui.button("Restaurar posição e tamanho").clicked() {
+                self.slider_geometry = None;
+                self.config.taskbar_fit_height = true;
+                self.config.taskbar_offset = 0;
+                self.config.taskbar_width = 0;
+                self.config.taskbar_height = 0;
+                self.config.floating_rect = Some([40, 40, 640, 180]);
+                placement_changed = true;
+            }
+            if placement_changed {
+                self.pending_dock = true;
+                self.next_taskbar_check = Instant::now();
+                self.preferences_changed();
                 ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
             }
             game::hint(
                 ui,
-                "Arraste a faixa ou suas laterais. Altura livre: arraste a borda superior; o excedente cobre a área acima da barra. Cantos arredondados requerem Windows 11.",
-            );
-        } else {
-            let rect = self.config.floating_rect.get_or_insert([40, 40, 640, 180]);
-            ui.horizontal(|ui| {
-                ui.label("X / Y (px)");
-                placement_changed |= ui
-                    .add(egui::DragValue::new(&mut rect[0]).range(-32768..=32768))
-                    .changed();
-                placement_changed |= ui
-                    .add(egui::DragValue::new(&mut rect[1]).range(-32768..=32768))
-                    .changed();
-            });
-            placement_changed |= ui
-                .add(egui::Slider::new(&mut rect[2], 320..=2400).text("Largura (px)"))
-                .changed();
-            placement_changed |= ui
-                .add(egui::Slider::new(&mut rect[3], 140..=1200).text("Altura (px)"))
-                .changed();
-            game::hint(
-                ui,
-                "Arraste pelo título da janela e redimensione pelas bordas. Posição e tamanho ficam salvos.",
+                "Clique na faixa para abrir o painel; botão direito pausa.",
             );
         }
-        if ui.button("Restaurar posição e tamanho").clicked() {
-            self.slider_geometry = None;
-            self.config.taskbar_fit_height = true;
-            self.config.taskbar_offset = 0;
-            self.config.taskbar_width = 0;
-            self.config.taskbar_height = 0;
-            self.config.floating_rect = Some([40, 40, 640, 180]);
-            placement_changed = true;
-        }
-        if placement_changed {
-            self.pending_dock = true;
-            self.next_taskbar_check = Instant::now();
-            self.preferences_changed();
-            ui.ctx().request_repaint_of(egui::ViewportId::ROOT);
-        }
-        game::hint(
-            ui,
-            "Clique na faixa para abrir o painel; botão direito pausa.",
-        );
-        let mut pinned = self.config.always_on_top;
-        if ui.checkbox(&mut pinned, "Sempre no topo (P)").changed() {
-            self.dispatch(AppAction::TogglePin, ui.ctx());
-        }
-        let mut changed = ui
-            .checkbox(
-                &mut self.config.pause_when_unfocused,
-                "Pausar ao trabalhar em outra janela",
-            )
-            .changed();
-        changed |= ui
-            .checkbox(
-                &mut self.config.start_paused,
-                "Iniciar pausado na próxima abertura",
-            )
-            .changed();
-        if changed {
-            self.preferences_changed();
-            self.sync_clock();
-        }
-        ui.horizontal(|ui| {
-            if ui
-                .button("Minimizar")
-                .on_hover_text("Restaurar pela barra de tarefas")
-                .clicked()
-            {
-                self.dispatch(AppAction::Minimize, ui.ctx());
+        if self.menu.window == 1 {
+            let mut pinned = self.config.always_on_top;
+            if ui.checkbox(&mut pinned, "Sempre no topo (P)").changed() {
+                self.dispatch(AppAction::TogglePin, ui.ctx());
             }
-            if ui
+            let mut changed = ui
+                .checkbox(
+                    &mut self.config.pause_when_unfocused,
+                    "Pausar ao trabalhar em outra janela",
+                )
+                .changed();
+            changed |= ui
+                .checkbox(
+                    &mut self.config.start_paused,
+                    "Iniciar pausado na próxima abertura",
+                )
+                .changed();
+            if changed {
+                self.preferences_changed();
+                self.sync_clock();
+            }
+            ui.horizontal(|ui| {
+                if ui
+                    .button("Minimizar")
+                    .on_hover_text("Restaurar pela barra de tarefas")
+                    .clicked()
+                {
+                    self.dispatch(AppAction::Minimize, ui.ctx());
+                }
+                if ui
                 .add_enabled(
                     self.tray_available(),
                     egui::Button::new("Ocultar na bandeja"),
@@ -2113,11 +2122,14 @@ impl CpuExpressApp {
             {
                 self.dispatch(AppAction::HideToTray, ui.ctx());
             }
-        });
-        ui.label(
-            egui::RichText::new("A coleta continua durante a pausa; a paisagem fica congelada.")
+            });
+            ui.label(
+                egui::RichText::new(
+                    "A coleta continua durante a pausa; a paisagem fica congelada.",
+                )
                 .size(11.0),
-        );
+            );
+        }
     }
 
     fn help_contents(&self, ui: &mut egui::Ui) {
@@ -2214,6 +2226,8 @@ impl CpuExpressApp {
                         PanelTab::Journey => "journey-scroll",
                         PanelTab::Appearance => "appearance-scroll",
                         PanelTab::Behavior => "behavior-scroll",
+                        PanelTab::Shop => "shop-scroll",
+                        PanelTab::Collection => "collection-scroll",
                     }
                 };
                 egui::ScrollArea::vertical()
@@ -2231,6 +2245,8 @@ impl CpuExpressApp {
                                 PanelTab::Journey => self.journey_controls(ui),
                                 PanelTab::Appearance => self.appearance_controls(ui),
                                 PanelTab::Behavior => self.behavior_controls(ui),
+                                PanelTab::Shop => self.shop_preview(ui),
+                                PanelTab::Collection => self.postcards_page(ui),
                             }
                         }
                         // Tab may focus a control below the 60-point viewport.
@@ -2266,24 +2282,23 @@ impl CpuExpressApp {
             ctx.request_repaint();
         }
         game::set_reduce_motion(ctx, self.config.reduce_menu_motion);
-        let saved = self.config.panel_rect.unwrap_or_else(|| {
-            ctx.input(|i| {
-                i.viewport()
-                    .outer_rect
-                    .map_or([24.0, 80.0, 760.0, 720.0], |r| {
-                        [r.left().max(8.0), (r.top() - 760.0).max(8.0), 760.0, 720.0]
-                    })
-            })
-        });
-        let panel_rect = platform::clamp_panel_rect(saved, ctx.pixels_per_point());
+        let mut saved = self.config.panel_rect.unwrap_or([24.0, 24.0, 704.0, 676.0]);
+        saved[2] = 704.0;
+        saved[3] = 676.0;
+        let native_scale = ctx
+            .input(|i| i.viewport().native_pixels_per_point)
+            .unwrap_or(1.0);
+        let fitted = platform::clamp_panel_rect(saved, native_scale);
+        let scale = menus::panel_scale([fitted[2], fitted[3]]);
+        ctx.set_zoom_factor(scale);
         let builder = egui::ViewportBuilder::default()
             .with_title(platform::PANEL_TITLE)
-            .with_inner_size([panel_rect[2], panel_rect[3]])
-            .with_min_inner_size([480.0, 480.0])
-            .with_position(egui::pos2(panel_rect[0], panel_rect[1]))
-            .with_resizable(true)
+            .with_inner_size([704.0, 676.0])
+            .with_min_inner_size([704.0, 676.0])
+            .with_max_inner_size([704.0, 676.0])
+            .with_position(egui::pos2(fitted[0] / scale, fitted[1] / scale))
+            .with_resizable(false)
             .with_taskbar(false)
-            // The wooden frame is the window: no system title bar or buttons.
             .with_decorations(false)
             .with_visible(revealed)
             .with_window_level(egui::WindowLevel::AlwaysOnTop);
@@ -2310,7 +2325,8 @@ impl CpuExpressApp {
                             return None;
                         }
                         v.outer_rect.zip(v.inner_rect).map(|(outer, inner)| {
-                            [outer.left(), outer.top(), inner.width(), inner.height()]
+                            let _ = inner;
+                            [outer.left() * scale, outer.top() * scale, 704.0, 676.0]
                         })
                     });
                     if let Some(rect) = rect
@@ -2322,259 +2338,9 @@ impl CpuExpressApp {
                         self.preferences_changed();
                     }
                 }
-                game::apply_style(root_ui);
-                game::wood_frame(root_ui.painter(), root_ui.max_rect());
-                // Resize by the right and bottom edges and by the lower-right corner.
-                if !ctx.embed_viewports() {
-                    let frame = root_ui.max_rect();
-                    let edge = game::FRAME;
-                    for (name, area, direction, cursor) in [
-                        (
-                            "panel-resize-corner",
-                            egui::Rect::from_min_max(
-                                frame.max - egui::Vec2::splat(edge * 2.0),
-                                frame.max,
-                            ),
-                            egui::ResizeDirection::SouthEast,
-                            egui::CursorIcon::ResizeNwSe,
-                        ),
-                        (
-                            "panel-resize-east",
-                            egui::Rect::from_min_max(
-                                egui::pos2(frame.right() - edge, frame.top() + edge * 2.0),
-                                egui::pos2(frame.right(), frame.bottom() - edge * 2.0),
-                            ),
-                            egui::ResizeDirection::East,
-                            egui::CursorIcon::ResizeHorizontal,
-                        ),
-                        (
-                            "panel-resize-south",
-                            egui::Rect::from_min_max(
-                                egui::pos2(frame.left() + edge * 2.0, frame.bottom() - edge),
-                                egui::pos2(frame.right() - edge * 2.0, frame.bottom()),
-                            ),
-                            egui::ResizeDirection::South,
-                            egui::CursorIcon::ResizeVertical,
-                        ),
-                    ] {
-                        let grip = root_ui
-                            .interact(area, root_ui.scope_id().with(name), egui::Sense::drag())
-                            .on_hover_cursor(cursor);
-                        if grip.drag_started_by(egui::PointerButton::Primary) {
-                            ctx.send_viewport_cmd(egui::ViewportCommand::BeginResize(direction));
-                        }
-                    }
-                    // Three notches mark the corner that resizes.
-                    let corner = frame.max - egui::Vec2::splat(4.0);
-                    for step in 0..3 {
-                        let offset = 4.0 + step as f32 * 4.0;
-                        root_ui.painter().line_segment(
-                            [
-                                corner - egui::vec2(offset, 0.0),
-                                corner - egui::vec2(0.0, offset),
-                            ],
-                            egui::Stroke::new(1.5, game::WOOD_LIGHT),
-                        );
-                    }
-                }
-                egui::Frame::new()
-                    .inner_margin(game::FRAME as i8 + 2)
-                    .show(root_ui, |ui| {
-                        egui::Frame::new().inner_margin(6).show(ui, |ui| {
-                            ui.set_min_size(ui.available_size());
-                            if self.welcome {
-                                self.welcome_controls(ui);
-                                return;
-                            }
-                            ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
-                            let compact =
-                                ui.available_height() < 610.0 || ui.available_width() < 560.0;
-                            let (title, subtitle, emblem) = if self.show_help {
-                                (
-                                    "Manual do maquinista",
-                                    "Um guia para sua ferrovia de desktop",
-                                    Icon::Help,
-                                )
-                            } else {
-                                match self.panel_tab {
-                                    PanelTab::Drive => (
-                                        "Cabine do maquinista",
-                                        "Acompanhe seu trem e o ritmo da viagem",
-                                        Icon::Train,
-                                    ),
-                                    PanelTab::Journey => (
-                                        "Viagem",
-                                        "Estações, objetivos e novas descobertas",
-                                        Icon::Book,
-                                    ),
-                                    PanelTab::Appearance => (
-                                        "Oficina ferroviária",
-                                        "Monte um trem com a sua personalidade",
-                                        Icon::Paint,
-                                    ),
-                                    PanelTab::Behavior => (
-                                        "Ajustes da ferrovia",
-                                        "Posicione sua companhia de viagem",
-                                        Icon::Settings,
-                                    ),
-                                }
-                            };
-                            // Without a title bar, the ribbon is the handle that moves the window.
-                            let ribbon = game::ribbon(ui, title, emblem, compact).rect;
-                            let handle = ui
-                                .interact(
-                                    ribbon,
-                                    ui.scope_id().with("panel-move"),
-                                    egui::Sense::click_and_drag(),
-                                )
-                                .on_hover_cursor(egui::CursorIcon::Grab);
-                            if handle.drag_started_by(egui::PointerButton::Primary) {
-                                ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
-                            }
-                            let _ = subtitle;
-                            let dock_height = if compact { 48.0 } else { 76.0 };
-                            let content_height =
-                                (ui.available_height() - 34.0 - dock_height).max(90.0);
-                            egui::ScrollArea::vertical()
-                                .id_salt((
-                                    "game-panel-content",
-                                    self.panel_tab as u8,
-                                    self.appearance_page,
-                                    self.journey_page,
-                                    self.show_help,
-                                ))
-                                .max_height(content_height)
-                                .auto_shrink([false, false])
-                                .show(ui, |ui| {
-                                    ui.set_width(ui.available_width());
-                                    if self.show_help {
-                                        self.help_contents(ui);
-                                    } else {
-                                        match self.panel_tab {
-                                            PanelTab::Drive => self.drive_controls(ui),
-                                            PanelTab::Journey => self.journey_controls(ui),
-                                            PanelTab::Appearance => self.appearance_controls(ui),
-                                            PanelTab::Behavior => {
-                                                section(ui, "Posição e tamanho", |ui| {
-                                                    self.behavior_controls(ui)
-                                                });
-                                                section(ui, "Sessão", |ui| {
-                                                    game::hint(ui, "O progresso é salvo ao sair. O jogo também fecha pelo ícone da bandeja.");
-                                                    if game::button(
-                                                        ui,
-                                                        "quit-game",
-                                                        Icon::Save,
-                                                        "Salvar e sair",
-                                                        false,
-                                                        egui::vec2(180.0, 34.0),
-                                                    )
-                                                    .clicked()
-                                                    {
-                                                        self.dispatch(AppAction::Quit, ctx);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                    if let Some(message) = self.notification_message() {
-                                        ui.colored_label(game::BLUE, message);
-                                    }
-                                    if let Some(id) = ui.memory(|memory| memory.focused())
-                                        && let Some(response) = ui.ctx().read_response(id)
-                                        && response.gained_focus()
-                                        && ui.min_rect().intersects(response.rect)
-                                    {
-                                        response.scroll_to_me(Some(egui::Align::Center));
-                                    }
-                                });
-                            ui.add_space(2.0);
-                            let toast = self
-                                .equipment_notice
-                                .as_ref()
-                                .filter(|(_, until)| Instant::now() < *until)
-                                .or_else(|| {
-                                    self.travel_notice
-                                        .as_ref()
-                                        .filter(|(_, until)| Instant::now() < *until)
-                                });
-                            let message = if let Some((text, until)) = toast {
-                                ctx.request_repaint_after(
-                                    until.saturating_duration_since(Instant::now()),
-                                );
-                                text.as_str()
-                            } else if self.preferences_dirty {
-                                "Salvando ajustes…"
-                            } else if self.paused {
-                                "Viagem pausada · seu progresso está preservado"
-                            } else if self.demo_mode {
-                                "Demonstração · viagem temporária"
-                            } else {
-                                // Nothing to report: the line keeps its height and stays empty.
-                                ""
-                            };
-                            ui.label(
-                                egui::RichText::new(message)
-                                    .size(12.0)
-                                    .strong()
-                                    .color(game::GREEN),
-                            );
-                            // Bottom dock: the places of the game, then help and close.
-                            let tile = egui::vec2(
-                                ((ui.available_width() - 5.0 * 6.0) / 6.0)
-                                    .floor()
-                                    .clamp(44.0, 132.0),
-                                dock_height,
-                            );
-                            ui.horizontal(|ui| {
-                                ui.spacing_mut().item_spacing.x = 6.0;
-                                for (tab, label, icon) in [
-                                    (PanelTab::Drive, "Trem", Icon::Train),
-                                    (PanelTab::Journey, "Viagem", Icon::Map),
-                                    (PanelTab::Appearance, "Visual", Icon::Paint),
-                                    (PanelTab::Behavior, "Janela", Icon::Settings),
-                                ] {
-                                    if game::dock_button(
-                                        ui,
-                                        ("nav", tab as u8),
-                                        icon,
-                                        label,
-                                        self.panel_tab == tab && !self.show_help,
-                                        tile,
-                                    )
-                                    .clicked()
-                                    {
-                                        self.panel_tab = tab;
-                                        self.show_help = false;
-                                    }
-                                }
-                                if game::dock_button(
-                                    ui,
-                                    "help-nav",
-                                    Icon::Help,
-                                    "Ajuda",
-                                    self.show_help,
-                                    tile,
-                                )
-                                .clicked()
-                                {
-                                    self.show_help = !self.show_help;
-                                }
-                                if game::dock_button(
-                                    ui,
-                                    "close-book",
-                                    Icon::Close,
-                                    "Fechar",
-                                    false,
-                                    tile,
-                                )
-                                .on_hover_text("Fechar painel (Esc). Sair do jogo: ícone da bandeja.")
-                                .clicked()
-                                {
-                                    self.dispatch(AppAction::ClosePanel, ctx);
-                                }
-                            });
-                        });
-                    });
+                // Zoom changes pixels per point, preserving one layout on small monitors.
+                menus::synchronize_panel_size(ctx);
+                self.central_menu(root_ui);
                 self.capture_for_validation(ctx, 1);
             },
         );

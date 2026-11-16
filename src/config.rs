@@ -89,6 +89,8 @@ pub struct Config {
     /// Independent menu geometry, in logical points.
     pub panel_rect: Option<[f32; 4]>,
     pub reduce_menu_motion: bool,
+    /// Permission for aggregate input activity; the E2 collector consumes it.
+    pub use_input_activity: bool,
     pub quiet_mode: bool,
     pub sound_volume: f32,
     pub weather_location: crate::local_weather::WeatherLocation,
@@ -121,6 +123,7 @@ impl Default for Config {
             floating_rect: None,
             panel_rect: None,
             reduce_menu_motion: false,
+            use_input_activity: true,
             quiet_mode: false,
             sound_volume: 0.0,
             weather_location: crate::local_weather::WeatherLocation::default(),

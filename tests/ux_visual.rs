@@ -67,63 +67,61 @@ fn text_center(shape: &egui::Shape, text: &str) -> Option<egui::Pos2> {
 }
 
 #[test]
-#[ignore = "optional floating-panel artifact export"]
-fn export_floating_panels() {
-    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("explicit output directory");
+#[ignore = "exportação E5 para diretório explícito; não valida compositor"]
+fn export_expansion_menus() {
+    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
     let directory = Path::new(&directory);
     fs::create_dir_all(directory).unwrap();
-    for (name, tab) in [
-        ("floating_trem", "Trem"),
-        ("floating_viagem", "Viagem"),
-        ("floating_objetivos", "Viagem/Objetivos"),
-        ("floating_diario", "Viagem/Diário"),
-        ("floating_servicos", "Viagem/Serviços"),
-        ("floating_servicos_active", "Viagem/Serviços"),
-        ("floating_contract_offer", "Viagem/Serviços"),
-        ("floating_contract_blocked", "Viagem/Serviços"),
-        ("floating_contract_return", "Viagem/Serviços"),
-        ("floating_contract_small", "Viagem/Serviços"),
-        ("floating_contract_minimum", "Viagem/Serviços"),
-        ("floating_contract_minimum_scrolled", "Viagem/Serviços"),
-        ("floating_diario_active", "Viagem/Diário"),
-        ("floating_branch", "Viagem"),
-        ("floating_branch_minimum", "Viagem"),
-        ("floating_branch_minimum_scrolled", "Viagem"),
-        ("floating_colecao", "Viagem/Coleção"),
-        ("floating_visual", "Visual"),
-        ("floating_janela", "Janela"),
-        ("floating_pinturas", "Visual/Pinturas"),
-        ("floating_motores", "Visual/Motores"),
-        ("floating_clima", "Visual/Clima"),
-        ("floating_fluidez", "Visual/Fluidez"),
-        ("floating_visual_small", "Visual"),
-        ("floating_visual_minimum", "Visual"),
-        ("floating_visual_minimum_scrolled", "Visual"),
+    for (page, pages) in [
+        ("trem", 1),
+        ("mapa", 1),
+        ("missoes", 6),
+        ("diario", 2),
+        ("arquivo", 1),
+        ("servicos", 1),
+        ("ramais", 1),
+        ("vagoes", 5),
+        ("motores", 3),
+        ("pinturas", 3),
+        ("favoritos", 1),
+        ("janela", 2),
+        ("clima", 2),
+        ("fluidez", 3),
+        ("sessao", 1),
+        ("ajuda", 1),
+        ("acolhida", 1),
+        ("colecao", 2),
+        ("loja", 1),
+        ("missoes-vazio", 1),
+        ("servicos-oferta", 1),
+        ("servicos-bloqueado", 1),
+        ("servicos-devolucao", 1),
+        ("ramais-ativo", 1),
+        ("janela-livre", 1),
+        ("janela-flutuante", 1),
     ] {
-        export_scenario(
-            directory,
-            Scenario {
-                name,
-                hud_mode: HudMode::Clean,
-                paused: true,
-                action: Some(AppAction::ToggleControls),
-                idle: false,
-                size: if name.contains("minimum") {
-                    [480, 480]
-                } else if name.ends_with("small") {
-                    [560, 600]
-                } else {
-                    [1000, 900]
+        for index in 0..pages {
+            export_scenario(
+                directory,
+                Scenario {
+                    name: &format!("floating_e5_{page}_{index}"),
+                    hud_mode: HudMode::Clean,
+                    paused: true,
+                    action: None,
+                    idle: false,
+                    size: [704, 676],
+                    tab: None,
+                    scroll: 0.0,
                 },
-                tab: Some(tab),
-                scroll: if name.ends_with("scrolled") {
-                    220.0
-                } else {
-                    0.0
-                },
-            },
-        );
+            );
+        }
     }
+}
+
+#[test]
+#[ignore = "optional floating-panel artifact export"]
+fn export_floating_panels() {
+    export_expansion_menus();
 }
 
 fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
@@ -167,6 +165,18 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
             name.contains("_branch")
                 .then_some(cpu_express::simulation::BranchKind::Serra),
         );
+    }
+    if let Some(page) = name.strip_prefix("floating_e5_") {
+        let (page, index) = page.rsplit_once('_').unwrap();
+        if !page.contains('-')
+            && !matches!(
+                page,
+                "acolhida" | "loja" | "vagoes" | "motores" | "pinturas"
+            )
+        {
+            app.prepare_demo_review(3600, None);
+        }
+        app.prepare_demo_menu(page, index.parse().unwrap());
     }
     let mut frame = eframe::Frame::_new_kittest();
     let mut textures = HashMap::new();

@@ -106,28 +106,30 @@ impl CpuExpressApp {
             self.config.visual.engine,
         );
         let page_width = ((ui.available_width() - 32.0) / 5.0).floor().max(76.0);
-        ui.horizontal_wrapped(|ui| {
-            for (page, icon, label) in [
-                (0, Icon::Train, "Vagões"),
-                (1, Icon::Paint, "Pinturas"),
-                (2, Icon::Weather, "Clima"),
-                (3, Icon::Settings, "Fluidez"),
-                (4, Icon::Train, "Motores"),
-            ] {
-                if game::button(
-                    ui,
-                    ("workshop-page", page),
-                    icon,
-                    label,
-                    self.appearance_page == page,
-                    egui::vec2(page_width, if page_width < 100.0 { 46.0 } else { 34.0 }),
-                )
-                .clicked()
-                {
-                    self.appearance_page = page;
+        if self.panel_tab != PanelTab::Behavior {
+            ui.horizontal_wrapped(|ui| {
+                for (page, icon, label) in [
+                    (0, Icon::Train, "Vagões"),
+                    (1, Icon::Paint, "Pinturas"),
+                    (2, Icon::Weather, "Clima"),
+                    (3, Icon::Settings, "Fluidez"),
+                    (4, Icon::Train, "Motores"),
+                ] {
+                    if game::button(
+                        ui,
+                        ("workshop-page", page),
+                        icon,
+                        label,
+                        self.appearance_page == page,
+                        egui::vec2(page_width, if page_width < 100.0 { 46.0 } else { 34.0 }),
+                    )
+                    .clicked()
+                    {
+                        self.appearance_page = page;
+                    }
                 }
-            }
-        });
+            });
+        }
         ui.add_space(8.0);
         let journey = self.world.journey_snapshot();
         match self.appearance_page {
@@ -544,7 +546,7 @@ impl CpuExpressApp {
                     changed |= ui
                         .checkbox(
                             &mut self.config.reduce_menu_motion,
-                            "Reduzir animações dos menus",
+                            "Reduzir movimento de menus, passageiros e paisagem",
                         )
                         .changed();
                     changed |= ui
