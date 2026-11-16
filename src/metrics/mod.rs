@@ -1,7 +1,11 @@
 //! Real metrics collected on one worker and handed off through one replaceable slot.
 //! The UI never waits for a provider, a full queue, or a held snapshot mutex.
 
+#[cfg(windows)]
+mod machine_windows;
 mod sysinfo_provider;
+use crate::simulation::machine::MachineSignals;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use std::{
     io,
@@ -37,6 +41,7 @@ pub enum SampleFreshness {
 /// `Unavailable` can contain one valid metric when the other metric failed.
 #[derive(Clone, Debug)]
 pub struct MetricsSample {
+    pub machine: MachineSignals,
     pub cpu_percent: Option<f32>,
     pub ram_percent: Option<f32>,
     pub used_memory_bytes: u64,
@@ -49,6 +54,7 @@ impl MetricsSample {
     #[must_use]
     pub fn unavailable(message: impl Into<String>) -> Self {
         Self {
+            machine: MachineSignals::default(),
             cpu_percent: None,
             ram_percent: None,
             used_memory_bytes: 0,
@@ -100,6 +106,7 @@ impl MetricsSample {
     }
 
     fn clear_readings(&mut self) {
+        self.machine = MachineSignals::default();
         self.cpu_percent = None;
         self.ram_percent = None;
         self.used_memory_bytes = 0;
@@ -109,6 +116,7 @@ impl MetricsSample {
     /// Validate an injected provider too, without overwriting a legitimate
     /// partial reading or changing the observation's original timestamp.
     fn validated(mut self) -> Self {
+        self.machine = self.machine.validated();
         let mut issue = None;
         if let Some(cpu) = self.cpu_percent {
             if cpu.is_finite() {
@@ -195,14 +203,22 @@ pub trait MetricsProvider: Send {
 #[derive(Clone, Debug)]
 pub struct ManualProvider {
     cpu_percent: f32,
+    machine: MachineSignals,
 }
 
 impl ManualProvider {
     #[must_use]
     pub fn new(cpu_percent: f32) -> Self {
-        let mut provider = Self { cpu_percent: 0.0 };
+        let mut provider = Self {
+            cpu_percent: 0.0,
+            machine: MachineSignals::default(),
+        };
         provider.set_cpu(cpu_percent);
         provider
+    }
+
+    pub fn set_machine(&mut self, signals: MachineSignals) {
+        self.machine = signals.validated();
     }
 
     pub fn set_cpu(&mut self, cpu_percent: f32) {
@@ -217,6 +233,7 @@ impl ManualProvider {
 impl MetricsProvider for ManualProvider {
     fn sample(&mut self) -> MetricsSample {
         MetricsSample {
+            machine: self.machine,
             cpu_percent: Some(self.cpu_percent),
             ram_percent: None,
             used_memory_bytes: 0,
@@ -267,6 +284,7 @@ impl LatestSample {
 /// returns None immediately and leaves the latest value available for next time.
 /// No system call runs while the slot is locked, and no metrics history grows.
 pub struct MetricsWorker {
+    input_enabled: Arc<AtomicBool>,
     samples: Arc<LatestSample>,
     stop: SyncSender<()>,
     thread: Option<JoinHandle<()>>,
@@ -277,14 +295,23 @@ impl MetricsWorker {
     /// Initialize sysinfo inside the worker, including expensive Windows PDH
     /// initialization. Recoverable constructor errors retry at most once/second.
     pub fn spawn(interval: Duration) -> io::Result<Self> {
-        let interval = sampling_interval(interval, sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
-        Self::launch(interval, move |stop, samples| {
+        Self::spawn_with_input(interval, true)
+    }
+
+    pub fn spawn_with_input(interval: Duration, enabled: bool) -> io::Result<Self> {
+        let input_enabled = Arc::new(AtomicBool::new(enabled));
+        let collector_input = Arc::clone(&input_enabled);
+        let interval = sampling_interval(
+            interval.max(Duration::from_secs(1)),
+            sysinfo::MINIMUM_CPU_UPDATE_INTERVAL,
+        );
+        let mut worker = Self::launch(interval, move |stop, samples| {
             let retry_interval = interval.max(Duration::from_secs(1));
             loop {
                 if stop_is_pending(&stop) {
                     return;
                 }
-                match SysinfoProvider::new() {
+                match SysinfoProvider::with_input(Arc::clone(&collector_input)) {
                     Ok(provider) => {
                         run_provider(interval, provider, stop, samples);
                         return;
@@ -297,7 +324,13 @@ impl MetricsWorker {
                     }
                 }
             }
-        })
+        })?;
+        worker.input_enabled = input_enabled;
+        Ok(worker)
+    }
+
+    pub fn set_input_enabled(&self, enabled: bool) {
+        self.input_enabled.store(enabled, Ordering::Relaxed);
     }
 
     pub fn spawn_with_provider(
@@ -331,6 +364,7 @@ impl MetricsWorker {
                 }
             })?;
         Ok(Self {
+            input_enabled: Arc::new(AtomicBool::new(false)),
             samples,
             stop,
             thread: Some(thread),
@@ -432,6 +466,7 @@ mod tests {
         samples.publish(ManualProvider::new(47.0).sample());
         let (stop, _stop_rx) = mpsc::sync_channel(1);
         let worker = MetricsWorker {
+            input_enabled: Arc::new(AtomicBool::new(false)),
             samples: Arc::clone(&samples),
             stop,
             thread: None,
@@ -497,6 +532,7 @@ mod tests {
         sample.ram_percent = Some(25.0);
         sample.used_memory_bytes = 25;
         sample.total_memory_bytes = 100;
+        sample.machine = MachineSignals::demo(85.0);
         let snapshot = MetricsSnapshot::at(
             sample,
             measured + Duration::from_secs(8),
@@ -507,5 +543,24 @@ mod tests {
         assert_eq!(snapshot.sample.measured_at, measured);
         assert_eq!(snapshot.sample.cpu_percent, None);
         assert_eq!(snapshot.sample.memory_bytes(), None);
+        assert_eq!(snapshot.sample.machine, MachineSignals::default());
+    }
+
+    #[test]
+    fn manual_machine_signals_validate_independently() {
+        let mut manual = ManualProvider::new(15.0);
+        manual.set_machine(MachineSignals {
+            disk_bytes_per_second: Some(f32::NAN),
+            network_bytes_per_second: Some(42.0),
+            battery_percent: Some(255.0),
+            input_active: Some(false),
+            ..Default::default()
+        });
+        let sample = manual.sample().validated();
+        assert_eq!(sample.cpu_percent, Some(15.0));
+        assert_eq!(sample.machine.disk_bytes_per_second, None);
+        assert_eq!(sample.machine.network_bytes_per_second, Some(42.0));
+        assert_eq!(sample.machine.battery_percent, None);
+        assert_eq!(sample.machine.input_active, Some(false));
     }
 }

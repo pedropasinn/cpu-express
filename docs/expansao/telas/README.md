@@ -107,3 +107,14 @@ Os índices dos arquivos começam em zero. Páginas acima do último índice dis
 | revelacao_1 | [Abrir](floating_e6_revelacao_1.png) |
 | revelacao_2 | [Abrir](floating_e6_revelacao_2.png) |
 | revelacao_3 | [Abrir](floating_e6_revelacao_3.png) |
+
+## E2 — Sala de máquinas
+
+Exportações do egui em 704 × 676, com sinais simulados e identificação de demonstração. Não são capturas do compositor Windows. O percentual de cada medidor representa a força do efeito, não o uso bruto do recurso. Reprodução e contratos: [SALA_MAQUINAS_E2.md](../SALA_MAQUINAS_E2.md).
+
+| Estado | Tela |
+| --- | --- |
+| Seis sinais e bônus total de +30% | [Abrir](floating_e2_maquina_0.png) |
+| Sinais indisponíveis, bônus zero | [Abrir](floating_e2_maquina_1.png) |
+| Bateria baixa e marcha tranquila | [Abrir](floating_e2_maquina_2.png) |
+| Atividade de entrada desligada | [Abrir](floating_e2_maquina_3.png) |

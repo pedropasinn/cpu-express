@@ -11,6 +11,8 @@ use super::{MetricStatus, MetricsProvider, MetricsSample};
 /// silently retaining or substituting a plausible number after an OS error.
 pub struct SysinfoProvider {
     system: System,
+    #[cfg(windows)]
+    machine: super::machine_windows::MachineCollector,
     previous: Option<LastRefresh>,
 }
 
@@ -22,16 +24,27 @@ struct LastRefresh {
 
 impl LastRefresh {
     fn cached_if_too_early(&self, now: Instant) -> Option<MetricsSample> {
-        (now.saturating_duration_since(self.completed_at) < MINIMUM_CPU_UPDATE_INTERVAL)
-            .then(|| self.sample.clone())
+        (now.saturating_duration_since(self.completed_at)
+            < MINIMUM_CPU_UPDATE_INTERVAL.max(Duration::from_secs(1)))
+        .then(|| self.sample.clone())
     }
 }
 
 impl SysinfoProvider {
     pub fn new() -> Result<Self, String> {
+        Self::with_input(std::sync::Arc::new(std::sync::atomic::AtomicBool::new(
+            true,
+        )))
+    }
+
+    pub(super) fn with_input(
+        _input: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    ) -> Result<Self, String> {
         let system = System::new().map_err(|error| error.to_string())?;
         Ok(Self {
             system,
+            #[cfg(windows)]
+            machine: super::machine_windows::MachineCollector::new(_input),
             previous: None,
         })
     }
@@ -66,7 +79,12 @@ impl MetricsProvider for SysinfoProvider {
             total_memory: self.system.total_memory(),
             available_memory: self.system.available_memory(),
         };
-        let sample = counters.to_sample(had_baseline, measured_at);
+        #[allow(unused_mut)]
+        let mut sample = counters.to_sample(had_baseline, measured_at);
+        #[cfg(windows)]
+        {
+            sample.machine = self.machine.sample();
+        }
         self.previous = Some(LastRefresh {
             sample: sample.clone(),
             completed_at: Instant::now(),
@@ -78,7 +96,7 @@ impl MetricsProvider for SysinfoProvider {
     }
 
     fn minimum_interval(&self) -> Duration {
-        MINIMUM_CPU_UPDATE_INTERVAL
+        MINIMUM_CPU_UPDATE_INTERVAL.max(Duration::from_secs(1))
     }
 }
 
@@ -138,6 +156,7 @@ impl Counters {
             (None, None) => MetricStatus::Ready,
         };
         MetricsSample {
+            machine: Default::default(),
             cpu_percent,
             ram_percent,
             used_memory_bytes,
@@ -266,7 +285,10 @@ mod tests {
             assert_eq!(repeat.ram_percent, previous.sample.ram_percent);
             assert!(
                 previous
-                    .cached_if_too_early(previous.completed_at + MINIMUM_CPU_UPDATE_INTERVAL)
+                    .cached_if_too_early(
+                        previous.completed_at
+                            + MINIMUM_CPU_UPDATE_INTERVAL.max(Duration::from_secs(1))
+                    )
                     .is_none()
             );
         }

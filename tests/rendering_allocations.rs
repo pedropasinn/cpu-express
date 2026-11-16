@@ -304,3 +304,29 @@ fn largura_estavel_nao_aloca_inclusive_transicoes_e_clima() {
         assert_eq!(ALLOCATIONS.with(Cell::get), 0, "largura {width}");
     }
 }
+
+#[test]
+fn sala_de_maquinas_medias_e_efeitos_nao_alocam() {
+    use cpu_express::simulation::machine::{MachineSignals, MachineState};
+    let config = Config::default();
+    let mut train = Train::new(&config);
+    let mut world = World::default();
+    for _ in 0..1000 {
+        world.advance_expedition(&mut train, 15.0, 1.0, &config);
+        if world.station_wait() > 0.0 {
+            break;
+        }
+    }
+    let mut renderer = SceneRenderer::new();
+    let mut machine = MachineState::default();
+    ALLOCATIONS.with(|count| count.set(0));
+    COUNTING.with(|active| active.set(true));
+    for second in 0..120 {
+        machine.observe(second as f64, MachineSignals::demo(15.0));
+        let effects = machine.effects(second as f64, 3.0, true);
+        renderer.set_machine_effects(effects, second % 2 == 0);
+        std::hint::black_box(renderer.render(&train, &world));
+    }
+    COUNTING.with(|active| active.set(false));
+    assert_eq!(ALLOCATIONS.with(Cell::get), 0);
+}

@@ -1,5 +1,7 @@
 # Coleta, idade e custo das métricas
 
+**Expansão E2:** o aplicativo de desenvolvimento acrescenta disco/rede/energia/entrada ao mesmo worker, em 1 Hz, com ausência por sinal e descarte por idade. A descrição anterior abaixo permanece como histórico da base rc.3; “Disco não implementado” não descreve mais a branch expansao. Contratos, limites do coletor Windows e reprodução estão em [Sala de máquinas](expansao/SALA_MAQUINAS_E2.md). Tempo ativo continua pertencendo ao SimulationClock, sem substituir esse relógio pelo tempo ligado do SO.
+
 Nota técnica da coleta. Resultados e limites da versão atual estão em [VALIDACAO_04.md](VALIDACAO_04.md).
 
 ## 1. O defeito e a correção

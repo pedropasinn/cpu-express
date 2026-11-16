@@ -14,6 +14,7 @@ const PROVIDER_WATCHDOG: Duration = Duration::from_secs(10);
 
 fn ready(cpu: f32) -> MetricsSample {
     MetricsSample {
+        machine: Default::default(),
         cpu_percent: Some(cpu),
         ram_percent: Some(25.0),
         used_memory_bytes: 250,

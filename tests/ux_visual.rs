@@ -167,6 +167,29 @@ fn export_economy_menus() {
     }
 }
 
+#[test]
+#[ignore = "exportação E2 para diretório explícito; não valida compositor"]
+fn export_machine_menus() {
+    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
+    let directory = Path::new(&directory);
+    fs::create_dir_all(directory).unwrap();
+    for index in 0..4 {
+        export_scenario(
+            directory,
+            Scenario {
+                name: &format!("floating_e2_maquina_{index}"),
+                hud_mode: HudMode::Clean,
+                paused: true,
+                action: None,
+                idle: false,
+                size: [704, 676],
+                tab: None,
+                scroll: 0.0,
+            },
+        );
+    }
+}
+
 fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
     let Scenario {
         name,
@@ -224,6 +247,9 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
     if let Some(page) = name.strip_prefix("floating_e6_") {
         let (page, index) = page.rsplit_once('_').unwrap();
         app.prepare_demo_store(page, index.parse().unwrap());
+    }
+    if let Some(index) = name.strip_prefix("floating_e2_maquina_") {
+        app.prepare_demo_machine(index.parse().unwrap());
     }
     let mut frame = eframe::Frame::_new_kittest();
     let mut textures = HashMap::new();

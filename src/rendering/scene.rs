@@ -47,6 +47,8 @@ pub struct SceneRenderer {
     station_styles: super::StationStyles,
     passenger_options: super::PassengerOptions,
     engine: EngineStyle,
+    machine_effects: crate::simulation::machine::MachineEffects,
+    machine_static: bool,
 }
 
 impl Default for SceneRenderer {
@@ -76,6 +78,8 @@ impl SceneRenderer {
             station_styles: super::StationStyles::default(),
             passenger_options: super::PassengerOptions::default(),
             engine: EngineStyle::default(),
+            machine_effects: Default::default(),
+            machine_static: false,
             coaches: [
                 CoachStyle::Observation,
                 CoachStyle::Sleeper,
@@ -139,6 +143,15 @@ impl SceneRenderer {
 
     pub fn set_quality(&mut self, quality: RenderQuality) {
         self.quality = quality;
+    }
+
+    pub fn set_machine_effects(
+        &mut self,
+        effects: crate::simulation::machine::MachineEffects,
+        reduce_motion: bool,
+    ) {
+        self.machine_effects = effects;
+        self.machine_static = reduce_motion;
     }
 
     pub fn set_options(&mut self, options: SceneOptions) {
@@ -294,6 +307,12 @@ impl SceneRenderer {
             (self.passenger_options, passenger_weather),
         );
         scenery::weather(&mut canvas, view);
+        draw_machine_yard(
+            &mut canvas,
+            world,
+            self.machine_effects,
+            self.machine_static,
+        );
         let origin = canvas.train_origin();
         canvas.origin = origin;
         if self.engine.emits_smoke() {
@@ -359,6 +378,51 @@ fn blend_backgrounds(destination: &mut [Color32], source: &[Color32], weight: u3
             channel(left.r(), right.r()),
             channel(left.g(), right.g()),
             channel(left.b(), right.b()),
+        );
+    }
+}
+
+fn draw_machine_yard(
+    canvas: &mut Canvas<'_>,
+    world: &World,
+    effects: crate::simulation::machine::MachineEffects,
+    reduced: bool,
+) {
+    use super::sprites::rgb;
+    if world.station_wait() <= 0.0 || world.excursion_snapshot().current.is_some() {
+        return;
+    }
+    let time = if reduced {
+        0.0
+    } else {
+        world.elapsed_seconds()
+    };
+    let x = 272;
+    let iron = rgb(63, 62, 63);
+    if let Some(level) = effects.gauges[3].filter(|v| *v > 0.0) {
+        let sway = (time * 1.5).sin() * f64::from(level) * 3.0;
+        canvas.rect(x, 34, 3, 20, iron);
+        canvas.rect(x - 4, 52, 12, 3, iron);
+        canvas.line((x + 1, 34), (x + 20, 29), iron);
+        canvas.line((x + 1, 39), (x + 20, 29), iron);
+        canvas.line((x + 20, 29), (x + 20, 42 + sway as i32), iron);
+        canvas.rect(x + 17, 42 + sway as i32, 7, 5, rgb(172, 117, 60));
+    }
+    if let Some(level) = effects.gauges[4].filter(|v| *v > 0.0) {
+        canvas.rect(306, 27, 2, 28, iron);
+        canvas.rect(301, 29, 12, 2, iron);
+        canvas.line((298, 26), (319, 28), iron);
+        let blink = !reduced && (time * (1.0 + f64::from(level))).rem_euclid(3.0) < 0.6;
+        canvas.rect(
+            305,
+            32,
+            4,
+            3,
+            if blink {
+                rgb(245, 207, 91)
+            } else {
+                rgb(94, 132, 111)
+            },
         );
     }
 }

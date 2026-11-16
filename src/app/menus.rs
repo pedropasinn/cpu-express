@@ -378,10 +378,7 @@ impl CpuExpressApp {
             ],
         );
         if self.menu.drive == 5 {
-            ui.heading("Sala de máquinas");
-            ui.label("Os medidores desta sala ainda não estão disponíveis.");
-            ui.label("CPU e memória atuais podem ser consultadas na Cabine.");
-            ui.label("As leituras da máquina não saem do computador.");
+            self.machine_page(ui);
             return;
         }
         if (1..=3).contains(&self.menu.drive) {
@@ -1141,10 +1138,10 @@ impl CpuExpressApp {
                 changed |= ui
                     .checkbox(
                         &mut self.config.use_input_activity,
-                        "Permitir atividade agregada do teclado e mouse",
+                        "Usar atividade do teclado e mouse",
                     )
                     .changed();
-                ui.label("Preferência para a Sala de máquinas. Sem teclas, títulos de janela ou histórico; a leitura de atividade ainda está indisponível.");
+                ui.label("Só presença de atividade no último minuto. Sem ler teclas, títulos de janela ou salvar histórico.");
             }
             _ => {
                 let mut mode = self.config.effective_hud_mode();

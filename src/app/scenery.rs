@@ -49,10 +49,10 @@ impl CpuExpressApp {
         self.renderer.set_scenery_context(scenery);
         self.renderer.set_station_styles(styles);
         self.renderer.set_scenery_life_options(SceneryLifeOptions {
-            reduce_motion: self.config.reduce_menu_motion,
+            reduce_motion: self.config.reduce_menu_motion || self.machine_effects.low_power,
         });
         self.renderer.set_passenger_options(PassengerOptions {
-            reduce_motion: self.config.reduce_menu_motion,
+            reduce_motion: self.config.reduce_menu_motion || self.machine_effects.low_power,
             cold: self.local_weather.last_good.as_ref().is_some_and(|s| {
                 !s.stale() && s.temperature_c.is_finite() && s.temperature_c < 12.0
             }),

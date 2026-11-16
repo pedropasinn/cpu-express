@@ -18,6 +18,7 @@ use crate::{
 };
 mod branches;
 mod journey;
+mod machine;
 mod menus;
 mod missions;
 mod scenery;
@@ -285,6 +286,10 @@ pub struct CpuExpressApp {
     exit_after: Option<Duration>,
     cpu_override: Option<f32>,
     manual_value: f32,
+    machine: crate::simulation::machine::MachineState,
+    machine_effects: crate::simulation::machine::MachineEffects,
+    machine_demo_prepared: bool,
+    machine_demo_signals: Option<crate::simulation::machine::MachineSignals>,
     metrics: MetricsSample,
     worker: Option<MetricsWorker>,
     diagnostics: Option<Diagnostics>,
@@ -417,6 +422,7 @@ impl CpuExpressApp {
             ManualProvider::new(manual_value).sample()
         } else {
             MetricsSample {
+                machine: Default::default(),
                 cpu_percent: None,
                 ram_percent: None,
                 used_memory_bytes: 0,
@@ -427,9 +433,9 @@ impl CpuExpressApp {
         };
         let worker = match launch_worker(
             demo_mode,
-            Duration::from_millis(config.metrics_interval_ms),
+            Duration::from_secs(1),
             manual_value,
-            MetricsWorker::spawn,
+            |interval| MetricsWorker::spawn_with_input(interval, config.use_input_activity),
         ) {
             Ok(worker) => Some(worker),
             Err(error) => {
@@ -568,6 +574,10 @@ impl CpuExpressApp {
             exit_after: options.exit_after,
             cpu_override,
             manual_value,
+            machine: Default::default(),
+            machine_effects: Default::default(),
+            machine_demo_prepared: false,
+            machine_demo_signals: None,
             metrics,
             worker,
             diagnostics: options.diagnostics,
@@ -850,6 +860,7 @@ impl CpuExpressApp {
 
     fn step_frame(&mut self, ctx: &egui::Context) {
         self.observe_economy();
+        self.update_machine();
         let now = Instant::now();
         if self.was_hidden
             || (now + Duration::from_millis(1) < self.next_frame
@@ -861,7 +872,11 @@ impl CpuExpressApp {
         self.sync_clock();
         let dt = self.clock.take_step(self.opened.elapsed());
         if !self.suspended() {
-            let cpu = self.cpu_percent();
+            let cpu = if self.machine_effects.quiet_march {
+                self.cpu_percent().min(5.0)
+            } else {
+                self.cpu_percent()
+            };
             if let Some(path) = &self.progress_path {
                 match crate::progress::advance_checkpoint(
                     path,
@@ -902,6 +917,16 @@ impl CpuExpressApp {
                     &self.world.journey_snapshot(),
                 )));
             self.update_scenery_adapter();
+            self.renderer
+                .set_quality(if self.machine_effects.low_power {
+                    crate::rendering::RenderQuality::Low
+                } else {
+                    self.config.visual.quality
+                });
+            self.renderer.set_machine_effects(
+                self.machine_effects,
+                self.config.reduce_menu_motion || self.machine_effects.low_power,
+            );
             let livery = self.config.visual.livery;
             self.renderer.set_livery(
                 if self.world.service_snapshot().owns(livery) || self.demo_mode {
@@ -927,7 +952,8 @@ impl CpuExpressApp {
             let arrival = self.world.service_snapshot().arrivals.last();
             self.renderer
                 .set_station_service(Some(crate::rendering::StationService {
-                    progress: (1.0 - self.world.station_wait() / 8.0) as f32,
+                    progress: ((1.0 - self.world.station_wait() / 8.0) as f32)
+                        .powf(1.0 / (1.0 + self.machine_effects.gauges[2].unwrap_or(0.0) * 0.2)),
                     boarding: arrival.map_or(0, |a| a.boarded),
                     alighting: arrival.map_or(0, |a| a.alighted),
                 }));
@@ -954,12 +980,19 @@ impl CpuExpressApp {
         let interval = if self.suspended() {
             Duration::from_millis(250)
         } else {
-            Duration::from_secs_f64(1.0 / f64::from(self.config.fps))
+            Duration::from_secs_f64(
+                1.0 / f64::from(if self.machine_effects.low_power {
+                    self.config.fps.min(20)
+                } else {
+                    self.config.fps
+                }),
+            )
         };
         self.next_frame = crate::frame_pacing::next_deadline(self.next_frame, now, interval);
     }
 
     fn preferences_changed(&mut self) {
+        self.apply_input_preference();
         self.scene_dirty = true;
         self.preferences_dirty = true;
         self.save_after = Instant::now() + Duration::from_millis(400);
@@ -1817,11 +1850,16 @@ impl CpuExpressApp {
             self.config.weather_location.city
         ));
         ui.label("As leituras da máquina não saem do computador.");
-        ui.checkbox(
-            &mut self.config.use_input_activity,
-            "Permitir atividade agregada do teclado e mouse",
-        );
-        ui.small("Sem ler teclas. Preferência para a Sala de máquinas; coleta ainda indisponível nesta etapa.");
+        if ui
+            .checkbox(
+                &mut self.config.use_input_activity,
+                "Usar atividade do teclado e mouse",
+            )
+            .changed()
+        {
+            self.apply_input_preference();
+        }
+        ui.small("Só presença de atividade no último minuto, sem ler teclas nem salvar histórico.");
         ui.label("O clima consulta o serviço de meteorologia. Não há progresso offline.");
         if let Some(notice) = self.notification_message() {
             ui.colored_label(game::RED, notice);
@@ -3137,6 +3175,7 @@ mod tests {
     #[test]
     fn partial_cpu_remains_usable_when_only_memory_failed() {
         let app = app_with_sample(MetricsSample {
+            machine: Default::default(),
             cpu_percent: Some(37.0),
             ram_percent: None,
             used_memory_bytes: 0,
@@ -3153,6 +3192,7 @@ mod tests {
     #[test]
     fn memory_remains_usable_during_cpu_warm_up_but_not_after_expiry() {
         let mut app = app_with_sample(MetricsSample {
+            machine: Default::default(),
             cpu_percent: None,
             ram_percent: Some(50.0),
             used_memory_bytes: 512,
