@@ -74,9 +74,8 @@ fn rc7_fixtures_load_without_invented_service_and_without_touching_the_file() {
         let dir = directory(fixture.name);
         let file = dir.join("config.journey.json");
         fs::write(&file, fixture.bytes).unwrap();
-        let (world, notice) = progress::load_profile(&file).unwrap();
-        let world = world.unwrap();
-        assert_eq!(notice, None, "{}", fixture.name);
+        // The inspection loader stays read-only; the product loader now settles legacy rewards.
+        let world = progress::load_world(&file).unwrap().unwrap();
         assert_eq!(fs::read(&file).unwrap(), fixture.bytes, "{}", fixture.name);
         assert_eq!(fs::read_dir(&dir).unwrap().count(), 1, "{}", fixture.name);
 
@@ -117,8 +116,10 @@ fn migrated_fixture_reopened_twice_keeps_the_same_domain_and_exact_backup() {
         let dir = directory(fixture.name);
         let file = dir.join("config.journey.json");
         fs::write(&file, fixture.bytes).unwrap();
-        let first = progress::load_profile(&file).unwrap().0.unwrap();
-        assert_eq!(progress::save_checkpoint(&file, &first).unwrap(), None);
+        let (first, notice) = progress::load_profile(&file).unwrap();
+        let first = first.unwrap();
+        assert!(notice.is_some_and(|n| n.starts_with("Marcos antigos conferidos:")));
+        assert!(!first.economy().legacy_mission_claim_pending);
 
         let backup = file.with_extension("v1.backup.json");
         assert_eq!(fs::read(&backup).unwrap(), fixture.bytes);
@@ -137,6 +138,7 @@ fn migrated_fixture_reopened_twice_keeps_the_same_domain_and_exact_backup() {
         assert_eq!(progress::save_checkpoint(&file, &second).unwrap(), None);
         let third = progress::load_profile(&file).unwrap().0.unwrap();
         for reopened in [&second, &third] {
+            assert_eq!(reopened.economy(), first.economy());
             assert_eq!(reopened.service_state(), first.service_state());
             assert_eq!(reopened.journey_snapshot(), first.journey_snapshot());
             assert_eq!(reopened.station_wait(), first.station_wait());

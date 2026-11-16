@@ -119,7 +119,7 @@ fn specialized_cargo_loads_delivers_and_survives_v4_restart() {
             serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
         assert_eq!(json["version"], 5);
         let (restored, warning) = progress::load_profile(&path).unwrap();
-        assert!(warning.is_none());
+        assert!(warning.is_some_and(|w| w.starts_with("Marcos antigos conferidos:")));
         let mut restored = restored.unwrap();
         assert_eq!(world.service_state(), restored.service_state());
         for _ in 0..1_000 {
@@ -223,7 +223,7 @@ fn specialist_manual_acceptance_and_return_keep_cargo_and_do_not_award_delivery(
         let path = folder.join(format!("{wagon:?}.json"));
         progress::save_checkpoint(&path, &world).unwrap();
         let (restored, warning) = progress::load_profile(&path).unwrap();
-        assert!(warning.is_none());
+        assert!(warning.is_some_and(|w| w.starts_with("Marcos antigos conferidos:")));
         world = restored.unwrap();
         assert_eq!(world.service_state().cargo_count(), offer.units);
         for _ in 0..2_000 {

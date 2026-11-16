@@ -114,7 +114,7 @@ fn general_pool_is_explicit_complete_and_has_no_empty_weighted_band() {
     invalid.weights[0] += 1;
     assert!(invalid.validate().is_err());
     for kind in CrateKind::ALL.into_iter().skip(1) {
-        assert!(kind.definition().is_err());
+        kind.definition().unwrap().validate().unwrap();
     }
 }
 
@@ -148,7 +148,7 @@ fn guarantee_and_novelty_are_persistent_and_deterministic() {
                 {
                     assert!(before.owns(&item));
                 }
-                assert_eq!(result.refund, 12);
+                assert_eq!(result.refund, 30);
             } else {
                 assert!(!before.owns(&result.item));
                 assert_eq!(result.refund, 0);
@@ -280,7 +280,8 @@ fn arrival_income_keeps_remainders_and_does_not_pay_cargo_twice() {
     let reward = state.cargo_delivered * 10;
     assert_eq!(
         world.economy().balance,
-        30 + state.last_processed_visit + state.passengers_delivered / 4 + reward / 20
+        30 + (state.last_processed_visit + state.passengers_delivered / 4 + reward / 20) * 350
+            / 1000
     );
     assert_eq!(
         world.economy().passenger_remainder,
@@ -311,9 +312,15 @@ fn machine_bonus_is_bounded_fractional_and_not_saved_as_machine_history() {
     assert_eq!(bonus.machine_bonus(), 1.3);
     advance(&mut base, 3000);
     advance(&mut bonus, 3000);
-    let income = base.economy().balance - 30;
-    assert_eq!(bonus.economy().balance - 30, income * 1300 / 1000);
-    assert_eq!(bonus.economy().bonus_remainder, income * 1300 % 1000);
+    let income_millis = (base.economy().balance - 30) * 1000 + base.economy().bonus_remainder;
+    assert_eq!(
+        bonus.economy().balance - 30,
+        income_millis * 1300 / 1_000_000
+    );
+    assert_eq!(
+        bonus.economy().bonus_remainder,
+        (income_millis * 1300 / 1000) % 1000
+    );
     assert_eq!(base.service_state(), bonus.service_state());
     let path = path();
     progress::save_checkpoint(&path, &bonus).unwrap();
@@ -366,9 +373,9 @@ fn e1b_reserved_state_roundtrips_and_failed_claim_does_not_mark_paid() {
         state.legacy_mission_claim_pending = false;
         state.daily_orders.push(DailyOrder {
             id: 1,
-            template_id: "fixture-arrivals".into(),
+            template_id: "arrivals".into(),
             baselines: [("arrivals".into(), 8)].into_iter().collect(),
-            goal: 6,
+            goal: 24,
             reward: 10,
             entered_active_seconds: 600.0,
             telegram: false,

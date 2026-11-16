@@ -1,5 +1,7 @@
 # Missões — primeira rodada de conteúdo
 
+> Atualização de 2026-11-16: os onze marcos e as sete metas por carga agora têm pagamento único no domínio v5. A API atual está em [ECONOMIA_E1B.md](expansao/ECONOMIA_E1B.md); os 265 + 140 propostos abaixo foram preservados. As descrições de ausência de pagamento nesta proposta são históricas. CON-02 continua somente prévia, fora do E1b.
+
 Proposta e implementação do Agente 3, 15/11/2026. **Moedas e pagamentos não estão implementados.** O código acrescenta 11 objetivos consultáveis em `simulation::objectives::MISSIONS`, calculados a partir de estado durável v4, sem botão de resgate, efeito colateral ou evento que conceda novamente. Os três `OBJECTIVES` antigos e suas pinturas permanecem intactos. As telas ainda precisam consumir a nova lista.
 
 Os nomes de missões e contratos são conteúdo `kind: fictional`. Não descrevem serviços históricos nem comprovam embarque atual nas estações da linha real. Valores abaixo são hipóteses para Pedro confirmar, apoiadas nas notas locais de Oscar Clark e detalhadas em [ECONOMIA_PROPOSTA.md](ECONOMIA_PROPOSTA.md).

@@ -351,10 +351,15 @@ fn v3_migrates_to_v5_and_foreign_lines_are_preserved() {
     v3.as_object_mut().unwrap().remove("catalog_version");
     let v3_bytes = serde_json::to_vec_pretty(&v3).unwrap();
     fs::write(&file, &v3_bytes).unwrap();
-    let migrated = progress::load_profile(&file).unwrap().0.unwrap();
-    assert_eq!(migrated.service_state(), world.service_state());
+    let inspected = progress::load_world(&file).unwrap().unwrap();
+    assert_eq!(inspected.service_state(), world.service_state());
     assert_eq!(fs::read(&file).unwrap(), v3_bytes);
-    assert_eq!(progress::save_checkpoint(&file, &migrated).unwrap(), None);
+    let (migrated, notice) = progress::load_profile(&file).unwrap();
+    let migrated = migrated.unwrap();
+    assert!(notice.is_some_and(|n| n.starts_with("Marcos antigos conferidos:")));
+    assert_eq!(migrated.service_state(), world.service_state());
+    assert!(!migrated.economy().legacy_mission_claim_pending);
+    assert_eq!(fs::read(progress::previous_path(&file)).unwrap(), v3_bytes);
     assert_eq!(
         fs::read(file.with_extension("v3.backup.json")).unwrap(),
         v3_bytes

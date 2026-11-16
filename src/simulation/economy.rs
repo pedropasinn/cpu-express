@@ -5,6 +5,8 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub const TRANSACTION_LIMIT: usize = 128;
 pub const ECONOMY_RULE_VERSION: u32 = 1;
+/// Balance calibration, applied before the machine bonus; fractions remain durable.
+pub const ARRIVAL_INCOME_MILLIS: u64 = 350;
 
 pub use super::catalog::Rarity;
 
@@ -64,27 +66,96 @@ impl CrateKind {
         Self::PaintAtelier,
     ];
     pub fn definition(self) -> Result<CrateDef, String> {
-        if self != Self::GeneralYard {
-            return Err("Esta remessa ainda não está disponível.".into());
-        }
+        let (price, weights, guarantee, wagons, engines, paints) = match self {
+            Self::GeneralYard => (
+                150,
+                [70, 22, 7, 1],
+                10,
+                GENERAL_WAGONS,
+                GENERAL_ENGINES,
+                &[][..],
+            ),
+            Self::CargoWorkshop => (
+                225,
+                [60, 29, 10, 1],
+                8,
+                CARGO_WAGONS,
+                CARGO_ENGINES,
+                &[][..],
+            ),
+            Self::PlatformComfort => (225, [60, 29, 11, 0], 8, PLATFORM_WAGONS, &[][..], &[][..]),
+            Self::EngineGarage => (450, [55, 30, 13, 2], 6, &[][..], GENERAL_ENGINES, &[][..]),
+            Self::PaintAtelier => (188, [65, 25, 10, 0], 8, &[][..], &[][..], PAINTS),
+        };
         Ok(CrateDef {
             kind: self,
-            version: 1,
-            price: 60,
-            weights: [70, 22, 7, 1],
-            guarantee: 10,
-            items: GENERAL_WAGONS
+            version: if self == Self::GeneralYard { 2 } else { 1 },
+            price,
+            weights,
+            guarantee,
+            items: wagons
                 .iter()
                 .map(|id| ItemId::Wagon((*id).into()))
-                .chain(
-                    GENERAL_ENGINES
-                        .iter()
-                        .map(|id| ItemId::Locomotive((*id).into())),
-                )
+                .chain(engines.iter().map(|id| ItemId::Locomotive((*id).into())))
+                .chain(paints.iter().map(|id| ItemId::Livery((*id).into())))
                 .collect(),
         })
     }
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::GeneralYard => "Pátio geral",
+            Self::CargoWorkshop => "Cargas e oficina",
+            Self::PlatformComfort => "Plataforma e conforto",
+            Self::EngineGarage => "Garagem de locomotivas",
+            Self::PaintAtelier => "Ateliê de pinturas",
+        }
+    }
 }
+pub const CARGO_WAGONS: &[&str] = &[
+    "freight",
+    "tank",
+    "mail",
+    "gondola",
+    "hopper",
+    "timber",
+    "refrigerator",
+    "livestock",
+    "container",
+    "autorack",
+    "pressure_tank",
+    "crane",
+    "bicycle",
+    "coil",
+    "fair",
+];
+pub const CARGO_ENGINES: &[&str] = &[
+    "diesel",
+    "freight_steam",
+    "shunter",
+    "articulated_steam",
+    "twin_diesel",
+];
+pub const PLATFORM_WAGONS: &[&str] = &[
+    "passenger",
+    "sleeper",
+    "observation",
+    "dining",
+    "mail",
+    "bicycle",
+    "fair",
+];
+pub const PAINTS: &[&str] = &[
+    "aurora",
+    "ocean",
+    "sunset",
+    "midnight",
+    "cherry",
+    "ivory",
+    "lagoon",
+    "heather",
+    "sunflower",
+    "slate",
+];
 pub const GENERAL_WAGONS: &[&str] = &[
     "passenger",
     "sleeper",
@@ -119,7 +190,7 @@ pub const GENERAL_ENGINES: &[&str] = &[
     "rack_electric",
 ];
 
-/// E1b extends definition(), keeping explicit pools and validating each before sale.
+/// Explicit, versioned pools, validated before sale.
 #[derive(Clone, Debug)]
 pub struct CrateDef {
     pub kind: CrateKind,
@@ -221,6 +292,15 @@ pub struct EconomyState {
 
 #[derive(Clone, Debug)]
 pub enum EconomyAction {
+    ClaimMission(String),
+    ClaimOrder {
+        order_id: u64,
+    },
+    SwapOrder {
+        order_id: u64,
+    },
+    SettleLegacyMissions,
+    BuyMuseumStamp,
     BuyCrate {
         kind: CrateKind,
         free: bool,
@@ -375,7 +455,8 @@ impl EconomyState {
                 .or_default();
             *count = count.saturating_add(u64::from(arrival.cargo_delivered));
         }
-        let scaled = coins * u64::from(multiplier) + self.bonus_remainder;
+        let scaled =
+            coins * u64::from(multiplier) * ARRIVAL_INCOME_MILLIS / 1000 + self.bonus_remainder;
         self.bonus_remainder = scaled % 1000;
         // Saturation is only reachable with manually constructed extreme profiles.
         let _ = self.record("Chegada e serviços", scaled / 1000, 0);
@@ -395,7 +476,7 @@ impl EconomyState {
         }
     }
 
-    fn random_below(&mut self, bound: u64) -> u64 {
+    pub(super) fn random_below(&mut self, bound: u64) -> u64 {
         // SplitMix64 with rejection avoids modulo bias and the zero-seed trap.
         loop {
             self.random_state = self.random_state.wrapping_add(0x9e3779b97f4a7c15);
@@ -408,8 +489,36 @@ impl EconomyState {
             }
         }
     }
-    pub(crate) fn apply(&mut self, action: EconomyAction) -> Result<(), String> {
+    pub(crate) fn apply(
+        &mut self,
+        action: EconomyAction,
+        snapshot: JourneySnapshot,
+        service: &ServiceState,
+    ) -> Result<(), String> {
         match action {
+            EconomyAction::ClaimMission(id) => self.claim_mission(&id, snapshot, service)?,
+            EconomyAction::ClaimOrder { order_id } => {
+                self.claim_order(order_id, snapshot, service)?
+            }
+            EconomyAction::SwapOrder { order_id } => {
+                self.swap_order(order_id, snapshot, service)?
+            }
+            EconomyAction::SettleLegacyMissions => {
+                self.settle_legacy_missions(snapshot, service)?
+            }
+            EconomyAction::BuyMuseumStamp => {
+                if self.pending_purchase.is_some() || !self.collection_complete() {
+                    return Err(
+                        "Complete a coleção e confira a remessa antes de comprar selos.".into(),
+                    );
+                }
+                let next = self
+                    .museum_stamps
+                    .checked_add(1)
+                    .ok_or("Limite de selos atingido.")?;
+                self.record("Selo do museu", 0, 120)?;
+                self.museum_stamps = next;
+            }
             EconomyAction::Reveal { transaction_id } => {
                 if self
                     .pending_purchase
@@ -575,19 +684,28 @@ impl EconomyState {
                     || o.entered_active_seconds < 0.0
                     || o.baselines.len() > 32
                     || o.baselines.keys().any(|id| id.is_empty() || id.len() > 96)
+                    || o.template().is_none_or(|t| {
+                        o.goal != t.goal
+                            || o.reward != t.reward
+                            || o.baselines.len() != 1
+                            || !o.baselines.contains_key(t.counter.key())
+                    })
             })
         {
             return Err(invalid());
         }
         if let Some(pending) = &self.pending_purchase {
             let definition = pending.crate_kind.definition()?;
+            // Preserve paid v1 results byte-for-byte across the price calibration.
+            let legacy = pending.crate_kind == CrateKind::GeneralYard && pending.pool_version == 1;
+            let paid_price = if legacy { 60 } else { definition.price };
             if pending.transaction_id == 0
                 || pending.transaction_id >= self.next_transaction_id
-                || pending.pool_version != definition.version
+                || (!legacy && pending.pool_version != definition.version)
                 || !definition.items.contains(&pending.item)
                 || !self.owns(&pending.item)
                 || pending.item.rarity() != Some(pending.rarity)
-                || (pending.paid != 0 && pending.paid != definition.price)
+                || (pending.paid != 0 && pending.paid != paid_price)
                 || pending.refund
                     != if pending.duplicate {
                         pending.paid / 5
@@ -636,8 +754,9 @@ mod tests {
         for _ in 0..4 {
             state.arrive(snapshot, &service, 1000);
         }
-        // Four arrivals + one passenger coin + four minimum contract awards.
-        assert_eq!(state.balance, 30 + 4 + 1 + 8);
+        // Four arrivals + one passenger unit + four minimum contract awards, calibrated.
+        assert_eq!(state.balance, 30 + 13 * ARRIVAL_INCOME_MILLIS / 1000);
+        assert_eq!(state.bonus_remainder, 13 * ARRIVAL_INCOME_MILLIS % 1000);
         assert_eq!(state.passenger_remainder, 0);
         assert_eq!(state.contract_remainder, 4);
         assert_eq!(state.cargo_by_kind["ore"], 4);
@@ -646,7 +765,7 @@ mod tests {
         service.arrivals[0].cargo_delivered = 0;
         service.arrivals[0].cargo_returned = 1;
         state.arrive(snapshot, &service, 1000);
-        assert_eq!(state.balance, 44);
+        assert_eq!(state.balance, 30 + 14 * ARRIVAL_INCOME_MILLIS / 1000);
         assert_eq!(state.contract_remainder, 4);
         assert_eq!(state.cargo_by_kind["ore"], 4);
     }

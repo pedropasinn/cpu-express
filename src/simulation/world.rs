@@ -47,6 +47,7 @@ pub struct World {
     service: super::ServiceState,
     economy: super::economy::EconomyState,
     machine_bonus_millis: u32,
+    telegram_requested: bool,
     pub(crate) lines: std::collections::BTreeMap<String, LineProgress>,
 }
 
@@ -71,6 +72,10 @@ impl Default for World {
 }
 
 impl World {
+    /// E2 requests an occasional telegram; only an arrival may create it.
+    pub fn request_telegram(&mut self) {
+        self.telegram_requested = true;
+    }
     pub fn economy(&self) -> &super::economy::EconomyState {
         &self.economy
     }
@@ -159,7 +164,15 @@ impl World {
         action: super::economy::EconomyAction,
         persist: impl FnOnce(&World) -> Result<(), String>,
     ) -> Result<(), String> {
-        self.transact_economy(|state| state.apply(action), persist)
+        let mut candidate = self.clone();
+        candidate
+            .economy
+            .apply(action, candidate.journey_snapshot(), &candidate.service)?;
+        candidate.economy.validate()?;
+        candidate.sync_owned_liveries();
+        persist(&candidate)?;
+        *self = candidate;
+        Ok(())
     }
     /// Clone only on a possible arrival, never on an ordinary rendering frame.
     pub fn may_arrive(&self, seconds: f64) -> bool {
@@ -295,6 +308,13 @@ impl World {
                         self.machine_bonus_millis,
                     );
                     self.sync_owned_liveries();
+                    if self.economy.offer_order_on_arrival(
+                        self.journey_snapshot(),
+                        &self.service,
+                        self.telegram_requested,
+                    ) {
+                        self.telegram_requested = false;
+                    }
                     self.station_wait = 8.0;
                     train.stop_at_station();
                 }
@@ -341,6 +361,7 @@ impl World {
             },
             economy: super::economy::EconomyState::new(seed),
             machine_bonus_millis: 1000,
+            telegram_requested: false,
             lines: Default::default(),
         }
     }

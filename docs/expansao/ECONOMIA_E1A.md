@@ -1,5 +1,7 @@
 # Economia E1a — contratos para integração
 
+> Continuação E1b implementada em 2026-11-16: [API atual, cinco caixas, missões, ordens, selos e preços calibrados](ECONOMIA_E1B.md). Este relato conserva o contrato e os números provisórios da primeira metade; as pendências do E1b descritas abaixo foram tratadas na continuação.
+
 2026-11-16. Implementação de domínio na branch `expansao`, sem tela de loja e sem distribuição nova. Os ajustes de `PLANO_EXPANSAO.md` prevalecem sobre as propostas anteriores.
 
 ## Usar a economia

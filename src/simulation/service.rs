@@ -426,6 +426,19 @@ impl ServiceState {
         self.set_owned_composition(composition)
     }
     /// Ownership is checked by World; service checks only occupied capacity.
+    pub fn can_carry_with(&self, composition: [ServiceWagon; 3]) -> bool {
+        let seats: u32 = composition.iter().map(|w| w.capacity().0).sum();
+        self.passenger_count() <= seats
+            && self.contract.as_ref().is_none_or(|c| {
+                !matches!(c.status, ContractStatus::Loaded | ContractStatus::Returning)
+                    || c.units
+                        <= composition
+                            .iter()
+                            .map(|w| w.cargo_capacity(c.kind))
+                            .sum::<u32>()
+            })
+    }
+    /// Ownership is checked by World; service checks only occupied capacity.
     pub(crate) fn set_owned_composition(
         &mut self,
         composition: [ServiceWagon; 3],

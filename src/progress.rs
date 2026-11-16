@@ -230,7 +230,7 @@ pub fn previous_path(path: &Path) -> PathBuf {
 /// The caller must hold the profile lock.
 pub fn load_profile(path: &Path) -> Result<(Option<World>, Option<String>), String> {
     let error = match load_world(path) {
-        Ok(world) => return Ok((world, None)),
+        Ok(world) => return settle_loaded_missions(path, world, None),
         Err(error) => error,
     };
     if fs::metadata(path).is_ok_and(|m| m.len() > 1_048_576) {
@@ -278,7 +278,53 @@ pub fn load_profile(path: &Path) -> Result<(Option<World>, Option<String>), Stri
             " O arquivo principal ainda não foi regravado: {e}"
         ));
     }
-    Ok((Some(world), Some(notice)))
+    settle_loaded_missions(path, Some(world), Some(notice))
+}
+
+fn settle_loaded_missions(
+    path: &Path,
+    mut world: Option<World>,
+    mut notice: Option<String>,
+) -> Result<(Option<World>, Option<String>), String> {
+    if let Some(w) = world
+        .as_mut()
+        .filter(|w| w.economy().legacy_mission_claim_pending)
+    {
+        let before = w.economy().balance;
+        let result = economy_action(
+            path,
+            w,
+            crate::simulation::economy::EconomyAction::SettleLegacyMissions,
+        );
+        let warning = match result {
+            Ok(warning) => warning,
+            Err(error) => {
+                let message = format!(
+                    "A viagem foi preservada; os marcos antigos ainda não foram pagos. Nova tentativa na próxima abertura. {error}"
+                );
+                notice = Some(
+                    [notice, Some(message)]
+                        .into_iter()
+                        .flatten()
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                );
+                return Ok((world, notice));
+            }
+        };
+        let message = format!(
+            "Marcos antigos conferidos: +{} moedas, uma única vez.",
+            w.economy().balance - before
+        );
+        notice = Some(
+            [notice, Some(message), warning]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<_>>()
+                .join(" "),
+        );
+    }
+    Ok((world, notice))
 }
 
 /// Periodic profile save. Keeps the checkpoint being replaced as the recovery copy,
@@ -319,7 +365,12 @@ pub fn economy_action(
     world: &mut World,
     action: crate::simulation::economy::EconomyAction,
 ) -> Result<Option<String>, String> {
-    transact_economy(path, world, |state| state.apply(action)).map(|(_, warning)| warning)
+    let mut warning = None;
+    world.economy_action(action, |candidate| {
+        warning = save_checkpoint(path, candidate)?;
+        Ok(())
+    })?;
+    Ok(warning)
 }
 
 /// Persist an arrival before its events can be consumed. Failed writes restore
