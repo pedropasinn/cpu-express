@@ -1,5 +1,7 @@
 # Mapas para linhas de qualquer tamanho
 
+Integração E3 (16/11/2026): a central agora oferece consulta das 14 paradas em Viagem → Linhas, com perfil, seleção e crédito do OSM. É consulta sem viagem da linha real; o histórico abaixo permanece como projeto original. Estado e pendências em [LINHAS_E3.md](expansao/LINHAS_E3.md).
+
 Agente 3, 15/11/2026. Desenho para integração no caderno; nenhuma tela foi editada. `simulation::map_layout::MapLayout` recebe uma `LineDef` e o `Itinerary` efetivo, valida identidade/topologia/ordem e calcula geometria sem egui, relógio, disco ou progresso próprio. Rascunhos podem ser conferidos por ferramentas, sem torná-los jogáveis.
 
 ## Duas escalas, duas funções

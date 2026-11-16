@@ -1,0 +1,80 @@
+{
+  "progress": {
+    "seed": 42,
+    "distance": 7680,
+    "active_seconds": 320,
+    "station_wait": 4,
+    "stations_visited": 1,
+    "completed_runs": 0,
+    "discovered_stations": [
+      "alexandra",
+      "paranagua"
+    ]
+  },
+  "service": {
+    "branch": {
+      "pending": null,
+      "current": null,
+      "discoveries": []
+    },
+    "composition": [
+      "passenger",
+      "passenger",
+      "freight"
+    ],
+    "passengers": [
+      {
+        "origin": {
+          "line": "curitiba-paranagua",
+          "station": "alexandra"
+        },
+        "destination": {
+          "line": "curitiba-paranagua",
+          "station": "porto-de-cima"
+        },
+        "count": 10
+      }
+    ],
+    "automatic_contracts": true,
+    "contract": {
+      "kind": "parcels",
+      "id": 1,
+      "origin": {
+        "line": "curitiba-paranagua",
+        "station": "alexandra"
+      },
+      "destination": {
+        "line": "curitiba-paranagua",
+        "station": "porto-de-cima"
+      },
+      "units": 5,
+      "reward": 50,
+      "status": "loaded"
+    },
+    "last_processed_visit": 1,
+    "passengers_boarded": 10,
+    "passengers_delivered": 0,
+    "cargo_delivered": 0,
+    "contracts_completed": 0,
+    "credits": 0,
+    "owned_rewards": [
+      "aurora"
+    ],
+    "collection": [],
+    "arrivals": [
+      {
+        "visit": 1,
+        "station": {
+          "line": "curitiba-paranagua",
+          "station": "alexandra"
+        },
+        "boarded": 10,
+        "alighted": 0,
+        "cargo_loaded": 5,
+        "cargo_delivered": 0,
+        "cargo_returned": 0,
+        "earned": 0
+      }
+    ]
+  }
+}

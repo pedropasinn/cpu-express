@@ -7,6 +7,7 @@ pub mod economy;
 pub mod economy_goals;
 pub mod itinerary;
 pub mod journey;
+pub mod line_session;
 pub mod machine;
 pub mod map_layout;
 pub mod objectives;

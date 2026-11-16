@@ -61,6 +61,36 @@ fn builtin_catalogue_is_valid_and_loads_identically_every_time() {
 }
 
 #[test]
+fn station_architecture_is_optional_validated_and_explicitly_fictional() {
+    for id in ["aurora-v1", "curitiba-paranagua"] {
+        for station in &builtin().line(id).unwrap().stations {
+            assert_eq!(
+                station.architecture.as_ref().unwrap().kind,
+                ContentKind::Fictional
+            );
+        }
+    }
+    let core: Value = serde_json::from_str(CORE).unwrap();
+    let mut line: Value = serde_json::from_str(PARANAGUA).unwrap();
+    line["stations"][0]["architecture"]["kind"] = json!("real");
+    expect_error(&core, &line, &["arquitetura", "fictional"]);
+    line["stations"][0]["architecture"] = json!({"style": "unknown", "kind": "fictional"});
+    assert!(!errors_of(&core, &[line]).is_empty());
+    let mut old: Value = serde_json::from_str(AURORA).unwrap();
+    for station in old["stations"].as_array_mut().unwrap() {
+        station.as_object_mut().unwrap().remove("architecture");
+    }
+    assert!(errors_of(&core, &[old]).is_empty());
+    assert!(
+        !builtin()
+            .line("curitiba-paranagua")
+            .unwrap()
+            .open_questions
+            .is_empty()
+    );
+}
+
+#[test]
 fn wagons_and_cargo_mirror_the_service_rules() {
     let catalog = builtin();
     let wagons = ServiceWagon::ALL;

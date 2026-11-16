@@ -125,6 +125,29 @@ fn export_floating_panels() {
 }
 
 #[test]
+#[ignore = "exportação E3 para diretório explícito; não valida compositor"]
+fn export_line_map() {
+    let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
+    let directory = Path::new(&directory);
+    fs::create_dir_all(directory).unwrap();
+    for index in [0, 6, 13] {
+        export_scenario(
+            directory,
+            Scenario {
+                name: &format!("floating_e3_linhas_{index}"),
+                hud_mode: HudMode::Clean,
+                paused: true,
+                action: None,
+                idle: false,
+                size: [704, 676],
+                tab: None,
+                scroll: 0.0,
+            },
+        );
+    }
+}
+
+#[test]
 #[ignore = "exportação E6 para diretório explícito; não valida compositor"]
 fn export_economy_menus() {
     let directory = std::env::var("CPU_EXPRESS_VISUAL_DIR").expect("diretório explícito");
@@ -232,7 +255,10 @@ fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
                 .then_some(cpu_express::simulation::BranchKind::Serra),
         );
     }
-    if let Some(page) = name.strip_prefix("floating_e5_") {
+    if let Some(page) = name
+        .strip_prefix("floating_e5_")
+        .or_else(|| name.strip_prefix("floating_e3_"))
+    {
         let (page, index) = page.rsplit_once('_').unwrap();
         if !page.contains('-')
             && !matches!(

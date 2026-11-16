@@ -171,6 +171,21 @@ impl Itinerary {
         }
     }
 
+    /// Absolute boundary for an arrival, independent of the last frame's rounding.
+    #[must_use]
+    pub fn distance_at_visit(&self, visit: u64) -> f64 {
+        let legs = self.legs_per_run();
+        let runs = visit / legs;
+        let leg = (visit % legs) as usize;
+        let run = self.run_length();
+        let offset = if self.layout == Layout::Circuit || runs.is_multiple_of(2) {
+            self.offsets[leg]
+        } else {
+            run - self.offsets[self.offsets.len() - 1 - leg]
+        };
+        runs as f64 * run + offset
+    }
+
     /// Locates a train from the distance travelled since the origin. Invalid input
     /// (negative, NaN, infinite) is treated as the origin.
     #[must_use]

@@ -5,7 +5,12 @@ use crate::rendering::{
     StationStyles,
 };
 
-fn route_art(line: &str, segment: usize, excursion: bool) -> (SceneryContext, StationStyles) {
+fn route_art(
+    line: &str,
+    segment: usize,
+    forward: bool,
+    excursion: bool,
+) -> (SceneryContext, StationStyles) {
     if excursion {
         return Default::default();
     }
@@ -18,14 +23,25 @@ fn route_art(line: &str, segment: usize, excursion: bool) -> (SceneryContext, St
     let Some(current) = line.segments.get(segment) else {
         return Default::default();
     };
-    let next = &line.segments[(segment + 1) % line.segments.len()];
-    // Authored Aurora mapping until E3 adds architecture to generic stations.
-    let style = |id: &str| match (line.id.as_str(), id) {
-        ("aurora-v1", "aurora") => Some(StationStyle::Plateau),
-        ("aurora-v1", "pines") => Some(StationStyle::TimberHalt),
-        ("aurora-v1", "ridge") => Some(StationStyle::MountainStone),
-        ("aurora-v1", "harbor") => Some(StationStyle::PortTerminal),
-        _ => None,
+    use crate::simulation::catalog::Layout;
+    let next_index = match (line.layout, forward) {
+        (Layout::Circuit, true) => (segment + 1) % line.segments.len(),
+        (Layout::Circuit, false) => return Default::default(),
+        (Layout::Shuttle, true) => (segment + 1).min(line.segments.len() - 1),
+        (Layout::Shuttle, false) => segment.saturating_sub(1),
+    };
+    let next = &line.segments[next_index];
+    let style = |id: &str| {
+        line.stations
+            .iter()
+            .find(|s| s.id == id && !s.retired)
+            .and_then(|s| s.architecture.as_ref())
+            .map(|a| station_style(a.style))
+    };
+    let (from, to) = if forward {
+        (&current.from, &current.to)
+    } else {
+        (&current.to, &current.from)
     };
     (
         SceneryContext {
@@ -33,10 +49,22 @@ fn route_art(line: &str, segment: usize, excursion: bool) -> (SceneryContext, St
             next: SegmentScenery::from_tags(&next.scenery),
         },
         StationStyles {
-            departing: style(&current.from),
-            arriving: style(&current.to),
+            departing: style(from),
+            arriving: style(to),
         },
     )
+}
+
+pub(super) fn station_style(style: crate::simulation::catalog::ArchitectureStyle) -> StationStyle {
+    use crate::simulation::catalog::ArchitectureStyle as A;
+    match style {
+        A::Plateau => StationStyle::Plateau,
+        A::TimberHalt => StationStyle::TimberHalt,
+        A::MountainStone => StationStyle::MountainStone,
+        A::PortTerminal => StationStyle::PortTerminal,
+        A::UrbanTerminal => StationStyle::UrbanTerminal,
+        A::ServicePost => StationStyle::ServicePost,
+    }
 }
 
 impl CpuExpressApp {
@@ -44,18 +72,22 @@ impl CpuExpressApp {
         let (scenery, styles) = route_art(
             crate::simulation::route::CIRCUIT_LINE_ID,
             self.world.journey_snapshot().route_segment.index,
+            true,
             self.world.excursion_snapshot().current.is_some(),
         );
         self.renderer.set_scenery_context(scenery);
         let snapshot = self.world.journey_snapshot();
-        // Aurora's inhabited endpoints; E3 must supply the active itinerary's
-        // endpoints (including reverse travel) when it enables other lines.
-        let (departure, arrival) = match snapshot.route_segment.index {
-            0 => (true, false),
-            2 => (false, true),
-            3 => (true, true),
-            _ => (false, false),
+        let inhabited = |style| {
+            matches!(
+                style,
+                Some(
+                    StationStyle::Plateau
+                        | StationStyle::UrbanTerminal
+                        | StationStyle::PortTerminal
+                )
+            )
         };
+        let (departure, arrival) = (inhabited(styles.departing), inhabited(styles.arriving));
         self.renderer
             .set_settlement_context(crate::rendering::SettlementContext::along_segment(
                 snapshot.seed,
@@ -80,12 +112,35 @@ impl CpuExpressApp {
 mod tests {
     use super::*;
     #[test]
+    fn real_line_reverses_platforms_and_selects_adjacent_scenery_at_terminals() {
+        let catalog = crate::simulation::catalog::Catalog::builtin()
+            .as_ref()
+            .unwrap();
+        let line = catalog.line("curitiba-paranagua").unwrap();
+        for index in 0..line.segments.len() {
+            let (outbound, styles) = route_art(&line.id, index, true, false);
+            let (inbound, reverse) = route_art(&line.id, index, false, false);
+            assert_eq!(styles.departing, reverse.arriving);
+            assert_eq!(styles.arriving, reverse.departing);
+            assert!(styles.departing.is_some() && styles.arriving.is_some());
+            assert_eq!(outbound.current, inbound.current);
+            assert_eq!(
+                inbound.next,
+                SegmentScenery::from_tags(&line.segments[index.saturating_sub(1)].scenery)
+            );
+        }
+        let (at_end, styles) = route_art(&line.id, 12, true, false);
+        assert_eq!(at_end.current, at_end.next);
+        assert_eq!(styles.arriving, Some(StationStyle::UrbanTerminal));
+        assert_eq!(route_art(&line.id, 12, false, true), Default::default());
+    }
+    #[test]
     fn route_context_tracks_segments_and_clears_for_excursions() {
-        let (first, styles) = route_art("aurora-v1", 0, false);
+        let (first, styles) = route_art("aurora-v1", 0, true, false);
         assert!(!first.current.is_empty());
         assert_eq!(styles.departing, Some(StationStyle::Plateau));
         assert_eq!(styles.arriving, Some(StationStyle::TimberHalt));
-        let (last, styles) = route_art("aurora-v1", 3, false);
+        let (last, styles) = route_art("aurora-v1", 3, true, false);
         assert_eq!(last.next, first.current);
         assert_eq!(styles.arriving, Some(StationStyle::Plateau));
         for (line, index, excursion) in [
@@ -93,7 +148,7 @@ mod tests {
             ("aurora-v1", 50, false),
             ("aurora-v1", 0, true),
         ] {
-            assert_eq!(route_art(line, index, excursion), Default::default());
+            assert_eq!(route_art(line, index, true, excursion), Default::default());
         }
     }
 }

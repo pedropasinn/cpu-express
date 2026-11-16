@@ -1,5 +1,7 @@
 # CPU Express — catálogo de conteúdo e linhas
 
+Nota de desenvolvimento (E3, 16/11/2026): [domínio genérico e mapa consultável](expansao/LINHAS_E3.md) foram acrescentados. Curitiba–Paranaguá permanece `draft` e fora do seletor de viagem; a consulta em Viagem → Linhas não muda o progresso. O histórico abaixo descreve a etapa original. A base de expansão usa checkpoint v5; a E3 não altera seu formato.
+
 Atualizado em 2026-11-14. Responsável: Claude Code. Código em `src/simulation/catalog.rs`, dados em `data/`, testes em `tests/catalog.rs`.
 
 ## O que é

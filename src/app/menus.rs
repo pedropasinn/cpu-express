@@ -4,6 +4,7 @@ use crate::simulation::economy::{ItemId, Rarity};
 
 #[derive(Default)]
 pub(super) struct MenuState {
+    pub line_station: usize,
     pub drive: usize,
     pub settings: usize,
     pub stock: [usize; 3],
@@ -157,17 +158,19 @@ impl CpuExpressApp {
                 };
                 self.menu.stock = [index; 3];
             }
-            "mapa" | "missoes" | "diario" | "servicos" | "ramais" | "arquivo" => {
+            "mapa" | "missoes" | "diario" | "servicos" | "ramais" | "arquivo" | "linhas" => {
                 self.panel_tab = PanelTab::Journey;
                 self.journey_page = match page {
                     "mapa" => 0,
                     "missoes" => 1,
                     "diario" | "arquivo" => 2,
                     "servicos" => 3,
+                    "linhas" => 5,
                     _ => 4,
                 };
                 self.menu.missions = index;
                 self.menu.diary = index;
+                self.menu.line_station = index;
                 if page == "arquivo" {
                     self.menu.diary_tab = 2;
                 }
@@ -462,7 +465,7 @@ impl CpuExpressApp {
             ui,
             "travel",
             &mut page,
-            &["Mapa", "Missões", "Diário", "Serviços", "Ramais"],
+            &["Mapa", "Missões", "Diário", "Serviços", "Ramais", "Linhas"],
         );
         self.journey_page = page as u8;
         match page {
@@ -470,6 +473,7 @@ impl CpuExpressApp {
             2 => self.diary_page(ui),
             3 => self.services_controls(ui),
             4 => self.branch_controls(ui),
+            5 => self.line_map_page(ui),
             _ => self.map_page(ui),
         }
     }
@@ -1205,6 +1209,7 @@ mod tests {
         for page in [
             "trem",
             "mapa",
+            "linhas",
             "missoes",
             "diario",
             "arquivo",

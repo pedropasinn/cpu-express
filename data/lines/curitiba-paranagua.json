@@ -56,7 +56,7 @@
   "stations": [
     {
       "id": "paranagua",
-      "name": "Paranaguá",
+      "name": "Paranaguá", "architecture": { "style": "port_terminal", "kind": "fictional" },
       "km": 0.0,
       "elevation_m": 8,
       "verified": true,
@@ -68,7 +68,7 @@
     },
     {
       "id": "alexandra",
-      "name": "Alexandra",
+      "name": "Alexandra", "architecture": { "style": "timber_halt", "kind": "fictional" },
       "km": 16.0,
       "elevation_m": 10,
       "verified": true,
@@ -80,7 +80,7 @@
     },
     {
       "id": "saquarema",
-      "name": "Saquarema",
+      "name": "Saquarema", "architecture": { "style": "service_post", "kind": "fictional" },
       "km": 23.8,
       "elevation_m": 7,
       "verified": true,
@@ -92,7 +92,7 @@
     },
     {
       "id": "morretes",
-      "name": "Morretes",
+      "name": "Morretes", "architecture": { "style": "plateau", "kind": "fictional" },
       "km": 40.7,
       "elevation_m": 10,
       "verified": true,
@@ -104,7 +104,7 @@
     },
     {
       "id": "porto-de-cima",
-      "name": "Porto de Cima",
+      "name": "Porto de Cima", "architecture": { "style": "service_post", "kind": "fictional" },
       "km": 50.6,
       "elevation_m": 231,
       "verified": true,
@@ -116,7 +116,7 @@
     },
     {
       "id": "engenheiro-lange",
-      "name": "Engenheiro Lange",
+      "name": "Engenheiro Lange", "architecture": { "style": "mountain_stone", "kind": "fictional" },
       "km": 55.9,
       "elevation_m": 377,
       "verified": true,
@@ -128,7 +128,7 @@
     },
     {
       "id": "marumbi",
-      "name": "Marumbi",
+      "name": "Marumbi", "architecture": { "style": "timber_halt", "kind": "fictional" },
       "km": 59.8,
       "elevation_m": 489,
       "verified": true,
@@ -140,7 +140,7 @@
     },
     {
       "id": "cadeado",
-      "name": "Cadeado",
+      "name": "Cadeado", "architecture": { "style": "mountain_stone", "kind": "fictional" },
       "km": 63.9,
       "elevation_m": 632,
       "verified": true,
@@ -152,7 +152,7 @@
     },
     {
       "id": "veu-de-noiva",
-      "name": "Véu de Noiva",
+      "name": "Véu de Noiva", "architecture": { "style": "service_post", "kind": "fictional" },
       "km": 66.8,
       "elevation_m": 705,
       "verified": true,
@@ -164,7 +164,7 @@
     },
     {
       "id": "banhado",
-      "name": "Banhado",
+      "name": "Banhado", "architecture": { "style": "timber_halt", "kind": "fictional" },
       "km": 74.4,
       "elevation_m": 859,
       "verified": true,
@@ -176,7 +176,7 @@
     },
     {
       "id": "roca-nova",
-      "name": "Roça Nova",
+      "name": "Roça Nova", "architecture": { "style": "mountain_stone", "kind": "fictional" },
       "km": 80.5,
       "elevation_m": 952,
       "verified": true,
@@ -188,7 +188,7 @@
     },
     {
       "id": "piraquara",
-      "name": "Piraquara",
+      "name": "Piraquara", "architecture": { "style": "plateau", "kind": "fictional" },
       "km": 87.3,
       "elevation_m": 898,
       "verified": true,
@@ -200,7 +200,7 @@
     },
     {
       "id": "pinhais",
-      "name": "Pinhais",
+      "name": "Pinhais", "architecture": { "style": "plateau", "kind": "fictional" },
       "km": 102.1,
       "elevation_m": 889,
       "verified": true,
@@ -212,7 +212,7 @@
     },
     {
       "id": "curitiba",
-      "name": "Curitiba",
+      "name": "Curitiba", "architecture": { "style": "urban_terminal", "kind": "fictional" },
       "km": 109.3,
       "elevation_m": 891,
       "verified": true,

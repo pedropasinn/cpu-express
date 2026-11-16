@@ -251,11 +251,31 @@ pub struct EraDef {
     pub to_year: u32,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ArchitectureStyle {
+    PortTerminal,
+    MountainStone,
+    TimberHalt,
+    Plateau,
+    UrbanTerminal,
+    ServicePost,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct StationArchitectureDef {
+    pub style: ArchitectureStyle,
+    pub kind: ContentKind,
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
 pub struct StationDef {
     pub id: String,
     pub name: String,
+    #[serde(default)]
+    pub architecture: Option<StationArchitectureDef>,
     /// Real distance from the first station. Drafts may leave it open.
     #[serde(default)]
     pub km: Option<f64>,
@@ -691,6 +711,16 @@ pub fn validate_line(line: &LineDef) -> Vec<CatalogError> {
             if !sources.contains(reference.as_str()) {
                 report.push(&here, format!("a fonte `{reference}` não existe"));
             }
+        }
+        if station
+            .architecture
+            .as_ref()
+            .is_some_and(|a| a.kind != ContentKind::Fictional)
+        {
+            report.push(
+                &here,
+                "arquitetura deve declarar kind: fictional; desenho não é reprodução histórica",
+            );
         }
         if station.retired {
             continue;

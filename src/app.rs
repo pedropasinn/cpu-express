@@ -18,6 +18,7 @@ use crate::{
 };
 mod branches;
 mod journey;
+mod line_map;
 mod machine;
 mod menus;
 mod missions;

@@ -164,9 +164,9 @@ impl ServiceWagon {
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct PassengerGroup {
-    pub origin: StationId,
-    pub destination: StationId,
+pub struct PassengerGroup<S = StationId> {
+    pub origin: S,
+    pub destination: S,
     pub count: u32,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -298,20 +298,20 @@ pub enum ServiceReward {
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CargoContract {
+pub struct CargoContract<S = StationId> {
     pub kind: CargoKind,
     pub id: u64,
-    pub origin: StationId,
-    pub destination: StationId,
+    pub origin: S,
+    pub destination: S,
     pub units: u32,
     pub reward: u64,
     pub status: ContractStatus,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ArrivalSummary {
+pub struct ArrivalSummary<S = StationId> {
     pub visit: u64,
-    pub station: StationId,
+    pub station: S,
     pub boarded: u32,
     pub alighted: u32,
     pub cargo_loaded: u32,
@@ -322,15 +322,15 @@ pub struct ArrivalSummary {
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ServiceState {
+pub struct ServiceState<S = StationId> {
     #[serde(default)]
     pub branch: super::BranchState,
     pub composition: [ServiceWagon; 3],
-    pub passengers: Vec<PassengerGroup>,
+    pub passengers: Vec<PassengerGroup<S>>,
     #[serde(default = "automatic_default")]
     pub automatic_contracts: bool,
     /// At most one contract; a delivered contract remains visible until next arrival.
-    pub contract: Option<CargoContract>,
+    pub contract: Option<CargoContract<S>>,
     pub last_processed_visit: u64,
     pub passengers_boarded: u64,
     pub passengers_delivered: u64,
@@ -340,7 +340,7 @@ pub struct ServiceState {
     pub credits: u64,
     pub owned_rewards: Vec<Livery>,
     pub collection: Vec<ServiceReward>,
-    pub arrivals: Vec<ArrivalSummary>,
+    pub arrivals: Vec<ArrivalSummary<S>>,
 }
 fn automatic_default() -> bool {
     true
@@ -356,34 +356,7 @@ const STATIONS: [StationId; 4] = [
     StationId::Ridge,
     StationId::Harbor,
 ];
-impl ServiceState {
-    pub fn migrated(snapshot: JourneySnapshot) -> Self {
-        Self {
-            branch: super::BranchState::default(),
-            composition: [
-                ServiceWagon::Observation,
-                ServiceWagon::Sleeper,
-                ServiceWagon::Freight,
-            ],
-            passengers: Vec::new(),
-            contract: None,
-            automatic_contracts: true,
-            last_processed_visit: snapshot.stations_visited,
-            passengers_boarded: 0,
-            passengers_delivered: 0,
-            cargo_delivered: 0,
-            contracts_completed: 0,
-            credits: 0,
-            collection: Vec::new(),
-            // Legacy migration restores only the original earned content.
-            // Later paints are granted by the next arrival, as with older v4.
-            owned_rewards: Livery::ORIGINAL
-                .into_iter()
-                .filter(|l| l.available(snapshot))
-                .collect(),
-            arrivals: Vec::new(),
-        }
-    }
+impl<S: Clone + Eq> ServiceState<S> {
     pub fn capacity(&self) -> (u32, u32) {
         self.composition.iter().fold((0, 0), |(p, c), w| {
             let (a, b) = w.capacity();
@@ -465,7 +438,7 @@ impl ServiceState {
         }
         None
     }
-    pub(crate) fn accept_contract(&mut self, platform: Option<StationId>) -> Result<(), String> {
+    pub(crate) fn accept_contract(&mut self, platform: Option<S>) -> Result<(), String> {
         if self.contract.is_none() {
             return Err("Não há oferta disponível.".into());
         }
@@ -476,7 +449,7 @@ impl ServiceState {
         self.load_at_platform(platform);
         Ok(())
     }
-    pub(crate) fn cancel_contract(&mut self, platform: Option<StationId>) -> Result<(), String> {
+    pub(crate) fn cancel_contract(&mut self, platform: Option<S>) -> Result<(), String> {
         let c = self
             .contract
             .as_mut()
@@ -489,14 +462,14 @@ impl ServiceState {
         self.return_at_platform(platform);
         Ok(())
     }
-    fn load_at_platform(&mut self, platform: Option<StationId>) {
+    fn load_at_platform(&mut self, platform: Option<S>) {
         let hold = self
             .contract
             .as_ref()
             .map_or(0, |c| self.cargo_capacity(c.kind));
         if let Some(c) = &mut self.contract
             && c.status == ContractStatus::Accepted
-            && platform == Some(c.origin)
+            && platform.as_ref() == Some(&c.origin)
             && c.units <= hold
         {
             c.status = ContractStatus::Loaded;
@@ -505,10 +478,10 @@ impl ServiceState {
             }
         }
     }
-    fn return_at_platform(&mut self, platform: Option<StationId>) {
+    fn return_at_platform(&mut self, platform: Option<S>) {
         if let Some(c) = &mut self.contract
             && c.status == ContractStatus::Returning
-            && platform == Some(c.origin)
+            && platform.as_ref() == Some(&c.origin)
         {
             c.status = ContractStatus::Cancelled;
             if let Some(a) = self.arrivals.last_mut() {
@@ -519,11 +492,16 @@ impl ServiceState {
     pub fn owns(&self, reward: Livery) -> bool {
         self.owned_rewards.contains(&reward)
     }
-    pub fn validate(&self, snapshot: JourneySnapshot) -> Result<(), String> {
-        self.branch.validate(snapshot)?;
+    pub(crate) fn validate_route(
+        &self,
+        visits: u64,
+        station_at_visit: impl Fn(u64) -> S,
+        contains: impl Fn(&S) -> bool,
+        max_groups: usize,
+    ) -> Result<(), String> {
         let invalid = || "Estado de serviços inválido; arquivo preservado.".to_owned();
-        if self.last_processed_visit != snapshot.stations_visited
-            || self.passengers.len() > 12
+        if self.last_processed_visit != visits
+            || self.passengers.len() > max_groups
             || self.arrivals.len() > 32
             || self.owned_rewards.len() > Livery::ALL.len()
         {
@@ -532,11 +510,13 @@ impl ServiceState {
         if self.passengers_boarded > self.last_processed_visit.saturating_mul(72) {
             return Err(invalid());
         }
-        if self
-            .passengers
-            .iter()
-            .any(|p| p.count == 0 || p.count > 72 || p.origin == p.destination)
-        {
+        if self.passengers.iter().any(|p| {
+            p.count == 0
+                || p.count > 72
+                || p.origin == p.destination
+                || !contains(&p.origin)
+                || !contains(&p.destination)
+        }) {
             return Err(invalid());
         }
         let (seats, hold) = self.capacity();
@@ -558,14 +538,6 @@ impl ServiceState {
         {
             return Err(invalid());
         }
-        // Older v4 checkpoints cannot own later content yet. Arrival grants
-        // missing additions through the existing idempotent transaction.
-        if Livery::ORIGINAL
-            .iter()
-            .any(|r| r.available(snapshot) && !self.owns(*r))
-        {
-            return Err(invalid());
-        }
         if self.collection.len() > 2
             || self
                 .collection
@@ -583,7 +555,8 @@ impl ServiceState {
             && (c.id == 0
                 || c.id > self.last_processed_visit
                 || c.origin == c.destination
-                || c.origin != STATIONS[(c.id % 4) as usize]
+                || c.origin != station_at_visit(c.id)
+                || !contains(&c.destination)
                 || !(1..=12).contains(&c.units)
                 || c.reward != u64::from(c.units) * 10)
         {
@@ -628,7 +601,7 @@ impl ServiceState {
         for (i, a) in self.arrivals.iter().enumerate() {
             if a.visit == 0
                 || a.visit > self.last_processed_visit
-                || a.station != STATIONS[(a.visit % 4) as usize]
+                || a.station != station_at_visit(a.visit)
                 || a.boarded > 72
                 || a.alighted > 72
                 || a.cargo_loaded > 12
@@ -649,16 +622,14 @@ impl ServiceState {
         }
         Ok(())
     }
-    /// Single synchronous transaction before any visual event consumption.
-    pub(crate) fn arrive(&mut self, snapshot: JourneySnapshot) {
-        let visit = snapshot.stations_visited;
+    /// Shared transaction; the route owner supplies stable endpoints and visit identity.
+    pub(crate) fn arrive_at(&mut self, seed: u64, visit: u64, station: S, destination: S) {
         if visit <= self.last_processed_visit {
             return;
         }
-        let station = STATIONS[(visit % 4) as usize];
         let mut summary = ArrivalSummary {
             visit,
-            station,
+            station: station.clone(),
             boarded: 0,
             alighted: 0,
             cargo_loaded: 0,
@@ -700,10 +671,7 @@ impl ServiceState {
             self.cargo_delivered += u64::from(c.units);
             self.contracts_completed += 1;
         }
-        let entropy = snapshot
-            .seed
-            .wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
-        let destination = STATIONS[(station.index() + 1 + (entropy % 3) as usize) % 4];
+        let entropy = seed.wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
         let (seats, _) = self.capacity();
         let count = (4 + (entropy % 17) as u32).min(seats - self.passenger_count());
         if count > 0 {
@@ -715,8 +683,8 @@ impl ServiceState {
                 group.count += count;
             } else {
                 self.passengers.push(PassengerGroup {
-                    origin: station,
-                    destination,
+                    origin: station.clone(),
+                    destination: destination.clone(),
                     count,
                 });
             }
@@ -758,7 +726,7 @@ impl ServiceState {
             self.contract = Some(CargoContract {
                 kind,
                 id: visit,
-                origin: station,
+                origin: station.clone(),
                 destination,
                 units,
                 reward: u64::from(units) * 10,
@@ -789,11 +757,6 @@ impl ServiceState {
         }
         summary.earned = u64::from(summary.alighted) * 2 + u64::from(summary.cargo_delivered) * 10;
         self.credits += summary.earned;
-        for reward in Livery::ORIGINAL {
-            if reward.available(snapshot) && !self.owns(reward) {
-                self.owned_rewards.push(reward);
-            }
-        }
         for (reward, unlocked) in [
             (
                 ServiceReward::PassengerPostcard,
@@ -813,6 +776,71 @@ impl ServiceState {
         }
         self.arrivals.push(summary);
         self.last_processed_visit = visit;
+    }
+}
+
+// Aurora keeps its original public API, reward rules and serialized station enums.
+impl ServiceState {
+    pub fn migrated(snapshot: JourneySnapshot) -> Self {
+        Self {
+            branch: super::BranchState::default(),
+            composition: [
+                ServiceWagon::Observation,
+                ServiceWagon::Sleeper,
+                ServiceWagon::Freight,
+            ],
+            passengers: Vec::new(),
+            contract: None,
+            automatic_contracts: true,
+            last_processed_visit: snapshot.stations_visited,
+            passengers_boarded: 0,
+            passengers_delivered: 0,
+            cargo_delivered: 0,
+            contracts_completed: 0,
+            credits: 0,
+            collection: Vec::new(),
+            // Legacy migration restores only the original earned content.
+            // Later paints are granted by the next arrival, as with older v4.
+            owned_rewards: Livery::ORIGINAL
+                .into_iter()
+                .filter(|l| l.available(snapshot))
+                .collect(),
+            arrivals: Vec::new(),
+        }
+    }
+
+    pub fn validate(&self, snapshot: JourneySnapshot) -> Result<(), String> {
+        self.branch.validate(snapshot)?;
+        self.validate_route(
+            snapshot.stations_visited,
+            |visit| STATIONS[(visit % STATIONS.len() as u64) as usize],
+            |station| STATIONS.contains(station),
+            12,
+        )?;
+        if Livery::ORIGINAL
+            .iter()
+            .any(|r| r.available(snapshot) && !self.owns(*r))
+        {
+            return Err("Estado de serviços inválido; arquivo preservado.".into());
+        }
+        Ok(())
+    }
+    pub(crate) fn arrive(&mut self, snapshot: JourneySnapshot) {
+        let visit = snapshot.stations_visited;
+        if visit <= self.last_processed_visit {
+            return;
+        }
+        let station = STATIONS[(visit % STATIONS.len() as u64) as usize];
+        let entropy = snapshot
+            .seed
+            .wrapping_add(visit.wrapping_mul(0x9e3779b97f4a7c15));
+        let destination = STATIONS[(station.index() + 1 + (entropy % 3) as usize) % STATIONS.len()];
+        self.arrive_at(snapshot.seed, visit, station, destination);
+        for reward in Livery::ORIGINAL {
+            if reward.available(snapshot) && !self.owns(reward) {
+                self.owned_rewards.push(reward);
+            }
+        }
     }
 }
 

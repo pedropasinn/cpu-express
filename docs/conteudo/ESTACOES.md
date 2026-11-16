@@ -1,5 +1,7 @@
 # Estações — seis arquiteturas originais
 
+Integração E3 (16/11/2026): o campo opcional `StationDef.architecture` e as 14 sugestões abaixo agora estão no catálogo, com validação de estilo e `kind: fictional`. Aurora também passou a buscar os mesmos estilos da E5 no catálogo. A linha real continua sem viagem jogável. Consulte [LINHAS_E3.md](../expansao/LINHAS_E3.md); o relato original abaixo foi preservado.
+
 Agente 3, 15/11/2026. Todas as arquiteturas novas têm `kind: fictional`, exposto como `StationStyle::KIND`; são desenhos próprios em código, não reconstruções dos edifícios reais. A paleta acompanha bioma/iluminação existentes, mas a **silhueta é escolhida por estilo** e nunca pelo índice da parada.
 
 | Ordem da galeria | Estilo estável | Característica |

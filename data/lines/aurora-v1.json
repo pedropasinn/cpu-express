@@ -6,10 +6,10 @@
   "kind": "fictional",
   "layout": "circuit",
   "stations": [
-    { "id": "aurora", "name": "Vila Aurora" },
-    { "id": "pines", "name": "Bosque dos Pinheiros" },
-    { "id": "ridge", "name": "Serra Clara" },
-    { "id": "harbor", "name": "Porto do Sol" }
+    { "id": "aurora", "name": "Vila Aurora", "architecture": { "style": "plateau", "kind": "fictional" } },
+    { "id": "pines", "name": "Bosque dos Pinheiros", "architecture": { "style": "timber_halt", "kind": "fictional" } },
+    { "id": "ridge", "name": "Serra Clara", "architecture": { "style": "mountain_stone", "kind": "fictional" } },
+    { "id": "harbor", "name": "Porto do Sol", "architecture": { "style": "port_terminal", "kind": "fictional" } }
   ],
   "segments": [
     { "id": "aurora-pines", "from": "aurora", "to": "pines", "base_units": 1800, "variation_units": 100, "biome": "meadow", "scenery": ["plain", "farmland", "village", "town"], "adaptation": "invented" },
