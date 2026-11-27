@@ -2,6 +2,7 @@
 //!
 //! CPU_EXPRESS_VISUAL_DIR=/absolute/path cargo test --test ux_visual -- --ignored
 //! emits egui triangles/textures as JSON for an external software rasterizer.
+//! CPU_EXPRESS_VISUAL_ONLY optionally selects comma-separated scenario names.
 //! This does not validate Windows, GPU output, DPI, or native window management.
 
 use std::{collections::HashMap, fs, path::Path};
@@ -262,6 +263,11 @@ fn export_machine_menus() {
 }
 
 fn export_scenario(directory: &Path, scenario: Scenario<'_>) {
+    if std::env::var("CPU_EXPRESS_VISUAL_ONLY")
+        .is_ok_and(|names| !names.split(',').any(|name| name.trim() == scenario.name))
+    {
+        return;
+    }
     let Scenario {
         name,
         hud_mode,

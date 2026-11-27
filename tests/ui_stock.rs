@@ -171,13 +171,13 @@ fn engine_gallery_uploads_once_and_reuses_three_portraits() {
     assert_ne!(ids[1], ids[2]);
     assert_ne!(ids[0], ids[2]);
     for engine in engines {
-        assert_eq!(gallery.engine(engine).size(), [60, 29]);
+        assert_eq!(gallery.engine(engine).size(), [64, 32]);
         assert!(std::ptr::eq(gallery.engine(engine), gallery.engine(engine)));
     }
     for time in [0.1, 0.2, 0.3] {
         let output = ctx.run_ui(input(time, false), |ui| {
             for engine in engines {
-                ui.image((gallery.engine(engine).id(), egui::vec2(60.0, 29.0)));
+                ui.image((gallery.engine(engine).id(), egui::vec2(64.0, 32.0)));
             }
         });
         let uploads = output.textures_delta.set.len();
@@ -198,7 +198,7 @@ fn narrow_locked_cards_keep_full_names_and_requirements_inside_the_card() {
         let ctx = egui::Context::default();
         let texture = ctx.load_texture(
             "narrow-engine",
-            egui::ColorImage::filled([60, 29], egui::Color32::WHITE),
+            egui::ColorImage::filled([64, 32], egui::Color32::WHITE),
             egui::TextureOptions::NEAREST,
         );
         let name = "Locomotiva elétrica da serra";

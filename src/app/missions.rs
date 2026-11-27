@@ -57,11 +57,21 @@ impl CpuExpressApp {
             .max_by(|a, b| (a.current.min(a.goal) * b.goal).cmp(&(b.current.min(b.goal) * a.goal)));
         egui::Frame::new()
             .fill(game::CARD)
+            .stroke(egui::Stroke::new(2.0, game::GOLD))
             .inner_margin(6)
             .show(ui, |ui| {
-                ui.strong(next.map_or("Todos os marcos recolhidos".into(), |m| {
-                    format!("Próxima recompensa · {} · +{} réis", m.title, m.reward)
-                }));
+                ui.set_width(ui.available_width());
+                ui.horizontal(|ui| {
+                    let (r, _) =
+                        ui.allocate_exact_size(egui::Vec2::splat(32.0), egui::Sense::hover());
+                    game::sprite(ui.painter(), r, game::Sprite::Moeda);
+                    ui.vertical(|ui| {
+                        game::pixel_label(ui, "Próxima recompensa", 1.5, game::INK);
+                        ui.label(next.map_or("Todos os marcos recolhidos".into(), |m| {
+                            format!("{} · +{} réis", m.title, m.reward)
+                        }));
+                    });
+                });
             });
         ui.horizontal(|ui| {
             game::heading(ui, "Ordens do dia");
@@ -80,8 +90,8 @@ impl CpuExpressApp {
         let mut action = None;
         ui.columns(3, |cols| {
             for (column, index) in cols.iter_mut().zip(range) {
-                egui::Frame::new().fill(game::CARD).inner_margin(6).show(column, |ui| {
-                    ui.set_min_height(118.0);
+                egui::Frame::new().fill(game::CARD).stroke(egui::Stroke::new(2.0,game::EDGE)).inner_margin(6).show(column, |ui| {
+                    ui.set_min_height(112.0);
                     if let Some(order) = e.daily_orders.get(index) {
                         ui.horizontal(|ui| {
                             let(rect,_)=ui.allocate_exact_size(egui::Vec2::splat(16.0),egui::Sense::hover());
@@ -92,7 +102,11 @@ impl CpuExpressApp {
                         if order.telegram { ui.small("Telegrama extra"); }
                         let n = order.progress(e,j,s);
                         game::progress(ui, ("order", order.id), n as f32/order.goal as f32, &format!("{n}/{}", order.goal), game::GREEN);
-                        ui.label(format!("+{} réis", order.reward));
+                        ui.horizontal(|ui| {
+                            let (r, _) = ui.allocate_exact_size(egui::Vec2::splat(20.0), egui::Sense::hover());
+                            game::sprite(ui.painter(), r, game::Sprite::Moeda);
+                            game::pixel_label(ui, &format!("+{} réis", order.reward), 1.5, game::INK);
+                        });
                         ui.horizontal(|ui| {
                             if ui.add_enabled(order.claimable(e,j,s), game::ActionButton::new("Recolher").selected(true).min_size(egui::vec2(150.0,40.0))).clicked() { action = Some(EconomyAction::ClaimOrder { order_id: order.id }); }
                             let can_swap = self.world.station_wait() > 0.0 && j.active_seconds - e.last_order_active_seconds.max(e.last_order_swap_active_seconds) >= 600.0;
@@ -111,34 +125,76 @@ impl CpuExpressApp {
             pager(ui, "missions", &mut self.menu.missions, missions.len(), 3);
         });
         for mission in missions.iter().skip(self.menu.missions * 3).take(3) {
-            ui.horizontal(|ui| {
-                ui.allocate_ui(egui::vec2(245.0, 40.0), |ui| {
-                    ui.label(mission.title);
-                    game::progress(
-                        ui,
-                        mission.id,
-                        mission.current as f32 / mission.goal as f32,
-                        &format!("{} / {}", mission.current.min(mission.goal), mission.goal),
-                        game::BLUE,
-                    );
+            egui::Frame::new()
+                .fill(game::CARD)
+                .stroke(egui::Stroke::new(1.0, game::EDGE))
+                .inner_margin(3)
+                .show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        let bar_width = (ui.available_width()
+                            - 190.0
+                            - 70.0
+                            - 150.0
+                            - ui.spacing().item_spacing.x * 3.0)
+                            .max(80.0);
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(190.0, 40.0),
+                            egui::Layout::top_down(egui::Align::Min),
+                            |ui| {
+                                ui.set_width(190.0);
+                                ui.label(mission.title);
+                            },
+                        );
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(bar_width, 40.0),
+                            egui::Layout::top_down(egui::Align::Min),
+                            |ui| {
+                                ui.set_width(bar_width);
+                                ui.add_space(9.0);
+                                game::progress(
+                                    ui,
+                                    mission.id,
+                                    mission.current as f32 / mission.goal as f32,
+                                    &format!(
+                                        "{} / {}",
+                                        mission.current.min(mission.goal),
+                                        mission.goal
+                                    ),
+                                    game::BLUE,
+                                );
+                            },
+                        );
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(70.0, 40.0),
+                            egui::Layout::top_down(egui::Align::Min),
+                            |ui| {
+                                ui.set_width(70.0);
+                                ui.add_space(10.0);
+                                game::pixel_label(
+                                    ui,
+                                    &format!("+{}", mission.reward),
+                                    2.0,
+                                    game::INK,
+                                );
+                            },
+                        );
+                        if ui
+                            .add_enabled(
+                                mission.claimable(),
+                                game::ActionButton::new(if mission.paid {
+                                    "Recolhido"
+                                } else {
+                                    "Recolher"
+                                })
+                                .selected(mission.claimable())
+                                .min_size(egui::vec2(150.0, 40.0)),
+                            )
+                            .clicked()
+                        {
+                            action = Some(EconomyAction::ClaimMission(mission.id.into()));
+                        }
+                    });
                 });
-                ui.allocate_ui(egui::vec2(100.0, 40.0), |ui| {
-                    game::pixel_label(ui, &format!("+{}", mission.reward), 2.0, game::GOLD);
-                });
-                if ui
-                    .add_enabled(
-                        mission.claimable(),
-                        game::ActionButton::new(if mission.paid {
-                            "Recolhido"
-                        } else {
-                            "Recolher"
-                        }),
-                    )
-                    .clicked()
-                {
-                    action = Some(EconomyAction::ClaimMission(mission.id.into()));
-                }
-            });
         }
         if let Some(action) = action {
             self.perform_economy_action(action);

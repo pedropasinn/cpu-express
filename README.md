@@ -1,8 +1,20 @@
-# CPU Express 0.4.0-rc.3
+# CPU Express
 
 Jogo ferroviário de desktop para Windows, com faixa na barra de tarefas, janela flutuante e menus independentes.
 
-## Usar
+## Jogar a expansão em pixel art
+
+A versão principal inclui o Circuito Aurora, a linha Curitiba–Paranaguá com 14 paradas, a economia em réis e a coleção de locomotivas, vagões e pinturas. Abra **Viagem → Linhas** para escolher a ferrovia.
+
+Para abrir a versão desta branch no Windows com a toolchain Rust do projeto, execute na raiz do repositório
+
+```powershell
+cargo run --locked
+```
+
+As preferências e a viagem ficam em `%LOCALAPPDATA%\CPU Express`. A expansão usa checkpoint v6 e preserva uma cópia do save anterior ao migrar das versões v1 a v5. [Guia da linha Curitiba–Paranaguá](docs/expansao/LINHAS_E3.md).
+
+## Distribuição portátil 0.4.0-rc.3 (histórica)
 
 Abra `cpu-express.exe` na distribuição portátil rc.3. Clique no trem para abrir a central; botão direito pausa/retoma. Não há botão do jogo na barra de tarefas; use a faixa e o ícone da bandeja.
 
@@ -13,8 +25,6 @@ Abra `cpu-express.exe` na distribuição portátil rc.3. Clique no trem para abr
 - [Primeira abertura e SmartScreen](docs/windows_primeira_abertura.md): acolhida e comportamento desta rc.3.
 
 ## Desenvolver
-
-Na branch `expansao`, Curitiba–Paranaguá já é jogável: **Viagem → Linhas**. Use **Encerrar embarques**, aguarde o trem vazio numa parada elegível e escolha **Viajar nesta linha**. A fonte de desenvolvimento usa checkpoint v6 com migração e backup v1–v5; a distribuição rc.3 abaixo permanece histórica. [Guia da integração E3](docs/expansao/LINHAS_E3.md).
 
 Esta é a única base atual de código. `src/` contém domínio, renderer, UI e integração Windows; `tests/` e `examples/` fornecem verificações e exportadores. `scripts/dev.ps1` encontra a toolchain local sem alterar o PATH permanentemente. Cargo.lock fixa as dependências.
 
@@ -27,6 +37,6 @@ Os caches de compilação são recriados quando necessários; a primeira compila
 
 O pacote portátil, o código-fonte e as evidências são distribuídos em ZIPs separados. Nesta rodada, `scripts/package-rc3.ps1` e `scripts/validate-portable.ps1` adaptam o fluxo de package-current.py/validate-portable.py para PowerShell, pois o Python local não pôde ser executado. Exigem hashes das fontes e do binário e usam perfil isolado. Licenças em LICENSE, THIRD_PARTY_NOTICES.md, licenses/ e data/sources/curitiba-paranagua/README.md. Para o teste com amigos, veja [ROTEIRO_BETA.md](docs/ROTEIRO_BETA.md).
 
-## Estado e dados
+## Estado e dados do portátil rc.3
 
 O progresso normal fica em `%LOCALAPPDATA%\CPU Express`, separado deste projeto. O formato v4 registra linha e versão do catálogo e migra v1/v2/v3 com backup exato (inclusive `.v3.backup.json`); não substitua saves por arquivos antigos. A CPU afeta a velocidade visual, não a progressão lógica. Pausa e fechamento não acumulam progresso offline.

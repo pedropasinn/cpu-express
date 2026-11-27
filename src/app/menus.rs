@@ -466,11 +466,22 @@ impl CpuExpressApp {
         });
         ui.columns(3, |cols| {
             for (ui, (icon, label, value)) in cols.iter_mut().zip([
-                (Icon::Cpu, self.cpu_label(), self.cpu_percent() / 100.0),
+                (
+                    Icon::Cpu,
+                    {
+                        let label = self.cpu_label();
+                        if label.ends_with('%') {
+                            label.replace(" · CPU", "").replace(".0%", "%")
+                        } else {
+                            "-".into()
+                        }
+                    },
+                    self.cpu_percent() / 100.0,
+                ),
                 (
                     Icon::Memory,
                     self.ram_percent()
-                        .map_or("Sem leitura".into(), |v| format!("RAM {v:.0}%")),
+                        .map_or("-".into(), |v| format!("RAM {v:.0}%")),
                     self.ram_percent().unwrap_or(0.0) / 100.0,
                 ),
                 (
@@ -497,7 +508,11 @@ impl CpuExpressApp {
                     } else {
                         1.0
                     };
-                    game::pixel_label(ui, &label, cell, game::INK);
+                    game::pixel_label(ui, &label, cell, game::INK).on_hover_text(match icon {
+                        Icon::Cpu => self.cpu_label(),
+                        Icon::Memory => "Memória · leitura recente em cache".into(),
+                        _ => "Velocidade visual do trem".into(),
+                    });
                 });
                 game::progress(ui, ("cab-gauge", icon), value, "", game::GREEN);
             }
@@ -1140,6 +1155,7 @@ impl CpuExpressApp {
                 for (col, (name, owned)) in cols.iter_mut().zip(row) {
                     egui::Frame::new()
                         .fill(game::CARD)
+                        .stroke(egui::Stroke::new(2.0, game::EDGE))
                         .inner_margin(12)
                         .show(col, |ui| {
                             let (r, _) = ui.allocate_exact_size(
@@ -1475,15 +1491,9 @@ mod tests {
             },
         );
         app.prepare_demo_menu("trem", 0);
-        for (case, expected) in [
-            "DEMO · CPU 50.0%",
-            "SIMULADO · CPU 50.0%",
-            "Lendo CPU…",
-            "CPU 37.0%",
-            "Leitura atrasada",
-        ]
-        .into_iter()
-        .enumerate()
+        for (case, expected) in ["DEMO 50%", "SIMULADO 50%", "-", "CPU 37%", "-"]
+            .into_iter()
+            .enumerate()
         {
             app.demo_mode = case == 0;
             app.cpu_override = (case <= 1).then_some(50.0);

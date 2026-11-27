@@ -22,8 +22,9 @@ const COACH_STYLES: [CoachStyle; CoachStyle::ALL.len()] = CoachStyle::ALL;
 // and both radius-three wheels end at y=57. Keep one row above and below.
 const COACH_CROP: [usize; 4] = [56, 31, 42, 28];
 // sprites::locomotive spans 180..=239, including the rear socket and pilot.
-// The chimney starts at y=31; all four wheels finish at y=57.
-const ENGINE_CROP: [usize; 4] = [180, 30, 60, 29];
+// Keep scenery margins around the silhouette, including the articulated cab.
+// The chimney starts at y=31; all wheels finish at y=57.
+const ENGINE_CROP: [usize; 4] = [178, 28, 64, 32];
 
 /// Cached textures made by the same renderer as the live train.
 pub struct StockGallery {
@@ -96,13 +97,13 @@ impl StockGallery {
         &self.coaches[CoachStyle::ALL.iter().position(|s| *s == style).unwrap()]
     }
 
-    /// A 60 x 29 native-pixel engine image with the renderer's actual enamel.
+    /// A 64 x 32 native-pixel engine image with margins and the actual enamel.
     #[must_use]
     pub fn livery(&self, livery: Livery) -> &TextureHandle {
         &self.liveries[Livery::ALL.iter().position(|s| *s == livery).unwrap()]
     }
 
-    /// A cached 60 x 29 engine portrait in Aurora paint. Borrowing the handle
+    /// A cached 64 x 32 engine portrait in Aurora paint. Borrowing the handle
     /// never renders or uploads; unlock rules belong to the caller.
     #[must_use]
     pub fn engine(&self, style: EngineStyle) -> &TextureHandle {
@@ -373,13 +374,13 @@ mod tests {
         }
         for livery in Livery::ALL {
             let texture = gallery.livery(livery);
-            assert_eq!(texture.size(), [60, 29]);
+            assert_eq!(texture.size(), [64, 32]);
             assert!(std::ptr::eq(texture, gallery.livery(livery)));
             ids.push(texture.id());
         }
         for engine in EngineStyle::ALL {
             let texture = gallery.engine(engine);
-            assert_eq!(texture.size(), [60, 29]);
+            assert_eq!(texture.size(), [64, 32]);
             assert!(std::ptr::eq(texture, gallery.engine(engine)));
             ids.push(texture.id());
         }

@@ -74,121 +74,117 @@ impl CpuExpressApp {
         ui.horizontal(|ui| {
             let (r, _) = ui.allocate_exact_size(egui::vec2(32.0, 32.0), egui::Sense::hover());
             game::sprite(ui.painter(), r, game::Sprite::Moeda);
-            ui.colored_label(
+            game::pixel_label(
+                ui,
+                &format!("+{:.0}% RÉIS", (e.multiplier() - 1.0) * 100.0),
+                3.0,
                 game::GREEN,
-                egui::RichText::new(format!("+{:.0}% de réis", (e.multiplier() - 1.0) * 100.0))
-                    .size(23.0),
             );
-            ui.small("Teto +30% · chegadas e entregas");
+            ui.small("Bônus em chegadas e entregas · máximo +30%");
         });
         if self.demo_mode {
-            ui.colored_label(
-                game::BLUE,
-                "DEMONSTRAÇÃO · leituras simuladas, sem gerar carga",
-            );
+            ui.colored_label(game::BLUE, "DEMO · leituras simuladas");
         } else {
             ui.small("Média do último minuto · usar normalmente já basta");
         }
         let rows = [
             (
                 game::Sprite::Cpu,
-                "Caldeira · CPU",
-                format!(
-                    "+{:.0}% réis · satura em 15% de CPU",
-                    e.coin_parts[0] * 100.0
-                ),
+                "Caldeira",
+                "CPU · efeito máximo a 15% de uso",
+                format!("+{:.0}% réis", e.coin_parts[0] * 100.0),
             ),
             (
                 game::Sprite::Oficina,
-                "Foguista · entrada",
+                "Foguista",
+                "Atividade · 20 s ativos/min bastam",
                 if !self.config.use_input_activity {
                     "Desligado por você".into()
                 } else if e.quiet_march {
-                    "Marcha tranquila · só visual".into()
+                    "Marcha tranquila".into()
                 } else {
-                    format!(
-                        "+{:.0}% réis · 20 s ativos/min bastam",
-                        e.coin_parts[1] * 100.0
-                    )
+                    format!("+{:.0}% réis", e.coin_parts[1] * 100.0)
                 },
             ),
             (
                 game::Sprite::Passageiro,
-                "Plataforma · memória",
-                "Movimento de embarque · só visual".into(),
+                "Plataforma",
+                "Memória · movimento de embarque, só visual",
+                "Embarque animado".into(),
             ),
             (
                 game::Sprite::VagaoCarga,
-                "Guindaste · disco",
-                "Trabalho no pátio · só visual".into(),
+                "Guindaste",
+                "Disco · trabalho no pátio, só visual",
+                "Pátio animado".into(),
             ),
             (
                 game::Sprite::Despacho,
-                "Telégrafo · rede",
-                format!(
-                    "Fios animados · Linha viva +{:.0}% · telegramas",
-                    e.coin_parts[2] * 100.0
-                ),
+                "Telégrafo",
+                "Rede · fios animados e telegramas",
+                format!("Linha viva +{:.0}% réis", e.coin_parts[2] * 100.0),
             ),
             (
                 game::Sprite::Tanque,
-                "Tênder · energia",
+                "Tênder",
+                "Energia · carvão e água",
                 if e.low_power {
-                    "Bateria baixa · menos animação".into()
+                    "Bateria: menos animação".into()
                 } else if e.on_ac_power == Some(true) {
-                    "Na tomada · carvão e água completos".into()
+                    "Na tomada: completo".into()
                 } else {
-                    "Na bateria · ritmo normal".into()
+                    "Bateria: ritmo normal".into()
                 },
             ),
         ];
-        for (index, (sprite, title, effect)) in rows.into_iter().enumerate() {
-            egui::Frame::new()
-                .fill(game::CARD)
-                .inner_margin(3.0)
-                .show(ui, |ui| {
-                    ui.spacing_mut().item_spacing.y = 1.0;
-                    ui.spacing_mut().interact_size.y = 0.0;
-                    ui.set_width(ui.available_width());
-                    ui.horizontal(|ui| {
-                        let (r, _) =
-                            ui.allocate_exact_size(egui::vec2(32.0, 32.0), egui::Sense::hover());
-                        game::sprite(ui.painter(), r, sprite);
-                        let text_width = (ui.available_width() - 106.0).max(100.0);
-                        ui.allocate_ui_with_layout(
-                            egui::vec2(text_width, 32.0),
-                            egui::Layout::top_down(egui::Align::Min),
-                            |ui| {
-                                ui.set_width(text_width);
-                                ui.horizontal(|ui| {
-                                    ui.strong(title);
-                                    ui.label(e.gauges[index].map_or_else(
-                                        || "Sem leitura".into(),
-                                        |v| format!("{:.0}% do efeito", v * 100.0),
-                                    ));
-                                });
+        for (row_index, row) in rows.chunks(3).enumerate() {
+            ui.columns(3, |cols| {
+                for (column_index, (column, (sprite, title, hint, effect))) in
+                    cols.iter_mut().zip(row).enumerate()
+                {
+                    let index = row_index * 3 + column_index;
+                    egui::Frame::new()
+                        .fill(game::CARD)
+                        .stroke(egui::Stroke::new(2.0, game::EDGE))
+                        .inner_margin(6)
+                        .show(column, |ui| {
+                            ui.set_width(ui.available_width());
+                            ui.vertical_centered(|ui| {
+                                game::pixel_label(ui, title, 2.0, game::INK).on_hover_text(*hint);
+                                let (r, _) = ui.allocate_exact_size(
+                                    egui::Vec2::splat(64.0),
+                                    egui::Sense::hover(),
+                                );
+                                game::sprite(ui.painter(), r, *sprite);
+                                let label = e.gauges[index].map_or_else(
+                                    || "-".into(),
+                                    |v| format!("{:.0}% do efeito", v * 100.0),
+                                );
+                                game::progress(
+                                    ui,
+                                    ("machine-gauge", index),
+                                    e.gauges[index].unwrap_or(0.0),
+                                    &label,
+                                    game::GREEN,
+                                )
+                                .on_hover_text(*hint);
                                 ui.small(
                                     if e.gauges[index].is_none()
                                         && (index != 1 || self.config.use_input_activity)
                                     {
-                                        "Sem leitura · sem efeito".to_owned()
+                                        "Sem leitura · sem efeito"
                                     } else {
                                         effect
                                     },
                                 );
-                            },
-                        );
-                        ui.add(
-                            egui::ProgressBar::new(e.gauges[index].unwrap_or(0.0))
-                                .fill(game::GREEN)
-                                .desired_width(90.0)
-                                .desired_height(10.0),
-                        );
-                    });
-                });
+                            });
+                        });
+                }
+            });
+            ui.add_space(3.0);
         }
         ui.small(format!(
-            "Hodômetro: {:.0} min ativos de viagem · sem progresso offline",
+            "Hodômetro: {:.0} min ativos de viagem",
             self.world.economic_snapshot().active_seconds / 60.0
         ));
         if ui
@@ -201,8 +197,8 @@ impl CpuExpressApp {
             self.preferences_changed();
             self.update_machine();
         }
-        ui.small("Só presença de atividade; sem teclas, janelas ou histórico salvo.");
-        ui.small("As leituras da máquina não saem do computador.");
+        ui.small("As leituras da máquina não saem do computador.")
+            .on_hover_text("Só presença de atividade; sem teclas, janelas ou histórico salvo.");
     }
 
     /// Deterministic review fixtures, confined to the existing demonstration mode.
@@ -287,6 +283,7 @@ mod tests {
     #[test]
     fn six_gauges_and_dock_fit_every_machine_state() {
         let ctx = egui::Context::default();
+        ctx.enable_accesskit();
         let mut app = app(&ctx);
         for variant in 0..4 {
             app.prepare_demo_machine(variant);
@@ -306,33 +303,29 @@ mod tests {
                     .data(|d| d.get_temp::<f32>(egui::Id::unique("central-content-height")))
                     .unwrap();
                 assert!(h <= 492.1, "{variant}: height {h}");
-                fn find(shape: &egui::Shape, label: &str) -> Option<egui::Rect> {
-                    match shape {
-                        egui::Shape::Text(t) if t.galley.job.text == label => {
-                            Some(t.visual_bounding_rect())
-                        }
-                        egui::Shape::Vec(v) => v.iter().find_map(|s| find(s, label)),
-                        _ => None,
-                    }
-                }
                 for label in [
-                    "Caldeira · CPU",
-                    "Foguista · entrada",
-                    "Plataforma · memória",
-                    "Guindaste · disco",
-                    "Telégrafo · rede",
-                    "Tênder · energia",
+                    "Caldeira",
+                    "Foguista",
+                    "Plataforma",
+                    "Guindaste",
+                    "Telégrafo",
+                    "Tênder",
                     "Fechar",
                 ] {
                     let r = output
-                        .shapes
+                        .platform_output
+                        .accesskit_update
+                        .as_ref()
+                        .expect("accessible machine panel")
+                        .nodes
                         .iter()
-                        .find_map(|s| find(&s.shape, label))
+                        .find_map(|(_, node)| {
+                            ((node.label() == Some(label)) || (node.value() == Some(label)))
+                                .then(|| node.bounds())
+                                .flatten()
+                        })
                         .expect(label);
-                    assert!(
-                        r.bottom() < 676.0 && r.right() < 704.0,
-                        "{variant}: {label} {r:?}"
-                    );
+                    assert!(r.y1 < 676.0 && r.x1 < 704.0, "{variant}: {label} {r:?}");
                 }
                 output.drop_without_applying_deltas();
             }

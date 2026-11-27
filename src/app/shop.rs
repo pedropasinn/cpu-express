@@ -622,10 +622,17 @@ impl CpuExpressApp {
                     egui::Frame::new()
                         .fill(game::CARD)
                         .stroke(egui::Stroke::new(4.0, color))
-                        .inner_margin(5)
+                        .inner_margin(3)
                         .show(col, |ui| {
+                            ui.spacing_mut().item_spacing.y = 3.0;
                             ui.set_min_width(ui.available_width());
-                            game::pixel_label(ui, name, 1.5, color);
+                            egui::Frame::new()
+                                .fill(color)
+                                .inner_margin(2)
+                                .show(ui, |ui| {
+                                    ui.set_width(ui.available_width());
+                                    game::pixel_label(ui, name, 1.5, game::CREAM);
+                                });
                             ui.vertical_centered(|ui| {
                                 let texture = self.item_texture(item);
                                 let size = texture.size_vec2();
@@ -642,8 +649,10 @@ impl CpuExpressApp {
                             });
                             ui.add(egui::Label::new(item_name(item)).truncate())
                                 .on_hover_text(item_name(item));
-                            let label = if buying {
-                                format!("Comprar · {} réis", rarity.direct_price())
+                            let label = if buying && owned {
+                                "Possuído".into()
+                            } else if buying {
+                                format!("{} réis", rarity.direct_price())
                             } else if owned {
                                 "Ver no trem".into()
                             } else {
@@ -1391,7 +1400,7 @@ mod tests {
         let path = directory().join("journey.json");
         app.progress_path = Some(path.clone());
         let before = app.world.economy().balance;
-        click(&mut app, &ctx, "Comprar · 240 réis");
+        click(&mut app, &ctx, "240 réis");
         let item = app.shop.direct_result.clone().unwrap();
         assert_eq!(app.world.economy().balance, before - 240);
         assert!(app.world.economy().owns(&item));
